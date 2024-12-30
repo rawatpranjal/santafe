@@ -1,0 +1,1466 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{Algorithmic Learning in Double Auctions}
+
+\begin{document}
+
+\section{Algorithmic Learning in Double Auctions}
+
+The double auction, where sellers place asks, and buyers place bids forms the bedrock of modern financial and economic markets. Recent developments in artificial intelligence suggest that it is possible for bots to learn to trade fairly successfully in double auctions. Much more ambitiously, it is suggested that AI can take the place of human participants in the marketplace. I propose to test the limits of this claim seriously. 
+
+First, I want to study how well self-learning algorithms can improve on simple trading rules in the double auction. The metric for success is the average return and volatility of return, across a fixed trading horizon, against a variety of opponents/algorithms. I propose to test Deep Q-Learning Networks (DQN) since they have demonstrated remarkable success on many games and controlled simulations of real-world problems. In 1993, Rust and his coauthors found that sophisticated algorithms cannot beat simple trading rules. In this research study, I propose to allow DQN agents to play millions of games against a variety of opponents to see if they are able to improve on simple trading rules. An important extension would be to extend the results to one with multiple tradable items in the portfolio. 
+
+Secondly, once I have established that DQN agents can learn to trade just as well as humans, I want to study how the learning of one DQN agent can interfere with that of other agents, i.e., in a situation of multi-agent learning. In this study, I will see what kinds of market design and information availability are critical to allow multi-agent learning to arrive at market efficiency. The outcomes can be compared against quantities and prices that would clear the market instantly. We can also test if prices become martingales i.e. random walks, assuring that historical data is no longer exploitable and all information is compounded into prices. The design rules would consist of rules regarding payment, fees, reserve prices, etc. I will also see the effect of different information (offers unaccepted and accepted, timing of the offers, etc.) on the market outcomes. I will use a fully randomized trial to obtain inference. 
+
+Thirdly, once I have demonstrated that DQN agents can learn to trade just as well as humans and found the right kind of market design for this, I want to test if market design can itself be delegated to AI. This would involve studying the ability of a regulator DQN agent which experiments with different market rules over time. The main question here is whether this agent can successfully improve on the market design found in phase two of this research program. The regulator DQN can be allowed to change payment rules, fees, reserve prices, volume limits, etc. 
+
+Lastly, to answer the above questions about multi-agent learning I need to train multiple DQN agents through a process of experimentation and exploitation. Initially the DQN agents would explore a lot and settle into their preffered strategies. But it is also an important question about what kind of strategies are evolutionarily stable. To do so, we need to observe DQN agents conducting limited exploration over a much longer time frame i.e. millions of repeated games. The key question is: do the agents converge on some strategies and never deviate? or do they cycle between sets of strategies (each mutually best)? Do agents take on the role of certain ``types" of traders, commonly seen in financial markets i.e. chartists and fundamentalists? 
+
+The answers to these questions will determine whether AI is capable of replacing humans as traders and regulators in financial markets.
+
+
+
+
+
+
+
+
+\end{document}
+
+
+\documentclass[10pt]{beamer}
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+\usepackage{appendixnumberbeamer}
+\usepackage[svgnames,table]{xcolor}% note the table option
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+\usepackage{adjustbox}
+\usepackage{pifont}
+\usepackage{soul}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+\usepackage{xspace}
+\usepackage{tabularx}
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+
+\title{\large Reinforcement Learning in Trading Games: The Effect of Information on Performance}
+\date{\today}
+\author{Pranjal Rawat}
+\institute{Georgetown University}
+\usebackgroundtemplate
+{
+    \tikz\node[opacity=0.9]{\includegraphics[height=\paperheight, width=\paperwidth]{figures/logo.png}};
+}
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\begin{frame}{Research Questions}
+In the context of \textbf{reinforcement learning} in \textbf{dynamic double auctions}: 
+    \begin{itemize}
+        \item Does more information disclosure lead to better individual performance? 
+        \item Does it lead to better market performance? 
+        \item Even revealing participant identities? 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Research Methodology}
+
+Hence we searching for \textbf{learning-robust market designs}. However, it is difficult to develop them theoretically:
+    \begin{itemize}
+        \item Bayesian Nash equilibria of dynamic double auctions is not fully understood (Wilson 1987 is the only example).
+        \item Simple algorithms (e.g. Q-learning) cannot parse high dimensional information. 
+        \item Complex algorithms (e.g. VPG, DQN) that can do so, involve intractable mathematical operations. 
+    \end{itemize}
+Hence, I utilize \textbf{Experiments}.
+\end{frame}
+
+\begin{frame}{Trading Game}
+
+Traders' Goal: Maximize total profits in round!
+
+$ Round \rightarrow Period \rightarrow Step \rightarrow \text{Bid/ask and Buy/Sell}$
+\begin{itemize}
+    \item Round: $nbuyers, nsellers, nperiods, nsteps, ntokens$ 
+    \item Period: $tokenValues \sim Normal(K_1, K_2)$ 
+    \item Step: 
+    \begin{itemize}
+        \item Bid/Ask Step: $(bid1,bid2,...), (ask1,ask2...) \rightarrow current bid, current ask$
+        \item Buy/Sell Step: $buy, sell, price, buyer profit, seller profit$
+        \item Price mechanism: average of current bid and current ask
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Information and Performance}
+\begin{columns}[T]
+\begin{column}{0.33\textwidth} % Adjust the width as needed
+\centering
+\textbf{Information Set $\mathbf{\Omega}$ available to trader:}
+\begin{itemize}
+    \item Internal - Time Step, No. of Sales made
+    \item Activity - Current bid, current ask, transaction price
+    \item Identities - individual bids and asks
+\end{itemize}
+\end{column}
+\begin{column}{0.33\textwidth} % Adjust the width as needed
+\centering
+\textbf{Individual Performance:}
+\begin{itemize}
+    \item Final Profitability Post Learning
+    \item Speed of Learning
+    \item Convergence Guarantees
+\end{itemize}
+\end{column}
+\begin{column}{0.33\textwidth} % Adjust the width as needed
+\centering
+\textbf{Market \\ Performance:}
+\begin{itemize}
+    \item Convergence to Theoretical Equilibrium
+    \item Likelihood of Algorithmic Collusion
+    \item Volatility
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Research Contribution}
+Current algorithmic collusion literature does not consider:   
+\begin{itemize}
+    \item The role of \textbf{high-dimensional} information sets.
+    \item Multi-period or \textbf{Episodic} games
+    \item \textbf{Policy gradient} algorithms for \textbf{continuous} action spaces.
+    \item Embedding \textbf{domain expertise} into learning algorithms.
+\end{itemize}
+This paper will focus primarily on first three aspects. 
+\end{frame}
+
+\section{Literature}
+
+
+
+\begin{frame}{Empirical Developments}
+Two important developments: 
+    \begin{itemize}
+        \item Emergence of fully computerized real-time auctions
+            \begin{itemize}
+                \item Energy - Electricity, Natural Gas
+                \item Advertising - Sponsered Search, Display Advertising
+                \item Financial - NYSE, Chicago Ex, Forex, Cryptocurrencies
+            \end{itemize}
+        \item Critical breakthroughs in reinforcement learning algorithms:
+        \begin{itemize}
+            \item Chess, Go, Starcraft, Atari, Self-driving Cars, Robotics, MuJoCo
+        \end{itemize}
+        \end{itemize}
+\end{frame}
+
+\begin{frame}{Algorithmic Collusion}
+    A few experiments with reinforcement learning show \textbf{algorithmic collusion} and \textbf{market inefficiency}: 
+  \begin{table}[ht]
+    \centering
+    \begin{tabular}{ll}
+        \textbf{Market} & \textbf{Reference} \\
+        \midrule
+        \multirow{One-sided Auction} & Banchio-Skrzypacz (2021) \\
+        \midrule
+        \multirow{Electricity Auction} & Tellidou-Bakirtzis (2006) \\
+        \midrule
+        \multirow{Bertrand Oligopoly} & Calvano et al., (2020) \\
+        \midrule
+        \multirow{Cournot Oligopoly} & Waltman-Kaymak (2008) \\
+        \midrule
+        \multirow{Platform} & Johnson et al., (2020) \\
+    \end{tabular}
+    \label{tab:case_studies}
+\end{table}
+\end{frame}
+
+\begin{frame}{Double Auctions - Theory}
+The most important theoretical insights on double auctions:  
+\begin{itemize}
+\item Uncertainty regarding the valuations of others leads to ``bluffing," which in turn inevitably results in market inefficiency (Myerson-Satterthwaite 1983).
+\item As the number of traders increases, honesty becomes almost a dominant strategy and inefficiency rapidly diminishes (Sattettbwaite-Williams 1989).
+\item In dynamic auctions, beliefs regarding opponents determine actions. Actions in previous rounds, update beliefs. Wilson 1987 provides a 'waiting-game-with-Dutch-auction'. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Double Auctions - Experiments}
+The most important experimental insights on double auctions:  
+\begin{itemize}
+\item Efficiency in double auctions is surprisingly high; even with unintelligent strategies (Smith et al., 1984; Gode-Sunder, 1993).
+\item Difficult for humans to write adaptive programs that can outperform simple rule-of-thumb strategies (Rust et al., 1992, 1993).
+\item Algorithms that can parse high dimensional information, will, with enough training data, beat simple strategies (Chen et al., 2010). 
+\end{itemize}
+\end{frame}
+
+\section{Policy Gradient Algorithms}
+
+\begin{frame}{Notation - I}
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{@{}>{\raggedright}p{0.6\linewidth}X@{}}
+\toprule
+\textbf{Notation} & \textbf{Definition} \\
+\midrule
+$s \in \mathbb{S}$ & State \\
+$a \in \mathbb{A}$ & Action \\
+$r \in \mathbb{R}$ & Reward \\
+$\gamma \in (0,1)$ & Discount Factor \\
+$r = R(a,s)$ & Reward function \\
+$s' = g(a,s)$ & Transition function \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\end{frame}
+
+\begin{frame}{Notation - II}
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{@{}>{\raggedright}p{0.6\linewidth}X@{}}
+\toprule
+\textbf{Notation} & \textbf{Definition} \\
+\midrule
+$\pi(a|s) = \mathbb{P}(a_t = a|s_t = s)$ & Policy / Strategy \\
+$s_t, a_t, r_t, s_{t+1}.... $ & Trajectory\\
+$G^{\pi}(s_t) = \sum_{k=0} \gamma ^ \tau r_{t+k} $ & Return \\
+$V^{\pi}(s) = E[G^{\pi}(s_t) | s_t = s]$ & Value \\
+$Q^{\pi}(s, a) = E[G^{\pi}(s_t) | s_t=s,a_t=a]$ & Quality \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\end{frame}
+
+
+\begin{frame}{Dynamic Programming}
+    \begin{align*}
+        \forall s, V^{\pi}(s) &\leftarrow \max_{a \in \mathbb{A}} \left[r + \gamma V^{\pi}(s') \right] \\
+        &\text{where} \quad r = R(s,a), \quad s' = g(s,a).
+    \end{align*}
+    
+Limitations:
+\begin{itemize}
+        \item $s, a$ must be low dimensional
+        \item $R, g$ must be known and unchanging
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Approximate Dynamic Programming}
+    \begin{align*}
+        \hat{V}^{\pi}(s_t) &\leftarrow \max_{a \in \underline{\mathbb{A}}} \sum_i \left[r_{i,t} + \gamma \hat{V}^{\pi}(s_{i,t+1};\theta)\right] \\
+        &\text{where} \quad r = R(s,a), \quad s' = g(s,a).
+    \end{align*}
+
+Three approximations:
+\begin{itemize}
+        \item Expectation approximation: $E$ replaced with $\sum$
+        \item Function approximation: $V$ replaced with $\hat{V}(;\theta)$
+        \item Action Set Approximation: $\underline{\mathbb{A}}$ smaller than $\mathbb{A}$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Reinforcement Learning}
+    \begin{align*}
+        \hat{V}^{\pi}(s_t) &\leftarrow (1-\alpha) \hat{V}^{\pi}(s_t) + \alpha \left[r_t + \gamma \hat{V}^{\pi}(s_{t+1})\right] \\
+        &\text{where} \quad r_t, s_{t+1} \sim \tilde{\pi}(a_t|s_t) \\
+        &\text{and} \quad \alpha \in (0,1).
+    \end{align*}
+    
+Key Innovations:
+\begin{itemize}
+        \item \textbf{Model-free}: Generate $r_t, s_{t+1}$ through interaction with environment.
+        \item \textbf{Online}: Value updated on every interaction.
+        \item \textbf{Non-Greedy}: Actions taken delinked from $\hat{V}$ i.e. $\tilde{\pi} \not = \pi$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Comparison}
+Comparing methods for sequential decision making:  
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{*{4}{>{\centering\arraybackslash}X}}
+\toprule
+\textbf{Criteria} & \textbf{DP} & \textbf{ADP} & \textbf{RL} \\
+\midrule
+Solution & Exact & Approx & Approx \\
+Model & Yes & Yes & \hl{No} \\
+Updates & Offline & Offline/Online & Online \\
+Dimensionality & Low & Moderate & \hl{High} \\
+Policies & Greedy & Greedy & \hl{Non-Greedy} \\
+Functions & Tabular & Linear/Nonlinear & Neural Nets \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\end{frame}
+
+\begin{frame}{Value-Based RL}
+\begin{itemize}
+    \item Generalization via \textbf{Value Networks}: $\hat{V}(s;\theta)$ helps generalize to unseen states.
+        \begin{itemize}
+            \item $L(\theta) = \sum_i \left[\hat{V}(s_i;\theta)- r_i - \gamma \hat{V}(s'_i;\theta)\right]^2$
+            \item $\theta \leftarrow \theta - \alpha * L'(\theta)$ (Gradient Descent)
+        \end{itemize}
+    \item Eliminating correlations in training data via \textbf{Experience Replay}: $(s_i,a_i,r_i,s'_i)$ sampled randomly from memory.
+    \item Stabilization via \textbf{Target Networks}: Separately trained and slow-changing $\tilde{V}$ used to generate Bellman target. 
+    \item Continous Actions via \textbf{Policy Networks}: $\hat{a} = \hat{\pi}(s;\theta)$ to predict best action given $\hat{V}(s;\theta)$.
+    \item \textbf{Entropy Maximization}: The entropy of policy $H(\pi)$ added to the objective, to explicitly promote diversity of actions.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Demo}
+
+``Reinforcement Learning is Dynamic Programming on Steroids" 
+
+Application to Robotics: \href{https://www.youtube.com/watch?v=n2gE7n11h1Y}{\textbf{Demo}}.
+\end{frame}
+
+\section{Individual Performance}
+
+\begin{frame}{Setup}
+\begin{itemize}
+    \item Reinforcer
+        \begin{itemize}
+            \item State $s_t \in \{(0,0),(0,1)...(10,3),(10,4)\}$ is timestep and sales made.
+            \item Bid $a_t \in [tokenValue*0.1, tokenValue]$
+        \end{itemize}
+    \item Opponents (ZeroIntelligence): 
+        \begin{itemize}
+            \item Buyer $a_t \in [tokenValue*0.1,tokenValue]$
+            \item Seller $a_t \in [tokenValue,tokenValue*2.0]$
+        \end{itemize}
+    \item Environment: 
+    \begin{itemize}
+        \item Buyers: 4
+        \item Sellers: 4
+        \item Tokens: 4
+        \item Time Steps: 10
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Token Values}
+
+Buyers:
+\begin{bmatrix}
+\colorbox{yellow}{85.82} & \colorbox{yellow}{81.73} & \colorbox{yellow}{81.63} & \colorbox{yellow}{77.99} \\
+86.00 & 81.76 & 77.79 & 77.22 \\
+83.25 & 78.75 & 77.93 & 77.73 \\
+81.78 & 76.72 & 71.10 & 70.44
+\end{bmatrix}
+
+Sellers:
+\begin{bmatrix}
+42.85 & 45.55 & 45.88 & 51.95 \\
+40.62 & 47.08 & 48.26 & 56.11 \\
+42.80 & 46.69 & 49.40 & 50.25 \\
+47.07 & 47.93 & 48.91 & 59.16
+\end{bmatrix}
+\end{frame}
+
+\begin{frame}
+\frametitle{Simple Algorithms}
+
+Q-learning:
+
+$$Q(s, a) \leftarrow Q(s, a) + \alpha \left[ r + \gamma \max_a Q(s', a) - Q(s, a) \right]$$
+
+$\epsilon$-greedy exploration: Actions are taken greedily with probability $1-\epsilon$ and randomly with $\epsilon$; and $\epsilon$ is gradually reduced from 1.0 to 0.0. 
+
+\end{frame}
+
+\begin{frame}{Learning Curve}
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/ql.png}
+\end{figure}
+\end{frame}
+
+\begin{table}
+    \centering
+    \caption{Comparison of bprofit for Different Data Sources}
+    \begin{tabular}{ccc}
+        \toprule
+        \textbf{Bidder} & \textbf{Profit Before} & \textbf{Profit After} \\
+        \midrule
+        0 & 2943.47 & 3824.18 \\
+        1 & 2690.81 & 2441.31 \\
+        2 & 2051.33 & 1720.36 \\
+        3 & 1592.88 & 1401.50 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{frame}{Issues}
+Q-learning and SARSA
+\begin{itemize}
+    \item Slow - update state-action value one by one
+    \item Low dimensional states only
+    \item Discrete Actions 
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Period 7129: Transactions}
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/ppo_trans.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Period 7129: Activity Log}
+\begin{itemize}
+    \item Narrow wins at step 0, 3 and 4! (Maximal profit) 
+    \item One token even left unsold!
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/ppo-log.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Period 7129: Offers}
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/ppo_offer_7129.png}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}{Period 2000: Offers}
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth, trim=10pt 10pt 10pt 50pt, clip]{figures/ppo_offer_2000.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Conclusion - I}
+Deep reinforcement learning can perform well against simple opponents in complex dynamic strategic games. 
+
+Caveat: With sufficient training time. 
+\end{frame}
+
+\section{Multi-Agent Learning}
+
+\begin{frame}{Experiment 1}
+\begin{itemize}
+    \item 2 bidders learn, while 6 sellers ask honestly.
+    \item 4 tokens each, 16 timesteps
+    \item Four information sets (with state size): 
+    \begin{itemize}
+        \item[1] Environmental Only (5)
+        \item[2] Environmental + Transactional (7)
+        \item[3] Environmental + Transactional + Activity Log (19)
+        \item[4] Environmental + Transactional + Activity Log + Identities (43)
+    \end{itemize}
+    \item 150 Trials with 400 episodes each.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Avg Buyer Profit}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/1.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Std Buyer Profit}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/2.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Max Buyer Profit}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/3.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Conclusion - II}
+Having access to a wider set of information, might prevent collusion and reduce volatility.
+
+Why? (Inverted-U Conjecture)
+\begin{itemize}
+    \item Cooperation is discovered through exploration. With few states, it is very likely that the same state pairs are reached repeatedly; this permits reinforcement.
+    \item With large states, it is unlikely that those state pairs will be reached again - thus making it harder to reinforce cooperation. 
+    \item With an extremely large state, learning is slow and exploration ends before defection is seen as better.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Example III: Limited Information}
+\colorbox{yellow}{Both Bidders and sellers are DRL.}
+
+\colorbox{yellow}{State $s_t \in \mathbb{R}^{1}$ contains information only about timestep.} 
+
+Theoretical eqbm price: 74.5
+
+Buyers:
+\begin{bmatrix}
+  91.5 & 91.2 & 86.5 & 82.2 & 78.6 & 76.6 & 53.5 & 16.3 \\
+  95.9 & 89.2 & 79.7 & 78.0 & 75.8 & 74.0 & 61.0 & 26.3 \\
+\end{bmatrix}
+
+Sellers:
+\begin{bmatrix}
+  18.9 & 40.0 & 54.1 & 56.9 & 91.0 & 100.1 & 102.6 & 103.9 \\
+  29.7 & 35.5 & 45.0 & 51.4 & 59.4 & 65.2 & 70.1 & 75.3 \\
+\end{bmatrix}
+\end{frame}
+
+\begin{frame}{Period 49}
+Collusion!
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/result3.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Conclusion - 2}
+ Algorithms can not only collude, but also be vulnerable to collusion. 
+ 
+ Double auctions are efficient with random play and humans, but can be inefficient with ``super-human" algorithms. 
+ \end{frame}
+
+\begin{frame}{Example IV: More Information}
+Both Bidders and sellers are DRL.
+
+\colorbox{yellow}{State $s_t \in \mathbb{R}^{13}$ is a one period activity log} 
+
+Theoretical eqbm price: 47.6
+
+Buyers:
+\begin{bmatrix}
+  91.5 & 91.2 & 86.5 & 82.2 & 78.6 & 76.6 & 53.5 & 16.3 \\
+  95.9 & 89.2 & 79.7 & 78.0 & 75.8 & 74.0 & 61.0 & 26.3 \\
+\end{bmatrix}
+
+Sellers:
+\begin{bmatrix}
+  18.9 & 40.0 & 54.1 & 56.9 & 91.0 & 100.1 & 102.6 & 103.9 \\
+  29.7 & 35.5 & 45.0 & 51.4 & 59.4 & 65.2 & 70.1 & 75.3 \\
+\end{bmatrix}
+\end{frame}
+
+\begin{frame}{Period 49}
+Truthtelling!
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/result4.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Period 49}
+Truthtelling!
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/result5.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Conclusions}
+\begin{itemize}
+    \item[1] Deep reinforcement learning can perform well against simple opponents in complex dynamic strategic games. 
+    \item[2] Algorithms can not only collude, but also be vulnerable to collusion. 
+    \item[3] Double auctions are generally efficient with random play and humans, but can be inefficient with ``super-human" algorithms. 
+    \item[4] Adapting information disclosures and pricing mechanisms can improve market efficiency.  
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Limitations of Reinforcement Learning}
+\begin{itemize}
+    \item Sample Inefficiency - model-free RL is slow and needs lots of training to perform simple tasks.
+    \item Poor Generalizability - RL overfits to the environment you train to, and does not transfer to even slightly different environments. 
+    \item Exploration is Costly - making mistakes in live industry environments is expensive and costly. 
+    \item Ignores Expertise - while experimentation can discover novel insights, completely ignoring years of human domain expertise makes RL brittle and slow. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Next Steps..}
+\begin{itemize}
+    \item Fully randomized experiment to estimate the precise impact of information disclosures and pricing mechanism on market efficiency. 
+    \item Find which environmental and algorithmic factors cause market inefficiency.
+    \item Explore how effect of auction design interacts with other factors - environmental and algorithmic. 
+    \item Zoom into the learning process and answer when and how does inefficiency arise.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{References}
+\begin{itemize}
+    \item \small \textbf{Game theoretic}: Chatterjee-Samuelson (1983), Myerson-Satterthwaite (1983), Sobel-Takahashi (1983), Sattettbwaite-Williams (1989), Wilson (1987), Bulow-Klemperer (1994, 1996), Pesendorfer-Swinkels (1997, 2000), Cripps-Swinkels (2006), Satterthwaite et al., (2022). 
+    \item \small \textbf{Experimental}: Chamberlain (1948), Smith et al., (1962, 1984), Williams et al., (1982, 1988, 1989), Gode-Sunder (1993), Rust et al. (1992,1993), Tesauro et al. (2001), Porter-Smith (2003), Chen et al., (2010), Attanasi et al. (2014), Loertscher et al., (2015). 
+    \item \small \textbf{Reinforcement Learning}: Watkins and Dayan (1992), Sutton and Barto (1998), Littman (1994), Mnih et al. (2015, 2016), Brockman et al., (2016), Schulman et al., (2017), Silver et al. (2018), Lillicrap et al., (2019). 
+\end{itemize}
+\end{frame}
+
+
+\documentclass[10pt]{beamer}
+\usetheme[progressbar=frametitle]{metropolis}
+\usepackage{array}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes.geometric, arrows}
+\usepackage{titletoc}
+\usepackage{algorithm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=red!30]
+\usepackage{tcolorbox}
+
+\tikzstyle{io} = [trapezium, trapezium stretches=true, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, text width=3cm, draw=black, fill=orange!30]
+
+\tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+
+\usepackage{appendixnumberbeamer}
+\usepackage[svgnames,table]{xcolor}% note the table option
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+\usepackage{adjustbox}
+\usepackage{pifont}
+\usepackage{soul}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+\usepackage{xspace}
+\usepackage{tabularx}
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+\usepackage{colortbl}
+\usepackage{xcolor}
+
+\title{Reinforcement Learning and Double Auctions}
+\subtitle{Performance, Strategies, and Market Design}
+\date{\today}
+\author{Pranjal Rawat}
+\institute{Georgetown University}
+\usebackgroundtemplate
+{
+    \tikz\node[opacity=0.9]{\includegraphics[height=\paperheight, width=\paperwidth]{figures/logo.png}};
+}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\begin{frame}
+  \frametitle{Findings}
+  I conduct experiments with reinforcement learning (RL) in dynamic double auctions (DA): 
+    \begin{itemize}
+    \item Reinforcement learning can outperform simple trading rules.
+    \item Reinforcer competition is efficient and prices are stable.
+    \item Prices do not show quick reversals or corrections.
+    \item There is no fight to hold the current bid (ask). 
+    \end{itemize}
+However, 
+\begin{itemize}
+    \item Reinforcers can learn to collude, but can also be vulnerable to it. 
+    \item Increasing disclosures can, paradoxically, worsen market outcomes.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Research Outline}
+  \small
+  \begin{itemize}
+    \item Motivation:
+    \begin{itemize}
+      \item Breakthrough in learning algorithms for dynamic problems, especially with high dimensional states and granular action spaces.  
+      \item Rise of high frequency, computerized markets driven by algorithms not humans; in sectors like finance, advertising, energy, e-commerce.
+    \end{itemize}
+    \item Questions: 
+    \begin{itemize}
+      \item How well can reinforcement learning perform in double auctions? 
+      \item How do we design auctions when traders use reinforcement learning? 
+    \end{itemize}
+    \item Directions: 
+    \begin{itemize}
+      \item Experimental study of the Santa Fe double auction tournament.
+      \item Monte Carlos with Q-learning and one-sided auctions.
+      \item Study of Q-learning's replicator dynamic and mean field game. 
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Literature}
+Experiments with discrete or continuous double auctions: 
+\vspace{-\baselineskip}
+\begin{table}
+\small
+\centering
+\definecolor{tablegray}{RGB}{240,240,240} % Define a subtle gray color
+\begin{tabular}{|m{1.75cm}|m{4cm}|m{4cm}|}
+\hline
+\cellcolor{tablegray}\textbf{Period} & \cellcolor{tablegray}\textbf{Authors} & \cellcolor{tablegray}\textbf{Research Focus} \\
+\hline
+\cellcolor{tablegray}1960-1990 & \cellcolor{tablegray} \href{}{Smith}, Williams, Porter & 
+\cellcolor{tablegray} \textbullet~~Human Behaviour \newline \textbullet~~Efficiency \\
+\hline
+\cellcolor{tablegray}1980-2010 & \cellcolor{tablegray} Easley, Ledyard, Gode, \newline Sunder, Rust, Friedman, \newline Dickhaut, Gerstaud, \newline Cliff, Tesuaro, Das & 
+\cellcolor{tablegray} \textbullet~~Strategies \newline \textbullet ~~Performance \newline \textbullet~~Price Formation  \\
+\hline
+\cellcolor{tablegray}2000-2025 & \cellcolor{tablegray} Andrews, Prager, Wellman, Hu, Tesfatsion, Chen, Tai & 
+\cellcolor{tablegray} \textbullet~~Learning and Evolution \newline \textbullet~~Evolutionary Stability \\
+\hline
+\end{tabular}
+\end{table}
+Theory: Chatterjee-Samuleson (1983), Myerson-Satterthwaite (1983), Wilson (1987), Satterthwaite-Williams (1989).
+\end{frame}
+
+\section{Synchronized Double Auction}
+
+\begin{frame}{Rules}
+Santa Fe Discrete DA: {\tiny(\href{}{Rust, Palmer, Friedman 1992/1993})}. 
+
+Round $\Rightarrow$ Period $\Rightarrow$ Step
+\begin{itemize}
+    \item Round: Draw Token Values / Costs
+    \item Period: Replenish Tokens
+    \item Trading Step:
+    \begin{itemize}
+        \item Bid and Ask
+        \item Buy and Sell
+        \begin{itemize}
+            \item Price: (Bid + Ask)/2
+            \item Seller Reward: Price - TokenCost
+            \item Buyer Reward: TokenValue - Price
+        \end{itemize}
+    \end{itemize}
+    \end{itemize}
+    \item Game Parameters: $nRounds, nPeriods, nSteps, nTokens, nBuyers, nSellers$ 
+\end{frame}
+
+\begin{frame}{Token Values}
+Tokens values (costs) are randomly generated for buyers (sellers). 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.55\linewidth]{figures/ds.png} 
+    \label{fig:sample}
+\end{figure}
+Gives us market demand and supply, and market clearing prices.
+\end{frame}
+
+\begin{frame}{Trading Strategies}
+To benchmark reinforcement learning performance, I use the following trading strategies as opponents: 
+\begin{itemize}
+    \item Zero-Intelligence Constrainted (ZIC) - bids randomly while respecting a budget. {\tiny (Gode and Sunder 1993)}
+    \item Easley-Ledyard (EL) - human-like bluffing at first, then adjusts profit margin according to performance. {\tiny (Easley and Ledyard 1983)}
+    \item Zero-Intelligence Plus (ZIP) - bids randomly in the range of an adjustable profit margin. {\tiny (Cliff and Bruten 1997)} 
+    \item Gjerstad-Dickhaut (GD) - forecasts winning bids and bids if profit is maximized. {\tiny(Gjerstad and Dickhaut 1998)} 
+    \item Kaplan-Ringouette (KR) - does not bid until the bid-ask gap closes, then jumps in and steals the deal. {\tiny(Rust, Palmer, Friedman 1992/1993)} 
+    \end{itemize}
+\end{frame}
+
+\section{Reinforcement Learning}
+\begin{frame}{Notation}
+    \begin{table}[h]
+        \centering
+        \begin{tabularx}{\textwidth}{>{\raggedright}p{0.4\linewidth}X}
+            \toprule
+            \textbf{Variables} & \textbf{Functions} \\
+            \midrule
+            State: $s \in \mathbb{R}^N$ & Round: $\tau = (s_0, a_1, r_1,....a_{T}, r_{T}, s_{T})$ \\
+            Action\footnote{Are linked to bids (asks) by normalization $frac = (a+1)/2$ \newline $\text{bid} = \text{bid}_{\text{min}}frac + \text{bid}_{\text{max}}(1 - frac)$}: $a \in [-1,1]$ & Policy: $\pi_{\theta}(a|s) = \mathbb{P}(a_t = a|s_t = s; \theta)$  \\
+            Reward: $r \in \mathbb{R}$ & Return: $G(\tau) = \sum_{t=0}^{T} \gamma^t r_{t}$  \\
+            Discounting: $\gamma \in (0,1)$ & Exp. Return: $J^{\pi} = E_{\tau \sim \pi}[G(\tau)]$ \\
+            \bottomrule
+        \end{tabularx}
+    \end{table}
+\end{frame}
+
+\begin{frame}{Policies $\pi(a|s;\theta)$}
+Policies are parametrized through neural networks: $a_t \sim \mathbb{N}(\mu(s_t;\theta),\sigma)$
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/nn.png} 
+    \label{fig:sample}
+\end{figure}
+This permits \textit{continuous stochastic actions} and \textit{high dimensional states}. 
+\end{frame}
+
+\begin{frame}
+\frametitle{Algorithm}
+REINFORCE is a popular policy gradient algorithm. {\tiny (Williams 1992)} 
+\begin{itemize}
+    \item \textbf{Objective}: Improve policy $\pi_{\theta}$.
+    \item While not converged, do: 
+    \begin{itemize}
+        \item Create dataset of rounds $\mathbb{D}$ using $\pi_{\theta}$
+        \item Compute return: $G(\tau)$ for $\tau$ in $\mathbb{D}$
+        \item Backpropagation: $\frac{d\mu(s_t;\theta)}{d\theta}$
+        \item Compute log-probability gradient: $\frac{d\log(\pi_{\theta}(a_t|s_t))}{d\theta}$
+        \item Compute policy gradient: $$\frac{dJ(\theta)}{d\theta} = |\mathbb{D}|^{-1} \sum_{\mathbb{D}}[\sum_{t=0}^{T-1} \frac{d\log \pi_{\theta}(a_t|s_t)}{d\theta} G(\tau)] $$
+        \item Update policy parameters: $\theta \leftarrow \theta + \alpha \frac{dJ(\theta)}{d\theta}$
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\section{Experiments}
+\begin{frame}
+\frametitle{Experimental Design}
+A standard series of experiments:
+\begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+        \textbf{Single Agent RL:}
+        \begin{tabular}{l}
+            A1: Baseline \\
+            A2: vs Particular Trading Strategy \\
+        \end{tabular}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+        \textbf{Multi-Agent RL (Main):}
+        \begin{tabular}{l}
+            B1: Baseline \\
+            B2: Inelastic Supply \\
+            B3: Few Buyers \\ 
+            B4: Single Token Only \\
+            B5: Non-Random Tokens \\
+            B6: High Discount Factor \\
+            B7: Reduced Disclosures \\
+            B8: Zero Disclosures \\
+            B9: Conditional Disclosures \\
+            B10: Second-Price DA \\
+            B11: NYSE Rule \\
+            B12: Offer Fees \\
+            B13: Reserve Prices
+        \end{tabular}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Measuring Performance}
+Performance is measured across Rounds, not Periods or Steps. 
+\begin{tcolorbox}[colback=blue!10, left, colframe=blue!50!black, title=Individual Performance]
+\begin{itemize}
+    \item Avg. Profit in last 100 rounds
+    \item Std. Profit in last 100 rounds
+    \item Speed of Learning
+\end{itemize}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=blue!10, left, colframe=blue!50!black, title=Market Performance]
+\begin{itemize}
+    \item Efficiency: fraction of total possible surplus obtained. 
+    \item Price Dispersion around Market Clearing Prices
+    \item Speed of Convergence of Prices to Clearing Levels
+\end{itemize}
+\end{tcolorbox}
+\end{frame}
+
+\begin{frame}
+\frametitle{Game Parameters}
+These parameters stay fixed in all experiments. 
+\begin{itemize}
+    \item $nRounds$: 5,000
+    \item $nPeriods$: 1
+    \item $nSteps$: 16
+    \item $nTokens$: 4
+    \item $nBuyers$: 4
+    \item $nSellers$: 4
+\end{itemize}
+Token values are drawn from a fixed distribution (normal).
+\end{frame}
+
+\begin{frame}
+\frametitle{Experiment I - Single Agent RL}
+Buyer 1 and Seller 1 are Reinforcers, rest are ZIC. \textbf{There are no public disclosures}. We look at average profit over 100 rounds. 
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{figures/A1.png}
+\end{figure}
+The reinforcers, with minimal information, outsmart the ZIC agents. 
+\end{frame}
+
+\begin{frame}
+\frametitle{Experiment I - Single Agent RL}
+Prices are volatile but neither side seems to enjoy market power. 
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/A2.png}
+  \caption{Red (Bids), Blue (Asks), Black (Prices)}
+\end{figure}
+Unlike ZIC agents, reinforcers are able to bid close to prices. 
+\end{frame}
+
+\begin{frame}
+\frametitle{Experiment II - Multi-Agent RL (No Disclosure)}
+All agents are reinforcers, there are \textbf{no public disclosures}.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/A4.png}
+\end{figure}
+Prices are not volatile, and efficiency is very high - but there is noticeable buyer power. Offers are also closer together. 
+\end{frame}
+
+\begin{frame}
+\frametitle{Experiment III - Multi-Agent RL (Full Disclosure)}
+All agents are reinforcers, there is \textbf{full public disclosure}.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/A6.png}
+\end{figure}
+Prices continue to be less volatile and efficiency remains high, but buyer power is pronounced. Red (Bids), Blue (Asks), Black (Prices).
+\end{frame}
+
+\begin{frame}
+\frametitle{Summary of Experimental Results}
+\scriptsize
+\begin{tabular}{ | m{1.75cm} | m{1.25cm}| m{1.25cm} |m{1.25cm} |m{1.25cm}|m{1.25cm}| } 
+  \hline
+  Criterion & Humans Only\footnote{Gode and Sunder 1993, Cason and Friedman 1996.} & ZIC Only  & Single-RL (1B,1S) & Multi-RL (No Disc) & Multi-RL (Full Disc)\\ 
+  \hline
+  Efficiency as \% of realized vs possible & Higher than ZIC & 98.7 (0.02) & 98.6 (0.02) & 99.4 (0.01) & 0.99 (0.06)  \\ 
+  \hline
+  Buyer Efficiency as \% of realized vs possible & Close to 100\%. & 1.03 (0.15) & 1.03 (0.12) & 1.05 (0.12) & 1.07 (0.15)  \\ 
+  \hline
+  Mean Absolute Deviation of Prices from Clearing Levels  & Lower than ZIC & 4.63 (0.96) & 4.51 (0.91) & 1.53 (0.56) &  2.28 (0.99)  \\ 
+  \hline
+  Price volatility in Std Dev  & Lower than ZIC &  5.41 (0.98) & 5.11 (0.89) & 1.99 (0.99) & 2.15 (0.65)  \\ 
+  \hline
+  1st order Auto correlation in Prices & Close to ZIC (-0.5 to -0.25) & -0.04 (0.24) & -0.03 (0.25) & +0.09 (0.29) & +0.019 (0.32) \\ 
+  \hline
+  Avg. \% Current Bid Handovers & Higher than ZIC (nearer to 100\%) & 72\% & 67\% & 60\% & 64\% \\ 
+  \hline
+\end{tabular}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Summary of Findings}
+  I study reinforcement learning (RL) in dynamic double auctions (DA): 
+    \begin{itemize}
+    \item Reinforcement learning can outperform simple trading rules.
+    \item Reinforcer competition is efficient and prices are stable.
+    \item Prices do not show quick reversals or corrections.
+    \item There is no fight to hold the current bid (ask). 
+    \end{itemize}
+However, 
+\begin{itemize}
+    \item Reinforcers can learn to collude, but can also be vulnerable to it. 
+    \item Increasing disclosures can, paradoxically, worsen market outcomes.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Next Steps}
+    \begin{itemize}
+    \item Conduct the full experiment. 
+    \item Ensure valid inference.
+    \item Find which disclosures improve outcomes.
+    \item Test reinforcers against humans. 
+    \end{itemize}
+\end{frame}
+
+\section{Appendix}
+
+
+\begin{frame}
+  \frametitle{FAQ-I}
+    \begin{itemize}
+    \item What is the economic motivation? 
+    \begin{itemize}
+        \item To study the effect of information disclosures on market outcomes when traders use reinforcement learning. 
+    \end{itemize}
+    \item Why not use a theoretical approach? 
+    \begin{itemize}
+        \item Because attempts to reduce reinforcement learning to a differential equation have only been done for a single state (Banachio et al, Asker-Pakes).
+        \item No general characterization of Bayesian Nash Equilibria for the dynamic double auction. Wilson (1987) provides a single example, but that is rejected by human data (Cason \& Friedman 1996). 
+    \end{itemize}
+    \item Is this a computer science project? 
+    \begin{itemize}
+        \item No, it's a computational experiment. Any computer science is confined to the agent's learning process. 
+    \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{FAQ-II}
+    \begin{itemize}
+    \item Why should we care about this research? 
+    \begin{itemize}
+        \item It demonstrates the possibility of algorithmic collusion even in a market widely considered to be highly efficient.
+        \item It offers some policy advise on market design  which the current theoretical approach cannot address. 
+    \end{itemize}
+    \item How generalizable are these results?
+    \begin{itemize}
+        \item I use a very standardized double auction setup and a classic reinforcement learning algorithm; so this study generalizes as well as most papers in this field. 
+        \item I collect data over multiple trials to ensure valid inference. 
+    \end{itemize}
+    \item Can experiments have a wider appeal than theorem proving? 
+    \begin{itemize}
+        \item The famed efficiency of the double auction was establised in experiments such as Smith (1962), Gode-Sunder (1993). In contrast, theoretical analysis of the double auction highlights inefficiencies (e.g. Myserson-Satterthwaite 1983). 
+    \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{References I (Experimental)}
+  \footnotesize
+  \begin{itemize}
+    \item \textit{Chen, S.-H., \& Tai, C.-C. (2010).} The Agent-Based Double Auction Markets: 15 Years On. \textit{World Congress on Social Simulation.}
+    \item \textit{Cason, T. N., \& Friedman, D. (1996).} Price formation in double auction markets. \textit{Journal of Economic Dynamics and Control.}
+    \item \textit{De Luca, M., \& Cliff, D. (2011).} Agent-Human Interactions in the Continuous Double Auction, Redux - Using the OpEx Lab-in-a-Box to explore ZIP and GDX. \textit{International Conference on Agents and Artificial Intelligence.}
+    \item \textit{Erev, I., \& Roth, A. E. (1998).} Predicting How People Play Games: Reinforcement Learning in Experimental Games with Unique, Mixed Strategy Equilibria. \textit{The American Economic Review.}
+    \item \textit{Friedman, D. (2018).} The Double Auction Market Institution: A Survey.
+    \item \textit{Gjerstad, S., \& Dickhaut, J. (2001).} Price Formation in Double Auctions. \textit{Lecture Notes in Computer Science.}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{References II (Experimental)}
+    \footnotesize
+  \begin{itemize}
+    \item \textit{Holt, C. A., \& Holt, C. A. (2021).} An experimental study of competitive market behavior (by Vernon L. Smith). \textit{The Art of Experimental Economics.}
+    \item \textit{Hu, J., \& Wellman, M. P. (1998).} Online learning about other agents in a dynamic multiagent system. \textit{International Conference on Autonomous Agents.}
+    \item \textit{Nicolaisen, J., Petrov, V., \& Tesfatsion, L. (2000).} Market Power and Efficiency in a Computational Electricity Market with Discriminatory Double-Auction Pricing. \textit{Computational Economics.}
+    \item \textit{Rust, J., Miller, J. H., \& Palmer, R. G. (2018).} Behavior of Trading Automata in a Computerized Double Auction Market. \textit{Lecture Notes in Computer Science.}
+    \item \textit{Tesauro, G., \& Bredin, J. (2002).} Strategic sequential bidding in auctions using dynamic programming. \textit{Adaptive Agents and Multi-Agent Systems.}
+    \item \textit{Tesauro, G., \& Das, R. (2001).} High-performance bidding agents for the continuous double auction. \textit{ACM Conference on Economics and Computation.}
+  \end{itemize}
+\end{frame}
+ 
+\begin{frame}
+  \frametitle{References III (Theoretical)}
+  \footnotesize
+  \begin{itemize}
+    \item \textit{Chatterjee, K., \& Samuelson, W. (1983).} Bargaining under Incomplete Information. \textit{Operations Research, vol. 31, issue 5, 835-851.}
+    \item \textit{Myerson, R. B., \& Satterthwaite, M. A. (1983).} Efficient Mechanisms for Bilateral Trading. \textit{Journal of Economic Theory, 29, 265-281.}
+    \item \textit{Sobel, J., \& Takahashi, I. (1983).} A Multistage Model of Bargaining. \textit{Review of Economic Studies, vol. 50, issue 3, 411-426.}
+    \item \textit{Satterthwaite, M. A., \& Williams, S. R. (1989).} Bilateral trade with the sealed bid k-double auction: Existence and efficiency. \textit{Journal of Economic Theory, Jun 1989;48(1):107-133.}
+    \item \textit{Bulow, J. I., \& Klemperer, P. (1994).} Auctions vs. Negotiations. \textit{NBER Working Paper No. w4608, January 1994.}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{References IV (Theoretical)}
+  \small
+  \begin{itemize}
+    \item \textit{Bulow, J., \& Klemperer, P. (1996).} Auctions Versus Negotiations. \textit{The American Economic Review, Vol. 86, No. 1. (Mar., 1996), pp. 180-194.}
+    \item \textit{Pesendorfer, W., \& Swinkels, J. M. (1997).} The Loser's Curse and Information Aggregation in Common Value Auctions. \textit{Econometrica, Econometric Society, vol. 65(6), 1997.}
+    \item \textit{Pesendorfer, W., \& Swinkels, J. M. (2000).} Efficiency and Information Aggregation in Auctions. \textit{American Economic Review, vol. 90, no. 3, June 2000 (pp. 499-525).}
+    \item \textit{Cripps, M. W., \& Swinkels, J. M. (2006).} Efficiency of Large Double Auctions. \textit{Econometrica, Econometric Society, vol. 74 (1), pages 47-92, January 2006.}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{References V (Reinforcement Learning)}
+\footnotesize
+\begin{itemize}
+  \item \textit{Watkins, C. J. C. H., \& Dayan, P. (1992).} Q-learning. \textit{Machine Learning, 8, 279-292.}
+  \item \textit{Sutton, R. S., \& Barto, A. G. (1998).} Reinforcement Learning: An Introduction. \textit{MIT Press, Cambridge, Mass., ISBN 0-262-19398-1.}
+  \item \textit{Littman, M. L. (1994).} Markov games as a framework for multi-agent reinforcement learning. \textit{In Proceedings of the Eleventh International Conference on Machine Learning, 157-163, Morgan Kaufmann.}
+  \item \textit{Mnih, V. et al. (2015).} Human-level control through deep reinforcement learning. \textit{Nature, 2015.}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{References VI (Reinforcement Learning)}
+\footnotesize
+\begin{itemize}
+  \item \textit{Mnih, V. et al. (2016).} Asynchronous Methods for Deep Reinforcement Learning. \textit{2016.}
+  \item \textit{Brockman, G., Cheung, V., Pettersson, L., et al. (2016).} OpenAI Gym. \textit{CoRR, arXiv:1606.01540.}
+  \item \textit{Schulman, J., Wolski, F., Dhariwal, P., Radford, A., Klimov, O. (2017).} Proximal Policy Optimization Algorithms.
+  \item \textit{Silver, D. et al. (2018).} A general reinforcement learning algorithm that masters chess, shogi, and Go. \textit{2018.}
+  \item \textit{Lillicrap, T. P. et al. (2019).} Continuous control with deep reinforcement learning. \textit{Google Deepmind, London, UK}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Research Motivation}
+\begin{table}
+    \small
+    \centering
+    \definecolor{tablegray}{RGB}{240,240,240}
+    \begin{tabular}{|m{0.32\textwidth}|m{0.6\textwidth}|}
+        \hline
+        \cellcolor{tablegray}\textbf{Algorithms} & \cellcolor{tablegray}\textbf{Applications} \\
+        \hline
+        \cellcolor{tablegray}Reinforcement Learning & \cellcolor{tablegray} Stock Trading, Real-Time Bidding, Chess, Go, Starcraft, Atari, Self-driving Cars, Robotics, Physical Control \\
+        \hline
+        \cellcolor{tablegray}Multi-Armed Bandits & \cellcolor{tablegray} Dynamic Pricing, Website Personalization, \newline Digital Marketing, Portfolio Optimization \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \small
+    \centering
+    \definecolor{tablegray}{RGB}{240,240,240}
+    \begin{tabular}{|m{2cm}|m{2.5cm}|m{4cm}|}
+    \hline
+    \cellcolor{tablegray}\textbf{Sector} & \cellcolor{tablegray}\textbf{\% World GDP} & \cellcolor{tablegray}\textbf{Computerized Markets} \\
+    \hline
+    \cellcolor{tablegray}Financial & \cellcolor{tablegray}\centering 20-25 & \cellcolor{tablegray}NYSE, Chicago Ex, Forex, Cryptocurrencies \\
+    \hline
+    \cellcolor{tablegray}Energy & \cellcolor{tablegray}\centering 6 & \cellcolor{tablegray}Electricity, Natural Gas \\
+    \hline
+    \cellcolor{tablegray}E-Commerce & \cellcolor{tablegray}\centering 2.5 & \cellcolor{tablegray}Retail, Resale \\
+    \hline
+    \cellcolor{tablegray}Advertising & \cellcolor{tablegray}\centering 2 & \cellcolor{tablegray}Sponsored Search, \newline Display Advertising \\
+    \hline
+    \end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Research Outline}
+\begin{tcolorbox}[colback=blue!10, left, colframe=blue!50!black, title=Research Questions]
+\begin{itemize}
+    \item How well does reinforcement learning perform in auctions?
+    \item How to design auctions for multi-agent reinforcement learning?
+\end{itemize}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=blue!10, left, colframe=blue!50!black, title=Research Directions]
+\begin{itemize}
+    \item \colorbox{yellow}{Experiments: Reinforcement Learning and Double Auctions.}
+    \item Experiments: Q-learning in First and Second Price Auctions.
+    \item Q-learning and its Replicator Dynamics / Mean Field Games.
+\end{itemize}
+\end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Algorithmic Collusion}
+    A few experiments with reinforcement learning show \textbf{algorithmic collusion} and \textbf{market inefficiency}:
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{llll} % Added an additional 'l' for the new column
+            \textbf{Year} & \textbf{Market} & \textbf{Authors} & \textbf{Methodology} \\ % Added the header for the new column
+            \midrule
+            2006 & Electricity Auction & Tellidou-Bakirtzis & Experiments \\
+            \midrule
+            2008 & Cournot Oligopoly & Waltman-Kaymak & Theory + Experiments \\
+            \midrule
+            2020 & Bertrand Oligopoly & Calvano et al. & Experiments \\
+            \midrule
+            2020 & Multi-sided Platforms & Johnson et al. & Experiments \\
+            \midrule
+            2021 & One-sided Auction & Banchio-Skrzypacz & Theory + Experiments \\
+            \midrule
+            2022 & Prisioners' Dilemma & Dolgopolov & Theory \\
+        \end{tabular}
+        \label{tab:case_studies}
+    \end{table}
+\end{frame}
+
+
+
+\begin{frame}{Theoretical Insights}
+Key highlights from theoretical literature: 
+\begin{itemize}
+\item Uncertainty about valuations $\mathbf{\Rightarrow}$ bluffing $\mathbf{\Rightarrow}$ market inefficiency (Myerson-Satterthwaite 1983).
+\item No. of traders $\uparrow$ $\mathbf{\Rightarrow}$ honesty $\mathbf{\Rightarrow}$ market efficiency (Satterthwaite-Williams 1989).
+\item Wilson's 1987 example of Dynamic Bayesian Nash Equilibrium: 
+\begin{itemize}
+    \item High-value traders ``wait out" low-value traders.
+    \item Non-serious offers are just not believed, so nobody makes them.
+    \item Every serious offer is led to completion in a descending ``Dutch" way. 
+    \item Each event is used to update assessments.  
+\end{itemize} 
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Double Auctions I}
+There are many closely related types of auctions:
+\begin{itemize}
+    \item Double Auction - traders (buyers/sellers) message the bid/ask offer, and decide whether to buy/sell.  
+    \item Single Auction - Buyers post bids in single or multiple rounds, and the seller chooses a winner and a payment amount from the bids. 
+    \item Posted Price - Sellers (buyers) announce ask (bid) prices and then buyers (sellers) accept or reject. 
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Double Auctions II}
+Auctions can vary along other dimensions as well: 
+    \begin{tabular}{|p{0.3\linewidth}|p{0.6\linewidth}|}
+        \hline
+        \textbf{Auction Type} & \textbf{Examples} \\
+        \hline
+        Single-dimensional vs multi-dimensional & 
+        Auction based on price vs one based on price, date, quality \\
+        \hline
+        One-sided or multi-sided & 
+        Art auction vs Call market (buyers and sellers) \\
+        \hline
+        Open-cry or sealed-bid & 
+        Bids (winning or otherwise) are revealed or they are not \\
+        \hline
+        First-price, second-price or k-th price & Winner pays their bid, the second-highest bid or the k-th highest bid \\
+        \hline
+        Single-unit or multi-unit & 
+        Auction for one barrel of wine vs for X barrels of wine in one go \\
+        \hline
+        Single-item or multi-item / combinatorial & 
+        Single item vs Bundles of products (e.g. 10 barrels of wine, 1 box of fish, etc.) \\
+        \hline
+    \end{tabular}
+\end{frame}
+
+\begin{frame}{Double Auctions III}
+\begin{itemize}
+    \item Double auction is where buyers place \textbf{bids} and sellers place \textbf{asks}.
+    \item Types: 
+    \begin{itemize}
+        \item Periodic - bids and asks are recieved for a fixed duration, quantity demanded and supplied for each price is computed, and market clearing price is determined. e.g. NYSE Call Market
+        \item Continuous - the market does not close, but the auctioneer immediately matches bids and asks as many as it can in a continuous fashion. e.g. Comodity trading at Chicago
+    \end{itemize}
+    \item These are most commonly used in stock markets where buyers and sellers try to sell blocks of shares (multi-unit auctions). 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Double Auctions IV}
+\begin{itemize}
+    \item At any time the prevailing bids and asks can be tallied up to find the quantity demanded and quantity supplied at any given price.
+    \item A range of prices may clear the market, in the figure it is 20-20\$. 
+\end{itemize}
+    \begin{figure}
+        \centering        \includegraphics[width=0.6\textwidth]{figures/da1.png} % Replace with the actual image filename and path
+        %\caption{Demand an}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Double Auctions V}
+\begin{itemize}
+    \item The main benefit of double auctions is that they economize on information and lead to market clearing prices. 
+    \item If an auctioneer wanted to clear this market, she would have to compute the demand and supply curves from everybody's reservation prices. This is infeasible. 
+    \item But double auctions have shown that even with extremely sparse information and only a few traders, prices quickly converge to market clearing levels.
+    \item They have also been found to be more efficient than one-sided auctions or posted pricing. 
+    \item The mechanism ensures that even with silly trading strategies, prices converge and allocation is efficient. 
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Policy Gradient Theorem I}
+Here I show how the Policy Gradient theorem can converge to local optima when the environment is stationary. 
+\begin{itemize}
+        \item Probability of Episode: $$\mathbb{P}(\tau|\pi) = \mathbb{P}(s_0) \prod_{t=0}^{T-1} \pi(a_t|s_t) \mathbb{P}(s_{t+1}|s_t,a_t) $$
+        \item Global Expected Return: $$J(\pi) = E_{\tau \sim \pi}\left[ G(\tau) \right] = \int_{\tau} \mathbb{P}(\tau|\pi) G(\tau)$$
+\end{itemize}
+Then the problem of Reinforcement Learning is to find the optimal policy, $$\pi^* = \text{argmax}_{\pi} J(\pi)$$
+\end{frame}
+
+\begin{frame}{Policy Gradient Theorem II}
+Since policy $\pi_{\theta}$ is parametrized by $\theta$, we can incrementally improve $J(\theta)$ by gradient ascent: 
+$$\theta \leftarrow \theta + \alpha \frac{dJ(\theta)}{d\theta}$$
+where, 
+$$\frac{dJ(\theta)}{d\theta} = \int_{\tau} \frac{d \mathbb{P}(\tau|\pi_{\theta})}{d\theta} G(\tau) $$
+$$ = \int_{\tau} \frac{d \log \mathbb{P}(\tau|\pi)}{d\theta} \mathbb{P}(\tau|\pi) G(\tau) $$
+$$ = E[\frac{d \log \mathbb{P}(\tau|\pi)}{d\theta} G(\tau)] $$
+\end{frame}
+
+
+\begin{frame}{Policy Gradient Theorem III}
+Taking logs on the probability of an episode, 
+$$\log \mathbb{P}(\tau|\pi) = \log \mathbb{P}(s_0)  +  \sum_{t=0}^{T-1} \left[\log\pi(a_t|s_t)  + \log \mathbb{P}(s_{t+1}|s_t,a_t) \right]$$
+And taking derivative, 
+$$\frac{d\log\mathbb{P}(\tau|\pi)}{d\theta} = \sum_{t=0}^{T-1} \frac{d\log(\pi_{\theta}(a_t|s_t))}{d\theta}$$
+we get the policy gradient, 
+$$ \frac{dJ(\theta)}{d\theta} = E[\sum_{t=0}^{T-1} \frac{d\log(\pi_{\theta}(a_t|s_t))}{d\theta} G(\tau)] $$
+\end{frame}
+
+
+\begin{frame}{Policy Gradient Theorem IV}
+Which can be approximated via sampling from $\mathbb{D}$ set of episodes: 
+$$ \frac{dJ(\theta)}{d\theta} = |\mathbb{D}|^{-1} \sum_{\mathbb{D}}[\sum_{t=0}^{T-1} \frac{d\log \pi_{\theta}(a_t|s_t)}{d\theta} G(\tau)] $$
+Compare with the gradient to maximize the log-likelihood of observing these trajectories from this policy, 
+$$ \frac{dJ(\theta^{ML})}{d\theta^{ML}} = |\mathbb{D}|^{-1} \sum_{\mathbb{D}}[\sum_{t=0}^{T-1} \frac{d\log \pi_{\theta}(a_t|s_t)}{d\theta} G(\tau)] $$
+So \textit{policy gradient is an adjusted ML gradient but moves policy towards trajectories that bring higher rewards!}.
+\end{frame} 
+
+\begin{frame}{Policy Gradient Theorem V}
+
+We enable \textbf{continuous actions} through neural network $f$, 
+$$a_t \sim \mathbb{N}(\mu(s_t;\theta),\sigma)$$
+Then log-probability is, 
+$$\log\pi_{\theta}(a_t|s_t) = -\frac{1}{2}\log2\pi\sigma^2 - \frac{(a_t - \mu(s_t;\theta))^2}{2\sigma^2}$$
+And its derivative,
+$$\frac{d\log\pi_{\theta}(a_t|s_t)}{d\theta} = - \frac{1}{2} \sigma^{-2} (a_t - \mu(s_t;\theta)) \frac{d\mu(s_t;\theta)}{d\theta}$$
+The last term is obtained via backpropagation.
+\end{frame} 
+
+\begin{frame}{Policy Gradient Theorem VI}
+\href{https://www.youtube.com/watch?v=n2gE7n11h1Y}{\textbf{Demo}}: Teaching a robot how to walk. 
+\end{frame}
+
+
+\begin{frame}{Example: Google Ad Exchange\footnote{\scriptsize Google recently moved from a Second Price Auction to a First Price Auction. Apart from reserve prices, winner pays a 20\% fee and the winning bid is revealed. The US Display Advertising market supports 13 billion ads daily and 20 billion \$ annual revenue.}}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{tcolorbox}[colback=blue!10, left, colframe=blue!50!black, title=]
+    \begin{itemize}
+        \item 2 million websites
+        \item 90\% of internet users
+        \item 70\% of impressions
+    \end{itemize}
+\end{tcolorbox}
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{tcolorbox}[colback=blue!10, left, colframe=blue!50!black, title=]
+    \begin{itemize}
+        \item 90\% publisher ad share
+        \item 30 cents per ad \$
+        \item 150-300ms per auction
+    \end{itemize}
+\end{tcolorbox}
+\end{column}
+\end{columns}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/38.png}  % Adjust the width as needed
+    %\caption{Avg Cooperation Action}
+    \label{fig:example}
+\end{figure}
+\end{frame}
+
+\begin{frame}{First Price Auction}
+\begin{columns}
+\begin{column}{0.45\textwidth}
+\begin{tcolorbox}[colback=blue!10, left]
+\small
+\begin{itemize}
+    \item Player Index: $k \in \{1,2\}$
+    \item Bids: $a_k \in \{0,0.5,1\}$
+    \item Identical Private Value: $1$
+    \item Winner Fees: $\epsilon = 0.25$
+    \item $k$-th Payoff $R(a_k,a_{-k})$: 
+\begin{gather*}
+=
+    \begin{cases}
+      1-a_k-\epsilon & \text{if $a_k > a_{-k}$}\\
+      \frac{1-a_k-\epsilon}{2} & \text{if $a_k = a_{-k}$}\\
+      0 & \text{if $a_{k} < a_{-k}$}\\
+    \end{cases} 
+\end{gather*}
+\end{itemize}
+\end{tcolorbox}
+\end{column}
+\begin{column}{0.6\textwidth}
+\begin{tcolorbox}[colback=blue!10, left]
+\small
+\begin{itemize}
+    \item  Payoff Matrices: $A, B$        
+\[\begin{array}{c|ccc}
+ & 0 & 0.5 & 1 \\
+\hline
+0 & 0.5,0.5 & 0,0.5 & 0,0 \\
+0.5 & 0.5,0 & 0.25,0.25 & 0,0 \\
+1 & 0,0 & 0,0 & 0,0 \\
+\end{array}\]
+\item  PNE: (0,0), (0.5, 0.5)
+\item  Mixed Strategy: 
+\begin{itemize}
+\item  $\mathbb{P}(a_1=0)=\pi$
+\item  $\mathbb{P}(a_1=0.5)=1-\pi$
+\item  $\mathbb{P}(a_2=0)=\sigma$
+\item  $\mathbb{P}(a_2=0.5)=1-\sigma$
+\end{itemize}
+\end{itemize}
+\end{tcolorbox}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Replicator Dynamics: EGT}
+Replicator Dynamics\footnote{\scriptsize Borgers and Sarin 1997 show that the replicator dynamics for EGT can be derived from cross-learning, which updates $\pi$ based on reward $r$ from action $j$: \begin{gather*}
+\Delta \pi_i =
+    \begin{cases}
+      r - \pi_i r & \text{if $i = j$}\\
+      - \pi_i r & \text{if $i \not = j$}\\
+    \end{cases} 
+\end{gather*}} for Evolutionary Game Theory (EGT):
+  \[
+  \dot{\pi}_i = \pi_i \left[\underbrace{(A \sigma)_i}_{\text{Fitness of action $i$ against $\sigma$}}-\underbrace{\pi' A \sigma}_{\text{Avg. Fitness for $\pi$}} \right]
+  \]
+  \[
+  \dot{\sigma}_i = \sigma_i \left[\underbrace{(\pi' B)_i}_{\text{Fitness of action $i$ against $\pi$}} - \underbrace{\pi' B \sigma}_{\text{Avg. Fitness for $\sigma$}} \right] 
+\]
+   %\vspace{5pt}
+  \begin{columns}
+    \column{0.5\textwidth}
+    %\textbf{Player 1}
+    \begin{align*}
+    \pi_i & : \text{Prob of playing action } i \\
+    \pi & : (\pi_1, \pi_2, \ldots, \pi_N)\\
+      %A & : \text{Payoff matrix}
+    \end{align*}
+
+    \column{0.5\textwidth}
+    %\textbf{Player 2}
+    \begin{align*}
+    \sigma_i & : \text{Prob of playing action } i \\
+    \sigma & : (\sigma_1, \sigma_2, \ldots, \sigma_M)\\
+      %B & : \text{Payoff matrix}
+    \end{align*}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Replicator Dynamics: Q-Learning}
+  \[
+  \dot{Q}(i) = \pi_i^{-1} \alpha \left[R(a_1,a_2) + \max_{j} Q(j) - Q(i) \right]
+  \]
+  \[
+  \pi_i = \frac{e^{Q(i)}/\tau}{\sum_{j} e^{Q(j)/\tau}}
+  \]
+Replicator Dynamics\footnote{\scriptsize Kaisers and Tulys 2010. Action $i$ is explored more when the entropy (uncertainty) of overall policy is high relative to $\pi_i$. And $\tau$ balances exploration vs exploitation.}:
+  \[
+  \dot{\pi}_i = \underbrace{\frac{\alpha \pi}{\tau} \left[(A \sigma)_i-\pi' A \sigma \right]}_{\text{Exploitation}} + \underbrace{\alpha \pi_i \left[\sum_j \pi_j \log \pi_j - \log \pi_i \right]}_{\text{Exploration}}
+  \]
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{align*}
+    Q & : \text{``Long Run" Values} \\
+    Q(i) & : \text{Value of action } i \\
+    R & : \text{Payoff function}
+    \end{align*}
+
+    \column{0.5\textwidth}
+    \begin{align*}
+    \alpha & : \text{Learning Rate} \\
+    \tau & : \text{Temperature} \\
+    a_k & : \text{Action taken by player } k 
+    \end{align*}
+  \end{columns}
+   \vspace{10pt}
+\end{frame}
+
+\begin{frame}{Mean Field Games: Q-Learning}
+The PDE\footnote{Hu et al., 2019 reduce infinite agent Q-learning to a Fokker-Plank equation without diffusion.} for fraction of agents with $Q_t=(Q_t^{a_1},Q_t^{a_2}....Q_t^{a_N})$: 
+  \[
+  \dot{p}(Q_t,t) = - \sum_j \frac{d[p(Q_t,t)V_j(Q_t,\bar{\pi}_t)]}{dQ_t^{a_j}}
+  \]
+Expected change in $Q_t^{a_j}$:
+  \[
+  V_j(Q_t,t) = E[\frac{dQ_t^{a_j}}{dt}] = \alpha \pi_t(a_j) E[r_t(a_j,\bar{\pi}_t) - Q_t^{a_j}]
+  \]
+and mean policy $\bar{\pi}_t$:
+  \[
+  \bar{\pi}_t = \int \int ... \int \pi_t(a_j) p(Q_t,t) dQ_t^{a_1}...dQ_t^{a_N}
+  \]
+\end{frame}
+
+\end{document}
+
+\end{document}
