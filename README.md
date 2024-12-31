@@ -1,6 +1,6 @@
 # Santa Fe Double Auction
 
-This repository replicates the Santa Fe Double Auction tournament in Rust et al., (1994) and conducts a number of experiments to study individual and market efficiency under different types of traders. My contribution is to introduce single and multi agent reinforcement learning agents into this market and study individual and market performance. 
+This repository replicates the Santa Fe Double Auction tournament in Rust et al., (1994) and conducts a number of experiments to study individual and market efficiency under different types of traders. My contribution is to introduce reinforcement learning agents into this market.
 
 ## Quick Start
 
@@ -133,12 +133,13 @@ seller kaplan-seller   118.383562                     0.011838
 
 ## References
 
-1. Gode, D. K. & Sunder, S. Allocative Efficiency of Markets with Zero-Intelligence Traders: Market as a Partial Substitute for Individual Rationality. *Journal of Political Economy* **101**, 119–137 (1993).
-2. Rust, J., Miller, J. H. & Palmer, R. Behavior of Trading Automata in a Computerized Double Auction Market. in *The Double Auction Market Institutions, Theories, and Evidence* (eds. Friedman, D. & Rust, J.) 155–198 (Routledge, 2018). doi:10.4324/9780429492532-8.
-3. Tesauro, G. & Das, R. High-performance bidding agents for the continuous double auction. in *Proceedings of the 3rd ACM conference on Electronic Commerce* 206–209 (ACM, Tampa Florida USA, 2001). doi:10.1145/501158.501183.
-4. Cason, T. N. & Friedman, D. Price formation in double auction markets. *Journal of Economic Dynamics and Control* **20**, 1307–1337 (1996).
-5. Gjerstad, S. & Dickhaut, J. Price Formation in Double Auctions. *Games and Economic Behavior* **22**, 1–29 (1998).
-6. Chen, S.-H. & Tai, C.-C. The Agent-Based Double Auction Markets: 15 Years On. in *Simulating Interacting Agents and Social Phenomena* (eds. Takadama, K., Cioffi-Revilla, C. & Deffuant, G.) 119–136 (Springer Japan, Tokyo, 2010). doi:10.1007/978-4-431-99781-8_9.
-7. Friedman, D. The Double Auction Market Institution: A Survey. in *The Double Auction Market Institutions, Theories, and Evidence* (eds. Friedman, D. & Rust, J.) 3–26 (Routledge, 2018). doi:10.4324/9780429492532-2.
-8. Cliff, D. & Bruten, J. Zero is not enough: on the lower limit of agent intelligence for continuous double auction markets.
+1. Cason, T. N. & Friedman, D. Price formation in double auction markets. *Journal of Economic Dynamics and Control 20,* 1307–1337 (1996).
+2. Chen, S.-H. & Tai, C.-C. The Agent-Based Double Auction Markets: 15 Years On. in *Simulating Interacting Agents and Social Phenomena* (eds. Takadama, K., Cioffi-Revilla, C. & Deffuant, G.) 119–136 (Springer Japan, Tokyo, 2010). doi:10.1007/978-4-431-99781-8_9.
+3. Cliff, D. & Bruten, J. Zero is not enough: on the lower limit of agent intelligence for continuous double auction markets.
+4. Friedman, D. The Double Auction Market Institution: A Survey. in *The Double Auction Market Institutions, Theories, and Evidence* (eds. Friedman, D. & Rust, J.) 3–26 (Routledge, 2018). doi:10.4324/9780429492532-2.
+5. Gjerstad, S. & Dickhaut, J. Price Formation in Double Auctions. *Games and Economic Behavior 22,* 1–29 (1998).
+6. Gode, D. K. & Sunder, S. Allocative Efficiency of Markets with Zero-Intelligence Traders: Market as a Partial Substitute for Individual Rationality. *Journal of Political Economy 101,* 119–137 (1993).
+7. Rust, J., Miller, J. H. & Palmer, R. Behavior of Trading Automata in a Computerized Double Auction Market. in *The Double Auction Market Institutions, Theories, and Evidence* (eds. Friedman, D. & Rust, J.) 155–198 (Routledge, 2018). doi:10.4324/9780429492532-8.
+8. Smith, V. L. An Experimental Study of Competitive Market Behavior. *Journal of Political Economy* (1962).
+9. Tesauro, G. & Das, R. High-performance bidding agents for the continuous double auction. in *Proceedings of the 3rd ACM conference on Electronic Commerce* 206–209 (ACM, Tampa Florida USA, 2001). doi:10.1145/501158.501183.
 
