@@ -5,42 +5,60 @@ import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 import pandas as pd
 import numpy as np
+import os
 
 from config import CONFIG
 from auction import Auction
 
+def print_role_strat(agg_dict):
+    # Helper to pretty-print aggregator
+    # agg_dict is the round's "role_strat_perf" dictionary
+    #   keyed by (role, strategy), each with {profit, count}
+    rows = []
+    for (role, strat), val in agg_dict.items():
+        total_p = val["profit"]
+        count = val["count"]
+        avg_p = total_p / count if count>0 else 0.0
+        rows.append([role, strat, total_p, avg_p])
+
+    # Convert to DataFrame for easy printing
+    df = pd.DataFrame(rows, columns=["role","strategy","totalProfit","avgProfit"])
+    print(df.to_string(index=False))
+
 def main():
+    os.makedirs("code/data", exist_ok=True)
+
     auction = Auction(CONFIG)
     auction.run_auction()
 
+    # Load round-stats
     dfR = pd.DataFrame(auction.round_stats)
-    print("\n=== Round-Level Stats ===")
-    print(dfR.to_string(index=False))
 
-    avg_eff = dfR["market_efficiency"].mean()
-    avg_absdp = dfR["abs_diff_price"].mean()
-    avg_absdq = dfR["abs_diff_quantity"].mean()
+    # Just store the DataFrame for reference
+    dfR.to_csv("code/data/round_stats.csv", index=False)
+    print("Saved round_stats to code/data/round_stats.csv")
 
-    print("\nAggregate over %d rounds:" % CONFIG["num_rounds"])
-    print("  average market efficiency = %.3f" % avg_eff)
-    print("  average |avgPrice - eqPrice| = %.4f" % avg_absdp)
-    print("  average |actualTrades - eqQuantity| = %.4f" % avg_absdq)
+    # Print aggregator for first and last rounds
+    first_round_agg = auction.round_stats[0]["role_strat_perf"]
+    last_round_agg  = auction.round_stats[-1]["role_strat_perf"]
 
-    # OPTIONAL: if you want aggregator table:
-    aggregator = auction.agg_strat_perf
-    rows2=[]
-    for k,v in aggregator.items():
-         role, strat = k
-         totalP = v["profit"]
-         count = v["count"]
-         avg_per_trader_per_round = (totalP / count) / float(CONFIG["num_rounds"])
-         rows2.append([role, strat, totalP, avg_per_trader_per_round])
-    dfStrat = pd.DataFrame(rows2, columns=["role","strategy","totalProfit","avgProfit_perTraderPerRound"])
-    print("\n=== Aggregated Strategy-Role ===")
-    print(dfStrat.to_string(index=False))
+    print("\n=== Role-Strategy Data for Round 0 ===")
+    print_role_strat(first_round_agg)
 
-    dfR.to_csv("round_stats.csv", index=False)
-    print("\nSaved round-level stats to 'round_stats.csv'")
+    print("\n=== Role-Strategy Data for Last Round ===")
+    print_role_strat(last_round_agg)
 
-if __name__=="__main__":
+    # Example plot
+    plt.figure(figsize=(6,4))
+    plt.plot(dfR["round"], dfR["market_efficiency"], label="Market Efficiency")
+    plt.xlabel("Round")
+    plt.ylabel("Efficiency")
+    plt.title("Efficiency over Rounds")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("code/data/efficiency.png", dpi=150)
+    plt.close()
+    print("Saved figure to code/data/efficiency.png")
+
+if __name__ == "__main__":
     main()
