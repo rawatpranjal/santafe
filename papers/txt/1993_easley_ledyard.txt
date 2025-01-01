@@ -1,0 +1,1118 @@
+Discussion Paper No. 461
+
+A THEORY OF PRICE FORMATION AND EXCHANGE
+*
+IN ORAL AUCTIONS
+
+by
+
+David Easley and John Ledyard
+
+March 1981
+
+*
+
+We would like to thank the National Science Foundation, whose grant
+# SOC 78-12884 was instrumental in allowing us to initiate and carry
+out this research.
+One of the major justifications for the study of equilibrium situations
+in economics is the argument that there are forces at work in any economy
+that tend to drive the economy toward an equilibrium if it is not in equilibrium
+already. Although the concept of economic equilibrium has proven useful in
+many situations, attempts to model and explain the forces that drive an economy
+to equilibrium have met with little success. Most of the literature on -
+stability of equilibrium uses the fiction of an auctioneer who adjusts a single,
+known price for each good in response to stated excess demand resulting from
+agents' equilibrium plans. The limitations and defects of this approach are
+well known; for a survey of the literature see Arrow and Hahn [1971].
+
+The recent work on experimental auction markets provides an opportunity
+to examine the question of price formation and exchange in a new light. These
+experiments simulate the auction-trading process characterstic of organized
+commodity or stock exchanges. In these experiments prices and quantities
+exchanged typically converge to at or near their competitive equilibrium
+values. However, the experiments are characterized by a small number of
+traders, with imperfect information, who determine prices through interactive
+behavior rather than taking them as given. As a result, although the supply
+and demand model of perfect competition yields reasonably correct predictions
+of long-run average prices and quantities, it cannot yield any insights into
+the process by which these prices are obtained.
+
+This paper attempts to explain the price fonnation and exchange process
+of experimental auction markets. We view the explanation of this process as
+a first step toward understanding equilibrium price and quantity formation
+
+in real markets.
+-2-
+SECTION I: THE EXPERIMENT
+
+In an auction experiment a pool of subjects (usually 8 to 12) is
+divided at random into a proup of buyers and a group of sellers, The buyers
+are given payoff schedules telling them the amount in dollars that they will
+receive, from the experimenter, for each unit of the good that they purchase.
+' The sellers are given cost schedules telling them their cost in dollars for
+each unit of the good they sell. Sellers keep the difference between their
+selling price and cost on each unit sold. These payoff and cost schedules
+induce demand and supply curves for the good; see Smith [1976] for a
+complete explanation of induced demand and supply curves. Each trader knows
+his own payoff schedule but is given no information about others' payoffs or
+about the induced demand and supply curves.
+
+After they receive their payoff information subjects are allowed to
+trade during a market period of some fixed length. Buyers can make bids
+(which become public information) to buy a unit of the good and sellers can
+make offers (which also become public information) to sell a wit. If a bid
+or offer is accepted a binding trade occurs and all traders are informed of
+the contract price. Once a trade has been completed, bids and offers can
+be made for another unit of the good. No information other than bids, offers,
+acceptances, and contract prices is transmitted.
+
+Once a market period ends the subjects are given new payoff schedules,
+identical to their schedules for the previous period, and the experiment is
+repeated. Market demand and supply conditions are typically held constant
+across periods so that any equilibrating process that exists has a chance to
+establish an equilibrium. After a small number of repetitions, prices and
+quantities are close to the competitive equilibrium values for the demand and
+supply curves induced by the subjects' payoffs. For a more detailed expiana-
+
+tion of auction experiments and the usual results see Smith and Williams [1980]
+-3-
+
+These experiments provide a unique opportunity to examine price formation
+for two reasons. The first is that unlike real-world markets, actual equilibrium
+values for prices and quantities are known for the experimental markets. Second,
+complete data on bids, offers, and contracts is available.
+
+In order to examine the price formation process we will construct two
+alternative models of the experiments. Each model yields the principal
+observable experimental result - that contract prices converge to the competitive
+equilibrium price. The essential difference between the models is in the
+degree of aggregation. The first model is an aggregate model of the trading
+process and it contains no explicit theory of individual behavior. The second
+model provides a description of individual behavior and deduces convergence
+from the assumed behavior. The assumptions on behavior may be thought of as
+the result of prior learning about how to behave in the experiment. This
+model predicts convergence and places strict bounds on the time path of prices
+and quantities traded prior to convergence. Since this model places stringent
+bounds on individual behavior its predictions are more often violated by
+actual trades than are the predictions of the aggregate model. However, the
+number of violations is amazingly small and the model seems to do a good job
+
+of explaining how prices get adjusted.
+SECTION II: DEFINITIONS AND MODEL I
+
+The payoffs or values given to the buyers are ranked as vi > v" > vee > Vi >0
+where yi is the i-th highest value and there are n units. The costs given to
+sellers are ranked as 0 < ut < wt <u... < M" where MJ is the cost of the j-th
+unit and there are m units. If a buyer or seller has payoffs for a mumber of
+different units we will assume that he decides on strategies for each of them
+separately. Prices, bids, offers, and contracts are in integer units in the
+
+interval [0,P] (where P < » is some arbitrarily selected upperbound above yi
+
+and M") and are indexed by P, b, o and c respectively.
+-4-
+
+Market periods or days for an experiment are indexed by de {1,2,...}.
+The time remaining in any given day is indexed by t « {0,1,...,T}. In
+order to insure that an experiment gets started we assume that the highest
+value, vi, is greater than the lowest cost, Me
+
+Model 1 will be an aggregate model in which trading occurs between
+randomly slected agents. We assume that the prices at which these trades
+
+occur in day d+l are influenced by prices, bids and offers observed in day d.
+
+To this end we first present
+
+Definition: Let ct be the set of observed contract prices in day d.
+
+d
+
+Let b” be the set of observed bids in d, and let of be the set of observed
+
+offers in d.
+
+i) BY 2 wax ict ph
+Gi) ptt! = an tc4,0%s, where
+co = g, b° = (03, 0° = (F} and » > P > max qvi My,
+iii) st = potlpter.
+
+Although it is unnecessary for the theory, one can view sf as the
+assumed support of buyers' and sellers' expectations about prices in
+day d+ 1. With these expectations, at least early in day d + 1, buyers
+would be unwilling to pay more than pt and sellers would be unwilling to sell
+
+for less than pt Hence we are interested in the collection of buyers and
+
+sellers who can trade in st at any time t.
+
+Definition: Let ree) = {(i,j): pt < vi < wd < po and i and j ure
+not traded by t}. Let N(t) be the cardinality of ret).
+R’{t) is the collection of buyers and sellers who can trude in
+[P, al at time t (subject to the restriction imposed in the experiment that
+
+< Vi and ct > M, i.e. no one can make a trade that results in a loss).
+
+io]
+1A
+
+We shall assume that T > N(T); that is, there are enough time periods to enable
+-5-
+
+all feasible trades in [pt ty to be made. In Model 1 we assume that trade
+takes place randomly among the buyers and sellers of R(t).
+
+qd pty
+
+re RCT) #4, select x, © (T, NCD], G*, 37) © RCD and py ©
+such that vd <P eV The time, pair and price are selected randomly
+from the sets of feasible times, pairs and prices according to probability
+distributions on these feasible sets. The only assumption that we make on
+these probabilities is that each point in the sets of feasible times, pairs
+and prices has positive probability. We assume that a trade occurs at Ty»
+between i and i, and at price Py . Further, we assume that for all t > 1,,
+pt (t) < Py and ot (t) > Pt . Hence some buyers and sellers who can trade at
+a price in st do so and by the time of their trade bids have not risen above
+the contract price and offers have not fallen below it. Hence, either i has
+made the maximum bid of pf (t4) = Py and ; accepts or ; has made the minimum
+offer of ot (1) = Pm and i” accepts y's offer.
+
+The next trade occurs at some randomly selected feasible price and
+involves a randomly selected pair of buyers and sellers in Rt (rt). Tf
+Ri (15) #4, select te (yy NCD], Gi) © RY) and py > Be, BY
+with we" < P> < vir Again positive probability of selection is placed on
+each feasible time, pair and price. A trade occurs at ty, between i: and
+3° and at price P . Further, for all t ¢ (ty tol, ptr) < D> and
+of (t) > Py . This process of random trading continues until there are no
+more buyers and sellers who can trade in gh i.e. until t where ne (1) = 6.
+
+Finally, we assume that any buyer (seller) who is left without having
+traded by the time where po (1) = ¢ will eventually raise his bid above ad
+it vi > B¢ Gower his offer below pd itw < pd, Formally, let tbe the
+first time at which pi (t) = ¢, then if there is an untraded i such that
+
+i
+
+- # i -
+Vo> at we assume that there is ate (t , 0] at which bt (t) > at, We
+
+make a symmetric assumption on sellers. Essentially we are assuming that any
+-6-
+
+trader who has been unable to camplete a trade in st will eventually be
+willing to trade outside of st if he can make a profit by doing so.
+
+This model of the trading process has a number of relatively weak
+implications for the data generated by market experiments. Let p° and q°
+be respectively the competitive equilibrium price and quantity for the induced
+demand and supply curves. We assume that there are traders with values at
+p° and that the number of buyers with yi = p° is equal to the number of sellers
+with ww = p: Under this assumption whenever all contracts take place at
+p we have demand equal to supply. For experiments in which this assumption
+is satisfied, Model I has four principal implications:
+
+1. If p° E st at least q° units are traded in day d+ i,
+
+2. If p® > pt (p® < pty then in day d + 1 there is an offer or
+
+contract price below pd (bid or contract price above pty,
+3. The time of trade h, th is in (tp N (yy) for each trade h.
+4, With probability one there is a finite time at which st stabilizes
+
+at exactly p.
+
+Theorem 1 provides formal statement of implication 4.
+
+Theorem 1: Assume
+
+(i) The trading process of Model I.
+
+(ii) There exists a K such that ys = of = p° and # “ivi = piezd (jt: = p°}.
+Then with probability one there exists a a <, such that for all d > a,
+
+gt
+
+_
+= p °
+All proofs will be presented in the Appendix.
+Although this model yields the principal observable result of convergence
+
+it provides little explanation of why convergence occurs. In order to explain
+
+how prices are adjusted we need to construct a model of individual behavior.
+-7-
+SECTION III: MODEL IT
+
+A subject in an auction has a complex decision problem: he must decide
+when to bid, how much to bid, and whether or not to accept the trades
+offered by other subjects. Further, all of these decisions must be made
+with very imperfect information. The subject does not know the payoffs or
+strategies of other agents and he does not know the terms of trade that will
+be available to him in the future. Formally this structure defines a very
+complex incomplete information game in which the individual mist choose bidding
+and acceptance strategies. We will not attempt to model or solve the individual
+optimization problem; instead we directly make assumptions about individual
+behavior. The criteria that we use for the model are; first, that it be
+reasonably consistent with optimal behavior but simple enough to allow a wide
+range of "rule of thumb" strategies; second, that it be general enough to
+allow differing expectations and learning behavior; third, that it be reasonably
+consistent with the data.
+
+We break the individual decision problem down into three elements. First,
+the individual is assumed to have expectations about his trading opportunities
+which are based on the contracts, bids and offers that he observed last period.
+Second, the individual is assumed to have a reservation price strategy which
+for a buyer gives the maximum offer price that he will accept. Third,
+individuals are assumed to have bidding strategies which for a buyer gives
+the maximm bid that the buyer would like to enter.
+
+The reservation price and bidding strategies are obviously dependent on
+the individuals' expectations and will be adjusted over time based on how
+successful they are. Any buyer who observes that he has paid the highest
+price in a market period should learn to reduce both his reservation price
+
+and his bids. Similarly any buyer who was unable to make a purchase, i.e.
+-8-
+
+was rationed-out, should raise his reservation price if possible. Sellers
+should behave symmetrically in adjusting to having sold for the lowest price
+or having been rationed-out of the market. Rather than formally describing
+the learning process outlined above we will describe reservation price
+
+and bidding strategies that could be the outcome of such a learning process.
+The following assumption specifies the key unobserved primitives of our
+
+theory of individual behavior.
+
+Assumption 0: For each untradedunit of a buyer (i = 1,...,n) or seller
+(j = 1,...,m) there is an (unobservable) reservation price at each d and t which
+is denoted by v(t) e RE for buyers and w) (t) ¢ R! for sellers.
+
+We next formiulate two assumptions which specify bidding behavior
+
+given reservation prices and reservation price behavior given observable data.
+
+Assumption 1: Bidding and Contracts
+(i) ptt) , the current outstanding bid in day d with time t left,
+is held by a buyer i* where vi (t) > vat) , for all untraded
+ie=1,...,n.
+
+Gi) bo ¢r)
+
+1A
+
+vy (t)
+
+(iii) v4 (t) vito), for all i # i* with i untraded.
+
+iv
+
+(iv) i* accepts the current outstanding offer, 0% (t) , if and only if
+i*
+o* (+) < Va (t). No other i accepts oft), (Notice that i* is a
+
+function of d and t.)
+
+This assumption is really the reduced form of an assumption that_auctions
+
+behave as English auctions and that action occurs sufficiently smoothly so that
+
+"surprises"! don't occur. In particular, we are assuming that if buyer i is
+willing to pay vi(t) , and the outstanding bid b(t) is less than that and is
+not held by i, then i should offer a higher bid. Any buyer who does not do
+so takes a chance of being rationed out even though. he is willing to pay more
+
+than the current high bid. Hence bids should quickly rise to MAX twit}
+i #i*
+-9-
+
+and i* should hold the highest bid. We further assume that only this highest
+bid is accepted. Since i* has the highest reservation price he will be the
+only buyer to accept an offer provided that offers fall smoothly. That is
+if the offers start above va (0) and do not jump down to war (v4(t)} or
+L
+
+less then only i* can accept an offer.
+
+If reservation prices change smoothly over time, parts (iii) and (iv)
+of Assumption 1 are not likely to be violated at any time other than the
+beginning of a market day. Att =T it is possible to have a number of buyers
+with reservation prices above the reservation prices of some sellers. In this
+case, even if bids follow the pattern of Assumption 1, trading need not be
+between the highest reservation price buyer and the lowest reservation price
+seller. However, such overlap of reservation prices can occur only at the
+beginning of the market day and any perverse trading that results will not
+_ affect convergence if only infra-marginal units trade.
+We make assumptions on the reservation price and bids of sellers that
+
+are symmetric with those made for buyers. The inequalities are reversed in
+
+the obvious way.
+
+Assumption 1': Offers and Contracts
+(i) of(t), the current outstanding offer in day d with time t left,
+is held by a seller j* where w(t) < w(t), for all j =1,...,m,
+for all untraded j.
+
+(i) f(t) > wi"(e).
+
+Wv
+
+(iii) 0% Ce) < wh(t), for all j # j*, j untraded.
+
+LA
+
+sk
+(iv) j* accepts vot) if and only if b(t) > WA (t). No other j
+
+accepts ot(t).
+
+The assumptions made to this point in Model II place no restrictions on
+
+the data since for any observed sequence of bids, offers, and acceptances, one
+-10-
+
+can construct reservation prices consistent with Assumption 1 and those observa-
+tions. Therefore, in order to have a theory, we must connect the reservation
+prices to the observable data for each i andj. This link is made in
+
+Assumption 2.
+
+Assumption 2: Reservation Price Formation
+For all i = 1,...,m:
+(i) vy(t) < V for all td.
+(ii) There exists ty > 1 such that;
+
+(a) Forallt>ti, it pe d
+
+iV
+
+< yi then vat) e §
+
+d
+
+Vv
+
+(b) For all t > ti , if pt. pa > 1 then va Ct) <P
+
+(c) v(t) = MIN cpt - i, vi} for all t, test>t
+d d2° 2 ‘a
+
+d
+
+where ty = MAX (t|b*(t) > PY - 1 and v(t) unaccepted}, if
+
+this maximum exists,t4 = 0 otherwise.
+
+(a) if ty > 0 then va(t) = MIN 64 v4} for all t,
+d
+
+ty >t > Ey, where ty = MAX (t]b4Ct) > PY and vYCe)
+
+by
+
+unaccepted}, if this maximum exists, ta = 0 otherwise.
+
+(e) if ta > 0, then vq(t) > MIN cpa +1, vs for all t,
+
+ta >t >.
+; ok
+(iii) (ranking) Let k* = Mtn tklve < MS. For alld, tigvi> Vv,
+5 - & ~ + -
+vt > pt vi < vs , and VS < pt v(t) > v(t) whenever pt opt, 1.
+
+Assumption 2 (i) is that no buyer can be willing to pay more than the true
+value for any unit. Assumption 2 (ii) (a)would be a natural result of having
+expectations with a support of st¢t). Part 2 (ii) (b) requires the buyer to
+not be willing to pay pt or more too early in the day (i.e., for t > th,
+
+Any buyer who deviates from this assumption will be willing to pay the highest
+
+“price; may end up doing so; and hence should learn to reduce his reservation
+-11-
+
+price next time. If there is a buyer who has vite) > ad and who does not learn,
+he may continually pay the highest price and hence prevent convergence
+to the competitive equilibrium.
+
+Assumption 2 (iii) is a minimal assumption on the relationhip of reserva-
+tion prices to true values. If ys < ws then k* is larger than the competi-
+tive equilibrium quantity, or what is more important for our purposes, the
+maximum quantity that can be transacted at any single price. The assumption
+is that buyers with values above ys and above p4 have higher reservation prices
+than those with values at or below ve provided that ical > 1, Any such
+buyer who does not have vy Ct) high enough to keep the potential extra marginal
+buyers (those with yi < yy out of the market may either be rationed out of
+the market or be forced to pay a high price at the end of the day in order to
+trade with an extra marginal seller. Such a buyer should leam to raise his
+reservation price for the early part of the market day. Any buyer who does
+not do so will either frequently be rationed and hence frequently move the
+market away from Dp or will end up paying a price above pd at the end of the
+period and hence keep the upper limit of the contract prices from falling to
+the competitive equilibriun.
+
+Part (ii) (c-e) is a sequence of assumptions requiring that the buyers
+eventually cave in to pa and above but that they not cave in too quickly.
+
+Part (c} requires that for some tt > | buyer i must cave in to pa - 1, if
+possible, provided that he has not yet traded. Presumably a buyer holds out
+
+for a low price early in the day but eventually he should be willing to pay
+higher and higher prices as the end of the day approaches. This characteristic
+will result from a finite horizon search problem. Parts (d) and (e) require
+that near the end of the day buyers who see their bids of pe - lor pt
+rejected mist increase their reservation prices if it is possible for them
+to do so. Buyers who do not learn to do so may end up being continually
+
+rationed out and not signalling to the market that the prices are too low.
+-12-
+
+If this happens prices can get stuck below the competitive equilibrium. Buyers
+who cave in too soon, that is, raise va(t) before a bid is rejected may end
+up paying an unnecessarily high price and should learn to reduce their
+reservation prices. Again if such buyers do not learn then pe can get stuck
+above the competitive equilibriun.
+
+We make a symmetric assumption for sellers and call that Assumption 2'.
+Whether the assumptions of Model II on individual behavior are consistent
+with rational maximizing behavior or not is an open question. We believe
+that these assumptions result in a reasonable description of the actual
+behavior that occurs in the experimental markets that we have examined. In
+Section V a number of testable implications that result from this model of
+behavior are confronted with data from a group of nine market experiments.
+
+Figure 1 illustrates a set of time paths for reservation prices, bids
+and offers that is consistent with our assumptions. In this example buyer 1
+and seller 2 contract the first unit at ty since 1's acceptance price is
+exceeded by 2's offer at this time. At to, seller 1 accepts buyer 2's bid
+and at t, buyer 3 accepts seller 4's offer. Note that buyer 4 and seller 3
+may not trade since there are no competitive pressures driving their bids and
+offers together.
+
+Figure 2 illustrates the observable data from figure 1. This type of
+
+pattern is consistent with the data in experiments.
+
+INSERT FIGURE 1
+
+INSERT FIGURE Z
+FIGURZ 1
+
+Day d
+$
+Vy 4
+Vv, (4
+2 °}
+i)
+? fo}
+= wt sellers °
+Pa + 4d reservation prices °
+V5 V 4 M, M 4
+
+9
+
+Lr buyers
+P+ Va reservation
+
+q prices
+
+M, + -
+My ab
+
+T ty ty ts 0
+
+time
+remaining
+bids «eee offers go0e Contracts [7
+Lawtl
+
+VgV grey
+
+ie
+
+Mo
+
+FIGURE 2
+Observations Day ¢
+
+Offers
+
+o
+
+ae
+
+o Peo,
+i~J
+og
+
+bids
+
+-
+
+0
+
+time
+remaining
+-13-
+SECTION IV: THEOREMS FOR MODEL IT
+
+In this section we trace through some of the implications of Model If.
+As will become apparent, most of the action will occur when there is an
+"excess demand or supply'"' of two or more units remaining in the auction since
+in this case there are competitive pressures on bids and offers. Thus we are
+
+interested in the following concept.
+
+befinition: Let D(P) = # (vi > P} and S(P) = # ( <P}. We let
+
+ty
+
+p* = inf (P|S(P) - D(P) > 2} and P, = sup {P|D(P) - S(P) > 2}.
+
+*
+To see the role of P and P, we consider the following propositions.
+
+Lemma 1: For Model If:
+
+(a) re B < p, then et » 4,
+k
+(b) rf pt > Pp then pet? < pt,
+Lemma 2: For Model IT:
+(a) If pd > P, then perl > Py
+* *
+(b) If pt < P then perl <P,
+
+Thus there are competitive forces driving the maximum contract prices
+above P, and the minimm contract prices below P There are also competi-
+tive pressures driving the maximum prices down and the minimum prices up.
+These pressures are exerted by extra-marginal units as can be seen in the
+
+following propositions.
+
+Lemma 3: In Model II, suppose pt pt >:
+(a) If pt, M4 then pl . pdt.
+ib) rf pte vy then pT > oF
+-14-
+
+At this point we know that the maximum price paid will fall if it is-
+
+x
+i and increase if it is less than pt In order. to establish
+
+greater than }
+that "prices converge to an equilibrium" we must consider what occurs when
+
+Py < pa < we Unfortunately, under the assumed behavior of Model II, it is
+possible for prices to bounce around inside this interval and, in some cases,
+
+to bounce outside. The case where this won't happen is described in the next
+
+lemma.
+
+Lemma 4: For Model II:
+i
+
+*
+yk
+
+i ~ -
+(a) If yk < pt < uw then pert
+
+tA
+
+k* d+1
+
+k
+co) re VS" < pt <M then P
+
+iA
+iy
+
+Notice that if Py < sd < v then it is possible that peed ke
+Thus we cannot insure, under our model, that "convergence to equilibrium"
+occurs for all demand-supply configurations, However, we can say something
+for most configurations and, in particular, for those which have been used
+
+in the experiments reported in the next section.
+
+Theorem 2: For Model II
+
+: vw & k* . * *
+If >P >P, > V~ then there exists d where 0 <d <= such
+
+that for all d » a’:
+
+(a) stetv - 1, w+
+
+- PS
+(b) pd > Py, pt <P
+
+and
+
+(c) Po- P<,
+
+(That is, prices converge to some "small" interval contained by the extra-
+
+&
+marginal units and centered by competitive pressures around P or P,).
+
+. — dtl : d+1
+1. It is as if Walras' auctioneer were setting p and p .
+-15-
+
+Further, the number of contracts qf in each day d > a is constrained by
+
+q® -lé< qf < a° where q° = max tklvs > oY is the Walrasian equilibrium quantity.
+For purposes of conpleteness we should note that convergence is not
+
+assured (although possible) when either Pp > wk or yi > P,. The following
+
+configuration is consistent with this situation.
+INSERT FIGURE 3
+
+A more precise characterization of convergence can be had if one
+
+narrows the preference configuration somewhat.
+
+k* k ke .
+Corollary 1: IfM* >P =P, >V~ then 3d* with 0 < d* < @ 3yd > d*
+
+(a) S¢<[pi-1, Pst
+
+and
+
+where P© = p* = P, is the Walrasian equilibrium price.
+
+There are at least two classes of experiments which have been reported
+
+for which the hypothesis of the corollary is true. If there are at least
+
+. . . . . K¥-2 _ J k*-1
+two marginal units on each side of the market, (i.e., V =V =
+
+He! Kae *
+uw 2 “ ly then P = P,.
+Another case in which Corollary 1 applies occurs in the so-called
+; 2
+"swastika'' experiments. On these yi =Vo=...2V> ve =... = M" and
+
+either M>N+2orN>M+2, If N=M+1orM=N+#+1, then
+
+Corollary 1 would not apply.
+Figure 3
+
+[x are yi, 0 are ut]
+-16-
+
+SECTION V: COMPARISON OF PREDICTIONS WITH THE DATA
+
+The prediction of convergence, which results from both models, is not
+testable since the mmber of necessary replications a” may. be large. Hence
+in order to compare the models with the data it is necessary to describe
+the potential dynamics implied by the theories. There are four categories
+of data for which one or both of the theories have implications: the
+sequence of contract prices, the sequence of trading partners, the total
+quantity traded, and the behavior of untraded units at the end of the day.
+
+‘We will carry out the analysis of the dynamics for Model I under an assumption
+that # tiv = p'} = # {4:M . pd # 0. This assumption is satisfied in all
+but one of the experiments for which we have data. In terms of the variables
+used to discuss convergence for Model II a similar assumption is
+us > P > Py > v_ tis assumption is implied by the assumption to be used
+for Model I, but they are not equivalent. There is one experiment (PDA 22)
+in which this condition is satisfied but the condition used for Model I is
+violated. For all of the other experiments for which we have data both
+conditions are satisfied and hence violation of the predictions of the
+
+alternative models are directly comparable.
+
+MODEL I:
+The implications from Model I can be represented in two cases.
+Case 1: P° <p
+(a) First, qt = (BY contracts occur at all prices cf eS.
+{b} Second, after the da contracts there is a bid above pt
+
+Case 2: pe rp”
+
+: d : =d. d . : d of
+(a) First, q = Min {S(P°), D(P)} contracts occur at prices C Eo .-
+
+d
+(b). There are no implications for bids or offers after the q trades.
+-17-
+
+The implications for vd are symmetric. Model I has implications for prices,
+quantities, and the final bids (or offers) if pt < rn” (if pt > P); but it
+
+has no implications on the sequence of trading.
+
+MODEL IT:
+Model II has much more precise implications than does Model I. The
+implications of Model II for prices, total quantity, and the sequence of
+
+trading can be represented in three cases.
+
+- - #
+Case l(a): pA < Py, pd < yk e
+
+d d
+
+(1) First all M’ < B A
+
+trade with some V" > B® at prices less than P
+if ||s@| [> 1 or at prices pd if} |s*| |< 1.
+
+d ad d
+
+(2) Then all Mt = 6° trade with some Vt > B at Be,
+
+(3) At this point further trades may occur, at prices above pt
+but this is not nessary. However, there will be at least
+
+one bid above B*.
+
+(4) Finally, note that the number of contracts is qq > s(B%).
+
+: - - ®
+Case 1(b): pt Py, pd > vk .
+
+d d
+
+. i = : i ys" . =
+(1) First all M < P” trade with some V" > at prices below P
+if||st}|> 1 and at prices less than or equal to Bo ig Listy | sl.
+
+d d
+
+(2)| Next all M* = B¢ trade with some V" >P at P,
+(3) Same as case l(a).
+
+(4) Same as case ifa).
+-18-
+
+(1) All trades occur at prices below Bo if List| > 1 or at prices
+
+less than or equal to pt if||s*|}> 1.
+
+(2) avi » 8 trade.
+
+. . . -k
+(3) All vt > pd trade before those V~ < yk .
+
+z
+(4) dq depends on pt as follows: (a) if pt < wi then My > de 7 1,
+
+*
+(b) if pt > wa then qq 2 sph.
+
+<a ~
+Case 3: wt > pa > Py
+
+(1) All contract prices are no more than pd and at least one is at or above P.
+
+; - *
+(2) All ve > pt trade before those vk < vs .
+
+& ~
+(3) If pt, yk all trades are at prices below pd if
+
+ist} < 1 and at
+
+prices < pa if |[s“] |< 1.
+
+2%
+(4) If pt < ys all initial trades (at least k*-2) are at prices below
+po i¢ shy 5 1 and at prices no more than at if ||s4| |< 1. The
+
+&
+(k* + 1)st trade can occur at a price « (po, vik
+
+}.
+
+(8) q?-1l<ay sa.
+~19-
+
+The analysis of each case follows from the earlier lemmas. Case 1 comes
+from lemma 1, Case 2 from lemma 3 and Case 3 from lemmas 2 and 4. Symmetric
+results hold for pt
+
+Model II also has more precise implications for final bids and offers.
+
+Although resérvation prices are unobservable; A.2(ii) does imply that,
+near the end of each day, reservation prices of untraded units should be
+equal to true values if those values are less than pt for buyers or greater
+
+than pt for sellers. Thus, in strict terms at t = 0 our theory implies
+
+(2) (2)
+(a) bg (0) >ve,~ 0, (0) <M
+and
+
+wb) vO) <o,(0), MP > v4 (0)
+
+where yD is the largest non-traded value and yl) is the next highest.
+Implication (a) follows from the fact that vq (0) = Vt and A.1 on bidding.
+Implication (b) follows fran the fact that vq (0) =v. If 0,(9) < yD
+
+then buyer (1) should accept at t = 1.
+
+Data:
+
+The following table summarizes the number of violations of the predic-
+tions of the two models as a percentage of total possible predictions for
+
+nine Plato experiments for which we have data.
+-20-
+
+Model I Model It
+Exp Marg Com Unit Qe NY Que Prices Quantity Dayend Prices Sequence Dayend
+
+PDA8 N 1 5 8 6 Y N 18 9 25 17 4.2 22
+PDAS N 1 5 8 6 Y N 10 6 0 22 ll.1 18.8
+PDALO Y 1 5 10 8/6 Y N 10 3 0 16.5 0 6.2
+I PDALI N 1 5 10 8 Y N 4 4 - 12.7 2.8 18.8
+I PDAI4 Y 1 5 8 6 Y N 16.1 4.1 12
+II PDAL4 N 3 10021 i5 Y N 2.9 16.7 0
+It PDAS7 N 3 10 «21 15 Y Y 6.5 10 33.0
+II PDA22 N 0) 10 16,11 11 N N 9.3 NA 0
+IIT PDAZS Y 2 10012 7 N Y¥ 16.7 9.1 50.0
+TOTALS 10 5 1? 11.4 7.9 18
+
+{Note: exp Y means experienced subjects, marg = mumber of marginal units,
+
+com = commission in cents, NY = NYSE rules, Que = queing of bids and offers].
+
+To ‘see the price
+the margin of error.
+
+Errors of x ¢ or
+
+violations in perspective the following table illustrates
+
+less not counted
+
+10
+
+Model I Model IT
+9% 5.2 %
+5 % 4%
+2 % 2%
+-21-
+
+To put the dayend errors in context, there are two major violators.
+In II PDAS7, seller 2 consistently held to a high reservation price on a
+marginal unit and, in fact, lost money on this strategy. No other dayend
+errors occured in II PDA57. Second, the experiment II PDAZS had a time queue
+in which bids entered are accepted chronologically and leave the queue at
+3-second intervals. This institution clearly destablizes bidding. If we
+could ignore these two pathologies, the total percentage dayend errors for
+
+Model II would be 7.5%.
+
+SECTION VI: CONCLUSION
+
+The two models presented here are deterministic and, although they do not
+describe precise paths of bids, offers, and contracts, they do place fairly
+tight bounds on these data. One observation not in accord with these bounds
+is grounds for réjection of these theories and, in fact, there are a number
+of such observations. However, the percentage of observations which violate
+the crucial implications of the theories is, we feel, amazingly low. The
+implications of Model I are violated less often than the implications of
+Model II for two reasons. One is simply that Model I has weaker implications
+for the time paths of prices and trades than does Model IT. Secondly,
+
+Model I provides almost no explanation of which buyers and sellers trade so
+it has no implications for the sequence of trading. Hence, although there
+are more violations of the implications of Model II, we feel that it contains
+a useful theory as it provides an explanation of how and why prices and
+quantitiés adjust to their competitive equilibrium values.
+
+The potential importance of this theory is not that it seems to describe
+what happens in DOA experiments, but that it is the beginning of a theory of
+how market prices are formed and of how they adjust to changes in demand and
+
+supply conditions. The question of price formation has a long history of ad-
+hoc and unsuccessful attempts at an answer. Qur theory is also ad-hoc in the
+sense that we directly make assumptions on individual behavior which are not
+derived from an optimizing model. However, our assumptions seem reasonably
+consistent with rational behavior and more importantly they seem to do a
+
+reasonable job of describing actual behavior.
+APPENDIX: PROOFS
+
+Proof of Theorem 1:
+
+at d*4n
+
+= p® then S
+d*
+
+We first show: (1) If S = p° for all n=1,2,....
+
+= p° all contracts at any t before 1
+d*
+
+First consider day d*+1, Since S$
+
+*&
+where Rt +1.) = ¢ must occur at p- Now since S" = pr we have
+
+alo = cc4,3): vi > VE anal < MSS. Hence by (ii), # fi: Gi) 2 RPT
+
+*
+for some j} = # {4}: (4,7) « gietl
+
+(T),
+
+(T) ,for some i}. Since all trades consist
+
+*
+of one buyer and one seller we must have # {i: (41,j) « pa *Tety
+
+*
+# {4: Gi,j) « Rf lee), for some i}, for any t, T >t > 0. Therefore if
+
+*® Hy ik
+r10,) = 6 all i with vi > vk
+
+, for some j} =
+
+= p° and all j with we < ws = p are traded.
+
+Then by the signalling assumption of Model I no bids above p° or offers below
+
+-qd*
+p will result. Therefore pd +1 MAX etl pitty = p°
+
+& * * *
+patel Loy ccd *t) Atty = p® ana st**} = p®,
+
+and
+The same argument clearly
+
+x
+works for d +n for arbitrary n.
+
+d d+1
+
+Secondly, we show: (2) If p° e S then Prob {S = p} > 0. If
+
+p° € st then it follows from the trading process assumption that exactly k
+trades, all at price Pr’, and between buyers i = 1,2, ... , k and sellers
+
+j = 1, 2, ...., k has positive probability. If this event occurs then no
+further trades at any price other than p can result and there can be no bids
+
+above p° or offers below p. Hence, if this event occurs gttl = p and we
+
+have Prob pgdtl = pe} > 0 from the trading process assumption.
+
+Finally, we show: (3) If p° ¢ gf then there exists a finite integer
+
+d
+
+d (indenendent of d) such that p° e S°, for some d <dt d. It is sufficient
+
+to show that if pd < r- then pal > pe and similarly if pt > p° then
+pdt “ pd
+
+ad 2 p®, then # fir Gi, 9) © RECT), for some j} > # (3: G, §) 2 RIM, for
+
+since there are a finite number of possible prices (P). If
+
+some i}. Hence, it follows from the assumption on the trading process that
+-2-
+
+there exists a t > 0 with Re (2) = » and since all trades are two sided there
+
+is at least one buyer j with v2 > pt and i untraded. Then by the signalling
+
+assumption there will be a bid above 54. Hence, piel . pt the argument for
+
+pdt < pt if pt > p° is symmetric.
+
+*
+Now let d be the first d at which st = p’. We have p- € st infinitely
+
+*
+often by (3) and Prob rgd*l = p} > 0 if p € st by (2). Therefore, d is finite
+
+*
+with probability one. Then it follows from (1) that for alld>d, gtap®,
+Proof of Lemma 1: We show (a); the proof of (b) is symmetric. If all contracts
+
+are at pricess less than or equal to pd then there exist at least two V™ > sd
+
+which are untraded. By A.2(ii) at some time before t = 0 there will be a bid
+
+b greater than or equal to the second highest v(t) > pd
+
+Proof of Lemma 2: We show (a); the proof of (b) is symmetric. If all contracts
+
+are less than P, then there exist at least two untraded V* such that yt > Py.
+
+Thus there will be a bid b > P, before t = 0.
+
+Proof of Lemma 3: We show (a); the proof of (b) is symmetric. We will show
+d
+
+that whenever there is an untraded V" > B°, there will be an offer 0 < pd
+
+which i can accept. Thus no contracts at prices > pd will be seen.
+
+Suppose there are r untraded V’ with V’ > 64 since all vt > 64 ust
+
+ok *
+be traded before any vk < yk < ws , by A.2(iii), there mist be at least r + 1
+
+d
+
+. . ts . a
+untraded M’ with M’ < Mw Bt) oer > 1, then at some time before t there
+
+d
+
+will be an offer 0 < ? which some Vt > P© will accept. If r = 0, then there
+
+i. ad a
+are no V > P” remaining.
+
+Proof of Lemma 4: We show (a}; the proof of (b). is symmetric. In order to
+
+ad+1 ea i k* : . .
+have P >M* there was a V >M-~ who at t d of day d bids above or accepted
+
+ck A
+a contract at a price above of . If this were true then at t 4? since
+o ok &
+pd > yk and by A.2(iii), there were at most k - 2 contracts. Thus
+. ‘k - .
+there exist untraded M” < wi . Therefore there was an offer 0 < wk < Vv
+
+which i would have accepted. Thus there was no such Vv.
+Proof of Theorem 2:. The proof of Theorem 2 follows directly fram Lemmas 1
+
+through 4 and the observation that there are a finite number of possible prices,
+
+0, 1, ..., P.
+
+Proof of Corollary 1: The proof of Corollary 1 follows directly from Theorem
+
+* *&
+and the observation that if P, = P then P, =P = Dp.
+References
+
+Arrow, K. H. and F. Hahn (1971) General Competitive Analysis Holden Day,
+
+San Francisco.
+
+Smith, V. L. (1976) "Induced Value Theory" American Economic Review
+
+pp 274-279.
+
+Smith, V.L. and A. Williams (1980) "An Experimental Comparison of
+Alternative Rules for Competitive Market Exchange" Discussion
+
+paper, Department of Economics, University of April, April.
+

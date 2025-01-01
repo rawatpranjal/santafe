@@ -133,13 +133,34 @@ seller kaplan-seller   118.383562                     0.011838
 
 ## References
 
-1. Cason, T. N. & Friedman, D. Price formation in double auction markets. *Journal of Economic Dynamics and Control 20,* 1307–1337 (1996).
-2. Chen, S.-H. & Tai, C.-C. The Agent-Based Double Auction Markets: 15 Years On. in *Simulating Interacting Agents and Social Phenomena* (eds. Takadama, K., Cioffi-Revilla, C. & Deffuant, G.) 119–136 (Springer Japan, Tokyo, 2010). doi:10.1007/978-4-431-99781-8_9.
-3. Cliff, D. & Bruten, J. Zero is not enough: on the lower limit of agent intelligence for continuous double auction markets.
-4. Friedman, D. The Double Auction Market Institution: A Survey. in *The Double Auction Market Institutions, Theories, and Evidence* (eds. Friedman, D. & Rust, J.) 3–26 (Routledge, 2018). doi:10.4324/9780429492532-2.
-5. Gjerstad, S. & Dickhaut, J. Price Formation in Double Auctions. *Games and Economic Behavior 22,* 1–29 (1998).
-6. Gode, D. K. & Sunder, S. Allocative Efficiency of Markets with Zero-Intelligence Traders: Market as a Partial Substitute for Individual Rationality. *Journal of Political Economy 101,* 119–137 (1993).
-7. Rust, J., Miller, J. H. & Palmer, R. Behavior of Trading Automata in a Computerized Double Auction Market. in *The Double Auction Market Institutions, Theories, and Evidence* (eds. Friedman, D. & Rust, J.) 155–198 (Routledge, 2018). doi:10.4324/9780429492532-8.
-8. Smith, V. L. An Experimental Study of Competitive Market Behavior. *Journal of Political Economy* (1962).
-9. Tesauro, G. & Das, R. High-performance bidding agents for the continuous double auction. in *Proceedings of the 3rd ACM conference on Electronic Commerce* 206–209 (ACM, Tampa Florida USA, 2001). doi:10.1145/501158.501183.
+1. Cason, T. N., & Friedman, D. (1996). Price formation in double auction markets. *Journal of Economic Dynamics and Control, 20*, 1307–1337.
 
+2. Chen, S.-H. (2017). Agent-based computational economics: How the idea originated and where it is going. In K. Schenk (Ed.), *Handbook of Computational Economics* (pp. 1–28). Routledge.
+
+3. Chen, S.-H., & Tai, C.-C. (2010). The Agent-Based Double Auction Markets: 15 Years On. In *Simulating Interacting Agents and Social Phenomena* (eds. Takadama, K., Cioffi-Revilla, C., & Deffuant, G.), 119–136. Springer Japan, Tokyo.
+
+4. Cliff, D., & Bruten, J. (n.d.). Zero is not enough: On the lower limit of agent intelligence for continuous double auction markets.
+
+5. De Luca, M., & Cliff, D. (2011). Agent-human interactions in the continuous double auction. In *Proceedings of the 3rd International Conference on Applied Human Factors and Ergonomics*, 768–775.
+
+6. Easley, D., & Ledyard, J. O. (1993). Theories of price formation and exchange in double auction markets. In D. Friedman & J. Rust (Eds.), *The Double Auction Market: Institutions, Theories, and Evidence* (pp. 63–97). Addison-Wesley.
+
+7. Friedman, D. (1991). A simple testable model of price formation in the CDA market. *Unpublished manuscript, University of California Santa Cruz*.
+
+8. Friedman, D. (2018). The Double Auction Market Institution: A Survey. In *The Double Auction Market Institutions, Theories, and Evidence* (eds. Friedman, D., & Rust, J.), 3–26. Routledge.
+
+9. Gjerstad, S., & Dickhaut, J. (1998). Price Formation in Double Auctions. *Games and Economic Behavior, 22*, 1–29.
+
+10. Gode, D. K., & Sunder, S. (1993). Allocative Efficiency of Markets with Zero-Intelligence Traders: Market as a Partial Substitute for Individual Rationality. *Journal of Political Economy, 101*, 119–137.
+
+11. Rust, J., Miller, J. H., & Palmer, R. (1994). Characterizing effective trading strategies in a computerized double auction market. *Santa Fe Institute Working Paper 94-03-014*.
+
+12. Rust, J., Miller, J. H., & Palmer, R. (2018). Behavior of Trading Automata in a Computerized Double Auction Market. In *The Double Auction Market Institutions, Theories, and Evidence* (eds. Friedman, D., & Rust, J.), 155–198. Routledge.
+
+13. Smith, V. L. (1962). An Experimental Study of Competitive Market Behavior. *Journal of Political Economy*.
+
+14. Tesauro, G., & Das, R. (2001). High-performance bidding agents for the continuous double auction. In *Proceedings of the 3rd ACM conference on Electronic Commerce*, 206–209. ACM, Tampa Florida USA.
+
+15. Wilson, R. B. (1984). On equilibria of bid-ask markets. *Technical Report No. 452, Stanford University*.
+
+16. Zhan, W., & Friedman, D. (2007). Markup strategies and the paradox of high double auction efficiency. *Working paper, University of California, Santa Cruz*.
