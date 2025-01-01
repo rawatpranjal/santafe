@@ -10,23 +10,20 @@ class Auction:
     def __init__(self, config):
         self.config = config
         self.num_rounds = config["num_rounds"]
-        self.num_periods = config["num_periods"]
+        self.num_periods = config.get("num_periods", 1)
         self.num_steps = config["num_steps"]
 
         self.round_stats = []
+        self.all_step_logs = []
 
-        # current best bid & ask
+        # We keep track of best bid/ask each step
         self.current_bid = None
         self.current_ask = None
 
     def run_auction(self):
-        """
-        Main entry: run all rounds.
-        """
         for r in range(self.num_rounds):
             buyers, sellers = self.create_traders_for_round(r)
 
-            # gather valuations
             buyer_vals = []
             for b in buyers:
                 buyer_vals.extend(b.private_values)
@@ -39,9 +36,11 @@ class Auction:
 
             eq_q, eq_p, eq_surplus = compute_equilibrium(buyer_vals, seller_costs)
             rstats = self.run_round(r, buyers, sellers, eq_q, eq_p, eq_surplus)
+            rstats["buyer_vals"] = buyer_vals
+            rstats["seller_vals"] = seller_costs
             self.round_stats.append(rstats)
 
-            # If PPO or other custom finishing
+            # RL finishing calls
             for b in buyers:
                 if hasattr(b, "agent") and hasattr(b.agent, "finish_round"):
                     b.agent.finish_round()
@@ -50,45 +49,30 @@ class Auction:
                     s.agent.finish_round()
 
     def create_traders_for_round(self, r):
-        """
-        Uses registry to create each buyer/seller from config specs.
-        No direct references to custom classes.
-        """
         rng = random.Random(1337 + r*777)
         nT = self.config["num_tokens"]
 
-        # Buyers
         buyers = []
         for i, spec in enumerate(self.config["buyers"]):
-            # generate valuations
-            vals = sorted(
-                [
-                    rng.uniform(self.config["buyer_valuation_min"],
-                                self.config["buyer_valuation_max"])
-                    for _ in range(nT)
-                ],
-                reverse=True
-            )
-            name = f"B{i}_r{r}"
-
+            vals = sorted([
+                rng.uniform(
+                    self.config["buyer_valuation_min"],
+                    self.config["buyer_valuation_max"]
+                ) for _ in range(nT)], reverse=True)
+            name = f"B{i}"
             TraderCls = get_trader_class(spec["type"], True)
-            # If you have extra constructor args, pass them in
             init_args = spec.get("init_args", {})
             t = TraderCls(name, True, vals, **init_args)
             buyers.append(t)
 
-        # Sellers
         sellers = []
         for j, spec in enumerate(self.config["sellers"]):
-            vals = sorted(
-                [
-                    rng.uniform(self.config["seller_cost_min"],
-                                self.config["seller_cost_max"])
-                    for _ in range(nT)
-                ]
-            )
-            name = f"S{j}_r{r}"
-
+            vals = sorted([
+                rng.uniform(
+                    self.config["seller_cost_min"],
+                    self.config["seller_cost_max"]
+                ) for _ in range(nT)])
+            name = f"S{j}"
             TraderCls = get_trader_class(spec["type"], False)
             init_args = spec.get("init_args", {})
             t = TraderCls(name, False, vals, **init_args)
@@ -126,30 +110,34 @@ class Auction:
         # aggregator
         round_strat = {}
         for b in buyers:
-            key = ("buyer", b.strategy)
-            if key not in round_strat:
-                round_strat[key] = {"profit": 0.0, "count": 0}
-            round_strat[key]["profit"] += b.profit
-            round_strat[key]["count"] += 1
+            k = ("buyer", b.strategy)
+            if k not in round_strat:
+                round_strat[k] = {"profit": 0.0, "count": 0}
+            round_strat[k]["profit"] += b.profit
+            round_strat[k]["count"] += 1
 
         for s in sellers:
-            key = ("seller", s.strategy)
-            if key not in round_strat:
-                round_strat[key] = {"profit": 0.0, "count": 0}
-            round_strat[key]["profit"] += s.profit
-            round_strat[key]["count"] += 1
+            k = ("seller", s.strategy)
+            if k not in round_strat:
+                round_strat[k] = {"profit": 0.0, "count": 0}
+            round_strat[k]["profit"] += s.profit
+            round_strat[k]["count"] += 1
 
-        # bot-level (optional)
+        # bot-level
         bot_details = []
         for b in buyers:
             bot_details.append({
-                "name": b.name, "role":"buyer",
-                "strategy": b.strategy, "profit": b.profit
+                "name": b.name,
+                "role": "buyer",
+                "strategy": b.strategy,
+                "profit": b.profit
             })
         for s in sellers:
             bot_details.append({
-                "name": s.name, "role":"seller",
-                "strategy": s.strategy, "profit": s.profit
+                "name": s.name,
+                "role": "seller",
+                "strategy": s.strategy,
+                "profit": s.profit
             })
 
         return {
@@ -171,52 +159,79 @@ class Auction:
         for t in buyers + sellers:
             t.current_step = st
 
+        # We'll gather new bids/asks in lists
+        bid_list = [None]*len(buyers)
+        ask_list = [None]*len(sellers)
+
         c_bid_val = self.current_bid[0] if self.current_bid else None
         c_ask_val = self.current_ask[0] if self.current_ask else None
 
-        new_bids = []
-        for b in buyers:
+        # Collect new bids
+        for i, b in enumerate(buyers):
             off = b.make_bid_or_ask(c_bid_val, c_ask_val, 0, 1, 0.0, 1.0)
             if off is not None:
-                new_bids.append(off)
+                price_2dec = round(off[0], 2)
+                bid_list[i] = price_2dec
 
-        new_asks = []
-        for s in sellers:
+        # Collect new asks
+        for j, s in enumerate(sellers):
             off = s.make_bid_or_ask(c_bid_val, c_ask_val, 0, 1, 0.0, 1.0)
             if off is not None:
-                new_asks.append(off)
+                price_2dec = round(off[0], 2)
+                ask_list[j] = price_2dec
 
-        # update best bid
-        if new_bids:
-            best_new_bid = max(new_bids, key=lambda x: x[0])
-            if (self.current_bid is None) or (best_new_bid[0] > self.current_bid[0]):
-                self.current_bid = best_new_bid
+        # Recompute best bid
+        valid_bids = [(val, buyers[i]) for i,val in enumerate(bid_list) if val is not None]
+        if valid_bids:
+            best_bid = max(valid_bids, key=lambda x: x[0])
+            self.current_bid = best_bid
+        else:
+            self.current_bid = None
 
-        # update best ask
-        if new_asks:
-            best_new_ask = min(new_asks, key=lambda x: x[0])
-            if (self.current_ask is None) or (best_new_ask[0] < self.current_ask[0]):
-                self.current_ask = best_new_ask
+        # Recompute best ask
+        valid_asks = [(val, sellers[j]) for j,val in enumerate(ask_list) if val is not None]
+        if valid_asks:
+            best_ask = min(valid_asks, key=lambda x: x[0])
+            self.current_ask = best_ask
+        else:
+            self.current_ask = None
 
-        # check for trade
+        # Attempt trade
         trade_price = None
+        trade_happened = 0
         if self.current_bid and self.current_ask:
             bid_val, btrader = self.current_bid
             ask_val, strader = self.current_ask
             if btrader.decide_to_buy(ask_val) and strader.decide_to_sell(bid_val):
-                trade_price = 0.5*(bid_val + ask_val)
-                reward_b = btrader.transact(trade_price)
-                reward_s = strader.transact(trade_price)
-                if hasattr(btrader, "update_trade_stats"):
-                    btrader.update_trade_stats(trade_price)
-                if hasattr(strader, "update_trade_stats"):
-                    strader.update_trade_stats(trade_price)
-                if hasattr(btrader, "update_after_trade"):
-                    btrader.update_after_trade(reward_b)
-                if hasattr(strader, "update_after_trade"):
-                    strader.update_after_trade(reward_s)
-
+                tprice = 0.5*(bid_val + ask_val)
+                trade_price = round(tprice, 2)
+                btrader.transact(trade_price)
+                strader.transact(trade_price)
                 self.current_bid = None
                 self.current_ask = None
+                trade_happened = 1
+
+        # If no trade => keep best bid/ask from above
+        cBidFinal = None
+        cAskFinal = None
+        if self.current_bid:
+            cBidFinal = round(self.current_bid[0],2)
+        if self.current_ask:
+            cAskFinal = round(self.current_ask[0],2)
+
+        row = {
+            "round": r,
+            "period": p,
+            "step": st,
+            "bids": bid_list,   # each buyer's price or None
+            "asks": ask_list,   # each seller's price or None
+            "cbid": cBidFinal,
+            "cask": cAskFinal,
+            "trade": trade_happened,
+            "price": trade_price,
+            "bprofits": [round(b.profit,2) for b in buyers],
+            "sprofits": [round(s.profit,2) for s in sellers]
+        }
+        self.all_step_logs.append(row)
 
         return trade_price
