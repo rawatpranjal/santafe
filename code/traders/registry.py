@@ -14,6 +14,8 @@ TRADER_REGISTRY = {
     ("kaplan",  False): KaplanSeller,
     ("gdbuyer", True):  GDBuyer,
     ("gdseller",False): GDSeller,
+    ("zic",True):  RandomBuyer,    
+    ("zic",False):  RandomSeller,
     ("zipbuyer",True):  ZipBuyer,
     ("zipseller",False):ZipSeller,
     ("ppobuyer",True):  PPOBuyer,
