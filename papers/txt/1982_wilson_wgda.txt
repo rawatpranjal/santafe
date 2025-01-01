@@ -1,0 +1,2509 @@
+LIBRARY
+
+ON EQUILIBRIA OF BID-ASK MARKETS
+
+RESEARCH REPORTS DiV!SiON
+NAVAL FOSTGHAlUAiZ SCli^OL
+MOi^EREY, CALIFOi^NW 93d43
+
+by
+ROBERT WILSON
+
+TECHNICAL REPORT NO. 452
+November 1984
+
+PREPARED UNDER
+NATIONAL SCIENCE FOUNDATION GRANTS SES-83-08-723
+AND THE
+CENTER FOR RESEARCH ON ORGANIZATIONAL EFFICIENCY
+STANFORD UNIVERSITY
+Contract ONR-N00014-79-C-0685, United States Office of Naval Research
+
+THE ECONOMICS SERIES
+
+INSTITUTE FOR MATHEMATICAL STUDIES IN THE SOCIAL SCIENCES
+FOURTH FLOOR, ENCINA HALL
+,^tANFORD UNIVERSITY
+STANFORD, CALIFORNIA
+
+r
+
+ON EQUILIBRIA OF BID-ASK MARKETS
+
+ROBERT WILSON
+
+Technical Report No. ^52
+November 1981t
+
+PREPARED UNDER
+NATIONAL SCIENCE FOUNDATION GRANTS SES-83-08-T23
+AND THE
+
+,
+
+CENTER FOR RESEARCH ON ORGANIZATIONAL EFFICIENCY
+STANFORD UNIVERSITY
+Contract ONR-NOOOlU 79 C O685, UNITED STATES OFFICE OF NAVAL RESEARCH
+
+THE ECONOMICS SERIES
+INSTITUTE FOR MATHEMATICAL STUDIES IN THE SOCIAL SCIENCES
+Fourth Floor, Encina Hall
+Stanford University
+Stanford, California
+9^+305
+
+ON EQUILIBRIA OF BID-ASK MARKETS
+!
+
+'
+
+'
+
+Robert Wilson * \
+
+I
+
+I
+
+,
+
+■
+
+.
+
+.
+
+■
+
+Among his many contributions to economic theory, Kenneth Arrow's studies
+of general equilibriiun are especially important to the continuing development
+ol the fine structure of market-mediated allocation processes. The paradigm of
+efficient decentralized allocation via market clearing prices developed from
+the Walrasian model in the long line of research given its greatest impetus
+by Arrow, Gerard Debreu, and their colleagues. The demonstration that 'perfectly* competitive complete markets, characterized by universal price-taking
+behavior, can in principle (absent non-convexities, etc.) attain an efficient
+allocation set the cornerstone of the theory of markets. By establishing the
+BtEindard against which further studies of imperfectly competitive and incomplete markets are compared, this accomplishment continues to shape the agenda
+of continuing research on competitive processes.
+Building on the foundation established by the theory of Walrasian models
+of general equilibrium with perfect competition, subsequent studies have aimed
+to elucidate the mechanisms of price formation in imperfectly competitive markets. One approach has been experimental and the data have strongly confirmed
+the predictive power of the Walrasian model, particularly in the case of pure
+exchange via publically announced bid and ask prices, even with relatively few
+participants. In replicated markets most of the gains from trade are realized
+
+• This work was supported by grant SES 83-08-723 from the National Science Foundation and contract ONR N00014 79 C 0685 from the Office of Naval Research. I am
+indebted to Peter Cramton for inspiration and the insights that made this research
+possible, and to Drew Fudenberg, David Kreps, John Ledyard, and John Roberts for
+discussions, though none of these are responsible for my errors.
+
+and the trading prices converge quickly to or near the Walrasian price. A second approach has aimed to establish game-theoretic foundations for imperfectly
+competitive markets, focusing mainly on models of oligopoly eoid monopolistic
+competition but also recently on the extreme case of pure exchange represented
+by models of bilateral bargaining.
+In this chapter we undertake an exploratory analysis of the connection between bilateral bargaining and the multilateral bargaining that is inherent
+in trading processes such as bid--ask markets. The theme suggested is that the
+theory of bilateral bargaining has a natural extension to multilateral trading
+in bid-ask markets, and then this extension generalizes naturally to encompass models of nearly perfect competition with many buyers and sellers. Our
+results are not complete, since we only examine certain necessary conditions
+and merely speculate on the appropriate sufficiency conditions, but nevertheless the internal consistency of the construction is encouraging.
+Our analysis is based entirely on extrapolation from the important results
+obtained by Cramton [1984] for a model of bilateral bargaining between a buyer
+and a seller, with a crucial exception. Generalizing from the work of Rubinstein [1982] on a model with complete information, Cramton derives an equilibrium for a model with incomplete information in which each party's reservation
+price for the item to be traded is privately known. A main conclusion from this
+work is that the parties' impatience for an agreement, reflected in the interest rates they use to discount future payoffs, are major determinants of their
+bid, ask, and acceptance strategies. Moreover, trading takes time because each
+party needs to signal credibly his or her reservation price, and delay in offering or accepting proposed prices is an importemt credible signal. ^
+In generalizing Cramton's construction to multilateral markets, we propose to omit the role of impatience in the form of discounting in order to show
+how impatience arises endogenously from the competitive pressures among multiple buyers and among multiple sellers. That is, in multilateral situations
+a buyer or seller is impatient to trade lest a competitor usurp the opportunity
+with an earlier bid or ask that might be accepted. In doing so we obtain some
+
+notational and analytical simplicity in an otherwise very complicated formulation, while at the same time we illustrate starkly the endogenous generation of
+impatience among the traders. A price we pay, however, is that the results are
+further incomplete due to the absence of a theory of the associated endgames
+that result when only one buyer or one seller remains who has not previously
+traded, and who is therefore not subject to competitive pressure. (The possible resolutions of this difficulty are discussed in §5.)
+Showing that competitive pressure suffices to create impatience contributes to the second part of our agenda, which is to argue that bid--ask markets with many buyers and sellers approximate perfectly competitive markets;
+e.g. , the equilibrium strategies imply near exhaustion of the gains from trade
+at prices approximating the Walrasian clearing price. This agenda requires
+that strong competitive pressures create overwhelming impatience so that trade
+proceeds quickly and little is lost in delay costs if in fact the participants
+have positive interest rates. One hopes to establish eventually, though not
+here, that with very memy traders the market clears nearly immediately at prices
+predominately close to the Walrasian clearing price
+
+thereby establishing a
+
+geime-theoretic foundation for the Walrasian model of perfect competition in
+the case of pure exchange with incomplete information. Such a construction
+would at the sajne time yield an answer to von Hayek's long-standing conundrum
+as to how it is that information dispersed among the traders is manifested in
+prices.
+The execution of this agenda lies far beyond what will be accomplished in
+this chapter, and indeed its premises might still be foiind false. Nevertheless, here we take the first steps to construct the hypothesized form of the
+equilibrium.
+
+1.
+
+Introduction
+
+The bid-ask market is a common form of market organization, prevalent for instance in the commodity exchanges that are often used as the chief examples of
+perfectly competitive markets. It has been the subject of several experimen-
+
+I
+
+■•
+
+■
+
+■
+
+3
+
+ta.1 studies, some of which are reviewed by Plott [1982] and Smith [1982]. These
+experiments use the format of an oral double auction. In the simplest version,
+each trader is assigned a role as either a seller or a buyer, with an inelastic
+supply of or demand for one unit at a privately known reservation price. A limited duration is allowed in which at each time each trader can post an ask or a
+bid price, or accept one of the previously posted prices and thereby conclude
+a trade. A trader's payoff is the difference between his or her reservation
+price and the accepted price, or zero if the trader fails to trade. A prominent
+feature of the experimental results is that frequently most of the gains from
+trade are realized. Our aim is to show that this feature and others of interest
+would also obtain if the traders used strategies of the form derived by Cramton in the case of bilateral bargaining. Moreover, we will verify that such
+strategies satisfy at least the necessary conditions for an equilibrium.
+The purpose of this chapter, then, is to construct a proposed equilibrium
+for a model of an oral double auction. The model used is somewhat stylized;
+e.g. , time is taken to be continuous. Moreover, the equilibrium has the special form derived in prior work by Creimton [1984] for the special case of one
+seller and one buyer; no attempt is made here to find other equilibria. ^
+Our main result characterizes the proposed equilibrium as a multilateral
+sequential bargaining process in which sellers and buyers are endogenously
+paired off to trade until the gains from trade are nearly exhausted. If there
+are many sellers and buyers then there is a small chance that a profitable trade
+will be missed, and if so the unrealized gains from trade are small.
+The price at which each pair trades is determined by the prospect of competition from other sellers and buyers. This feature differs from Cramton's
+characterization in which each trader's impatience to reach an agreement derives from an exogenously specified interest rate at which future payoffs are
+discounted.
+The model is formulated in §2. ^ The proposed equilibrium is then described
+informally in §3 and its main implications are derived. In §4 we undertake a
+more detailed construction and specify the traders' strategies completely ex-
+
+cept for contingencies f&r from the 'equilibrium path'. The specia.1 case of
+one seller or one buyer (i.e.. an ordinary auction) is discussed briefly in §6
+without specific results, since in this case it is necessary to add some exogenous source of impatience to sustain the form of the strategy of a monopolist
+trader. Concluding remarks are in §6.
+A caution about terminology: ve use the term 'equilibrium' in what follows
+even though we examine only whether the proposed equilibrium satisfies certain
+necessary conditions. The reader is urged to remember that it may yet be found
+that the construction fails because our assumptions or the necessary conditions prove to be insufficient.
+2.
+
+Formulation
+
+The following data of the game are common knowledge among the players. There
+are m + n traders divided into m sellers and n buyers, and a single traded
+good to be excheinged for money. Each seller t = l,...,m has an inelastic supply of one indivisible unit at any price not less than his privately known reservation price Ui , which we call his valuation. Similarly, each buyer j = 1,... ,n
+has an inelastic demand for one unit at any price not exceeding his privately
+known valuation Vj . Thus, if seller t and buyer j trade at the price p then
+their payoffs are p — «,• and Vj — p respectively. The traders' preferences are
+linear in these payoffs; neither risk aversion nor wealth effects are present.
+The traders' valuations U = (ui),=i,...,m ^^^ V = (vy)j=i,...,n a^re jointly distributed according to the distribution function
+
+(1)
+
+F{a,b) = Fr{U>a&:V<b}
+
+with a positive density on the support [u*,l]'" x [0, «*]" . (Note that i^ is a
+right-cumulative distribution in terms of U ; all other distribution functions used will be left cumulatives.) Suppose that u* < v* so that gains
+from trade are not precluded. Assume that {U,V) are affiliated (cf. Milgrom
+and Weber [1982]), and symmetrically distributed in the sense that F(a,b) =
+F{aa,ph) for any two permutations a and P on m and n characters respectively. * Associated with F is the expectation operator £{} and the various
+
+conditional expectation operators £{• \ •} ; e.g., the one relevant for seller
+t is £{■ I u,} which conditions on his valuation u,- . These operators can be
+conditioned further on observations of public events, interpreted for their
+informational significance using the traders' equilibrium strategies.
+[Remark: A special case of such a distribution arises naturally in our
+construction and the reader may find it useful for interpretive purposes. Suppose that the buyers' valuations are independent of the sellers' valuations,
+and for illustration consider only the joint distribution of the buyers' valuations. Suppose that the buyers' valuations are conditionally independent and
+identically distributed given the value of a random variable z & [0,v*] , each
+with the distribution function FB and the distribution function G for z .
+Unconditionally it is known only that the buyers' valuations do not exceed z ,
+so that
+m
+
+Fr{V<b}=f
+
+Jo
+
+]lFB{mm{bj,z})dG{z).
+.
+
+Such a case arises if the buyers' valuations were known initially to be independent but midway in the trading process it is inferred that those buyers who
+have not yet traded are those with valuations less than the ones who have already traded, but the minimum z among the valuations of those who have previously traded is not observed. Note that the distribution G is then the distribution of the rank order statistic appropriate to the number of buyers who
+have previously traded. See (5) below.]
+As usual in game-theoretic formulations, the traders' equilibrium strategies are assumed to be common knowledge. The following trading rules are also
+common knowledge. Play is confined to a duration 1 and time, which runs continuously, is indexed by f G [0,1) ; since trade ceases at f = 1 there are no
+'final offers*. At each time each trader who has not previously transacted can
+post an ask or a bid price or accept a posted price: sellers post asks and accept bids, buyers post bids and accept asks. Acceptance fixes that price for
+both the poster and the acceptor and these two traders are inactive thereafter;
+recontracting is excluded. All posted prices and acceptances are observed by
+6
+
+all traders, and each trader has perfect recall.
+A strategy for a trader specifies at each time he is active (i.e., has not
+yet treuisacted) his action conditional on the common knowledge, his observations to date, and his valuation. His action is either his posted price, if
+any, or his acceptance of a posted price, thereby concluding his activity.
+A belief system for a trader specifies at each time he is active a probability distribution over the other active traders' valuations, conditional on
+the common knowledge, his observations, and his valuation
+
+starting with F
+
+at time f = 0 conditioned on his valuation. An assignment of strategies and
+belief systems to the traders is consistent if the belief system is a conditional probability system satisfying Bayes' Rule wherever applicable (i.e.,
+the most recent conditioning event is not null) . ^
+We present a special kind of Nash equilibrium called a sequential equilibrium by Kreps and Wilson [1982] . A sequential equilibrium is a consistent
+assignment of strategies and beliefs to the traders such that for each trader,
+conditional on the time, his observations, and his valuation, his strategy for
+the remainder of the game is optimal given his current probability assessment
+and the other traders' strategies. We are interested, moreover, in a special
+kind of sequential equilibrium, called Markov perfect by Maskin and Tirole
+[1983] , having the property that a trader's strategy at each contingency depends on the current history only through his current beliefs; that is, his
+current beliefs are a sufficient summary of the history. Interest in such an
+equilibrium stems from the fact that if other traders' strategies do not depend on the details of the prior history then a trader obtains no advantage
+from conditioning his strategy on these details. We shall also specify that
+the equilibrium is symmetric: all sellers use the same strategy and belief
+system, and similarly for buyers. Because their valuations differ, however,
+different sellers (or buyers) generally take different actions in similar contingencies.
+Assume that each trader is indifferent as to the time he transacts; a trader
+does not discount future payoffs. We are thus able to construct the equilib-
+
+rium 80 that it is independent of any particular interpretation of clock time.
+That is, it suffices to describe the strategies as implicit functions of time
+and then to allow that the actual equilibrium is obtained from any parameterization of time that is common knowledge among the traders; this technique is
+illustrated in §4. Since time runs continuously, moreover, the time index can
+be re-started at zero after each transaction. For example, if the first trade
+occurs at t = 0.5 then the remaining m - 1 sellers and n - 1 buyers enter
+a 'subgame' with a new clock that runs twice as fast as the original clock,
+so that both clocks register 1 and close the market at the same instant. (In
+practice there is a natural parameterization of time derived from the rate at
+which postings and acceptances are recorded; here we ignore this feature of
+the transaction technology.) The construction is designed in this way so that
+we need to describe only the strategies for a typical 'subgame' similar to the
+original game except for the number of traders and the conditioning of probability assessments.
+Several technical specifications complete the formulation. First, we choose
+to exclude retention of posted prices: the posted prices at each time are those
+offered at that instant. Second, ties are resolved by some tie-breaking rule.
+The natural rule is a randomization:
+
+[a] multiple asks (or bids) at the same
+
+price at the same time are resolved by choosing one by an independent, uniform randomization; and [b] multiple acceptances of a single posted price are
+similarly chosen randomly. This natural rule complicates formulas, however,
+so here we opt in favor of the (admittedly impractical) rule of choosing the
+seller with the least valuation or the buyer with the greatest valuation. Third,
+multiple postings of different ask prices (or bid prices) at the same time are
+excluded: only the least ask (or the greatest bid) is posted. Similarly, an
+acceptance is interpreted as acceptance of the least current ask (or the greatest current bid); and posting, say, an ask less than or equal to the current
+posted bid is interpreted as acceptance. Further ambiguities can arise from
+the continuity of time and we resolve these by imagining that each instant is
+an infinitesimal interval that allows traders to respond to each other's ac8
+
+tions: for example, a seller's strategy can specify in some contingency that
+he asks the minimum of his 'intended' price p and the least among the prices
+asked (if any) by competing sellers and not exceeding his valuation (e.g. , if
+several sellers do this then the resulting posted price is the second lowest
+valuation, posted by the seller with the least valuation) . As we shall see,
+these technical specifications have little effect on the particular equilibrium that is constructed.
+Lastly we mention some notational conventions. The notation xHy where x
+is a scalar and {/ is a vector indicates the vector {mm{x,yj}) , and similarly
+xliy indicates the vector of maxima. Expectations and probability distributions that are conditioned on the publically observed history up to time t are
+denoted by St{' I "} ^^'^ ^t ■ We use similar notation to represent conditioning on a seller's valuation [JP(- | U.) ] and a buyer's valuation [F(- | vy) ] ; no
+confusion should result.
+
+Ft{v) is used to indicate the distribution function
+
+of the maximum v among the buyers' valuations, and similarly for the distribution of the minimum of the sellers' valuations. Each distribution can be conditioned further on publically observed events or inferences from the traders'
+strategies. We use a semi-colon to separate conditioning on a valuation and
+conditioning on an extreme valuation; e.g., Ft{v \ u;u) is the distribution
+function of t; at time t conditioned on one seller's valuation being u and the
+minimum among the other sellers' valuations being u .
+The exposition is eased by supposing that a trader who fails to trade in
+the game actually trades elsewhere at a reservation price equal to his valuation. Thus, the payoff of a seller with the valuation u can be interpreted as
+either his transaction price or, if he fails to trade, then his valuation u ;
+similarly a buyer with the valuation t; obtains either his transaction price or
+his valuation v . Following this convention, we use U{u) to indicate the expected price obtained by a seller (so in the original formulation his payoff is
+U{u) — u), which he wants to maximize, and T'(t;) to indicate the expected price
+obtained by a buyer (so his payoff is t; — 1^(1;) in the original formulation),
+which he wants to minimize.
+
+After two traders tremsact they become inactive and the remaining active
+traders enter an ensuing 'subgame': the typical notation uses F° to indicate
+the conditional probability distribution they carry into the ensuing 'subgame'
+(restricted to the support of the active traders' valuations conditioned on
+the history of observations, though this conditioning will not always be explicit), U° and V° to indicate the expected payoffs of a seller and a buyer
+in the ensuing subgame, etc. (This is a non-steindard use of the term 'subgame',
+equivalent to the notion of a subf orm used by some authors to indicate what
+would be a subgame were it not for the effects of the incomplete information
+regarding the initial assignment of valuations to the traders. Here we induce a particular continuation game that the remaining active traders play by
+specifying their probability assessments as determined by conditioning on the
+prior history of play. However, later we shall allow that prior history can
+influence beliefs off the equilibrium path; see §4. Hereafter we use the term
+subgame without apology.)
+
+3.
+
+The Equilibrium: Description and Implications
+
+In this section we describe the equilibrium informally in order to convey its
+structural features, and then derive its main implications. The precise specification is deferred to §4.
+The significant aspect of the equilibrium is that sellers and buyers are
+sequentially matched for transactions via an endogenous process that continues so long as there is a chance that gains from trade remain and time has not
+expired. Moreover, the price at which each pair transacts is determined by the
+competitive pressures from other sellers and buyers who are alternative trading partners. The following description sketches the workings of this process.
+We concentrate on the results of play according to the equilibrium strategies
+(i.e., along the 'equilibrixm path') and mention only briefly the consequences
+of deviations, which will be elaborated in §4.
+A key property of the equilibrium is that each strategy is a monotone function of the trader's privately known valuation. This property has several im-
+
+portant consequenceB. First, given our choice of the tie-breaking rule (cf.
+§2). traders are matched in order of their valuations: the seller with the lowest valuation transacts first (if at all) with the buyer having the highest
+valuation. Consequently, each transaction moves the remaining active traders
+into an appropriately specified subgame that is similar to the original game;
+e.g. , the numbers of active sellers and buyers are reduced from m and n to
+m — 1 and n — 1 , time is again initialized at zero, and the remaining active
+traders' probability assessments are conditioned on the accumulated observations. Since the equilibriiun is sequential, the strategies for the remaining
+active traders must constitute a sequential equilibrium for this subgame. By
+an induction argument, therefore, it suffices along the equilibrium path to
+describe the equilibrium for atypical subgame. However, the terminal subgames
+having only one seller or one buyer are special, because competitive pressure
+is absent, so their description is deferred to §5.
+Second, in a typical subgame a price offered by one trader allows others
+to infer information about his valuation. The form of the equilibrium we construct is essentially characterized by this inferential process, which is derived from the prior work of Cramton [1984] . It is useful to distinguish between non-serious and serious ask and bid prices. An ask so high or a bid so
+low that it has zero probability of being accepted (according to the equilibrium strategies) is non-serious, and serious otherwise. For example, an ask is
+non-serious if it exceeds a posted ask or if there is no other serious ask offered and the ask exceeds the highest price that any buyer would accept according to the equilibrium strategies. We construct an equilibrium in which the
+traders' beliefs and strategies do not depend on the magnitudes of non-serious
+offers; similarly, not posting any offer is interpreted as the same as offering
+a non-serious price. Interest in such an equilibrium stems from the fact that
+a trader has no incentive to choose a particular non-serious offer from the
+many available unless it has some special significance as a signal: if other
+traders make no inferences from the numerical magnitudes of non-serious offers then a trader is indifferent as to which non-serious offer he makes. Since
+11
+
+ve seek a Markov perfect equilibrium in which the details of the history have
+no special significance along the equilibirum path ve want to exclude the possibility of signalling and thus rule out any inferential process that would
+motivate a trader to prefer one non-serious offer over another.
+With this convention, the inferential process allows two possibilities after a trader makes an offer. The trader either makes a serious offer and the
+others then infer his valuation by inverting his strategy, or he makes a nonserious offer and the others infer only that his valuation is insufficient to
+prompt a serious offer. In the case of a seller, for example, if his ask price
+exceeds the maximum serious ask price then others infer only that his valuation
+exceeds the maximum valuation that would have led him to offer a serious price
+in that contingency.
+
+[Later we reinforce this approach further by requiring
+
+that also off the equilibrium path other traders infer that a trader's valuation is no less extreme than the most extreme that can be inferred from the entire history of his serious offers; for example, others infer that a seller's
+valuation is no more thiin the least valuation consistent, according to the
+equilibrium strategies, with any one of his serious ask prices.]
+This inferential process has strong incentive effects, as we shall see.
+Each trader prefers to delay his first serious offer so as to prevent others
+from inferring that his valuation is more extreme than in fact it is. A seller,
+for example, wants to avoid others' inference that his valuation is lower than
+it actually is. He does this by delaying his first serious offer until it signals correctly his valuation — and competitive pressure, the prospect that
+another trader will usurp the opportunity to trade, will assure that he wants
+to delay no longer.
+This form of the equilibrium implies that a typical subgajne divides into
+two phases. In the initial phase no serious offers are proposed and as time
+passes each trader continuously truncates the support of the probability distribution of the others' valuations as he infers that no trader has a valuation sufficient to induce a serious offer. We shall see that this initial phase
+continues until time expires only if the probability and magnitude of gains
+
+n
+
+from trade are both sufficiently email. Otherwise, it terminates with an initial serious offer that, by inference from the equilibrium strategies, reveals
+the posting trader's valuation. Since the offer is serious there is a positive
+probability that it is accepted immediately. If it is not accepted then the
+second phase ensues and the posting trading improves his offer until he obtains
+an acceptance or time expires.
+Before describing the ensuing second phase it is useful to see the equilibrixim strategies for the initial phase that are depicted schematically in
+Figure 1. The time t is represented along the abscissa and the traders' valuations are represented along the ordinate. Shown in the figure are the valuations u*{t) and v*{t) of the sellers and the buyers respectively that prompt
+their first serious offers p{t) and q{t) at time t ; the difference between
+these is denoted by A(f) = q{t) - p{t) . Initially u*(0+) > u* and i;*(0+) < v* ;
+one (or both) of these is an equality and the figure illustrates the case that
+u*(0+) = u* and «;*(0+) < v* . When time expires u*(l) = u and f;*(l) = v .
+For example, if a seller t has the valuation u,- < u'{t) then he makes his first
+serious offer before time t , but if u,- > u then he never makes a first serious offer in this subgame. As shown in the figure, S{u) and T[v) denote the
+times that a seller with the valuation u eind a buyer with the valuation t; make
+their first serious offers. At each time t the maximum serious ask and the
+minimum serious bid are p{i) and q[t) respectively. If, say, the serious ask
+price p[i) is offered at time f by a seller with the valuation u = u*{t) then
+each buyer with a valuation in the interval between «**(<) and v*{t) proposes
+to accept; according to our tie-breaking rule the one with the highest valuation is selected for the transaction. Accordingly, the other traders infer the
+seller's valuation to be u*{t) and infer that it is a lower bound on the other
+sellers' valuations. If there is an immediate transaction then they infer that
+the buyer's valuation is between t;*'(i) and v*{t) and that it is an upper bound
+on the other buyers' valuations. Similarly, if the initial serious ask is not
+accepted then the traders infer that no buyer has a valuation exceeding v**[t) .
+When time expires p(l) = u*{l) = t;"(l) = u and q{l) = t;''(l) = u**(l) = t) ; e.g. ,
+!
+
+13
+
+if a seller with the valuation u asks p(l ) = u just before time expires then
+it is accepted by any buyer with a higher valuation.
+The fact that there is an interval of buyers' valuations implying willingness to accept a first serious ask price is another manifestation of a buyer's
+incentive to delay making a first serious offer. The benefit of delay is assurance that others will not infer that his valuation is too high, and the cost is
+the risk that another buyer will intervene earlier with a serious bid and capture an opportunity to trade; when this cost is removed buyers with valuations
+appreciably lower than the level prompting a serious bid are ready to accept.
+On the other hand, the fact that a seller about to conduct an auction among the
+buyers prefers to reveal his valuation is an instance of a general result due
+to Milgrom and Weber [1982; Theorems 17, 18].
+Note that no serious offer occurs if no seller has a valuation below u and
+no buyer has a valuation above v . In this case time expires without a transaction even though there is a positive probability that gains from trade are
+possible; however, the possible gain from a trade is bounded by the difference
+S = V - u and the probability is correspondingly small. That there is a positive difference between v and « is a necessary property of an equilibrium of
+this form since it is known that no trading rule can ensure that all gains from
+trade are realized; e.g., see Wilson [1983] . We shall see that it is also nec-
+
+essary that A{1) = q{l) - p{l) = 6 is positive.
+The equilibrium strategies in the second phase are depicted schematically
+in Figure 2 for the case that a seller with the valuation u offered a first
+serious ask price p{t) at time t = S{u) that was not accepted. In the ensuing play this seller conducts a Dutch auction in which he continuously lowers
+his ask price A{t;u) until it is accepted by some buyer, or his ask price declines to his valuation u as time expires and there is no trade. Initially
+A{S{u);u) = p{S{u)) and when time expires A{l;u) = u. Shown in the figure
+is the valuation v°{t;u) of the buyer who would accept at each time t > S{u) ,
+starting with v°{S{u);u) — v**{S[u)) and ending at v°[\;u) = u . As time passes
+without a transaction, therefore, the traders infer at time t that no buyer
+
+u
+
+has a valuation exceeding v°{t;u) . and if the ask price A{t;u) is accepted at
+time t then the remaining active traders infer that the accepting buyer's valuation is v°{t;u) . Along the equilibrium path the other sellers make no serious offers and the probability assessment of their valuations remains unchanged. The fact that the two curves A{t;u) and v°{t;u) coincide at the valuation u when time expires at time t = 1 is a general requirement of a sequential equilibrium: if the seller planned to keep his ask above his valuation then near the end he would want to cut his price to increase his chance of
+trading, and similarly for a buyer planning when to accept. Thus in this second
+phase failure to trade indicates an absence of gains from trade (this is consistent with the general theory since the seller's valuation has already been
+inferred by the other traders) . [Off the equilibrixim path the strategies in
+the Dutch auction are actually more complicated than is shown in the figure: if
+another seller intervenes with a lower ask price then play immediately reverts
+to a Dutch auction conducted by the intervening trader, whose valuation is presumed revealed by his offer by inference from the equilibrium strategies
+cf. §4.]
+Figure 3 depicts schematically the analogous strategies in the case that
+the first serious offer was made by a buyer with the valuation t; and not accepted.
+In the following paragraphs we outline some of the consequences of an equilibrium of this form.
+Probability Assessments
+The inferential process in the two phases of a subgame is siimmarized as follows. As time passes without a serious offer in the initial phase the traders
+continuously truncate the support of the probability distribution to reflect
+the inference that no trader has a valuation sufficient to prompt a serious offer. Based on the publically observed history, therefore, the distribution
+function for the traders' valuations is
+(2)
+
+F,{a,b) =
+
+F{u'{t)Ua,v'{t)nb)
+
+F{u'{t)l,v*{t)l)
+15
+
+a.t time t in the initial phase, where 1 denotes a vector of Is. This is equivalent to the expectation operator £{• | u>u*{t),v<v*{t)} , where u = inin,{u,- |
+l<t<m} and v = maxy{t;y | l<j<n} ; of course, each trader further conditions on
+his valuation.
+The first serious offer is interpreted as revealing precisely the valuation of the trader who proposes it. Taking the case of a seller, let F{a,b | u)
+be the conditional distribution function given the seller's valuation u ; then
+upon offering his first serious ask at time t* = S(u) the distribution function for the traders' valuations becomes
+
+,,.
+
+7. r
+
+M- nu*{t')^a,^*{n^b\u*{t'))
+
+This is equivalent to the conditional expectation operator
+
+£{.\u=u^n,v<v*{n}.
+If the first serious offer is not accepted then again the traders truncate the
+support to reflect the inference that no trader has a valuation sufficient to
+induce acceptance according to the equilibrium strategies.
+Similarly, as time passes without a treoisaction in the second phase the
+truncation reflects the inference that no trader has a valuation sufficient to
+accept the offer in the Dutch auction. At time t > t' = S{u) , therefore, the
+distribution function for the traders' valuations becomes
+
+F{u'{nua,v°{t;u)nb\u'{n)
+^*'
+
+*^''
+
+F{u*{t*)l,v°{t;u)l\u*{t*))
+
+•
+
+This is equivalent to the conditional expectation operator
+
+£{-\u=u*{t*),v<v°{t;u)}.
+If a transaction occurs then the remaining active traders move into a subgame
+with a probability assessment that depends on the circumstance.
+If the first serious ask was accepted then the ensuing subgame is initialized with the probability assessment
+
+on the support [u*(f*), 1]"*"^ x {0,v*{t*)]"~^ lor the remaining active traders;
+here Ft{a,b \ v) represents the further conditioning of Ft on a buyer's valuation t; , and Ft{v) is the marginal distribution (derived from Ft ) of the
+maximum valuation v among the buyers. This is equivalent to the conditional
+expectation operator
+
+j
+
+£{.\u=u'{nve[v"{ny{n]}.
+If the seller's later ask in the Dutch auction at time t > S{u) is accepted
+
+then the ensuing subgame is initialized with the distribution
+
+^^^
+
+^ ''~
+
+Ft{u'{t*)l,v''{t;n)l)
+
+on the support [u*(t*), l]"*~^ x [0,v°{t;u)]"~^ for the remaining active traders.
+This is equivalent to the conditional expectation operator
+
+£{\u=u*{t*),v=v°{t;u)}.
+In either case, the distribution F° that initializes the ensuing subgame satisfies the requirement that the subgame is similar to the original game: the
+remaining active traders' valuations are affiliated and symmetrically distributed (Milgrom and Weber [1982]).
+Subgame Payoffs
+The implications of these strategies for the expected payoffs obtained by a
+trader, say a seller t , are depicted in Figures 4,6, and 6 for three ranges in
+which his valuation u can lie. Figure 4 represents the situation if u < u so
+that he plans to offer a serious ask price at the time S{u) if no other trader
+does so earlier. The abscissa u represents the minimum among the other sellers' valuations and the ordinate t; represents the maximum among the buyers'
+valuations. The three regions shown correspond to the three cases that there
+is no trade in this subgame (his payoff is his valuation u ), some other seller
+trades with a buyer (his payoff is the expected payoff U° in the ensuing subgame, depending via F° on u and v for the tremsaction that occurs), and the
+i
+
+17
+
+case that he trades with the buyer having the valuation t; at a price P{u,v) .
+This price is defined by
+
+(7)
+
+P{u,v) =
+
+(p{S{u))
+
+it S{u)<T{v)kve[v"[S[u)),v*{S{u))],
+
+A{t;u)
+
+it S{u)<T{v) &:v = v°{t;u)<v"(S{u)),
+
+q{T{v))
+
+it S{u)>T{v)Scue[u'{T{v)),u"{T(v))],
+
+B{t;v)
+
+it S{u)>T{v)&:u^u°{t;v)>u*'(T{v)).
+
+I
+
+Figure 7 shows how the treuisaction price P{u,v) varies with v . The notation
+
+A{u,v) = A({v°)-^{v);u) and B{u,v) = B{{u°)-^{u);v) is used. Note the discontinuity where 5(u) = r(u) , or equivalently {u,v) = {u*{t),v*(t)) .
+
+As shown in Figures 5 zind 6, these regions are more complicated when the
+seller is uncertain that a serious offer will be made, since there is a small
+triangular region in which gains from trade are missed. Table 1 summarizes the
+features shown in Figures 4,5, and 6. An analogous table describes a buyer's
+contingent subgame payoffs.
+Table 1: A Seller's Contingent Subgame Payoffs
+
+V < {unu)r\v
+
+V > {unu)nv
+
+v > {unu)uv
+
+V <{ur\u)Uv
+u<unu
+
+u
+
+unu<u<u
+
+u
+
+u< u
+
+u
+
+U°
+
+U°
+
+«
+!u
+P{u,v)
+
+it u> u ^
+
+U°
+
+if u < ti J
+
+Using this description of a seller's contingent subgame payoffs, we develop a general formula for the expected subgame payoff of a seller. At time t
+let Ft{v 1 w;u) be the distribution function of the majcimum v among the buyers' valuations conditional on one seller's valuation being w and the minimum
+among the other sellers' valuations being u ; and let Ft{u | w) be the conditional distribution function of the latter. Also, let U°{u 1 u,v) be the
+expected payoff of a seller with the valuation « if he remains active in the
+ensuing subgame after a treinsaction between another seller with the valuation
+
+u and a buyer with the valuation v . The dependence of U° on (u,tj) is via its
+dependence on F° as in (6) and (6). Corresponding to the three rows of Table
+1, define
+1
+
+/"*_/■"
+
+I^{u\w;u)=
+I
+
+udFt{v\w;u)+
+
+^0
+
+(8)
+
+^'>
+
+U°{u \ u,v)dFt{v \ w;u),
+
+Js.
+
+lf{u\w;u)=
+
+udFt{v\w;u)+
+Jo
+
+1
+
+U°{u \ u,v) dFt{v \ w;u),
+JtJUtt
+
+ri^+((i)
+lf{u,u\w;u)=
+
+_
+fv'it)
+udFt{v\w;u)+
+P{u,v)dFt{v \ w;u),
+
+Jo
+
+Ja+fiii)
+
+where
+
+(9)
+
+e(«) ^
+
+(V-u
+
+it u < u < V ,
+
+>-
+
+otherwise
+
+-. - '
+
+0
+
+v
+
+Observe that this notation distinguishes between the seller's actual valuation
+u , the valuation w upon which he conditions his probability assessment, and
+the valuation u upon which he conditions his strategy, although in equilibrium these must all be identical.
+With this notation we specify a general formula that is useful later. The
+seller's expected subgame payoff if he conditions his probability assessment
+on w and his strategy on u is
+runu
+•tinii
+
+Ut{u,u\w)=
+(10)
+
+i-i
+rH
+
+I^{u\w;u)dFt{ii\w)+
+Jv-'it)
+
++ I
+
+lf{u\w;u)dFt{ii\w)
+Junn
+
+lf(u,u\w;u)dFt{u\w),
+
+Ja.
+la
+
+at each time t < S{u) before any serious offer. In equilibrium, of course, the
+actual expected subgame payoff is U{u) = Uo{u,u | u) . A similar formula can be
+constructed for a buyer.
+It is importemt to note that potentially there could be a discontinuity
+in U{u) at u = « where ^ is discontinuous. In fact, however, continuity is
+assured since P{u,v) = u for all v E [u,v] due to the specifications p(l) = u
+and v**(l) = u for the equilibrium strategies. That is, since continuity is
+generally necessary, the positivity of the difference A(l) = q{l) - p{l) is a
+corollary of the positivity of the difference 6 = v - u , and indeed A(l) = S .
+19
+
+The Revelation Game
+A crucial test of whether the specified strategies and beliefs are a sequential
+equilibrium is obtained by analyzing the 'revelation games' they induce. At
+each time t the induced revelation game allows a trader the option of selecting the valuation on which his strategy is conditioned. A seller, for example,
+can condition his strategy on any valuation u , possibly different than his
+actual valuation u . An equilibrium in the original game necessarily has the
+property that each trader prefers to condition his strategy on his actual valuation, since otherwise in the original game he would have preferred a different
+strategy. In the next paragraphs we derive the necessary conditions implied by
+this requirement. We consider only the case of a seller with the actual valuation u ; the case of a buyer is analogous.
+First consider the situation at a time t > S{u) in the second phase after
+the seller has made the first serious offer. Using the notational scheme introduced above, the seller's expected payoff according to the specified strategies is
+
+/•a
+(11)
+
+Ut{u,u\w)r=
+
+i-v°(t;u)
+udFt{v\w)+
+
+Jo
+
+P{u,v)dFt{v\w),
+Ji
+
+if he conditions his subsequent strategy on it and his beliefs on w . At this
+time, of course, he is conducting a Dutch auction with
+
+P{u,v) = A{u,v) = A{{v°r'iv);u);
+
+(12)
+
+moreover, in this case P{u,v) is an increasing function of u and P{u,u) = u .
+From these two properties it follows that llt{u,u | u) is maximized by the choice
+u = u as required; e.g., dUt{u,u\ u)/du = 0 at u = u .
+Second, consider the situation at a time t > T{v) in the second phase after
+the first serious offer has been made by the buyer with the valuation v , and
+assume that both u and u are less than t; . According to the specified strategies the seller's expected subgame payoff, conditional on the maximum of the
+buyers' valuations being v , is
+
+(13)
+
+U{u,u\w;v)= I
+
+U°{u\i,v)dFt{u\iv;v)+ I P{u,v)dFt{u\v);v),
+
+Ju'(t)
+
+Ji
+20
+
+if he conditions his subsequent strategy in this subgame on u and his beliefs
+on w . In this case, of course, the buyer is conducting an ascending Dutch auction with
+
+P{n,v) = B{u,v) = B{{u°)-\u);v);
+
+(1^)
+
+moreover, P{u,v) is an increasing function of « and P{v,v) = v . A necessary
+condition for the requirement that Ut{u,u, \ u) is maximized by the choice u =
+u , is therefore that the corresponding derivative is zero:
+
+0 = [U°{u\u,v)-B(u,v)]Fl{u\u;v) + ^-^^^ [ dFt{u \ u;v).
+
+(15)
+
+The seeming dependence of this condition on the time t can be eliminated by
+expressing it in terms of the 'hazard rate'
+
+<t>[u;v) = Fl[n\n;v)l ! dF,[u\u-v),
+
+(16)
+
+1
+
+"^"
+
+80 as to cancel out the common proportionality factor; cf. (4). Thus, the relevant condition is
+0 = [Zi°(u !«,*;)- B{u,v)]<l>{u--v) + ^^^ .
+
+(17)1
+
+ou
+
+I
+
+,
+
+Invoking the boundary condition B[v,v) = v mentioned earlier, this implies
+that
+
+where $(u;0) = exp{-/". ^(i; v) da;} . For example, if the sellers' valuations
+happen to be independent with the distribution function G then 4>{u) = [m —
+l]G'(u)/[l - G{u)] and *(u) = [1 - G'(u)]'"-^ . In general, if there are many
+sellers then one with the valuation u accepts a bid close to his continuation
+value U°{u I u,v) in an ensuing subgame.
+Similarly, a parallel analysis yields a differential equation for A{u,v)
+that determines the traders' strategies during a seller's descending Dutch
+auction:
+(19)
+
+0=[A{u,v) - T;> I v,umv;u) + ^^^
+ov
+21
+
+■ ,
+
+where
+
+-f ;.■ n^= ■, .
+rj)[v-u) = F[[v\v-u)l I dF,{v\v-u),
+
+(20)
+
+Jo
+
+using an obvious transposition of notation. Invoking the boundary condition
+A{u,u) = Q , this implies that
+■
+
+(21)
+
+A{u,v)=^
+
+^^^
+
+,
+
+where 'J'(t;;u) = exp{-/J rp{y;u)dy} . Again, if there are many buyers then the
+hazard rate is large and a buyer accepts an ask close to his continuation value
+V°{v\v,u).
+It will be mandatory in the next section that we verify that A{u,v) and
+B{u,v) satisfy these two relationships. We show, in fact, that these relationships completely characterize the traders" strategies along the equilibrium
+path during the second phase.
+Lastly, consider the situation at a time t < S{u) in the initial phase
+before any serious offers have been made. Assume that both u and u are less
+than u , and in particular ^(t2) = 0 . According to the specified strategies,
+the seller's expected payoff is then
+Ut{u,u\w)= I
+
+(22)
+
+Ju-{t)
+
+ll{u\w;ii)dFt{u\iv)+
+
+lf{u,u\w;u)dFt{u\w),
+Ji
+
+if he conditions his strategy on u and his beliefs on «; . A necessary condition for the requirement that U{u,u \ u) is maximized by the choice u = u is
+therefore that the corresponding derivative is zero (and decreasing):
+(23)
+0 = [//(u I u;u) - l!{iJi,u I u;u)]Fl{u I «) + ^ j A^(",« I «;«)(i^t(« 1 «),
+=
+
+rv'{t)
+
+[U°{u\u;v)-P{u,v)]dFt{v\u;ii = u)-Fl{u\u)
+
+J V.
+
++ Mr ^*' ^l^dF.iv I u;«) + A{S{u))Fl{v*{S{u)) | «;«) l dF,{u \ n)
+'«'(t)
+
+\u \u;v)- P{u,v)]Fl{u \u;v)+ ^-^^^[1 - Ft{n \ u;v)] \ dF,{v \ u)
+
++ A(5(u))[l - Ft{n I ix; v'[S[u)))]Fl[v*[S[u)) \ u)
+
+Here, the second equality again uses the property that P{u,u) = u ; also recall
+that A{t) = q{t) — p{t) is the jump discontinuity in P at f = S{u) = T{v) . The
+third equality uses the identity
+
+Fl{v I u;u)Fl(u I u) = Fl{u | U;V)F;{V \ u),
+
+1
+
+according to the rules of conditional probability.
+The condition (23) must hold at all times t < S{u) but note that it is sufficient that it holds where u**{t) > u since at earlier times (15) assures that
+the integrand within the curly brackets in (23) is zero for v > v*{{u**)~^{u)) ;
+that is, in this region the buyer with the maiximum valuation makes the first
+serious offer Eind the seller does not accept it, so an ascending Dutch auction
+ensues.
+At the time t = S{u) when the seller makes his first serious offer we have
+Ft(u I u;t;) = 0 and F/(u \u;v) = (f>{u;v) ; consequently a special case of (23) is
+
+r«'{SH) (
+
+1
+
+Ju
+
+(24)
+
+dP(uv) ]
+
+[
+
+du
+
+j
+
+' >
+
++ A{S{u))F's^,){v'{S{u))\u;u).
+At this time Fs^n) is conditioned on u > u (indicated by the semi-colon) by
+inference from the other sellers' strategies. ® Also dP{u;v)/du is properly
+interpreted here as the derivative from the left, and in particular in the relevant range of 0 :
+
+(25)
+
+_
+( A{ri,v^S[u);u))
+
+P(u,v) = <
+[
+
+if ,;°(5(u); u) < 0 < v*(5(u)),
+
+A{u,v)
+
+if u < V <v°{S{u);u).
+
+The condition (24) essentially determines the seller's planned time S{u) of
+his first serious offer. Alternatively, it can be interpreted as determining
+the upper bound t;*(5(u)) of the support of the buyers' valuations that prompts
+the seller to make his first serious offer. If there are many sellers so that
+the hazard rate 0 is large, then a seller plans to meike his first serious offer early. If (24) holds then also (23) does since it corresponds to an expectation of (24) . It will be mauidatory in the next section that we verify that
+these conditions, and their analogues for a buyer, are satisfied.
+23
+
+An examination of the various conditions derived above for the revelation
+game reveals that there is one less equation than is required to determine all
+the functions entering the specification of the equilibrium strategies. Later
+we show that the missing condition is that u*'(t) = u*'{t) at all times t G (0,1) ;
+that is, the supports of the buyers' and sellers' valuations contract at the
+same rate during the initial phase.
+
+Monotonicity
+
+^
+
+Each of the formulas (10), (11), (13). and (22) for a seller's expected payoff
+have the property that dtit/du is precisely the seller's conditional probability that he fails to trade (using an evident induction on the subgames) : this
+is necessarily so since u is his payoff if he fails to trade. Additionally,
+the revelation conditions associated with each one ensure that dut/du = 0 at
+u = u . Finally, affiliation implies that dllt/dw > 0 . Combining these results
+yields the requisite property that dU{u)/du > 0 ; that is, a seller's expected
+payoff is a nondecreasing function of his valuation u . The analogous property
+holds for buyers as well.
+The various formulas also involve a seller's continuation value U°{u \ u,v)
+in an ensuing subgame. Again, affiliation implies that dU°jdii > 0 . For exeunple, U°{u I u,v) as in (15) or (24) is anon-decreasing function of the seller's
+valuation u , and the analogous property holds for a buyer.
+
+Inefficiency
+The condition (24) gives the illusion that it is possible that all gains from
+trade are realized, as would be the case if t;*(l) = u and A(l) = 0 at the
+close of the market. This is not possible, however, since it is the larger of
+two roots of (24) that corresponds to the optimal choice for the seller. To
+see this, interpret (24) as the condition that determines the seller's optimal
+choice of u*(w) = t;*(5(ii)) , in which case the second-order condition requires
+that the first term on the right of (24) is decreasing. If v'(u) = u , however.
+24
+
+the derivative of this term with respect to v*{u) at u is
+
+(26)
+
+|[r(u|u;«)-P(u,u)]^(u;u) + ^^^U{(u|u)>0,
+
+since U°{u | u;u) = P(u,u) = u and dP{u;u)/du > 0 .
+This concludes our description of the equilibrium (along the equilibrium
+path) and its main consequences. In the next section we construct the equilibrium strategies as solutions to the traders' personal optimization problems,
+given that each anticipates that all other traders will be using the specified
+strategies.
+■
+
+I
+
+4.
+
+.•,•■■■:■■
+
+The Equilibrium: Construction
+
+We divide the construction between characterization of the equilibrium path
+and analysis of off-the-equilibrium-path behavior. In the first part we are
+mainly concerned with establishing that the characterizations derived in the
+analysis of the revelation games are valid. We concentrate on the necessary
+conditions that specify formulas for the strategies, but make some references
+to the sufficient conditions. In the second part we delineate off-the- equilibriumpath beliefs that are sufficient to support the equilibrium by deterring deviations.
+It is sufficient to characterize only those features of the strategies
+that are independent of the parameterization of time, since the remainder can
+then be determined once a particular pareimeterization has been selected. For
+the second phase of a subgame we characterize the price A{u, v) at which a seller
+making the first serious offer subsequently trades with a buyer having the
+highest valuation v > u . In this case the parameterization of time can be
+taken to be the specification of the valuation v°(t;u) of the buyer accepting
+the ask price A{t;u) , subject to the conditions that t;° is a declining function of time and that v°{l;u) = u ; thus, knowing the parameterization we obtain
+A{t;u) = A{u,v°{t;u)) . Alternatively, one could specify the temporal sequence
+A{-;u) of declining ask prices subject to A{l;u) — u and then derive v°{t;u) .
+Similarly, we characterize the price B{u,v) at which a buyer making the first
+25
+
+serious offer subsequently trades with the seller having the lowest valuation
+u < V , and then B(t;v) = B{u°{t;v),v) . Knowing these functions also enables us
+to specify that if 5(u) = f = r(t;) then p{t) = A{t;u) and q{t) = B{t;v) , and also
+u**{t) = u°(t;v) and v**{t) = v°{t;u) . For the first phase, therefore, it remains
+only to characterize the times S(u) and T{v) of the first serious offers of a
+seller and a buyer with the valuations u < u and v > v .
+Strategies in the Dutch Auctions
+We study the ascending Dutch auction by a buyer in a market with more than one
+seller ( m > 1 ) ; a descending Dutch auction by a seller is analogous.
+On the Equilibrium Path
+A seller with the valuation u anticipates the sequence {B{t;v) | T{v)<t<l} , of
+bid prices after the first serious offer by a buyer inferred to have the valuation V > u , and that any other seller with a valuation less than u°[t;v) will
+accept any bid price above B[t\v) . At a time t this seller prefers to wait a
+further interval e > 0 if the current bid is less than the expectation of the
+price he can obtain by waiting. This subsequent price is either his expected
+price in an ensuing subgame, with the probability
+
+Qt[c\u,v)= /
+
+(27)
+
+dFt{u\u-v)
+
+that another seller accepts in the interim, or the subsequent bid B{t + e;t;)
+with the complementary probability. That is, he prefers to wait if there exists e > 0 such that
+
+B{t;v) <eAU°[u\u,v)\u°{t;v)<u<u°{t + e;v))Qt{e\u,v)
+(28)
+
++ B[t + e;v)[l-Qt[e\u,v)].
+Conversely, if the seller is willing to accept at t then
+
+(29)
+
+lim B{^^-rv)-B{t;v)
+
+- ^(„ | «,,)] • Hnx ^M^hlL .
+
+Thus, an equilibrium requires that u = u°[t;v) only if
+
+'-^^^^,-[B{t^^)-U^[u\urv)\n{u\u-u>u,-v)
+(30)
+
+''**
+
+" v^.'^j
+
+= [B{u,v)-U°{u\u,v)]<j,{u;v).
+26
+
+At this time one conditions F on u> u since the seller infers that his valuation is the smallest among the sellers; hence,
+;
+
+lim^^^^^^ = F/(u|u;u,t;)u°'(f;o) = <^(u;t;)u°'(t;«).
+e—►0
+
+e
+
+The differential equation (30) is therefore the same as (17), as required. A
+sequential equilibrium requires that this differential equation for B must be
+satisfied; moreover, the boundary condition B[v,v) ■= v must be satisfied as we
+mentioned earlier, so the solution is given by (18). If u = v*(f) then (30) can
+be interpreted as an equation for u whose solution is u = M**{i) ■
+That (30) is a sufficient condition for a solution of the seller's optimization problem is assured since B is an increasing function of time. In the
+alternative case that v < u no bid from the buyer will exceed the seller's
+valuation and clearly the seller's optimal strategy is never to accept in this
+subgame.
+This entirely characterizes the behavior along the equilibrium path during
+an ascending Dutch auction by a buyer. It is in fact the standard condition for
+a sequential equilibrium of an ordinary Dutch auction, and since the sellers'
+valuations are affiliated and U°(u | u,v) is increasing with u it is known to
+be sufficient as well as necessary; cf. Milgrom and Weber [1982] .
+It is worth mentioning that our specification of the strategies during the
+second phase is substajitially motivated by the need to be explicit in the construction. It would be adequate for some purposes to allow greater generality,
+requiring only that, say, B{u,v) is the price at which a buyer with the valuation V expects to trade with a seller with the valuation u , rather than tying
+it to the specific temporal sequence of serious bids B{;v) made by the buyer.
+In this case it would be sufficient merely to specify the seller's strategy
+in the form that he plans to accept the first bid exceeding B{{u°)~^{u);v) =
+P{u,v).
+Off the Equilibrium Path
+During the second phase there are several ways that play can depart from the
+equilibrium path. In all of these we follow a principle developed by Cramton
+27
+
+[1984] in more detail than we shall do here. The principle is that non-serious
+offers are ignored, whereas new serious offers are interpreted as equilibrium
+offers according to revised probability assessments by the other traders. As
+we shall see, this specification is sufficient to induce all traders to adhere
+to the equilibrium strategies. Moreover, it enables an economy of presentation
+by allowing that behavior in any circumstance can be determined by reference
+to the equilibrium strategies in that circumstance according to the traders'
+revised beliefs. We consider only the case of an ascending Dutch auction by a
+buyer: the case of a descending Dutch auction by a seller is analogous.
+We first consider the buyers' behavior, and begin with the buyer conducting the Dutch auction. He can deviate by bidding either lower or higher than
+the equilibrium strategy requires. If he bids lower then this is a non-serious
+offer and the other traders expect him to revert to the equilibrium strategy:
+clearly he has nothing to gain by this deviation. If he bids higher then the
+other traders infer that his valuation is higher than previously they estimated and they expect him to continue with the sequence of bids corresponding to this higher valuation, and in particular to continue raising all the
+way to this higher valuation if necessary to make a transaction: in addition,
+subsequent reversion to his equilibrium strategy will be interpreted as nonserious, so a deviant higher bid represents a permajient commitment. Again it
+is fairly clear that this deviation is disadvantageous (for example, if the
+initial deviant bid is accepted then he has missed a chance of transacting at
+the lower price specified by the equilibrium strategy), but we refer to Cramton
+[1984: pp. 119 -- 122] for additional details.
+Other buyers who intervene with bids less than the auctioneer's bids gain
+no advantage since their bids are non-serious. A higher bid, however, is serious amd the other traders immediately infer that the intervening buyer has
+a correspondingly higher valuation and expect him to continue with the equilibrium strategy. Along the equilibrium path such a buyer actually has a lower
+valuation and, by a repetition of the previous argument, sees such an intervention as disadvantageous. This is true even if he fails to trade in this sub28
+
+game, since in a subsequent subgane he will be treated as having the higher imputed valuation. '
+The previous paragraph describes only one of the possible specifications.
+Another is that the auctioneer's strategy is actually of the form that he bids
+the maximum of the equilibrium bid and any intervening serious bids by other
+buyers, up to the limit of his reservation price. With this specification an
+intervener with a lower valuation has no chance of making a transaction in this
+subgame, but jeopardizes his terms of trade in any ensuing subgeune.
+Among the sellers an ask price above the auctioneer's bid is non-serious
+and is ignored, while an ask equal to or less than the bid can not be more advantageous than accepting the bid. Alternatively, one can simply specify as
+part of the rules that an ask no greater than an offered bid is construed as an
+acceptance of the bid.
+All of these disequilibrium specifications are innocuous except for the
+key feature that a new higher serious bid induces other traders to revise their
+assessment of the auctioneer's valuation, and thereafter he is unable to lower
+this assessment by reducing his bids; that is, the auctioneer is essentially
+'locked in' by the expectations of the other traders. This is the essential
+determinant of the form of the equilibrium derived by Cramton, since in anticipation of this feature in the second phase, delay in making a serious offer in
+the initial phase can function effectively as a signal of a trader's valuation.
+
+Strategies in the Initial Phase
+
+1.
+
+.
+
+On the Equilibrium Path
+Consider a seller with the valuation u contemplating a first serious offer at
+a time t < S{u) in the initial phase. If he offers the serious ask price p(t)
+then other traders infer that his valuation is u{t) = S~^{t) = u*{t) and expect
+that the subsequent ask prices A{;u{t)) will decline towards u{t) at time 1. A
+buyer with the valuation v , therefore, plans to accept the first ask that is
+^(("°)~M");«(*)) = P{^{t),v) or less. Anticipating this behavior, the seller's
+
+I
+
+29
+
+expected payoff is
+
+£t{
+
+(31)
+
+1(0
+Juumt)
+
+P{u{t),v)dF{v\u,u)\u>u*{t)}
+
+if he conducts the Dutch auction, but of course stops at his valuation u >
+u{t) , and if no other seller intervenes. * Midway in the Dutch auction he could
+revert to his equilibrium strategy A[-;u) but these would be non-serious offers: the key point is that having allowed the inference that his valuation
+is u{t) < u the seller has no later opportunity to induce other traders to
+revise their assessments upwards; thus, (31) represents the best that he can
+achieve in the second phase. If another seller intervenes this seller gets the
+expected payoff in the ensuing subgaune with his valuation assessed to be u[t) .
+His only other alternative (other than the trivial one of offering an ask
+less than p{i) , which is clearly disadvantageous), is to delay making a serious
+offer for an interim period, which we take to be infinitesimal to preserve some
+brevity in the notation. Compared to the first alternative this option obtains
+an expected gain of
+
+S{t;u) = A{t)F:{v'{t)\u;u>u'{t))-\v*'{t)\
+^^^^
+
+'
+
+r'^*^ dP{u(t),v) ,f.> ,-*,..
+./uua(t)
+
+,,.
+
+cf"
+
+where Fl[v*{t) | u;u>u*{t)) is the probability that in the interim the highest
+valuation buyer medces a first serious bid qif^) . Note here that delaying enables the seller to improve the other traders' assessment u of his valuation,
+and this helps in the second phase. Offsetting this gain, however, is the expected loss from the chance that another seller (with the valuation u = u*{t) )
+will make the first serious offer:
+
+(33)
+
+£(«;«)= /
+
+[P{u{t),^)-U°{u\u'{t),v)\F;{u'{t)\u,v)dFt{v\u)-u*'{t).
+
+^uU4(t)
+
+Thus, at time t the seller with the valuation u prefers to wait an infinitesimal period if d{t;u) > C(t;u) . An equilibrium requires, therefore, that
+5(t;u) > ^(^iu) for >^11 times t < S{u) , and at the prescribed time t = S{u)
+for his first serious offer that §{S{u);u) < C{S(u);u) .
+30
+
+Recall now that u{t) = u*{t) and therefore u'{t) = u* [t) ; consequently,
+the condition derived here that, say, §{S{u);u) = £,{S{u);u) in equilibrium is
+equivalent to the optimality condition (24) in the corresponding revelation
+game if and only if |t;*'(5(u))| = u*'(5(u)) . This, then, is the missing condition
+that knits together the equilibrium by connecting the time parameterizations
+of the buyers and sellers during the initial phase. This condition must hold
+at all times that a first serious offer might be made by either a seller or a
+buyer. Hence, for an equilibri\im such as we have specified in which all times
+have the potential for first serious offers, it is necessary that
+
+v*'{t) + u''{t) = 0
+
+(34)
+
+at each time t E {0,1) .
+
+Off the Equilibrium Path
+Deviations from the equilibrium path in the initial phase can be of the following types. A trader can make a serious offer too early or too late, in which
+case our analysis for off-the-equilibrium-path behavior in the second phase
+applies: too early saddles the trader with other traders' too-favorable assessment of his valuation; euid too late, as we have just seen, foregoes a profitable opportunity. A trader can make a serious offer that is better than the
+expected serious offer, but this is clearly disadvantageous. Lastly, when another trader, say a seller, makes a serious offer then a buyer can not accept
+though the equilibrium strategy says he should; again, by construction, this
+is unprofitable. ^
+Construction of the EquilibriTim Strategies
+We now show how the various conditions that have been derived combine to determine each of the functions that specify the equilibrium strategies.
+First, one can determine ti and v by invoking (24) at u = u , and its analogue for a buyer at w = t) . For brevity ve display only the seller's condi31
+
+tion:
+
+0 = /" I [U°{u \u,v)- u].^(u; i;) + ^^^"'"^ i dF{v \ it; «>u, v<v)
+
+(35)
+
+•'« I
+
+""
+
+J
+
++ [0 - u]F'(i) I u;u>u,w<t)),
+
+using P(u,0) = A(u,u) = u for v > v°{l;u) = u , A(l) = v - u , etc. Of course
+this condition and its analogue for the buyer are to be solved for the solution
+with V > u, rather than the trivial solution 0 = u , as mentioned in §3.
+Next, as in Figure 1, if it is u* that is continuous at t = 0 , then it suffices to parameterize time in the initial phase BO that
+u*(t) = u* + t-[ti-u*],
+
+v'{t)=v + \\-t]-[u-u'],
+
+5(u)=^—^;
+
+T{v) = l-
+
+u—w
+
+which ensures that v''{t) + ri*'[t) = 0 . Note that the magnitude of the discontinuity at f = 0 is
+
+(37)
+
+t;*-t;*(0+) = [«*-t}]-[u*-u];
+
+if this were negative one would parameterize so that t;*'(f) — v - v* , etc. *"
+The remaining step in the construction of the initial phase is to determine
+u**{i) and v*'[t) , and this is done by invoking (24) again for the seller and
+the analogous condition for the buyer. Without displaying the long formulas,
+observe that (24) for the seller depends on v**{t) = v°[t\u) for t = S{u) via
+(25).
+We presented in (18) and (21) the construction of the reduced forms of the
+buyers' and sellers' strategies in the second phase. To obtain extensive-form
+representations for, say, a seller's Dutch auction it suffices to adopt the
+convenient parameterization of time in which the offers A[-; u) decline at a
+constant rate from A(«,t;**(5(u))) down to u over the interval S[u) <t <l :
+
+32
+
+One can then solve for the buyer's acceptance strategy v°{-;u) by using (21)
+
+and the condition that A{t;u) = A{u,v°{t;u)) .
+These constructions all depend on the traders' expected payoffs U° and "V"
+in ensuing subgames with one less seller and one less buyer. Thus the construction actually begins with the case in which there is a single seller or a single buyer and then proceeds inductively to compute the strategies and expected
+payoffs in markets with successively larger numbers of sellers and buyers. In
+the next section we address the special case of the 'endgame' market in which
+there is only one remaining active trader on one or both sides of the market.
+
+5.
+
+The Endgames
+
+We first consider the case of an endgame in which there is a single seller and
+several buyers; the case of a single buyer and several sellers is analogous.
+This case is degenerate in that there is no competitive pressure on the seller
+that determines his strategy. Referring to (33) one sees that in the initial
+phase the seller suffers no loss from delaying a serious offer, since there is
+no chance that another seller intervenes with a serious offer in the interim.
+Similarly, in the second phase after a serious offer by a buyer the seller again
+incurs no loss from delay, as indicated by (28), and prefers to wait for the
+buyer's ask to decline. Further, since each buyer sees no chance that the seller will make a first serious offer in the initial phase, and expects that delay will not function as a signal to improve his terms of trade with the seller
+in the second phase, a buyer obtains no gain from delay. He does, however, expect to lose by delay since there is a chance that another buyer will capture
+the opportunity to trade with the one remaining active seller.
+
+[For these con-
+
+clusions one can examine the analogues of (30) and (33) for a buyer.] After a
+serious bid is offered, moreover, other buyers in the second phase are not deterred from intervening; thus the serious bids in the second phase are immediately driven to the second-highest valuation among the buyers. Thus an apparent extension of the specified equilibrium to the endgame has the following
+scenario: all the buyers open with serious offers, and immediately the maximum
+33
+
+serious bid is driven up to the second-highest valuation. That is, the endgame
+is much like an ascending English auction, but compressed into the first instant.
+This is an unsatisfactory model of the endgame unless it is elaborated
+further. ^^ It seems better to dispense with the continuity of time at the initial moment, since all the action takes place there, and to model explicitly
+the trading process in finer detail. We have the benefit of the results obtained by Milgrom and Weber [1982; Theorems 11, 15, and 13]: the seller prefers
+an English auction to a Dutch auction (and to several variants), and the seller
+prefers to reveal his private information. ^^ These results permit an endgame
+specification that is consistent with the specification of the equilibri\im for
+the other subgames, although fanciful in one aspect. If the seller reveals
+his valuation u and the buyers bid in aji ascending English auction then the
+endgame's expected payoff for a buyer with the valuation v is ^(1;) = £{v fl
+(u U w) I v} , and the seller's expected payoff is U{u) = £{u U v^2] I "} . where
+t;[2] is the second-highest among the buyers' valuations. The fanciful aspect,
+of course, is the source of the credible signal that his valuation is u . From
+Milgrom and Weber we know that if the seller can signal credibly that his valuation is u then he will do so, but the present formulation does not include
+any such signalling mechemism in the absence of competitive pressure on the
+seller. To allow the possibility of credible signalling in the absence of competitive pressure, given that it is in the seller's interest, it suffices to
+introduce an auxilliary feature. The simplest device is to allow a final instant in which the seller can either accept the outstanding bid or ask a final
+take-it-or-leave-it price before the market closes. Another alternative is to
+introduce an additional source of impatience, as described below. In any case
+one expects that whatever refinement is used to resolve the indeterminacy in
+the endgame will have only a slight effect on the construction of the specified
+strategies in the earlier subgames with more numerous traders. ^^
+An additional degeneracy is introduced if the endgame involves only one
+seller iind one buyer, corresponding to the case that the market opened orig34
+
+inally with equal numbers of sellers and buyers ( m = n ) . This case is essentially one of pure bargaining, and there is no formulation that is directly
+consistent with the construction adopted for the subgames with more traders in
+which competitive pressure determines the signalling mechanism. One could,
+of course, adopt the expedient of assiiming that the traders split the gains
+from trade, if any, according to some maintained hypothesis. For example, if
+the endgame consists only of division of the gains according to an offer by
+one party that is either accepted or rejected by the other, then a focal-point
+equilibrium suffices and any one can be specified as the common-knowledge expectation of both traders: this is essentially the model studied in the bargaining experiments by Roth and Schoumaker [1983] .
+A preferable model allows that a positive rate of interest makes the traders
+impatient for conclusion of a transaction, as in the bargaining model of Cramton [1984] . In this case, impatience resurrects delay as an effective signal
+of a trader's valuation.
+We do not present here the alterations in the construction entailed by
+a positive interest rate, but refer the reader to the exposition by Cramton
+[1984] for the case of one buyer and one seller. The main conclusion is that
+if the interest rate is positive then the endgames are quite like all the other
+subgames and require no special treatment. Admittedly this is not fully satisfactory for studies of experiments in which the duration of the market, typically measured in minutes or hours, is too short to make plausible values of
+the interest rate an important determinant of the traders' strategies, but it
+has the advantage of unifying the theory of the endgeimes with the other subgames in the construction. Optionally, one could interpret the interest rate
+in the endgeime as infinitesimal compared to the competitive pressure (i.e.,
+the hazard rates) in the earlier subgames, or in an experimental situation one
+could interpret the interest rate as a generic impatience (e.g., fatigue) with
+behavioral origins. In some experimental designs the time of the closing of
+the market is uncertain and in this case the hazard rate of termination serves
+the same role as an interest rate.
+35
+
+In general, any source of impatience suffices for delay to be an effective
+signal, and here we have concentrated on the role of competitive pressure as a
+source of impatience, so the endgames necessarily present significant degeneracies.
+
+6■
+
+Remarks
+
+The sequential equilibrium proposed and partially verified here is likely only
+
+^
+
+one of many possibilities. Its form derives primarily from the presumed role
+of delay in making or accepting a serious offer as the sole signal of a trader's
+valuation. Underlying the construction is Cramton's key distinction between
+serious and non-serious offers, the special character of the off-the- equilibriumpath beliefs, and the Markov-perfect character of the on-the-equilibrium-path
+beliefs. One can reasonably conjecture that there are mziny other equilibria
+that accomplish signalling by different mechanisms; e.g., by using historydependent strategies. The one presented here is interesting mainly because it
+invokes delay to exploit directly the temporal features of the trading process. It is, moreover, relatively simple and tractable to analyze, particularly since we can draw on the previous insights of Cramton for the special
+case of one seller and one buyer. For purposes of comparison with experimental
+results it is a useful first step in providing a testable model of equilibrium
+behavior.
+The deficiencies of the model for use in experimental work are severe nevertheless. Most of the experiments that have been conducted allow that each
+trader may demand or supply several items, the subjects could plausibly be
+supposed to be risk averse, etc. The crucial deficiencies, however, are inescapable consequences of the game-theoretic formulation. These are, first,
+that the probability distribution of the traders' valuations is common knowledge (which is rarely controlled in experiments); and second, that the subjects are able to know or compute equilibrium strategies and select one equilibrium in a way that is common knowledge (including, for example, the parameterization of time) . Ledyard [1984] emphasizes that nearly any undominated
+36
+
+strategies can be justified as equilibrium behavior if there is no control on
+the risk aversion of the traders. Easley and Ledyard [1983], moreover, describe simple behavioral (non-equilibrium) rules-of-thumb that suffice to explain the experimental data to a substantial degree. It remains an open question, therefore, whether a game-theoretic hypothesis such as pursued here will
+prove to be the most useful explanation of the experimental data.
+Some of the implications of our model and the specified equilibrium are,
+in fact, too strong to fit the data well. For example, the equilibrium predicts that traders transact in order of their valuations, and that no traders
+with extra-marginal valuations (e.g., sellers' valuations above the WalrasiEui
+clearing price) succeed in trading. As Easley and Ledyard [1983] report, these
+properties are often contradicted by experiments. One must be cautious, however, since such experiments are a test of the compound hypothesis that the
+common knowledge structure is the one specified, as well as the equilibrium
+strategies.
+On the other hand, the implications of the equilibrium for theoretical
+studies of price formation and the micro-structure of markets are favorable.
+In particular, the equilibrium presented here offers a specific interpretation
+of the trading process that lends substance to the Walrasian model of markets
+when there are many traders on both sides of the market. If there are many buyers and sellers then the competitive pressures (measured by the hazard rates)
+drive all traders to offer and accept prices approximating their continuation
+values in ensuing subgames; since the gains from trade will be nearly exhausted
+these continuation values must approximate, say for a seller, the maximum of
+the Walrasian price and his valuation. That is, asymptotically U{u) —^p°\Ju
+as m n n —► oo , where p° is the asymptotic Walrasian clearing price. ^*
+Bid-ask markets are familiar in commodity exchanges and it seems plausible
+to extrapolate from the present results that near exhaustion of the gains from
+trade, at prices approximating the Walrasian price, are predictable features
+of these markets. Even with small numbers of traders (as in the usual experimental designs), to the extent that gains from trade are nearly exhausted it is
+37
+
+predictable that transaction prices converge over time to values close to the
+Walrasian price.
+The suggested equilibrium also offers a concrete explanation of the mechanism by which the dispersed information about traders' valuations is manifested in the prices at which transactions are consummated. The mechanism, according to the present hypothesis, is multilateral sequential bargaining in
+which the traders are endogenously matched for transactions via a signalling
+process using delay as the primary signal. Other signalling mechanisms may be
+possible, but it appears that delay suffices and therefore this provides a presumptive hypothesis from which further studies can proceed.
+All of the above remarks must, of course, be taken as speculative until
+the theory of affiliated random variables is applied, as in Milgrom and Weber [1982] for the case of ordinary auctions, to determine whether or not the
+proposed equilibrium strategies also satisfy the requisite global optimality
+properties that would be sufficient to establish the validity of the equilibrium. The satisfaction of the necessary conditions as established here and the
+internal consistency of the construction do, I think, lend encouragement that
+an equilibrium of this form will obtain. If so, it unifies a spectrum of market
+structures ranging from bargaining to perfect competition.
+
+38
+
+References
+Kalyan Chatterjee and Larry Samuelson [1984], "Infinite Horizon Bargaining
+with Alternating Offers and Two-Sided Incomplete Information. " Technical
+Report , Pennsylvania State University. August.
+Peter C. Cramton [1984]. The Role of Time and Information in Bargaining. PhD
+Thesis, Graduate School of Business. Stanford University.
+David Easley emd John 0. Ledyard [1983] , "A Theory of Price Formation and Exchange in Oral Auctions." Technical Report 249, Cornell University, rev.
+January.
+David M. Kreps and Robert B. Wilson [1982] .
+50 . pp. 863
+894. July.
+
+"Sequential Equilibria." Econometrica.
+
+John 0. Ledyard [1984], "The Scope of the Hypothesis of Bayesian Equilibrium."
+Technical Report 532. California Institute of Technology. June.
+Eric Maskin and Jean Tirole [1983]. "A Theory of Dynamic Oligopoly, I: Overview
+and Quantity Competition with Large Fixed Costs," Technical Report 409.
+IMSSS. Stanford University, July.
+Paul R. Milgrom and Robert J. Weber [1982] , "A Theory of Auctions and Competitive Bidding," Econometrica. 50 , pp. 1089
+1122, September.
+Roger B. Myerson [1984], "Sequential Correlated Equilibria of Multistage Games."
+Teclinical Report 590. Kellogg Graduate School of Management. Northwestern
+University. April.
+Charles R. Plott [1982]. "Industrial Organization Theory and Experimental
+Economics." Journal of Economic Literature. 20 . pp. 1485
+1527. December.
+Alvin E. Roth and Frangoise Schoumaker [1983] . "Expectations and Reputations
+in Bargaining: An Experimental Study," American Economic Review. 73 , pp.
+362 --- 372, June.
+Ariel Rubinstein [1982], "Perfect Equilibrium in a Bargaining Model," Econometrica.
+50 , pp. 97
+109. January.
+Ariel Rubinstein [198b] . "A Bargaining Model with Incomplete Information about
+Time Preferences," Econometrica. 63 , pp. , forthcoming.
+Vernon L. Smith [1982], "Microeconomic Systems as an Experimental Science,"
+American Economic Review. 72 , pp. 923
+955, December.
+Robert B. Wilson [1983], "Incentive Efficiency of Double Auctions," Technical
+Report 431. IMSSS, Stanford University, October.
+
+39
+
+Footnotea
+
+* This work was supported by grant SES 83-08-723 from the National Science
+Foiindation and contract ONR N00014 79 C 0685 from the Office of Naval Research. 1 eim indebted to Peter Cramton for inspiration and the insights
+that made this research possible, and to Drew Fudenberg, David Kreps. John
+Ledyard. and John Roberts for discussions, though none of these are responsible for my errors.
+t I gladly dedicate this chapter to my friend and colleague Kenneth Arrow.
+Over a span of twenty years I have benef itted continually from Ken's unbounded creativity, sparkling intellect, and professional leadership, as
+well as learning from the finest example the humane concerns of the scholar.
+This chapter is a small token of my great appreciation; I wish only that it
+achieved the definitive solution so often attained in Ken's work.
+1. See also Rubinstein [1985] for a related model with one-sided incomplete
+information about one party's discount factor.
+2. See also the related results by Chatterjee and Samuelson [1984] .
+3. Apologies are offered for the complex notation, most of which stems from
+the feature that traders' reservation prices are not assumed to be independent: the generality is necessitated by the fact that even if independence were assumed initially it would be lost as trading proceeded, as evidenced by equation (5) below.
+4. For example, it suffices that the valuations are stochastically independent and the sellers' valuations are identically distributed and so axe
+the buyers' valuations. Affiliation also allows positive correlation among
+the valuations. If the proposed equilibrium is to be verified it seems
+certain that affiliation will prove to be the relevant sufficiency condition, judging from the results established by Milgrom and Weber [1982].
+40
+
+6. This definition of consistency is loosely stated; see Kreps and Wilson
+[1982] for a complete statement. In the present context the only null events
+involves histories that have zero probability according to the strategies.
+For a formal definition of a conditional probability system in this context see Myerson [1984].
+6. If the buyers' valuations happen to be independent with the distribution
+
+function H then F'g^^^{v \u;u) = nH'{v)/H(v'{S{u))) .
+7. Such an ensuing subgajue is not of the form initially assumed, since the
+buyer's valuation is assumed (incorrectly) to be known. We address this
+exception in the obvious way by specifying that in the ensuing subgame he
+is expected to open immediately with a serious bid.
+8. Actually one could allow that he stops at some higher ask, essentially
+turning the auction over to another seller or buyer, and gets the expected
+payoff in an ensuing subgame, but this option plays no role subsequently so
+we omit the corresponding notational refinements.
+9. As usual in games of timing, as here in the initial phase, the disequilibrium analysis is essentially trivial, since delay is the only signal with
+informational content and each disequilibrium action has an equilibrium
+interpretation.
+10. Alternatively one can retain the parameterization (36) and instead set
+v*(t) = V* for t < t° = 1 - [v* - v]/[u - u*] . In this case, only the sellers signal their valuations by delay in the initial interval [0,t°] . In one
+way this is a preferable specification since it reduces the reliance of the
+equilibrium on the tie-breaking rule.
+11. For comparisons with experimental results, one should note that the exact
+formulation of the endgame is immaterial to the extent that it is unlikely
+that the market will arrive at an endgame before the gains from trade are
+exhausted or time expires.
+12. Their Theorems 18 and 19 do not apply here since a reserve price other than
+the seller's valuation is inconsistent with a sequential equilibrium.
+13. If the buyers' valuations happen to be independent in the endgame then the
+41
+
+following device will also suffice, since in this case a Dutch auction is
+equivalent to an English auction for the seller: the seller conducts a
+Dutch auction, as in (21). and the buyers infer his valuation from the rate
+at which his ask prices decline.
+14. For example, if the sellers' and buyers' valuations are distributed independently according to the distribution functions G and H then G{p°) +
+
+H{p°) = l.
+
+42
+
+FIGURE l.
+
+Equilibrium Strategies in the Initial Phase
+Tit)
+
+Traders'
+Valuations
+
+FIGURE 2.
+
+Equilibrium Strategies in the Second Phase
+After a First Serious Ask by a Seller.
+
+\ /(t)
+
+•
+
+•
+*
+•
+
+Traders'
+
+>v^,«o\
+
+\Qt;u)
+
+Valuations
+•
+
+/
+/
+
+:
+:
+
+S>U)
+
+t
+
+Time
+
+43
+
+FIGURE 3.
+
+Equilibrium Strategies in the Second Phase
+After a First Serious Bid by a Buyer.
+
+V
+
+W*(t)
+V
+
+___---__-^
+
+-^V^^^^}^,^-^'^'^^^^^^^^^^^
+
+^1,^^^
+- ^^
+
+y^
+
+Traders'
+
+^K^jy^
+
+Valuations
+/
+
+*
+•tv)
+Time — t
+FIGURE 4.
+
+Subgame Payoffs for a Seller if u < u
+
+44
+
+*"
+
+FIGURE B.
+
+Subgame Payoffs for a Seller if u <u< v
+
+FIGURE 6.
+
+Subgame Payoffs for a Seller if v < u
+
+45
+
+FIGURE 7.
+
+The Traneaction Price P{u,v)
+
+■^U^iiJ
+cj^lT(»))^
+ptSlA/)
+
+'C^^i*)).'
+
+A(M-v)^
+
+(^o Tra.4*.
+
+u.
+
+uT
+
+46
+
+^l^v*)
+
+—
+
+REPORTS IN THIS SERIES
+160.
+161.
+162.
+163.
+!64.
+165.
+166.
+167.
+168.
+
+16*).
+170.
+171.
+172.
+173.
+174.
+I 75.
+I 76.
+177.
+1 78.
+179.
+180.
+181.
+182.
+183.
+184.
+185.
+186.
+187.
+188.
+189.
+190.
+191.
+192.
+193.
+194.
+195.
+196.
+197.
+198.
+199.
+200.
+201.
+202.
+203.
+204.
+205.
+206.
+
+— —
+
+"The Structure and Stability of Compelilive Dynamical Systems," by David Cass and Karl Shell.
+"Monopolistic Competition and the Capital Market," by J. E, Stiglit/.
+"The Corporation Tax." by J. E. Stiglitz.
+"Measuring Returns lo Scale in the Aggregate and the Scale Effect of Public Goods," by David A. Starretl.
+"Monopoly, Quality, and Regulation." by Michael Spence.
+"A Note on the Budget Constraint in a Model of Borrowing," by Duncan K. Foley and Martin F. Hellwig.
+"Incentitives, Risk, and Information: Notes Towards a Theory of Hierarchy," by Joseph E. Stiglitz.
+"Asymptotic Expansions of the Distributions of Estimates in Simultaneous Equations for Alternative Parameter
+Sequences," by T. W. Anderson.
+"Estimation of Linear Functional Relatit)nships: Approximate Distributions and Connections with Simultaneous
+Equations in Econometrics," by T. W. Anderson.
+"Monopoly and the Rate of Extraction of Exhaustible Resources," by Joseph E. Stigliti/.
+"Equilibrium in Competitive Insurance Markets: An Essay on the Economics of Imperfect Information." by
+Michael Rothschild and Joseph Stiglitz.
+"Strong Consistency of Least Squares Eslimafes in Normal Linear Regression," by T. W. Anderson and John B. Taylor.
+"Incentive Schemes under Differential Information Structures: An Application lo Trade Policy," by Partha Dasgupla
+and Joseph Stiglitz.
+"The Incidence and Efficiency Effects of Taxes on Income from Capital," by John B. Shoven.
+"Distribution of a Maximum Likelihood Estimate of a Slope Coefficient: The LIML Estimate for Known Covariance
+Matrix," by T. W. Anderson and Takamitsu Sawa.
+"A Comment on the Test of Overidentifying Restrictions." by Joseph B. Kadane and T. W. Anderson.
+"An Asymptotic Expansion of the Distribution of the Maximum Likelihood Estimate of the Slope Coefficient in a
+Linear Functional Relationship," by T. W. Anderson.
+"Some Experimental Results on the Statistical Properties of Least Squares Estimates in Control Problems." by
+T. W. Anderson and John B. Taylor.
+"A Note on "Fulfilled Expectations" Equilibria," by David M. Kreps.
+"Uncertainty and the Rate of Extraction under Alternative Institutional Arrangements," by Partha Dasgupta and
+Joseph E. Stiglitz.
+"Budget Displacement Effects of infiationary Finance," by Jerry Green and E. Sheshinski.
+"Towards a Marxist Theory of Money," by Duncan K. Foley.
+"The Existence of Futures Markets. Nt)isy Rational Expectations and Informational Externalities," by Sanford Grossman.
+"On the Efficiency of Competitive Stock Markets where Traders have Diverse Information," by Sanford Grossman.
+"A Bidding Mode! of Perfect Competition," by Robert Wilson.
+"A Bayesian Approach to the Production of Information and Learning by Doing," by Sanford J. Grossman, Richard E.
+Kihlstrom and Leonard J. Mirman.
+"Disequilibrium Allocations and Recontracting," by Jean-Michel Grandmdhl. Guy Laroque and Yves Younes.
+"Agreeing to Disagree," by Robert J. Aumann.
+"The Maximum Likelihood and the Nonlinear Three Stage Least Squares Estimator in tiie General Nonlinear Simultaneous
+Equation Model," by Takeshi Amemiya.
+"The Modified Second Round Estimator in the General Qualitative Response Model." by Takeshi Amemiya.
+"Some Theorems in the Linear Probability Model," by Takeshi Amemiya.
+"The Bilinear Complementarity Problem and Competitive Equilibria of Linear Economic Models," by Robert Wilson.
+"Noncooperative Equilibrium Concepts for Oligopoly Theory," by L. A. Gerard-Varet,
+"Infiation and Costs of Price Adjustment," by Eytan Sheshinski and Yorani Weiss.
+"Power and Taxes in a Multi-Commodity Economy," by R. J, Aumann and M. Kurz.
+"Distortion of Preferences, Income Distirbution and the Case for a Linear income Tax," by Mordecai Kurz.
+"Search Strategies for Nonrenewable Resource Deposits," by Richard J. Gilbert.
+"Demand for Fixed Factors, Infiation and Adjustment Costs," by Eytan Sheshinski and Yoram Weiss.
+"Bargains and Ripoffs: A Model of Monopolistically Competitive Price Dispersions." by Steve Salop and Joseph Stiglitz.
+"The Design of Tax Structure: Direct Versus Indirect Taxation by A. B. Atkinson and J. E. Stiglitz.
+"Market Allocations of Location Choice in a Model with Free Mobility," by David Slarrelt.
+"Efficiency in the Optimum Supply of Public Goods," by Lawrence J. Lau, Eytan Sheshinski and Joseph E. Stiglitz.
+"Risk Sharing. Sharecropping and Uncertain Labor Markets," by David M. G. Newberry.
+"On Non-Walrasian Equilibria," by Frank Hahn.
+"A Note on Elasticity of Substitution Functions." by Lawrence J, Lau.
+"Quantity Constraints as Substitutes for Inoperative Markets: The Case of the Credit Markets." by Mordecai Kurz.
+"Incremental Consumer's Surplus and Medonic Price Adjustment," by Robert D. Willig.
+
+207.
+
+"Optimal Depletion of an Uncertain Stock," by Richard Gilbert.
+
+208.
+
+"Some Minimum Chi-Square Estimators and Comparisons of Normal and LogisticaModels in Qualitative Response
+Analysis." by Kumio Morimune.
+"A Characterization of the Optimality of Equilibrium in Incomplete Markets." by Sanford J. Grossman.
+"Inflation and Taxes in a Growing Economy with Debt and Equity Finance," by M. Feldstein, J. Green and E. Sheshinski.
+"The Specification and Estimation of a Multivariate Logit Model," by Takeshi Amemiya.
+Prices and Queues as Screening Devices in Competitive Markets." by Joseph E. Stiglitz.
+"Conditions fi>r Strong Consistency of Least Squares Estimates in Linear Models," by T. W. Anderson and John B. Taylor.
+"Utilitarianism and Horizontal Equity: The Case for Random Taxation," by Joseph E. Stiglitz.
+"Simple Formulae for Optimal Income Taxation and the Measurement of Inequality," by Joseph E. Stiglitz.
+"Temporal Resolution of Uncertainty and Dynamic Choice Behavior,"by David M. Kreps and Evan L. Porleus.
+"The Estimation of Nonlinear Labor Supply Functions with Taxes from a Truncated Sample," by Michael Hurd.
+"The Welfare Implications of the Unemployment Rate," by Michael Hurd.
+"Keynesian Economics and General Equilibrium Theory: Reflections on Some Current Debates," by Frank Hahn.
+"The Core of an Exchange Economy with Differential Information." by Robert Wilson.
+"A Competitive Model of Exchange." by Robert Wilson.
+"Intermediate Preferences and the Majority Rule." by Jean-Michel Grandinonl.
+"The Fixed Price Equilibria: Some Results in Local Comparative Statics." by Guy Laroque.
+"On Stockholder Unanimity in Making Production and Financial Decisions," by Sanford J. Grossman and Joseph E. Stiglitz.
+"Selection of Regressors," by Takeshi Amemiya.
+"A Note on A Random Coefficients Model," by Takeshi Amemiya.
+"A Note on a Heteroscedastic Model," by Takeshi Amemiya.
+"Welfare Measurement for Local Public Finance," by David Starrett.
+"Unemployment Equilibrium with Rational Expectations," by W. P. Heller and R, M. Starr.
+"A Theory of Competitive Equilibrium in Stock Market Economies." by Sanford J. Grossman and Oliver D. Hart.
+"An Application of Stein's Methods to the Problem of Single Period Control of Regression Models," by Asad Zaman.
+"Second Best Welfare Economics in the Mixed Economy." by David Starrett.
+"The Logic of the Fix-Price Method," by Jean-Michel Grandmonl.
+"Tables of the Distribution of the Maximum Likelihood Estimate of the Slope Coefficient and Approximations." by
+T. W. Anderson and Takamitsu Sawa.
+"Further Results on the Informational Efficiency of Competitive Stock Markets," by Sanford Grossman.
+"The Estimation of a Simultaneous-Equation Tobit Model." by Takeshi Amemiya.
+"The Estimation of a Simultaneous-Equation Generalized Probit Model," by Takeshi Amemiya.
+"The Consistency of the Maximum Likelihood Estimator in a Disequilibrium Model," by T. Amemiya and G. Sen.
+"Numerical Evaluation of the Exact and Approximate Distribution Functions of the Two-Stage Least Squares Esliinale,"
+by T. W. Anderson and Takamitsu Sawa.
+"Risk Measurement of Public Projects," by Robert Wilson.
+"On the Capitalization Hypothesis in Closed Communities," by David Starretl.
+"A Note on the Uniqueness of the Representation of Commodity-Augmenting Technical Change," by Lawrence J. Lau.
+"The Property Rights Doctrine and Demand Revelation under Incomplete Information," by Kenneth J. Arrow.
+"Optimal Capital Gains Taxation Under Limited Information." by Jerry R. Green and Eytan Sheshinski.
+"Straightforward Individual Incentive Compatibility in Large Econoiiiies,'" by Peter J. Hammond.
+"On the Rate of Convergence of the Core," by Robert J. Aumann.
+
+209.
+210.
+211.
+212.
+213.
+214.
+215.
+216.
+217.
+218.
+219.
+220.
+221.
+222.
+223.
+224.
+225.
+226.
+227.
+228.
+229.
+230.
+231.
+232.
+233.
+234.
+235.
+236.
+237.
+238.
+239.
+240.
+241.
+242.
+243.
+244.
+245.
+246.
+
+""
+
+—
+
+"
+
+—"
+
+247.
+
+"Unsatisfactory Equilibria," by Frank Hahn.
+
+248.
+249.
+250.
+251.
+252.
+253.
+254.
+255.
+256.
+257.
+
+"Existence Conditions for Aggregate Demand Functions: The Case of a Single Index," by Lawrence J. Lau,
+"Existence Conditions for Aggregate Demand Functions: The Case of Multiple Indexes," by Lawrence J. Lau.
+"A Note on Exact Index Numbers," by Lawrence J. Lau.
+"Linear Regression Using Both Temporally Aggregated and Temporally Disaggregated Data," by Cheng Hsiao.
+"The Existence of Economic Equilibria: Continuity and Mixed Strategies." by Partha Dasgupta and Eric Maskin.
+"A Complete Class Theorem for the Control Problem and Further Results on Admissibilily and Inadmissibility." by Asad Zaman.
+"Measure-Based Values of Market Games," by Sergiu Hart.
+"Altruism as an Outcome of Social Interaction." by Mordecai Kurz.
+"A Representation Theorem for 'Preference for Flexibility'," by David M. Kreps.
+"The Existence of Efficient and Incentive Compatible Equilibria with Public Goods," by Theodore Groves and
+John O. Ledyard.
+"Efficient Collective Choice with Compensatit)n." by Theodore Groves.
+"On the Impossibility of Informalionally Efficient Markets," by Sanford J. Grossman and Joseph E. Stiglitz.
+
+258.
+259.
+
+REPORTS IN THIS SERIES
+260.
+261.
+262.
+263.
+264.
+265.
+266.
+267.
+268.
+269.
+270.
+271.
+272.
+273.
+274.
+275.
+276.
+277.
+278.
+279.
+280.
+281.
+282.
+283.
+284.
+285.
+286.
+287.
+288.
+289.
+290.
+291.
+292.
+
+294,
+295,
+296.
+297.
+298.
+299.
+300.
+301.
+302.
+303.
+304.
+305.
+
+"Values fiir Games Wiihout Sidepaynitnis; Some OilTicullies With Curreni Concepts," by Alvin L. Roth.
+"Martingles and the Valuation of Redundani Assets," by .1. Miu'hael Harrison and David M. Kreps.
+"Auiorepressive Modelling and Money Income Causality Detection," by Cheng Hsiao.
+"Measurement Error in a Dynamic Simultaneous Equations Model without Stationary Disturbantes," by Cheng Hsiao.
+"The Measurement of Deadweight Loss Revisited," by W. E. Diewert.
+"The Elasticity of Derived Nei Supply and a Generalized Le Chatelier Principle," by W. E. Dieweri.
+"Income Distribution and Distortion of Preferences: the C Commodity Case," by Mordecai Kurz.
+"The n' -Order Mean Squared Errors of the Maximum Likelihood and the Minimum Logit Chi-Square
+r." by Tjkeslii Amemiyj.
+"Temporal Von Neumann-Murgenstern and Induced Preferences;' by David M. Kreps and Evan L. Portei
+"Take-Over Bids and the Theory of the Corporation." by Stanford Grossman and Oliver D. Hart.
+"The Numerical Values of Some Key Parameters in Econometric Models," by T. W. Anderson, Kimio M
+and TjkuT
+li Sawa,
+"Two Representations of Information Structures and their Comparisons," by Jerry Green and Nancy Stokey,
+"Asymptotic Expansinns of llic Distributions of Ivslimators in a Linear I'unctional Relationship when the Sample S\/.e is Large," by
+Naoto Kunitomo.
+"Public Goods and Power," by K. J. Aumann, M, Kur/. and A. Neyman.
+"An Axiomatic Approach lo the Efficiency of Non-Cooperative Equilibrium in Economies with a Continuum of Traders," by A. Mas-Cole
+"Tables of the Exact Dislribution I'unclion of the Limited Information Maximum Likelihood Estimator when the Covariunee Matrix in
+Known," by T. W. Anderson and Takarnitsu Suwa.
+"Auioregressive Modeling of Canadian Money and Income Data," by Cheng Hsiao.
+"We Can'! Disagree Forever," by John D, Geanakoplos and Heraklis Polemarchakis.
+"Constrained Excess Demand Eunctions," by Herklis M. Polemarchakis.
+"On the Bayesian Selection of Nash Equilibrium," by Akira Tomioka.
+"Disequilibrium Econometrics in Simultaneous Equations Systems," by C. Gourierous, J, J, Laffont and A. Monfort.
+"Duality Approaches to Microeeonomic Theory," by W. E. Dieweri.
+"A Time Series Analysis of the Impact of Canadian Wage and Price Controls,'" by Chens Hsiao and Oluwatayo l-akiyesi.
+"A Strategic Theory of Intlation," by Mordecai Kur/,
+"A Characterization of Vector Measure Games in pNA," by Yair Tauman.
+"On the Method of Ta.\ation and the Provision of Local Public Goods," by David A. Slarrett.
+"An Opiimization Problem Arising in Economics: Approximate Solutions, Linearity, and a Law of Large Numbers," by Sergiu Hart.
+"Asymptotic Expansions of the Distributions of the Estimates of CoclTicients in a Simultaneous Equation System," by Yasunori
+Eujikoshi, Kimio Morimune, Naoto Kunitomo and Masanobu Taniguchi,
+"Optimal & Voluntary Income Distribution," by K. J. Arrow.
+"Asymptotic Values of Mixed Games." by Abraham Neyman.
+"Time Series Modelling and Causal Ordering of Canadian Money. Income and Interest Rate," by Cheng Hsiao.
+"An Analysis of Power in Exchange Economies," by Martin J. Osborne.
+"Estimation of the Reciprocal of a Normal Mean," by A.sad Zanian.
+r Allernmive Parameter Sequences," by Kimio
+"Calculation of Bivariate Normal Integrals by the Use of Incomplete Negative-Order Moments," by Kei Takeuchi and Akimichi Takemura.
+"On Partitioning of a Sample with Binary-Type Questions in Lieu of Collecting Observations." by Kenneth J. Arrow, Leon Pesoichinsky
+and Milton Sobel.
+"The Two Stage Least Absolute Deviations Estimators," by Takeshi Amerniya.
+"Three Essays on Capital Markets," by David M. Kreps.
+"Infmiie Hori/on Programs," by Michael J. P. Magill.
+"Electoral Outcomes and Social Log-Likelihood Maxima," by Peter Coughlin and Shmuel Nitzan.
+"Notes on Social Choice and Voting," by Peter Coughlin.
+"Overlapping Expectations and Hart's Conditions for Equilibrium in a Securities Model," by Peter J. Hammond.
+"Directional and Local Electorate Competitions with Probabilistic Voting," by Peter Coughlin and Shmuel Nitzan.
+"Asymptotic Expansions of the Distributions of the Test Statistics for Overidentifying Restrictions in a System of Simultaneous
+l-.quations," by Kunitomo, Morimune, and Tsukuda.
+"Incomplete Markets and the Observability of Risk Preference Properties," by H. H. Polemarchakis and L. Selden.
+"Multiperiod Securilies and the Efficient Allocation of Risk: A Comment on the Black-Scholes Option Pricing Model," by
+David M. Kreps.
+of k-Class Estimators when the Disturbances are Small." by Naoto Kuniti
+
+321.
+322.
+323.
+324.
+325.
+326.
+327.
+328.
+329.
+330.
+331.
+332.
+333.
+334.
+335.
+336.
+337.
+338.
+339.
+340.
+341.
+342.
+343.
+344.
+345.
+346.
+347.
+348.
+349.
+350.
+351.
+352.
+353.
+354.
+355.
+356.
+357.
+358.
+359.
+360.
+361.
+362.
+
+308.
+309.
+310.
+311.
+
+"Arbitrage and Equilibrium in Economies with Infinitely Many Commodities." by David M, Kreps.
+"Unemployment Equilibrium in an Economy with Linked Prices," by Mordecai Kurz.
+"Pareio Optimal Nash Equilibria are Competitive in a Repealed Economy," by Mordecai Kurz and Sergiu Hart.
+"Idcntificaliun," by Cheng Hsiao.
+
+363.
+364.
+365.
+
+312.
+313.
+314.
+315.
+316.
+317.
+318.
+319.
+
+"An Introduction to Two-Person Zero Sum Repeated Games with Incomplete Information," by Sylvain Serin.
+"Estimation of Dynamic Models with Error Components," by T. W. Anderson and Cheng Hsiao.
+"On Robust Estimation in Certainty Equivalence Control," by Anders H. Westlund and Hans Stenlund.
+"On Industry Equilibrium Under Uncertainty," by J. Dreze and E. Sheshinski.
+"Cost Benefit Analysis and Project Evaluation from the Viewpoint of Productive Efficiency," by W. E. Diewert.
+"On the Chain-Store Paradox and Predation: Reputation for Toughness," by D. M. Kreps and Robert Wilson.
+"On the Number of Commodities Required to Represent a Market Games," Sergiu Hart.
+"Evaluation of the Distribution Function of the Litnited Information Maximum Likelihood Estimator," by
+T. W. Anderson, Naoto Kunitomo, and Takamitsu Sawa.
+"A Comparison of the Logit Model and Normal Discriminant Analysis when the Independent Variables are Binary,"
+by Takeshi Amerniya and James L. Powell.
+
+366.
+367.
+368.
+369.
+370.
+371.
+372.
+373.
+374.
+375.
+
+320.
+
+"Efficiency of Resource Allocation by Uninformed Demand," by Theodore Groves and Sergiu Hart.
+"A Comparison of the Box-Cox Maximum Likelihood Estimator and the Nonlinear Two Stage Least Squares Estimator,"
+by Takeshi Atnetniya and James L. Powell.
+"Comparison of the Densities of the TSLS and LIMLK Estimators for Simultaneous Equations," by T. W. Anderson,
+Naoto Kunitomo, and Takamitsu Sawa.
+"Admissibilily of the Bayes Procedure Corresponding to the Uniform Prior Distribution for the Control Problem in
+Four Ditnensions but Not in Five," by Charles Stein and Asad Zaman.
+"Some Recent Developments on the Distributions of Single-Equation Estimators," by T. W. Anderson.
+On Inflation," by Frank Hahn.
+Two Papers on Majority Rule: "Continuity Properties of Majority Rule with Intermediate Preferences," by Peter Coughlin
+and Kuan-Pin Lin; and, "Electroal Outcotnes with Probabilistic Voring and Nash Social Welfare Maxitiia," by Peter
+Coughlin and Shmuel Nitzan.
+"On tlie Endogenous Fortnation of Coalitions," by Sergiu Hart and Mordecai Kurz.
+"Controllability, Pecuniary Externalities and Optimal Taxation," by David Starrett.
+"Nonlinear Regression Models," by Takeshi Amemiya.
+"Paradoxical Results from Inada's Conditions for Majority Rule," by Herve Raynaud.
+"On Welfare Economics with incotiiplete Information and the Social Value of Public Information," by Peter J. Hamtnond.
+"Equilibrium Policy Proposals with Abstentions," by Peter J. Coughlin.
+"Infinite Excessive and Invariant Measures," by Michael I. Taksar.
+"The Life-Cycle Hypothesis and the Effects of Social Security and Private Pensions on Family Savings," by Mordecai Kurz.
+"Optimal Retirement Age," by Mordecai Kurz.
+"Bayesian Incentive Compatible Beliefs," by Claude d'Aspremont and Louis-Andre Gerard-Varet.
+"Qualitative Response Models: A Survey," by Takeshi Amemiya.
+"The Social Costs of Monopoly and Regulation: A Game Theoretic Analysis," by WiHiam P. Rogerson.
+"Sequential Equilibria," by David M. Kreps and Robert Wilson.
+"Enhancing of Semigroups," by Michael I. Taksar.
+"Formulation and Estimation of Dynamic Models Using Pane! Data," by T. W. Anderson and Cheng Hsiao.
+"Ex-Post Optimality as a Dynamically Consistent Objective for Collective Choice Under Undertainty," by Peter Hammond.
+"Three Lectures in Monetary Theory," by Frank H. Hahn.
+"Socially Optimal Investment Rules in the Presence of Incomplete Markets and Other Second Best Distortions," by
+Frank Milne and David A. Starrett.
+"Approximate Purification of Mixed Strategies," by Robert Aumann, Yitzhak Katznelson, Roy Radner, Robert W.
+Rosenthal, and Benjamin Weiss.
+"Conditions for Transistivity of Majority Rule with Algorithmic Interpretations," by Herve Raynaud.
+"How Restrictive Actually are the Value Restriction Conditions," by Herve Raynaud.
+"Cournot Duopoly in the Style of Fulfilled Expectations Equilibrium. " by William Novshek and Hugh Sonnenschein.
+"Law of Large Numbers for Random Sets and Allocation Processes," by Zvi Artstein and Sergiu Hart.
+"Risk Perception in Psychology and Economics," by Kenneth J. Arrow.
+"Shrunken Predictors for Autoregressive Models," by Taku Yamamoto.
+"Predalion, Reputation, and Entry Deterrence," by Paul Milgrom and John Roberts.
+"Social and Private Production Objectives in the Sequence Economy," by David Starrett
+"Recursive Rational Choice," by Alain Lewis.
+"Least Absolute Deviations Estimation for Censored and Truncated Regression Models," by James Powell.
+"Relatively Recursive Rational Choice," by Alain Lewis.
+"A Theory of Auctions and Competitive Bidding," by Paul Milgrom and Robert Weber.
+"Facing an Uncertain Future," by W. M. Gorman.
+"The Individual Freedom Allowed by the Value Restriction Condition," by Herve Raynaud.
+"Incomplete Resource Allocation Mechanisms," by P. J. Hammond.
+"The Comparative Dynatnics of Efficient Programs of Capital Accumulation and Resource Depletion," by
+W. E. Diewert and T. R. Lewis.
+"Optimum Pricing Policy Under Stochastic Inflation," by E. Sheshinski and Y. Weiss.
+"Capital Accumulation and the Characteristics of Private Intergenerational Transfers," by M. Kurz.
+"Asymptotic Efficiency and Higher Order Efficiency of the Limited Information Maximum Likelihood Estimator in
+Large Econometric Models," by N. Kunitomo.
+"Semi-Values of Political Economic Games," by A. Neyman.
+"Non-Zero-Sum Two-Person Repeated Games with Incomplete Information," by S. Hart.
+"Partially Generalized Least Squares and Two-Stage Least Squares and Two-Stage Least Squares Estimators," by T. Amemiya.
+"Lipschitz Properties of Solution in Mathematical Programming," by B. Cornet and G. Laroque.
+"Multiple Hypothesis Testing," by N. E. Savin.
+"Teatn Theory and Decentralized Resource Allocation: An Example," by K. J. Arrow.
+"Testing for Unit Roots: 2," by G. B. A. and Evans and N. E. Savin.
+"Asymptotic Bias of the Least Squares Estimator for Multivariate Autoregressive Models," by T. Yamamoto and N. Kunitomo.
+"The Asytnptotic Normality of Two-Stage Least Absolute Deviations Estimators," by J. Powell.
+"Rational Cooperation in the Finitely-Repeated Prisoner's Dilemma," by D. Kreps, P. Milgrom, J. Roberts, and R. Wilson.
+
+376.
+377.
+
+"Necessary and Sufficient Conditions for Single-Pealcedness Along a Linearly Ordered Set of Policy Alternatives"
+by P. J. Coughlin and M. J. Hinich.
+"The Role of Reputation in a Regeated Agency Problem Involving Information Transmission" by W. P. Rogerson.
+
+378.
+379.
+
+"Unemployment Equilibrium with Stochastic Rationing of Supplies" by Ho-mou Wu.
+"Optimal Price and Income Regulation Under Uncertainty in the Model with One Producer" by M. I. Taksar.
+
+380.
+381.
+
+"On the NTU Value" by Robert J. Aumann.
+"Best Invariant Estimation of a Direction Parameter with Application to Linear Functional Relationships and
+Factor Analysis" by T. W. Anderson, C. Stein and A. Zaman.
+
+382.
+383.
+384.
+385.
+
+"Informational Equilibrium" by Robert Kast.
+"Cooperative Oligopoly Equilibrium" by Mordecai Kurz.
+"Reputation and Product Quality" by William P. Rogerson.
+"Auditing: Perspectives from Multiperson Decision Theory" by Robert Wilson.
+
+386.
+387.
+
+"Capacity Pricing" by Oren, Smith and Wilson.
+"Consequentialism and Rationality in Dynamic Choice Under Uncertainty" by P. J. Hammond.
+
+388.
+
+"The Structure of Wage Contracts in Repeated Agency Models" by W. P. Rogerson.
+
+389.
+
+"1982 Abraham Wald Memorial Lectures, Estimating Linear Statistical Relationships" by T. W. Anderson.
+
+390.
+
+"Aggregates, Activities and Overheads" by W. M. Gorman.
+
+391.
+
+"Double Auctions" by Robert Wilson.
+
+392.
+
+"Efficiency and Fairness in the Design of Bilateral Contracts" by S. Honkapohja.
+
+393.
+394.
+
+"Diagonahty of Cost Allocation Prices" by L. J. Mirman and A. Neyman.
+"General Asset Markets, Private Capital Formation, and the Existence of Temporary Walrasian Equilibrium" by P. J. Hammond.
+
+395.
+
+"Asymptotic Normality of the Censored and Truncated Least Absolute Deviations Estimators" by L. L. Powell.
+
+396.
+
+"Dominance-Solvability and Cournot Stabihty" by Herve Moulin.
+
+397.
+
+"Managerial Incentives, Investment and Aggregate Implications" by B. Holmstrom and L. Weiss.
+
+398.
+
+"GeneraHzations of the Censored and Truncated Least Absolute Deviations Estimators" by J. L. Powell.
+
+399.
+
+"Behavior Under Uncertainty and its Implications for PoMcy" by K.J. Arrow.
+
+400.
+
+"Third-Order Efficiency of the Extended Maximum Likelihood Estimators in a Simultaneous Equation System"
+by K. Takeuchi and K. Morimune.
+
+401.
+
+"Short-Run Analysis of Fiscal Policy in a Simple Perfect Foresight Model" by K. Judd.
+
+402.
+
+"Estimation of Failure Rate From A Complete Record of Failures and a Partial Record of Non-Failures" by K. Suzuki.
+
+403.
+404.
+
+"Apphcations of Semi-Regenerative Theory to Computafions of Stationary Distributions of Markov Chains" by
+"On the Optimality of Individual Behavior in First Come Last Served Queues with Preemption and Balking" by Refael Hassin.
+
+405.
+406.
+
+"Entry with Exit: An Extensive Form Treatment of Predation with Fanancial Constraints" by J. P, Benoit.
+"Search Among Queues" by A. Glazer and R. Hassin.
+
+407.
+
+"The Space of Polynomials in Measures is Internal" by J. Reichers and Y. Tauman.
+
+408.
+
+"Planning Under Incomplete Information and the Ratchet Effect" by X. Freixas, R. Guesnerie and J. Tirole.
+
+409.
+410.
+
+"A Theory of Dynamic Oligopoly, I: Overview and Quanfity Competition with Large Fixed Costs" by Eric Maskin and Jean Tirole.
+"Approximate Measures of the Social Welfare Benefits of Labor Projects" by Peter Hammond.
+
+411.
+
+"Transversahty Conditions for Some Infinite Horizon Discrete Time Optimization Problems" by Ivar Ekeland and Jose A. Scheinkman.
+
+412.
+
+"Asymptotic Efficiency of the Partial Likelihood Estimator in the Proportional Hazard Model" by Aaron K. Hahn.
+
+413.
+
+"A Monte Carlo Comparison of Estimators for Censored Regression Models" by Harry J. Paarsch.
+
+414.
+415.
+
+"Instrumental-Variable Estimation of an Error-Components Model" by Takeshi Amemiya and Thomas E. MaCurdy.
+"An Axiomatization of the Non-Transferable Utihty Value" by Robert J. Aumann.
+
+416.
+417.
+
+"Diffusion Approximation in Arrow's Model of Exhaustable Resources" by Darrell Duffie and Michael Taksar.
+"The Shapley Value in the Non Differentiable Case" by Jean Francois Mertens.
+
+418.
+
+"The Minimax Theorem for U.S.C.-L.S.C. Payoff Functions" by Jean Franjois Mertens.
+
+419.
+
+"Altruistic Growth Economies, Part I. Existence of Bequest Equilibria Part II. Properties of Bequest Equilibria" by
+Debraj Ray and Douglas Bernheim.
+
+420.
+
+"On the Existence of Cournot Equilibrium" by William Novshek.
+
+421.
+422.
+
+"Equilibrium Turnpike Theory with Constant Returns to Scale and Possibly Heterogenous Discount Factors" by Jeffrey L. Coles.
+"Components of Variance in Manova" by T. W. Anderson.
+
+423.
+
+"Prices for Homogenous Cost Functions" by Leonard J. Mirman and Abrahan Neyman.
+
+424.
+
+"On the Duration of Agreements" by Milton Harris and Bengt Holmstrom.
+
+425.
+426.
+
+"A Sequential Signalling Model of Convertible Debt Call Policy" by Milton Harris and Arthur Raviv.
+"On the Marginal Cost of Government Spending" by David Starrett.
+
+427.
+
+"Self-Agreed Cartel Rules" by Kevin Roberts.
+
+428.
+
+"Dynamic Models of Oligopoly" by Drew Fudenberg and Jean Tirole.
+
+429.
+
+"A Theory of Exit in Oligopoly" by Drew Fudenberg and Jean Tirole.
+
+430.
+431.
+432.
+
+"Consumer Information in Markets with Random Product Quality; The Case of Queues and Balking" by Rafael Hassin.
+"Incentive Efficiency of Double Auctions" by Robert Wilson.
+"Efficient Trading" by Robert Wilson.
+
+433.
+434.
+
+"The Economic Theory of Individual Behavior Toward Risk; Theory, Evidence and New Directions" by Mark J. Machina.
+"Reputations in Games and Markets" by Robert Wilson
+
+435.
+
+"Multilateral Incentive Compatibility in Continuum Economies" by Peter J. Hammond.
+
+436.
+
+"The First Order Approach to Principal Agent Problems" by William P. Rogerson
+
+437.
+
+"Maximum Rank Correlation Estimator and Generalized Median Estimator in Censored Regression and Survival Models" by Aaron K. Han.
+
+List of Reports
+438.
+
+"On Endogenous Competitive Business Cycles: by Jean-Michel Grandmont.
+
+439.
+
+"A Complete Characterization of ARMA Solutions to Linear Rational
+Expectations Models" by George Evans and Seppo Honkapohja.
+
+440.
+
+"Asset Bubbles and Overlapping Generations:
+Tirole.
+
+441.
+
+"Two Equivalence Theorems for the 'Finite Coalition Core' of a Continuum
+Economy" by Peter J. Hammond.
+'
+
+442.
+
+"Managerial Incentives and Non-Wage Benefits" by William Rogerson.
+
+443.
+
+"A Survey of Agency Models of Organizations" by Daniel Levinthal.
+
+444.
+
+"Two Papers on Sequential Bargaining: Part I. Sequential Bargaining
+Mechanisms. Part II.
+Bargaining with Incomplete Information an Infinite
+Horizon Model with Continuous Uncertainty" by Peter Cramton.
+
+445.
+
+"Borrowing Constraints and Aggregate Economic Activity" by Jose A.
+Scheinkman and Laurence Weiss.
+
+446.
+
+"Periodic and Aperiodic Behaviour in Discrete Onedimensional Dynamical
+Systems" by Jean-Michel Grandmont.
+
+447.
+
+"Contractual Paradigms Rational Expectations and Seniority Rules in
+The Theory of Long-Term Labor Contracts" by James Anton.
+
+448.
+
+"The Maximum Rank Correlation Estimator in Classical, Censored, and
+Discrete Regression Models" by Aaron K. Han.
+
+449.
+
+"Consequentialist Social Norms for Public Decisions" by Peter Hammond.
+
+450.
+
+"On Asymmetric Information, Unemployment and Inflexible Wages," by
+Mordecai Kurz.
+
+451.
+
+"The Economics of Agency," by Kenneth J. Arrow.
+
+k52.
+
+"'-'^ Equilibria of Bid-Ask Markets," by Robert Wilson^
+
+A Synthesis" by Jean
+
+« ■>.
+
+^
+
+U2166i7
+
+
