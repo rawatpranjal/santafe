@@ -1,7 +1,7 @@
 # config.py
 
 CONFIG = {
-    "experiment_name": "003_zip_only",
+    "experiment_name": "001_zi_only",
     "experiment_dir": "experiments",
 
     "num_rounds": 25,
@@ -17,17 +17,17 @@ CONFIG = {
 
     # All ZIC agents (4 buyers, 4 sellers) for replication
     "buyers": [
-        {"type": "zip"},
-        {"type": "zip"},
-        {"type": "zip"},
-        {"type": "zip"},
-        {"type": "zip"},
+        {"type": "zi"},
+        {"type": "zi"},
+        {"type": "zi"},
+        {"type": "zi"},
+        {"type": "zi"},
     ],
     "sellers": [
-        {"type": "zip"},
-        {"type": "zip"},
-        {"type": "zip"},
-        {"type": "zip"},
-        {"type": "zip"},
+        {"type": "zi"},
+        {"type": "zi"},
+        {"type": "zi"},
+        {"type": "zi"},
+        {"type": "zi"},
     ]
 }

@@ -1,5 +1,6 @@
 # traders/registry.py
 
+from traders.zi import ZIBuyer, ZISeller
 from traders.zic import RandomBuyer, RandomSeller
 from traders.gd import GDBuyer, GDSeller
 from traders.zip import ZipBuyer, ZipSeller
@@ -8,6 +9,8 @@ from traders.ppo import PPOBuyer#, PPOSeller  # Example if you have PPO
 
 # A dictionary keyed by (type_name, is_buyer_bool)
 TRADER_REGISTRY = {
+    ("zi", True):  ZIBuyer,
+    ("zi", False): ZISeller,
     ("random",  True):  RandomBuyer,
     ("random",  False): RandomSeller,
     ("kaplan",  True):  KaplanBuyer,
@@ -16,8 +19,8 @@ TRADER_REGISTRY = {
     ("gdseller",False): GDSeller,
     ("zic",True):  RandomBuyer,    
     ("zic",False):  RandomSeller,
-    ("zipbuyer",True):  ZipBuyer,
-    ("zipseller",False):ZipSeller,
+    ("zip",True):  ZipBuyer,
+    ("zip",False): ZipSeller,
     ("ppobuyer",True):  PPOBuyer,
     #("pposeller",False): PPOSeller,
     # Add new lines for new Traders...

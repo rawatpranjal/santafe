@@ -1,5 +1,3 @@
-# main.py
-
 import os, sys, shutil
 import pprint
 import pandas as pd
@@ -10,9 +8,8 @@ from utils import (
     analyze_individual_performance,
     analyze_market_performance,
     plot_per_round,
-    plot_game_summary  # We'll replace plot_aggregates with a single summary plot
+    plot_game_summary
 )
-
 from tabulate import tabulate
 
 def main():
@@ -48,7 +45,7 @@ def main():
         print(f"Saved step-by-step logs to {log_csv_path}")
 
         # Print step logs for round=0
-        df_r0 = dfLogs[dfLogs["round"]==0].sort_values("step")
+        df_r0 = dfLogs[dfLogs["round"] == 0].sort_values("step")
         print("\n=== STEP LOGS FOR ROUND=0 ===")
         df_r0["bids"] = df_r0["bids"].apply(lambda x: str(x))
         df_r0["asks"] = df_r0["asks"].apply(lambda x: str(x))
@@ -61,10 +58,8 @@ def main():
         analyze_individual_performance(auction.round_stats)
         analyze_market_performance(auction.round_stats)
 
-        # Per-round plots
+        # Plots (per-round & summary)
         plot_per_round(auction.round_stats, exp_path, dfLogs=dfLogs)
-
-        # Single "game_summary.png" => combine efficiency/surplus 2x2 with rolling profit
         plot_game_summary(dfR, exp_path, dfLogs=dfLogs)
 
         sys.stdout = original_stdout
