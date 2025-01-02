@@ -115,7 +115,7 @@ DA/
 
 ## References
 
-1. Smith, V. L. (1962). An Experimental Study of Competitive Market Behavior. \textit{Journal of Political Economy}.
-2. Gode, D. K., \& Sunder, S. (1993). Allocative Efficiency of Markets with Zero-Intelligence Traders: Market as a Partial Substitute for Individual Rationality. \textit{Journal of Political Economy, 101}, 119–137.
-3. Rust, J., Miller, J. H., \& Palmer, R. (1994). Characterizing effective trading strategies in a computerized double auction market. \textit{Santa Fe Institute Working Paper 94-03-014}.
-4. Chen, S.-H., \& Tai, C.-C. (2010). The Agent-Based Double Auction Markets: 15 Years On. In \textit{Simulating Interacting Agents and Social Phenomena} (eds.\ Takadama, K., Cioffi-Revilla, C., \& Deffuant, G.), 119–136. Springer Japan, Tokyo.
+1. Smith, V. L. (1962). An Experimental Study of Competitive Market Behavior. *Journal of Political Economy*.
+2. Gode, D. K., \& Sunder, S. (1993). Allocative Efficiency of Markets with Zero-Intelligence Traders: Market as a Partial Substitute for Individual Rationality. *Journal of Political Economy, 101*, 119–137.
+3. Rust, J., Miller, J. H., \& Palmer, R. (1994). Characterizing effective trading strategies in a computerized double auction market. *Santa Fe Institute Working Paper 94-03-014*.
+4. Chen, S.-H., \& Tai, C.-C. (2010). The Agent-Based Double Auction Markets: 15 Years On. In *Simulating Interacting Agents and Social Phenomena* (eds.\ Takadama, K., Cioffi-Revilla, C., \& Deffuant, G.), 119–136. Springer Japan, Tokyo.
