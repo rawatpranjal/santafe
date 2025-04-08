@@ -1,37 +1,47 @@
 # traders/registry.py
+import logging
+from .base import BaseTrader
+from .zic import ZICBuyer, ZICSeller
+from .kaplan import KaplanBuyer, KaplanSeller # <<< ADD THIS IMPORT
+from .ql import QLTrader
 
-from traders.zi import ZIBuyer, ZISeller
-from traders.zic import RandomBuyer, RandomSeller
-from traders.gd import GDBuyer, GDSeller
-from traders.zip import ZipBuyer, ZipSeller
-from traders.kaplan import KaplanBuyer, KaplanSeller
-from traders.ppo import PPOBuyer#, PPOSeller  # Example if you have PPO
+logger = logging.getLogger('trader.registry')
 
-# A dictionary keyed by (type_name, is_buyer_bool)
-TRADER_REGISTRY = {
-    ("zi", True):  ZIBuyer,
-    ("zi", False): ZISeller,
-    ("random",  True):  RandomBuyer,
-    ("random",  False): RandomSeller,
-    ("kaplan",  True):  KaplanBuyer,
-    ("kaplan",  False): KaplanSeller,
-    ("gdbuyer", True):  GDBuyer,
-    ("gdseller",False): GDSeller,
-    ("zic",True):  RandomBuyer,    
-    ("zic",False):  RandomSeller,
-    ("zip",True):  ZipBuyer,
-    ("zip",False): ZipSeller,
-    ("ppobuyer",True):  PPOBuyer,
-    #("pposeller",False): PPOSeller,
-    # Add new lines for new Traders...
+# Registry mapping strategy names to (BuyerClass, SellerClass) tuples
+_trader_registry = {
+    "zic": (ZICBuyer, ZICSeller),
+    "kaplan": (KaplanBuyer, KaplanSeller), # <<< ADD THIS LINE
+    # "dqn": (QLTrader, QLTrader), # Optional: Keep old name mapping?
+    "dqn_pricegrid": (QLTrader, QLTrader),
+    # Add 'gd', 'el', 'skeleton', etc. when implemented
 }
 
-def get_trader_class(type_str, is_buyer):
+def get_trader_class(strategy_type: str, is_buyer: bool) -> type[BaseTrader]:
     """
-    Return the Trader class from TRADER_REGISTRY.
-    Raise an error if not found.
+    Factory function to retrieve the appropriate trader class based on strategy type and role.
     """
-    key = (type_str, is_buyer)
-    if key not in TRADER_REGISTRY:
-        raise ValueError(f"Trader type '{type_str}' with is_buyer={is_buyer} not in registry.")
-    return TRADER_REGISTRY[key]
+    strategy_type_lower = strategy_type.lower() # Case-insensitive lookup
+    if strategy_type_lower not in _trader_registry:
+        available = available_strategies()
+        logger.error(f"Unknown trader strategy type: '{strategy_type}'. Available: {available}")
+        raise ValueError(f"Unknown trader strategy type: '{strategy_type}'. Available: {available}")
+
+    buyer_class, seller_class = _trader_registry[strategy_type_lower]
+    TraderClass = buyer_class if is_buyer else seller_class
+
+    # Check if the selected class expects rl_config (useful for auction setup)
+    import inspect
+    try:
+        sig = inspect.signature(TraderClass.__init__)
+        expects_rl_config = 'rl_config' in sig.parameters
+    except ValueError: # Handles built-in types or classes without standard __init__
+        expects_rl_config = False
+
+    logger.debug(f"Registry returning class: {TraderClass.__name__} for type '{strategy_type}' (Buyer={is_buyer}), expects_rl_config={expects_rl_config}")
+    return TraderClass
+
+def available_strategies():
+    """Returns a list of registered strategy type names."""
+    return list(_trader_registry.keys())
+
+# Create an empty file named __init__.py in the traders directory if it doesn't exist
