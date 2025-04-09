@@ -71,22 +71,32 @@ if args.no_eval_plots is True: CONFIG['generate_eval_behavior_plots'] = False
 
 
 # --- Now use the final CONFIG dictionary ---
-# Import local modules AFTER loading config
+# Import local modules AFTER loading config and applying overrides
 try:
-    from auction import Auction
+    # <<< IMPORT UTILS AND REGISTRY FUNCTIONS *FIRST* >>>
     from utils import (
         analyze_individual_performance,
         analyze_market_performance,
-        analyze_strategy_tournament, # <-- IMPORT NEW FUNCTION
+        analyze_strategy_tournament,
         plot_per_round,
         plot_game_summary,
         plot_rl_behavior_eval,
         plot_ppo_training_curves
     )
-    from traders.registry import available_strategies
+    from traders.registry import get_trader_class, available_strategies
+
+    # <<< IMPORT AUCTION *LAST* >>>
+    # This ensures traders.base is likely fully imported via registry before auction needs it
+    from auction import Auction
+
 except ImportError as e:
+    # Provide more specific error information if possible
+    import traceback
     print(f"ERROR: Failed to import necessary local modules (Auction, utils, traders): {e}", file=sys.stderr)
-    print("Ensure these files exist and are in the correct location relative to main.py.")
+    # print("\n--- Traceback ---", file=sys.stderr)
+    # traceback.print_exc(file=sys.stderr)
+    # print("--- End Traceback ---\n", file=sys.stderr)
+    print("Ensure these files exist and are in the correct location relative to main.py.", file=sys.stderr)
     sys.exit(1)
 
 
@@ -206,7 +216,7 @@ def main():
     logger.info(f"Starting experiment: {CONFIG['experiment_name']}")
     logger.info(f"Results directory: {exp_path}")
     logger.info(f"Using parameters from: {args.config_file}")
-    logger.info(f"Available strategies: {available_strategies()}")
+    logger.info(f"Available strategies: {available_strategies()}") # Use imported function
 
     # Copy the *actually used* config file for reproducibility
     try:
@@ -215,14 +225,33 @@ def main():
     except Exception as e:
         logger.warning(f"Could not copy config file '{args.config_file}': {e}")
 
-    # Log the final configuration being used (after potential overrides)
-    logger.info("=== FINAL CONFIGURATION ===\n" + pprint.pformat(CONFIG, indent=2, width=100) + "\n=========================")
+    # --- <<< PRE-PROCESS CONFIG: Resolve Trader Classes >>> ---
+    try:
+        if 'buyers' in CONFIG and isinstance(CONFIG['buyers'], list):
+            for spec in CONFIG['buyers']:
+                if isinstance(spec, dict) and 'type' in spec:
+                    spec['class'] = get_trader_class(spec['type'], is_buyer=True) # Store class obj
+        if 'sellers' in CONFIG and isinstance(CONFIG['sellers'], list):
+            for spec in CONFIG['sellers']:
+                 if isinstance(spec, dict) and 'type' in spec:
+                    spec['class'] = get_trader_class(spec['type'], is_buyer=False) # Store class obj
+        logger.info("Resolved trader types to classes in config.")
+    except Exception as e:
+        logger.exception("FATAL ERROR resolving trader classes in config!")
+        sys.exit(1)
+    # --- <<< END PRE-PROCESSING >>> ---
+
+
+    # Log the final configuration being used (after potential overrides and class resolution)
+    # Note: pprint won't show the class object nicely, but it's there.
+    logger.info("=== FINAL CONFIGURATION (Trader classes resolved) ===\n" + pprint.pformat(CONFIG, indent=2, width=100) + "\n====================================================")
 
     # --- Run Auction ---
     auction_instance = None
     run_successful = False
     try:
-        auction_instance = Auction(CONFIG) # Pass the final config dict
+        # Pass the modified config dict containing class objects
+        auction_instance = Auction(CONFIG)
         auction_instance.run_auction()
         logger.info("Auction run completed successfully.")
         run_successful = True

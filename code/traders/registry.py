@@ -1,70 +1,39 @@
 # traders/registry.py
 import logging
-
-# --- Import Base Strategies ---
 from .zic import ZICBuyer, ZICSeller
-from .kaplan import KaplanBuyer, KaplanSeller
-from .zi import ZIBuyer, ZISeller
-from .zip import ZipBuyer, ZipSeller
+from .zi import ZIUBuyer, ZIUSeller
+from .zip import ZIPBuyer, ZIPSeller # Import the updated ZIP
+# Import other strategies like Kaplan, GD, EL, PPO here
+# from .kaplan import KaplanBuyer, KPSeller # Example
+# ... etc
 
-# --- Import Heuristic/Belief Strategies ---
-from .gd import GDBuyer, GDSeller
-from .el import ELBuyer, ELSeller
-# --- ADD IMPORTS FOR NEW STRATEGIES ---
-from .tt import TTBuyer, TTSeller          # Truth Teller
-from .mu import MUBuyer, MUSeller          # Markup
-from .sk import SKBuyer, SKSeller          # Skeleton (Interpreted)
-from .rg import RGBuyer, RGSeller          # Ringuette
-# --- END ADDED IMPORTS ---
+logger = logging.getLogger('registry')
 
-# --- Import RL Strategies ---
-from .ppo import PPOTrader
-
-# --- Trader Registration Dictionary ---
-# Maps lowercase strategy names to (BuyerClass, SellerClass) tuples
+# Dictionary mapping strategy names (lowercase strings) to (BuyerClass, SellerClass) tuples
 _TRADER_CLASSES = {
-    # Baselines
     "zic": (ZICBuyer, ZICSeller),
-    "kaplan": (KaplanBuyer, KaplanSeller),
-    "zi": (ZIBuyer, ZISeller),
-    "zip": (ZipBuyer, ZipSeller),
-
-    # Heuristic/Belief-based
-    "gd": (GDBuyer, GDSeller),
-    "el": (ELBuyer, ELSeller),
-    # --- ADD NEW STRATEGIES ---
-    "tt": (TTBuyer, TTSeller),
-    "mu": (MUBuyer, MUSeller),
-    "sk": (SKBuyer, SKSeller),
-    "rg": (RGBuyer, RGSeller),
-    # --- END ADDED STRATEGIES ---
-
-    # RL Agents
-    "ppo_lstm": (PPOTrader, PPOTrader),
+    "zi": (ZIUBuyer, ZIUSeller),
+    "zip": (ZIPBuyer, ZIPSeller), # Added ZIP
+    # "kaplan": (KaplanBuyer, KPSeller), # Example
+    # "gd": (GDBuyer, GDSeller), # Example
+    # "el": (ELBuyer, ELSeller), # Example
+    # "ppo_lstm": (PPOBuyer, PPOSeller), # Example
+    # Add other strategies here
 }
 
-# ... (get_trader_class and available_strategies functions remain the same) ...
 def get_trader_class(strategy_name, is_buyer):
-    """Gets the appropriate trader class based on strategy name and role."""
-    logger = logging.getLogger('registry')
-    strategy_name = strategy_name.lower() # Ensure consistent lookup
-
-    if strategy_name not in _TRADER_CLASSES:
-        logger.error(f"Unknown trader strategy name: '{strategy_name}'")
-        available = available_strategies()
-        logger.error(f"Available strategies are: {available}")
-        # Provide a more informative error message
-        raise ValueError(f"Unknown trader strategy name: '{strategy_name}'. Available: {available}")
-
-    buyer_class, seller_class = _TRADER_CLASSES[strategy_name]
-
-    if is_buyer:
-        # logger.debug(f"Registry providing Buyer class for '{strategy_name}': {buyer_class.__name__}")
-        return buyer_class
+    """ Gets the appropriate trader class based on strategy name and role. """
+    strategy_name = strategy_name.lower()
+    if strategy_name in _TRADER_CLASSES:
+        buyer_cls, seller_cls = _TRADER_CLASSES[strategy_name]
+        if is_buyer:
+            return buyer_cls
+        else:
+            return seller_cls
     else:
-        # logger.debug(f"Registry providing Seller class for '{strategy_name}': {seller_class.__name__}")
-        return seller_class
+        logger.error(f"Unknown strategy name requested: '{strategy_name}'")
+        raise ValueError(f"Unknown strategy: {strategy_name}")
 
 def available_strategies():
-    """Returns a sorted list of available strategy names."""
-    return sorted(list(_TRADER_CLASSES.keys())) # Sort for consistent output
+    """ Returns a list of available strategy names. """
+    return list(_TRADER_CLASSES.keys())

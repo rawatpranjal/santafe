@@ -13,20 +13,20 @@ BASE_RL_LOG_LEVEL = "WARNING" # Default RL log level unless overridden
 
 # --- Define Experiments ---
 # List of configuration file names located within CONFIG_DIR
-# Includes 01* (baseline ZI/ZIC/ZIP) and the new 02* (full fixed strategy mix) experiments
+# Ensure these files exist in your configs/ directory
 config_files_to_run = [
     # --- 01: Baseline Runs (ZI, ZIC, ZIP) ---
-    #"01a_baseline_ziu_symmetric_1k.py",
-    #"01b_baseline_zic_symmetric_1k.py",
-    #"01c_baseline_zip_symmetric_1k.py", # Assuming this exists
-    #"01d_baseline_zic_asymmetric_1k.py",
-    #"01e_baseline_zip_asymmetric_1k.py", # Assuming this exists
+    "01a_baseline_ziu_symmetric_1k.py",
+    "01b_baseline_zic_symmetric_1k.py",
+    "01c_baseline_zip_symmetric_1k.py",
+    "01d_baseline_zic_asymmetric_1k.py",
+    "01e_baseline_zip_asymmetric_1k.py",
 
-    # --- 02: Full Fixed Strategy Mix Runs ---
-    "02a_fixed_strategy_mix_baseline_1k.py",
-    "02b_fixed_strategy_mix_more_tokens_1k.py",
-    "02c_fixed_strategy_mix_double_agents_1k.py",
-    "02d_fixed_strategy_mix_more_time_1k.py",
+    # --- 02: Full Fixed Strategy Mix Runs (Add later if needed) ---
+    # "02a_fixed_strategy_mix_baseline_1k.py",
+    # "02b_fixed_strategy_mix_more_tokens_1k.py",
+    # "02c_fixed_strategy_mix_double_agents_1k.py",
+    # "02d_fixed_strategy_mix_more_time_1k.py",
 
     # --- 03: Add MARL LSTM runs later when ready ---
     # "config_03a_marl_base_lstm_5k.py",

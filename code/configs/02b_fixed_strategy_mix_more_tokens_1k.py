@@ -7,7 +7,7 @@
 import numpy as np
 
 # --- Timing and Phases ---
-TOTAL_ROUNDS = 1000
+TOTAL_ROUNDS = 100
 TRAINING_ROUNDS = 0
 EVALUATION_ROUNDS = TOTAL_ROUNDS
 

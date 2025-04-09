@@ -1,19 +1,7 @@
 # requirements.txt
-
-# Core numerical and data manipulation
 numpy
 pandas
-
-# Deep Learning framework (for PPO agent)
-# Note: Installation might vary depending on CUDA support needs.
-# See: https://pytorch.org/get-started/locally/
 torch
-
-# Progress bar utility
 tqdm
-
-# Plotting library
 matplotlib
-
-# Table formatting for analysis output
 tabulate

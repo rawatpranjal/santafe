@@ -2,7 +2,7 @@
 import logging
 from .base import BaseTrader
 from .zic import ZICBuyer, ZICSeller
-from .kaplan import KaplanBuyer, KaplanSeller
+from .kp import KaplanBuyer, KaplanSeller
 from .ql import QLTrader # Import the new QL trader
 
 logger = logging.getLogger('trader.registry')
