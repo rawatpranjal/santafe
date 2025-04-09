@@ -28,7 +28,7 @@ The simulation replicates the discrete-time, order-driven double auction mechani
 
 ## Project Structure
 
-
+```
 santafe/ # Root directory (adjust name as needed)
 │
 ├── code/
@@ -73,6 +73,7 @@ santafe/ # Root directory (adjust name as needed)
 ├── papers/ # (Optional) Related papers
 ├── LICENSE
 └── README.md # This file
+```
 
 ## Installation
 
@@ -143,12 +144,7 @@ For each experiment run via `run_experiments.py`, a folder is created under `exp
 The script automatically performs analysis on the evaluation rounds and prints summary tables to the console and the main log file (`*_run.log`). Example formats:
 
 **Individual Bot Performance (Ranked)**
-IGNORE_WHEN_COPYING_START
-content_copy
-download
-Use code with caution.
-IGNORE_WHEN_COPYING_END
-
+```
 === INDIVIDUAL BOT PERFORMANCE (Aggregated over 100 Rounds) ===
 
 --- Buyers (Ranked by Mean Profit) ---
@@ -172,14 +168,9 @@ IGNORE_WHEN_COPYING_END
 | 4 | kaplan | S0 | 466.22 | 316.73 | 0.00 | 419.50 | 1518.00 |
 | 5 | zic | S4 | 203.74 | 180.79 | 0.00 | 162.50 | 716.00 |
 +------+----------+---------+------------+-----------+-----------+--------------+-----------+
-
+```
 **Market Performance**
-IGNORE_WHEN_COPYING_START
-content_copy
-download
-Use code with caution.
-IGNORE_WHEN_COPYING_END
-
+```
 === MARKET PERFORMANCE (Mean (StdDev) over 100 Rounds) ===
 +-------------+----------------+-----------------+---------------+----------------+-------------+-------------+
 | Market Eff | AvgBuyerProfit | AvgSellerProfit | BuyerSurplus% | SellerSurplus% | AvgPriceDev | AvgQuantDev |
@@ -189,11 +180,6 @@ IGNORE_WHEN_COPYING_END
 Note: Efficiency clamped to [0, 1] for 100 rounds for averaging.
 
 **Strategy Tournament Ranking**
-IGNORE_WHEN_COPYING_START
-content_copy
-download
-Use code with caution.
-IGNORE_WHEN_COPYING_END
 
 === STRATEGY TOURNAMENT RANKING (Aggregated over 100 Rounds) ===
 +----------+-------------+-----------+-----------+-----------+--------------+
@@ -205,7 +191,7 @@ IGNORE_WHEN_COPYING_END
 | kaplan | 422.52 | (311.38) | 5.76 | (2.82) | 200 |
 | zic | 265.83 | (252.28) | 7.28 | (2.54) | 200 |
 +----------+-------------+-----------+-----------+-----------+--------------+
-
+```
 ## References
 
 1.  Smith, V. L. (1962). An Experimental Study of Competitive Market Behavior. *Journal of Political Economy*.
