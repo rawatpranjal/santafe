@@ -8,11 +8,16 @@ from .zi import ZIBuyer, ZISeller
 from .zip import ZipBuyer, ZipSeller
 
 # --- Import Heuristic/Belief Strategies ---
-from .gd import GDBuyer, GDSeller    # <-- IMPORT GD CLASSES
-from .el import ELBuyer, ELSeller    # <-- IMPORT EL CLASSES (Assuming el.py exists)
+from .gd import GDBuyer, GDSeller
+from .el import ELBuyer, ELSeller
+# --- ADD IMPORTS FOR NEW STRATEGIES ---
+from .tt import TTBuyer, TTSeller          # Truth Teller
+from .mu import MUBuyer, MUSeller          # Markup
+from .sk import SKBuyer, SKSeller          # Skeleton (Interpreted)
+from .rg import RGBuyer, RGSeller          # Ringuette
+# --- END ADDED IMPORTS ---
 
 # --- Import RL Strategies ---
-# Use the potentially renamed PPOTrader class (now PPO-LSTM interface)
 from .ppo import PPOTrader
 
 # --- Trader Registration Dictionary ---
@@ -25,14 +30,20 @@ _TRADER_CLASSES = {
     "zip": (ZipBuyer, ZipSeller),
 
     # Heuristic/Belief-based
-    "gd": (GDBuyer, GDSeller),      # <-- REGISTER GD
-    "el": (ELBuyer, ELSeller),      # <-- REGISTER EL
+    "gd": (GDBuyer, GDSeller),
+    "el": (ELBuyer, ELSeller),
+    # --- ADD NEW STRATEGIES ---
+    "tt": (TTBuyer, TTSeller),
+    "mu": (MUBuyer, MUSeller),
+    "sk": (SKBuyer, SKSeller),
+    "rg": (RGBuyer, RGSeller),
+    # --- END ADDED STRATEGIES ---
 
     # RL Agents
-    "ppo_lstm": (PPOTrader, PPOTrader), # New entry for the LSTM agent interface
-    # Add back old PPO if needed, or other RL agents like DQN
+    "ppo_lstm": (PPOTrader, PPOTrader),
 }
 
+# ... (get_trader_class and available_strategies functions remain the same) ...
 def get_trader_class(strategy_name, is_buyer):
     """Gets the appropriate trader class based on strategy name and role."""
     logger = logging.getLogger('registry')

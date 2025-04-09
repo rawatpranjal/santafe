@@ -13,22 +13,22 @@ BASE_RL_LOG_LEVEL = "WARNING" # Default RL log level unless overridden
 
 # --- Define Experiments ---
 # List of configuration file names located within CONFIG_DIR
-# Includes all 01* (baseline ZI/ZIC/ZIP) and 02* (Kaplan mix) experiments
+# Includes 01* (baseline ZI/ZIC/ZIP) and the new 02* (full fixed strategy mix) experiments
 config_files_to_run = [
     # --- 01: Baseline Runs (ZI, ZIC, ZIP) ---
-    "01a_baseline_ziu_symmetric_1k.py",
-    "01b_baseline_zic_symmetric_1k.py",
-    "01c_baseline_zip_symmetric_1k.py", # Assuming this exists based on structure
-    "01d_baseline_zic_asymmetric_1k.py",
-    "01e_baseline_zip_asymmetric_1k.py", # Assuming this exists based on structure
+    #"01a_baseline_ziu_symmetric_1k.py",
+    #"01b_baseline_zic_symmetric_1k.py",
+    #"01c_baseline_zip_symmetric_1k.py", # Assuming this exists
+    #"01d_baseline_zic_asymmetric_1k.py",
+    #"01e_baseline_zip_asymmetric_1k.py", # Assuming this exists
 
-    # --- 02: Kaplan Mix Runs (Replication & Variations) ---
-    "02a_kaplan_mix_baseline_1k.py",
-    "02b_kaplan_mix_more_tokens_1k.py", # Assuming this exists based on structure
-    "02c_kaplan_mix_double_agents_1k.py",# Assuming this exists based on structure
-    "02d_kaplan_mix_more_time_1k.py",    # Assuming this exists based on structure
+    # --- 02: Full Fixed Strategy Mix Runs ---
+    "02a_fixed_strategy_mix_baseline_1k.py",
+    "02b_fixed_strategy_mix_more_tokens_1k.py",
+    "02c_fixed_strategy_mix_double_agents_1k.py",
+    "02d_fixed_strategy_mix_more_time_1k.py",
 
-    # Add MARL LSTM runs later when ready
+    # --- 03: Add MARL LSTM runs later when ready ---
     # "config_03a_marl_base_lstm_5k.py",
     # "config_03b_marl_openbook_lstm_5k.py",
     # "config_03c_marl_minimal_lstm_5k.py",
@@ -90,7 +90,6 @@ for i, config_filename in enumerate(config_files_to_run):
     try:
         # Run main.py as a subprocess
         # stdout and stderr will be printed directly to the console where run_experiments is running
-        # Set capture_output=True if you want to capture and potentially parse the output here
         result = subprocess.run(command, check=True, text=True, encoding='utf-8', stdout=sys.stdout, stderr=sys.stderr)
         exp_duration = time.time() - exp_start_time
         print(f"----- Experiment {exp_num} ({experiment_name_override}) Finished Successfully ({exp_duration:.2f}s) -----")
@@ -133,7 +132,7 @@ if failed_experiments:
         print(f"  - {failure}")
 else:
     print("\nAll experiments completed successfully!")
-print("=" * (43 + len(f"({total_duration:.2f}s)")))
+print("=" * (43 + len(f"({total_duration:.2f}s)"))) # Adjust width dynamically
 
 # Optional: Exit with non-zero code if any experiments failed
 if failed_experiments:

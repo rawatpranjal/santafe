@@ -53,17 +53,20 @@ logger = logging.getLogger('utils')
 def compute_equilibrium(buyer_vals, seller_costs):
     """ Compute theoretical equilibrium quantity, price range, midpoint, and max surplus. """
     eq_logger = logging.getLogger('utils.equilibrium') # Specific logger
+    eq_logger.debug(f"Computing equilibrium...") # Log start
+
     try:
         # Ensure inputs are numeric and sort them
         b_vals_float = sorted([float(v) for v in buyer_vals if isinstance(v, (int, float, np.number))], reverse=True)
         s_costs_float = sorted([float(c) for c in seller_costs if isinstance(c, (int, float, np.number))])
+        eq_logger.debug(f"  Input Buyer Vals (sorted): {b_vals_float}")
+        eq_logger.debug(f"  Input Seller Costs (sorted): {s_costs_float}")
     except (ValueError, TypeError) as e:
         eq_logger.error(f"Invalid input for equilibrium calculation: {e}. Buyers: {buyer_vals}, Sellers: {seller_costs}")
         return 0, (0.0, 0.0), 0.0, 0.0 # Return defaults
 
     if not b_vals_float:
         eq_logger.warning("No valid buyer values for equilibrium calculation.")
-        # Define behavior when no buyers: Q=0, Price range might depend on seller costs if needed
         low_p = min(s_costs_float) if s_costs_float else 0.0
         return 0, (low_p, low_p), 0.0, 0.0
     if not s_costs_float:
@@ -76,6 +79,7 @@ def compute_equilibrium(buyer_vals, seller_costs):
     max_possible_q = min(nb, ns)
     eq_q = 0
     total_surplus = 0.0
+    eq_logger.debug(f"  Max possible Q = min({nb}, {ns}) = {max_possible_q}") # Log max Q
 
     # Determine equilibrium quantity and surplus
     for q in range(1, max_possible_q + 1):
@@ -83,49 +87,41 @@ def compute_equilibrium(buyer_vals, seller_costs):
         s_cost = s_costs_float[q - 1]
         if b_val >= s_cost:
             eq_q = q
-            total_surplus += (b_val - s_cost)
+            surplus_gain = b_val - s_cost
+            total_surplus += surplus_gain
+            eq_logger.debug(f"    q={q}: BuyerVal={b_val:.2f} >= SellerCost={s_cost:.2f}. Gain={surplus_gain:.2f}. Cumulative Surplus={total_surplus:.2f}. EqQ now {eq_q}.")
         else:
-            # Stop when the q-th buyer's value is less than the q-th seller's cost
+            eq_logger.debug(f"    q={q}: BuyerVal={b_val:.2f} < SellerCost={s_cost:.2f}. Stopping Q search.")
             break
 
     # Determine equilibrium price range
+    eq_p_range = (0.0, 0.0) # Default
     if eq_q == 0:
-        # No trades possible, price range is between highest buyer value and lowest seller cost
         p_low = s_costs_float[0]
         p_high = b_vals_float[0]
         eq_p_range = (min(p_low, p_high), max(p_low, p_high))
     else:
-        # Trades occur, price range determined by the marginal units
         last_included_seller_cost = s_costs_float[eq_q - 1]
         last_included_buyer_value = b_vals_float[eq_q - 1]
-
-        # Value of the first excluded buyer (or -inf if all buyers trade)
         next_buyer_value = b_vals_float[eq_q] if eq_q < nb else -np.inf
-        # Cost of the first excluded seller (or +inf if all sellers trade)
         next_seller_cost = s_costs_float[eq_q] if eq_q < ns else np.inf
-
-        # Price must be >= highest cost/value among non-traded units that *could* have traded
-        # This defines the lower bound of the equilibrium price range
         eq_p_low = max(last_included_seller_cost, next_buyer_value)
-        # Price must be <= lowest value/cost among non-traded units that *could* have traded
-        # This defines the upper bound of the equilibrium price range
         eq_p_high = min(last_included_buyer_value, next_seller_cost)
-
-        # Ensure low <= high, adjust if they cross due to discrete values or specific edge cases
         eq_p_range = (min(eq_p_low, eq_p_high), max(eq_p_low, eq_p_high))
 
     # Calculate midpoint price
     eq_p_mid = float(0.5 * (eq_p_range[0] + eq_p_range[1]))
 
-    # Log potential issues
-    if total_surplus < 1e-9 and eq_q > 0:
+    if abs(total_surplus) < 1e-9 and eq_q > 0:
         eq_logger.warning(f"Equilibrium has Q={eq_q} but near-zero Max Surplus ({total_surplus:.4f}). Price range: {eq_p_range}")
 
-    eq_logger.debug(f"Equilibrium: Q={eq_q}, P_range=({eq_p_range[0]:.2f}, {eq_p_range[1]:.2f}), P_mid={eq_p_mid:.2f}, Max Surplus={total_surplus:.2f}")
+    eq_logger.debug(f"  Equilibrium Result: Q={eq_q}, P_range=({eq_p_range[0]:.2f}, {eq_p_range[1]:.2f}), P_mid={eq_p_mid:.2f}, Calculated Max Surplus={total_surplus:.2f}")
+    eq_logger.debug(f"  Returning: eq_q={eq_q}, eq_p_mid={eq_p_mid:.2f}, total_surplus={total_surplus:.2f}")
     return eq_q, eq_p_mid, total_surplus
 
 
 # --- SFI Value Generation Functions ---
+# (generate_sfi_components remains the same)
 def generate_sfi_components(gametype, min_price, max_price, value_rng):
     """ Generates SFI R and A components based on gametype. """
     sfi_logger = logging.getLogger('utils.sfi_values')
@@ -149,6 +145,7 @@ def generate_sfi_components(gametype, min_price, max_price, value_rng):
     sfi_logger.debug(f"Generated SFI components: R={R}, A={A}")
     return {'R': R, 'A': A}
 
+# (calculate_sfi_values_for_participant remains the same)
 def calculate_sfi_values_for_participant(p_name, role_l, N, sfi_components, min_p, max_p, value_rng):
     """ Calculates N values/costs for a specific participant based on SFI components. """
     sfi_logger = logging.getLogger('utils.sfi_values')
@@ -177,7 +174,6 @@ def calculate_sfi_values_for_participant(p_name, role_l, N, sfi_components, min_
         # Clamp the value/cost to market bounds and round to integer
         T_jkl_clamped = int(round(max(min_p, min(max_p, T_jkl))))
 
-        # Log clamping if it occurs (at debug level)
         if abs(T_jkl - T_jkl_clamped) > 1e-6 and sfi_logger.isEnabledFor(logging.DEBUG):
             sfi_logger.debug(f"Value {T_jkl:.2f} clamped/rounded to {T_jkl_clamped} for P:{p_name}, Token:{k}")
 
@@ -192,139 +188,189 @@ def calculate_sfi_values_for_participant(p_name, role_l, N, sfi_components, min_
 
 
 # --- Analysis Functions ---
+# (safe_literal_eval remains the same)
 def safe_literal_eval(val):
     """ Safely evaluate a string containing a Python literal (list, dict, tuple, etc.). """
     if isinstance(val, (list, dict, tuple, int, float, bool)) or val is None:
-        # If it's already a literal type or None, return it directly
         return val
     if isinstance(val, str):
-        # Basic check for potentially unsafe constructs (optional, ast is generally safe)
-        # if "__" in val or "import" in val or "eval" in val: return None
         try:
-            # Attempt to parse the string
-            # Handle potential tuple string format like "('buyer', 'zic')"
             processed_val = val
             if val.startswith("(") and val.endswith(")") and "," in val and "'" in val:
-                 # Simple heuristic check for tuple-like string
-                 try:
-                     # More robust parsing could be added if needed
-                     pass
-                 except: pass # Ignore if formatting is unexpected
-
-            # Use ast.literal_eval for safe evaluation
+                 try: pass
+                 except: pass
             return ast.literal_eval(processed_val)
         except (ValueError, SyntaxError, TypeError, MemoryError) as e:
-            # Log the error if evaluation fails
             eval_logger = logging.getLogger('utils.safe_eval')
-            # Limit log frequency if this happens often? Maybe count occurrences?
             eval_logger.debug(f"safe_literal_eval failed for value '{val}': {e}")
-            return None # Return None if evaluation fails
-    # Return None for other types (like custom objects)
+            return None
     return None
 
+# --- MODIFIED HELPER: Returns Surplus AND Infra-marginal Count ---
+def _calculate_potential_surplus_and_count(role, values_costs, eq_price):
+    """
+    Helper function to calculate theoretical individual surplus and
+    the count of infra-marginal units at the equilibrium price.
+    Returns: (potential_surplus, infra_marginal_count)
+    """
+    if eq_price is None or not values_costs:
+        return 0.0, 0 # Cannot calculate without price or values
+
+    potential_surplus = 0.0
+    infra_marginal_count = 0
+    try:
+        # Ensure values/costs are numeric
+        numeric_vals = [float(vc) for vc in values_costs if isinstance(vc, (int, float, np.number))]
+        eq_p_float = float(eq_price)
+
+        if role == 'buyer':
+            for v in numeric_vals:
+                if v > eq_p_float: # Infra-marginal buyer unit
+                    potential_surplus += (v - eq_p_float)
+                    infra_marginal_count += 1
+        elif role == 'seller':
+            for c in numeric_vals:
+                if c < eq_p_float: # Infra-marginal seller unit
+                    potential_surplus += (eq_p_float - c)
+                    infra_marginal_count += 1
+    except (ValueError, TypeError) as e:
+        calc_logger = logging.getLogger('utils.calc_surplus')
+        calc_logger.warning(f"Error calculating individual surplus/count for role={role}, vals={values_costs}, eq_p={eq_price}: {e}")
+        return 0.0, 0 # Return 0s if error occurs
+
+    return potential_surplus, infra_marginal_count
+
+# --- MODIFIED Analysis: Calculates ProfitRatio and SuccessRate ---
 def analyze_individual_performance(round_stats):
     """
     Aggregates performance by individual bot instance across rounds.
     Separates buyers and sellers and ranks them by Mean Profit within each role.
+    Includes Mean Profit Capture Ratio and Mean Trading Success Rate.
     """
     ind_logger = logging.getLogger('analysis.individual')
     if not round_stats: return "No round stats for individual performance analysis."
 
-    # Structure: { (role, strategy, name): [profit1, profit2, ...], ... }
-    all_bots_profit = defaultdict(list)
+    # Structure: { (role, strategy, name): {'profits': [], 'ratios': [], 'success_rates': [], 'trades': []}, ... }
+    all_bots_data = defaultdict(lambda: {'profits': [], 'ratios': [], 'success_rates': [], 'trades': []})
     num_processed_rounds = 0
 
-    # --- Stage 1: Collect profits for each bot ---
+    # --- Stage 1: Collect profits and calculate ratios/rates ---
     for r_idx, rstat in enumerate(round_stats):
-        if not isinstance(rstat, dict): continue # Skip non-dict entries
-
+        if not isinstance(rstat, dict): continue
         bot_details_raw = rstat.get("bot_details")
-        if bot_details_raw is None: continue # Skip if details missing
+        eq_price = rstat.get("eq_p") # Equilibrium price for the round
+
+        if bot_details_raw is None or eq_price is None:
+             ind_logger.debug(f"R{r_idx}: Skipping round analysis due to missing bot_details or eq_p.")
+             continue
 
         bot_details = safe_literal_eval(bot_details_raw)
-        if not isinstance(bot_details, list) or not bot_details: continue # Skip if not valid list
+        if not isinstance(bot_details, list) or not bot_details: continue
 
         num_processed_rounds += 1
         for b_idx, b in enumerate(bot_details):
-            if not isinstance(b, dict): continue # Skip non-dict bot entries
+            if not isinstance(b, dict): continue
 
             role = b.get("role")
             strategy = b.get("strategy")
             name = b.get("name")
             profit_raw = b.get("profit")
+            values_costs = b.get("values_costs") # Original values/costs
+            trades_raw = b.get("trades")         # Number of trades made
 
-            # Validate key components
-            if None in [role, strategy, name] or not all(isinstance(k, str) for k in [role, strategy, name]):
-                ind_logger.debug(f"R{r_idx}: Skipping bot entry with invalid key components: {b}")
+            if None in [role, strategy, name, values_costs, trades_raw]:
+                ind_logger.debug(f"R{r_idx} Bot {b_idx}: Skipping due to missing key info: {b}")
                 continue
             key = (role, strategy, name)
 
-            # Validate and convert profit
             try:
                 profit_val = float(profit_raw if profit_raw is not None else 0.0)
-                all_bots_profit[key].append(profit_val)
-            except (ValueError, TypeError):
-                ind_logger.warning(f"R{r_idx}: Invalid profit '{profit_raw}' for bot {key}. Skipping profit entry.")
+                num_trades = int(trades_raw)
+                all_bots_data[key]['profits'].append(profit_val)
+                all_bots_data[key]['trades'].append(num_trades)
 
-    if not all_bots_profit:
+                # Calculate potential surplus and infra-marginal count for the single period potential
+                potential_surplus, infra_marginal_count = _calculate_potential_surplus_and_count(role, values_costs, eq_price)
+
+                # Calculate Profit Capture Ratio (Profit / Potential Surplus)
+                profit_ratio = 0.0 # Default
+                if abs(potential_surplus) > 1e-9:
+                    profit_ratio = profit_val / potential_surplus
+                elif abs(profit_val) < 1e-9: # If surplus is ~0 and profit is ~0
+                    profit_ratio = 1.0 # Define 0/0 as 1.0
+                profit_ratio_clamped = np.clip(profit_ratio, -0.1, 2.0) # Allow ratio > 1, but clamp extremes
+                all_bots_data[key]['ratios'].append(profit_ratio_clamped)
+
+                # Calculate Trading Success Rate (Trades / Infra-marginal Count)
+                success_rate = 0.0 # Default
+                if infra_marginal_count > 0:
+                    success_rate = num_trades / infra_marginal_count
+                elif num_trades == 0: # If no infra-marginal units and no trades made
+                    success_rate = 1.0 # Define 0/0 as 100% successful (traded all possible)
+                success_rate_clamped = np.clip(success_rate, 0.0, 1.0) # Strictly between 0 and 1
+                all_bots_data[key]['success_rates'].append(success_rate_clamped)
+
+
+            except (ValueError, TypeError, KeyError) as e:
+                ind_logger.warning(f"R{r_idx}: Error processing data for bot {key}: {e}. Skipping entry.")
+
+    if not all_bots_data:
         return f"No valid bot details found in {num_processed_rounds} processed rounds."
 
     # --- Stage 2: Calculate aggregate stats and separate by role ---
     buyer_results = []
     seller_results = []
 
-    for key, profit_list in all_bots_profit.items():
+    for key, data_dict in all_bots_data.items():
         role, strategy, name = key
-        arr = np.array(profit_list)
-        if len(arr) == 0: continue # Skip if no valid profit entries
+        profits = np.array(data_dict['profits'])
+        ratios = np.array(data_dict['ratios'])
+        success_rates = np.array(data_dict['success_rates'])
+        if len(profits) == 0: continue # Skip if no valid entries
 
-        # Use nan-safe calculations
-        avg = np.nanmean(arr)
-        std = np.nanstd(arr)
-        min_p = np.nanmin(arr)
-        med = np.nanmedian(arr)
-        max_p = np.nanmax(arr)
+        avg_profit = np.nanmean(profits); std_profit = np.nanstd(profits)
+        min_p = np.nanmin(profits); med = np.nanmedian(profits); max_p = np.nanmax(profits)
+        avg_ratio = np.nanmean(ratios); std_ratio = np.nanstd(ratios)
+        avg_success = np.nanmean(success_rates); std_success = np.nanstd(success_rates)
 
         result_dict = {
-            'role': role,
-            'strategy': strategy,
-            'name': name,
-            'mean_profit': avg,
-            'std_profit': std,
-            'min_profit': min_p,
-            'median_profit': med,
-            'max_profit': max_p
+            'role': role, 'strategy': strategy, 'name': name,
+            'mean_profit': avg_profit, 'std_profit': std_profit,
+            'min_profit': min_p, 'median_profit': med, 'max_profit': max_p,
+            'mean_profit_ratio': avg_ratio, 'std_profit_ratio': std_ratio, # Renamed metric
+            'mean_success_rate': avg_success, 'std_success_rate': std_success # New metric
         }
 
-        if role == 'buyer':
-            buyer_results.append(result_dict)
-        elif role == 'seller':
-            seller_results.append(result_dict)
-        else:
-            ind_logger.warning(f"Unknown role '{role}' found for bot {key}. Ignoring.")
+        if role == 'buyer': buyer_results.append(result_dict)
+        elif role == 'seller': seller_results.append(result_dict)
 
     # --- Stage 3: Sort results by Mean Profit (descending) ---
     buyers_sorted = sorted(buyer_results, key=lambda x: x['mean_profit'], reverse=True)
     sellers_sorted = sorted(seller_results, key=lambda x: x['mean_profit'], reverse=True)
 
     # --- Stage 4: Format tables ---
-    headers = ["Rank", "Strategy", "BotName", "MeanProfit", "StdProfit", "MinProfit", "MedianProfit", "MaxProfit"]
+    # ADD/RENAME METRIC COLUMNS TO HEADERS
+    headers = ["Rank", "Strategy", "BotName", "MeanProfit", "StdProfit",
+               "MeanProfitRatio", "StdProfitRatio", "MeanSuccessRate", "StdSuccessRate",
+               "MinProfit", "MedianProfit", "MaxProfit"]
     buyer_table_rows = []
     seller_table_rows = []
 
     for rank, res in enumerate(buyers_sorted, 1):
         buyer_table_rows.append([
-            rank, # Add rank column
-            res['strategy'], res['name'],
+            rank, res['strategy'], res['name'],
             f"{res['mean_profit']:.2f}", f"{res['std_profit']:.2f}",
+            f"{res['mean_profit_ratio']:.3f}", f"({res['std_profit_ratio']:.3f})", # Profit Ratio
+            f"{res['mean_success_rate']:.3f}", f"({res['std_success_rate']:.3f})", # Success Rate
             f"{res['min_profit']:.2f}", f"{res['median_profit']:.2f}", f"{res['max_profit']:.2f}"
         ])
 
     for rank, res in enumerate(sellers_sorted, 1):
         seller_table_rows.append([
-            rank, # Add rank column
-            res['strategy'], res['name'],
+            rank, res['strategy'], res['name'],
             f"{res['mean_profit']:.2f}", f"{res['std_profit']:.2f}",
+            f"{res['mean_profit_ratio']:.3f}", f"({res['std_profit_ratio']:.3f})", # Profit Ratio
+            f"{res['mean_success_rate']:.3f}", f"({res['std_success_rate']:.3f})", # Success Rate
             f"{res['min_profit']:.2f}", f"{res['median_profit']:.2f}", f"{res['max_profit']:.2f}"
         ])
 
@@ -332,16 +378,14 @@ def analyze_individual_performance(round_stats):
     buyer_title = "\n--- Buyers (Ranked by Mean Profit) ---"
     seller_title = "\n--- Sellers (Ranked by Mean Profit) ---"
 
-    # Use right alignment for numeric columns in tabulate
-    buyer_table = tabulate(buyer_table_rows, headers=headers, tablefmt='pretty', floatfmt='.2f', numalign="right") if buyer_table_rows else "No buyer data."
-    seller_table = tabulate(seller_table_rows, headers=headers, tablefmt='pretty', floatfmt='.2f', numalign="right") if seller_table_rows else "No seller data."
+    buyer_table = tabulate(buyer_table_rows, headers=headers, tablefmt='pretty', floatfmt='.3f', numalign="right") if buyer_table_rows else "No buyer data."
+    seller_table = tabulate(seller_table_rows, headers=headers, tablefmt='pretty', floatfmt='.3f', numalign="right") if seller_table_rows else "No seller data."
 
-    # Combine titles and tables
     final_output = f"{title}\n{buyer_title}\n{buyer_table}\n{seller_title}\n{seller_table}"
-
     return final_output
 
 
+# --- MODIFIED Market Performance Analysis ---
 def analyze_market_performance(round_stats):
     """ Aggregates market performance including standard deviations. """
     mkt_logger = logging.getLogger('analysis.market')
@@ -356,25 +400,21 @@ def analyze_market_performance(round_stats):
     eff_issues, neg_eff_rounds, num_processed_rounds = 0, 0, 0
 
     for r_idx, rstat in enumerate(round_stats):
-        if not isinstance(rstat, dict): continue # Skip non-dict entries
+        if not isinstance(rstat, dict): continue
         num_processed_rounds += 1
 
         # --- Efficiency ---
         eff_raw = rstat.get('market_efficiency')
-        eff = np.nan # Default to NaN
+        eff = np.nan
         try:
              if eff_raw is None: raise ValueError("Missing efficiency")
              eff = float(eff_raw)
-             effs_raw.append(eff) # Store raw value
-             # Check for issues and clamp for aggregate stats
+             effs_raw.append(eff)
              is_issue = False
-             # Use a tolerance for checking > 1.0 due to potential floating point issues
-             if eff > 1.0 + 1e-6: is_issue = True
-             if eff < -1e-9: # Check for negative values (allowing for near-zero float issues)
-                  neg_eff_rounds +=1
-                  is_issue = True # Consider negative efficiency an issue
+             if eff > 1.0 + 1e-6: is_issue = True # Check if significantly > 1
+             if eff < -1e-9: neg_eff_rounds +=1; is_issue = True
              if is_issue: eff_issues += 1
-             eff_clamped_val = np.clip(eff, 0.0, 1.0) # Clamp for avg/std calculation
+             eff_clamped_val = np.clip(eff, 0.0, 1.0) # Hard clamp for averaging
              effs_clamped.append(eff_clamped_val)
         except (ValueError, TypeError, AttributeError) as e:
              mkt_logger.warning(f"R{r_idx}: Invalid or missing efficiency value '{eff_raw}': {e}. Using NaN.")
@@ -393,38 +433,28 @@ def analyze_market_performance(round_stats):
         round_total_b_profit, round_b_count = 0.0, 0
         round_total_s_profit, round_s_count = 0.0, 0
         valid_perf_data = False
-        round_total_profit_from_roles = 0.0 # Recalculate from roles for consistency check
 
         role_perf = safe_literal_eval(role_perf_raw)
         if isinstance(role_perf, dict):
              valid_perf_data = True
              try:
                  for key_repr, perf_data in role_perf.items():
-                     # key_repr should be like "('buyer', 'zic')"
                      key_tuple = safe_literal_eval(key_repr)
                      if not (isinstance(key_tuple, tuple) and len(key_tuple)==2 and isinstance(perf_data, dict)):
-                          mkt_logger.warning(f"R{r_idx}: Invalid key or data format in role_strat_perf: {key_repr}, {perf_data}")
-                          valid_perf_data = False; break # Stop processing this round's role perf
-
+                          valid_perf_data = False; break
                      role, _ = key_tuple
                      profit = float(perf_data.get("profit", 0.0))
                      count = int(perf_data.get("count", 0))
                      if count < 0: raise ValueError("Negative count")
-
-                     round_total_profit_from_roles += profit
                      if role == 'buyer': round_total_b_profit += profit; round_b_count += count
                      elif role == 'seller': round_total_s_profit += profit; round_s_count += count
-                     else: mkt_logger.warning(f"R{r_idx}: Unknown role '{role}' in role_strat_perf key: {key_tuple}")
-
-             except (ValueError, TypeError, KeyError) as e: # Catch potential key errors too
-                  mkt_logger.warning(f"R{r_idx}: Error processing role_strat_perf data '{role_perf_raw}': {e}")
+             except (ValueError, TypeError, KeyError) as e:
                   valid_perf_data = False
+                  if num_processed_rounds == 1 or r_idx % 100 == 0: # Log periodically
+                       mkt_logger.warning(f"R{r_idx}: Error processing role_strat_perf data '{role_perf_raw}': {e}")
 
-        # Calculate fractions and averages if data was valid
         if valid_perf_data and (round_b_count + round_s_count > 0):
              tot_pft_roles = round_total_b_profit + round_total_s_profit
-             # Use tot_pft_roles for fraction calculation if valid
-             # Handle zero total profit case for fractions
              buyer_frac = round_total_b_profit / tot_pft_roles if abs(tot_pft_roles) > 1e-9 else 0.5
              seller_frac = round_total_s_profit / tot_pft_roles if abs(tot_pft_roles) > 1e-9 else 0.5
              buyer_surplus_fracs.append(buyer_frac)
@@ -432,22 +462,16 @@ def analyze_market_performance(round_stats):
              avg_buyer_profits_per_round.append(round_total_b_profit / round_b_count if round_b_count > 0 else 0.0)
              avg_seller_profits_per_round.append(round_total_s_profit / round_s_count if round_s_count > 0 else 0.0)
         else:
-             # Append NaN if role data was missing or invalid
              buyer_surplus_fracs.append(np.nan); seller_surplus_fracs.append(np.nan)
              avg_buyer_profits_per_round.append(np.nan); avg_seller_profits_per_round.append(np.nan)
-             # Log warning only once if consistently missing (avoid flooding)
-             if num_processed_rounds == 1 or r_idx % 100 == 0: # Log first time and periodically
+             if num_processed_rounds == 1 or r_idx % 100 == 0:
                   mkt_logger.warning(f"R{r_idx}: Could not calculate surplus split/avg profits due to missing/invalid role_strat_perf data: {role_perf_raw}")
 
-    # --- Aggregate Results (Mean and Std Dev using nan-safe versions) ---
-    if num_processed_rounds == 0:
-         return "Market analysis failed: No rounds processed."
-
-    # Log the efficiency issue summary
+    # --- Aggregate Results ---
+    if num_processed_rounds == 0: return "Market analysis failed: No rounds processed."
     if eff_issues > 0:
-         mkt_logger.warning(f"Market Analysis: {eff_issues}/{num_processed_rounds} rounds had efficiency outside [0, 1] (Negative: {neg_eff_rounds}). Clamped Efficiency used for avg/std calculation.")
+         mkt_logger.warning(f"Market Analysis: {eff_issues}/{num_processed_rounds} rounds had raw efficiency outside [0, 1] (Negative: {neg_eff_rounds}). Clamped Efficiency used for avg/std calculation.")
 
-    # Calculate aggregate stats
     avg_eff, std_eff = (np.nanmean(effs_clamped), np.nanstd(effs_clamped)) if effs_clamped else (np.nan, np.nan)
     avg_p_diff, std_p_diff = (np.nanmean(price_diffs), np.nanstd(price_diffs)) if price_diffs else (np.nan, np.nan)
     avg_q_diff, std_q_diff = (np.nanmean(quant_diffs), np.nanstd(quant_diffs)) if quant_diffs else (np.nan, np.nan)
@@ -456,193 +480,181 @@ def analyze_market_performance(round_stats):
     avg_b_prof, std_b_prof = (np.nanmean(avg_buyer_profits_per_round), np.nanstd(avg_buyer_profits_per_round)) if avg_buyer_profits_per_round else (np.nan, np.nan)
     avg_s_prof, std_s_prof = (np.nanmean(avg_seller_profits_per_round), np.nanstd(avg_seller_profits_per_round)) if avg_seller_profits_per_round else (np.nan, np.nan)
 
-    # --- Format Output Strings with (Std Dev) ---
-    # Helper to format, handling potential NaN results gracefully
+    # --- Format Output Strings ---
     def format_mean_std(mean_val, std_val, precision, is_percent=False):
-        if np.isnan(mean_val) or np.isnan(std_val):
-             return "NaN (NaN)" # Indicate missing data clearly
+        if np.isnan(mean_val) or np.isnan(std_val): return "NaN (NaN)"
         unit = "%" if is_percent else ""
         scale = 100.0 if is_percent else 1.0
-        # Format: MeanUnit (StdDev)
         return f"{mean_val * scale:.{precision}f}{unit} ({std_val * scale:.{precision}f})"
 
-    # Format results using the helper
-    eff_str = format_mean_std(avg_eff, std_eff, 2) # Efficiency clamped: 2 decimals
-    b_prof_str = format_mean_std(avg_b_prof, std_b_prof, 0) # Avg Profit: 0 decimals
-    s_prof_str = format_mean_std(avg_s_prof, std_s_prof, 0) # Avg Profit: 0 decimals
-    b_surplus_str = format_mean_std(avg_b_surplus, std_b_surplus, 1, is_percent=True) # Surplus %: 1 decimal
-    s_surplus_str = format_mean_std(avg_s_surplus, std_s_surplus, 1, is_percent=True) # Surplus %: 1 decimal
-    p_dev_str = format_mean_std(avg_p_diff, std_p_diff, 1) # Price Dev: 1 decimal
-    q_dev_str = format_mean_std(avg_q_diff, std_q_diff, 1) # Quant Dev: 1 decimal
+    eff_str = format_mean_std(avg_eff, std_eff, 2) # Use clamped efficiency avg/std
+    b_prof_str = format_mean_std(avg_b_prof, std_b_prof, 0)
+    s_prof_str = format_mean_std(avg_s_prof, std_s_prof, 0)
+    b_surplus_str = format_mean_std(avg_b_surplus, std_b_surplus, 1, is_percent=True)
+    s_surplus_str = format_mean_std(avg_s_surplus, std_s_surplus, 1, is_percent=True)
+    p_dev_str = format_mean_std(avg_p_diff, std_p_diff, 1)
+    q_dev_str = format_mean_std(avg_q_diff, std_q_diff, 1)
 
     # --- Create Table ---
     headers = ["Market Eff", "AvgBuyerProfit", "AvgSellerProfit",
                "BuyerSurplus%", "SellerSurplus%", "AvgPriceDev", "AvgQuantDev"]
-    rows = [[eff_str, b_prof_str, s_prof_str,
-             b_surplus_str, s_surplus_str,
-             p_dev_str, q_dev_str]]
-
+    rows = [[eff_str, b_prof_str, s_prof_str, b_surplus_str, s_surplus_str, p_dev_str, q_dev_str]]
     title = f"\n=== MARKET PERFORMANCE (Mean (StdDev) over {num_processed_rounds} Rounds) ==="
-    # Use right alignment for numeric data
     table = tabulate(rows, headers=headers, tablefmt="pretty", numalign="right")
     if eff_issues > 0:
-        table += f"\nNote: Efficiency clamped to [0, 1] for {eff_issues} rounds for averaging."
+        table += f"\nNote: Market Eff calculated using clamped [0,1] values for {eff_issues} rounds."
 
     return f"{title}\n{table}"
 
 
+# --- MODIFIED Tournament Analysis: Includes Profit Ratio and Success Rate ---
 def analyze_strategy_tournament(round_stats):
     """
     Analyzes performance aggregated by STRATEGY, ranking them like a tournament.
-    Calculates mean/std for profit and rank achieved within rounds.
+    Calculates mean/std for profit, rank, profit ratio, and success rate.
     """
     tourn_logger = logging.getLogger('analysis.tournament')
-    if not round_stats:
-        return "No round stats for tournament analysis."
+    if not round_stats: return "No round stats for tournament analysis."
 
-    # Dictionary to store lists of profits and ranks for each strategy
-    # Structure: { strategy_name: {'profits': [...], 'ranks': [...] } }
-    strategy_performance = defaultdict(lambda: {'profits': [], 'ranks': []})
+    # Structure: { strategy_name: {'profits': [], 'ranks': [], 'ratios': [], 'success_rates': [] } }
+    strategy_performance = defaultdict(lambda: {'profits': [], 'ranks': [], 'ratios': [], 'success_rates': []})
     num_processed_rounds = 0
     total_agents_processed = 0
 
+    # --- Stage 1: Collect data and rank within rounds ---
     for r_idx, rstat in enumerate(round_stats):
-        if not isinstance(rstat, dict):
-            tourn_logger.warning(f"Round {r_idx}: Skipping invalid round stat entry (not a dict).")
-            continue
-
+        if not isinstance(rstat, dict): continue
         bot_details_raw = rstat.get("bot_details")
-        if bot_details_raw is None:
-            tourn_logger.warning(f"Round {r_idx}: Skipping round, 'bot_details' missing.")
-            continue
+        eq_price = rstat.get("eq_p") # Get equilibrium price
 
-        bot_details = safe_literal_eval(bot_details_raw) # Use the safe eval function
+        if bot_details_raw is None or eq_price is None: continue
 
-        if not isinstance(bot_details, list) or not bot_details:
-            tourn_logger.warning(f"Round {r_idx}: Skipping round, 'bot_details' is not a valid list or is empty.")
-            continue
+        bot_details = safe_literal_eval(bot_details_raw)
+        if not isinstance(bot_details, list) or not bot_details: continue
 
         num_processed_rounds += 1
-        round_bots = [] # Store {'strategy': s, 'profit': p, 'name': n} for this round
+        round_bots = [] # Store dicts for ranking
         valid_bots_in_round = True
         for b_idx, b in enumerate(bot_details):
-            if not isinstance(b, dict):
-                tourn_logger.warning(f"Round {r_idx}, Bot {b_idx}: Skipping invalid bot detail entry (not a dict).")
-                valid_bots_in_round = False
-                continue # Skip this bot entry
+            if not isinstance(b, dict): valid_bots_in_round = False; continue
 
             strategy = b.get("strategy")
             profit_raw = b.get("profit")
-            name = b.get("name", f"Unknown_R{r_idx}_B{b_idx}") # Use round/bot index if name missing
+            name = b.get("name", f"Unknown_R{r_idx}_B{b_idx}")
+            values_costs = b.get("values_costs") # Original values/costs
+            role = b.get("role")
+            trades_raw = b.get("trades") # Number of trades
 
-            if strategy is None:
-                tourn_logger.warning(f"Round {r_idx}, Bot {name}: Skipping bot, missing 'strategy'.")
-                valid_bots_in_round = False
-                continue
+            if None in [strategy, role, values_costs, trades_raw]:
+                 valid_bots_in_round = False; continue
             try:
-                # Ensure profit is float, default to 0.0 if None
                 profit = float(profit_raw if profit_raw is not None else 0.0)
-                round_bots.append({'strategy': strategy, 'profit': profit, 'name': name})
+                num_trades = int(trades_raw)
+                round_bots.append({
+                    'strategy': strategy, 'profit': profit, 'name': name,
+                    'values_costs': values_costs, 'role': role, 'num_trades': num_trades
+                    })
                 total_agents_processed += 1
-            except (ValueError, TypeError):
-                tourn_logger.warning(f"Round {r_idx}, Bot {name}: Skipping bot, invalid profit value '{profit_raw}'.")
-                valid_bots_in_round = False
-                continue
+            except (ValueError, TypeError): valid_bots_in_round = False; continue
 
-        # Only perform ranking if the round had valid bot entries
-        if not valid_bots_in_round or not round_bots:
-            tourn_logger.warning(f"Round {r_idx}: Skipping rank calculation due to invalid bot entries or no valid bots.")
-            continue
+        if not valid_bots_in_round or not round_bots: continue
 
-        # --- Rank bots within this round using pandas ---
+        # --- Rank bots and calculate metrics within this round ---
         try:
             df_round = pd.DataFrame(round_bots)
-            # Rank based on profit (higher profit = lower rank number)
-            # 'average' method handles ties by assigning the average rank
             df_round['rank'] = df_round['profit'].rank(method='average', ascending=False)
+
+            # Calculate potential surplus and infra-marginal count
+            surplus_count = df_round.apply(
+                lambda row: _calculate_potential_surplus_and_count(row['role'], row['values_costs'], eq_price), axis=1
+            )
+            df_round['potential_surplus'] = surplus_count.apply(lambda x: x[0])
+            df_round['infra_marginal_count'] = surplus_count.apply(lambda x: x[1])
+
+            # Calculate Profit Capture Ratio
+            df_round['profit_ratio'] = np.where(
+                np.abs(df_round['potential_surplus']) > 1e-9,
+                df_round['profit'] / df_round['potential_surplus'],
+                np.where(np.abs(df_round['profit']) < 1e-9, 1.0, 0.0)
+            )
+            df_round['profit_ratio'] = np.clip(df_round['profit_ratio'], -0.1, 2.0) # Clamp ratio
+
+            # Calculate Trading Success Rate
+            df_round['success_rate'] = np.where(
+                df_round['infra_marginal_count'] > 0,
+                df_round['num_trades'] / df_round['infra_marginal_count'],
+                np.where(df_round['num_trades'] == 0, 1.0, 0.0) # 0/0 -> 1.0, X/0 -> 0.0
+            )
+            df_round['success_rate'] = np.clip(df_round['success_rate'], 0.0, 1.0) # Clamp rate
 
             # --- Aggregate results per strategy for this round ---
             for _, row in df_round.iterrows():
                 strat = row['strategy']
-                # Append profit and rank for this agent in this round
                 strategy_performance[strat]['profits'].append(row['profit'])
                 strategy_performance[strat]['ranks'].append(row['rank'])
+                strategy_performance[strat]['ratios'].append(row['profit_ratio']) # Store profit ratio
+                strategy_performance[strat]['success_rates'].append(row['success_rate']) # Store success rate
         except Exception as e:
              tourn_logger.error(f"Round {r_idx}: Error during ranking or aggregation: {e}", exc_info=True)
-             # Continue to next round if possible
 
-    # --- Check if any data was aggregated ---
+    # --- Stage 2: Calculate overall stats ---
     if not strategy_performance:
         return f"No valid strategy performance data found across {num_processed_rounds} processed rounds (Total agents processed: {total_agents_processed})."
 
-    # --- Calculate overall stats per strategy ---
     results = []
     for strategy, data in strategy_performance.items():
-        profits = np.array(data['profits'])
-        ranks = np.array(data['ranks'])
+        profits = np.array(data['profits']); ranks = np.array(data['ranks']);
+        ratios = np.array(data['ratios']); success_rates = np.array(data['success_rates'])
+        if len(profits) == 0: continue
 
-        # Ensure there's data before calculating stats
-        if len(profits) == 0 or len(ranks) == 0:
-             tourn_logger.warning(f"Strategy '{strategy}' had no valid profit/rank entries. Skipping.")
-             continue
-
-        mean_profit = np.nanmean(profits)
-        std_profit = np.nanstd(profits)
-        mean_rank = np.nanmean(ranks)
-        std_rank = np.nanstd(ranks)
-        count = len(profits) # Number of agent-rounds for this strategy
+        mean_profit = np.nanmean(profits); std_profit = np.nanstd(profits)
+        mean_rank = np.nanmean(ranks); std_rank = np.nanstd(ranks)
+        mean_ratio = np.nanmean(ratios); std_ratio = np.nanstd(ratios) # Profit Ratio stats
+        mean_success = np.nanmean(success_rates); std_success = np.nanstd(success_rates) # Success Rate stats
+        count = len(profits)
 
         results.append({
-            'Strategy': strategy,
-            'MeanProfit': mean_profit,
-            'StdProfit': std_profit,
-            'MeanRank': mean_rank,
-            'StdRank': std_rank,
-            'Count': count # Total observations (agent-rounds)
+            'Strategy': strategy, 'MeanProfit': mean_profit, 'StdProfit': std_profit,
+            'MeanRank': mean_rank, 'StdRank': std_rank,
+            'MeanProfitRatio': mean_ratio, 'StdProfitRatio': std_ratio, # Renamed metric
+            'MeanSuccessRate': mean_success, 'StdSuccessRate': std_success, # New metric
+            'Count': count
         })
 
-    if not results:
-        return f"Could not compute final stats for any strategy across {num_processed_rounds} processed rounds."
+    if not results: return f"Could not compute final stats for any strategy across {num_processed_rounds} processed rounds."
 
-    # --- Sort results by Mean Rank (ascending - lower rank is better) ---
-    results_sorted = sorted(results, key=lambda x: x['MeanRank'])
+    # --- Stage 3: Sort and Format Table ---
+    results_sorted = sorted(results, key=lambda x: x['MeanRank']) # Sort by Mean Rank
 
-    # --- Format for Tabulate ---
     table_rows = []
     for res in results_sorted:
         table_rows.append([
             res['Strategy'],
-            f"{res['MeanProfit']:.2f}",
-            f"({res['StdProfit']:.2f})", # Std Dev in parentheses
-            f"{res['MeanRank']:.2f}",
-            f"({res['StdRank']:.2f})",  # Std Dev in parentheses
+            f"{res['MeanProfit']:.2f}", f"({res['StdProfit']:.2f})",
+            f"{res['MeanRank']:.2f}", f"({res['StdRank']:.2f})",
+            f"{res['MeanProfitRatio']:.3f}", f"({res['StdProfitRatio']:.3f})", # Profit Ratio
+            f"{res['MeanSuccessRate']:.3f}", f"({res['StdSuccessRate']:.3f})", # Success Rate
             res['Count']
         ])
 
-    # Adjusted headers for clarity with Std Dev in separate conceptual column
-    headers = ["Strategy", "Mean Profit", "(Std Dev)", "Mean Rank", "(Std Dev)", "Agent-Rounds"]
+    # Update Headers
+    headers = ["Strategy", "Mean Profit", "(Std Dev)", "Mean Rank", "(Std Dev)",
+               "MeanProfitRatio", "(Std Dev)", "MeanSuccessRate", "(Std Dev)",
+               "Agent-Rounds"]
     title = f"\n=== STRATEGY TOURNAMENT RANKING (Aggregated over {num_processed_rounds} Rounds) ==="
-    # Use right alignment for numeric columns
     table = tabulate(table_rows, headers=headers, tablefmt="pretty", stralign="left", numalign="right")
-
     return f"{title}\n{table}"
 
 
 # --- Plotting Functions ---
-# Basic placeholders - replace with your actual plotting logic if needed
-
+# (plot_per_round, plot_rl_behavior_eval, plot_ppo_training_curves, plot_game_summary remain the same as previous version)
 def plot_per_round(round_stats_list, exp_path, dfLogs=None, generate_plots=True):
     """ Placeholder for per-round plotting. """
     plot_logger = logging.getLogger('plotting.round')
     if not plt_available: plot_logger.warning("Plotting disabled (matplotlib unavailable)."); return
     if not generate_plots: plot_logger.info("Skipping per-round plots (disabled by config)."); return
-    # --- Add actual plotting logic here ---
+    if dfLogs is None or dfLogs.empty: plot_logger.warning("No step log data for per-round plots."); return
     plot_logger.debug("plot_per_round called (plotting logic omitted).")
-    # Example: Plot price convergence for a few rounds using dfLogs
-    # Check if dfLogs is provided and not empty
-    # Select a few round numbers from round_stats_list
-    # Filter dfLogs for those rounds
-    # Create plots of price vs step for each selected round
     pass
 
 def plot_rl_behavior_eval(dfR, dfLogs, config, exp_path, num_rounds_to_plot=5):
@@ -652,12 +664,7 @@ def plot_rl_behavior_eval(dfR, dfLogs, config, exp_path, num_rounds_to_plot=5):
     if dfR is None or dfR.empty or dfLogs is None or dfLogs.empty:
          plot_logger.warning("Missing data for RL behavior plots.")
          return
-    # --- Add actual plotting logic here ---
     plot_logger.debug("plot_rl_behavior_eval called (plotting logic omitted).")
-    # Example: Identify RL agents from config/dfR
-    # Select a few evaluation rounds
-    # Filter dfLogs for RL agents in selected rounds
-    # Plot submitted bids/asks, accepted trades vs time step
     pass
 
 def plot_ppo_training_curves(rl_training_logs, exp_path):
@@ -670,82 +677,57 @@ def plot_ppo_training_curves(rl_training_logs, exp_path):
         df_train = pd.DataFrame(rl_training_logs)
         if df_train.empty: plot_logger.info("RL training log DataFrame is empty."); return
 
-        # Ensure required columns exist
         required_cols = ['round', 'avg_policy_loss', 'avg_value_loss', 'avg_entropy']
         if not all(col in df_train.columns for col in required_cols):
-             # Check for alternative names if needed, or log specific missing columns
              missing = [col for col in required_cols if col not in df_train.columns]
              plot_logger.warning(f"RL training logs missing required columns {missing}. Cannot plot curves.")
              return
 
-        # Aggregate stats per round (average if multiple agents logged stats for the same round)
         df_grouped = df_train.groupby('round').agg(
             policy_loss = ('avg_policy_loss', 'mean'),
             value_loss = ('avg_value_loss', 'mean'),
             entropy = ('avg_entropy', 'mean'),
-            # Use get() with default None for optional columns
-            approx_kl = ('avg_approx_kl', lambda x: np.nanmean(x.astype(float))), # Handle potential NaNs
+            approx_kl = ('avg_approx_kl', lambda x: np.nanmean(x.astype(float))),
             clip_frac = ('avg_clip_frac', lambda x: np.nanmean(x.astype(float)))
         ).reset_index()
 
-        num_plots = 3 # Start with 3 base plots
-        if 'approx_kl' in df_grouped.columns: num_plots +=1
-        if 'clip_frac' in df_grouped.columns: num_plots +=1
+        num_plots = 3
+        plot_cols = ['policy_loss', 'value_loss', 'entropy']
+        plot_labels = ['Policy Loss', 'Value Loss', 'Policy Entropy']
+        plot_colors = ['C0', 'orange', 'green']
+
+        if 'approx_kl' in df_grouped.columns:
+             num_plots += 1; plot_cols.append('approx_kl'); plot_labels.append('Approx KL'); plot_colors.append('red')
+        if 'clip_frac' in df_grouped.columns:
+             num_plots += 1; plot_cols.append('clip_frac'); plot_labels.append('Clip Fraction'); plot_colors.append('purple')
 
         fig, axes = plt.subplots(num_plots, 1, figsize=(10, 3 * num_plots), sharex=True)
-        # Use experiment name in title (extract from path)
+        if num_plots == 1: axes = [axes]
         exp_name_title = os.path.basename(os.path.normpath(exp_path))
         fig.suptitle(f'PPO Training Curves ({exp_name_title})')
-        ax_idx = 0
 
-        # Plot Policy Loss
-        axes[ax_idx].plot(df_grouped['round'], df_grouped['policy_loss'], label='Policy Loss', alpha=0.8, linewidth=1.5)
-        axes[ax_idx].set_ylabel('Policy Loss')
-        axes[ax_idx].grid(True, linestyle='--', alpha=0.6)
-        axes[ax_idx].legend()
-        ax_idx += 1
+        for i in range(num_plots):
+            col = plot_cols[i]
+            label = plot_labels[i]
+            color = plot_colors[i]
+            if col in df_grouped.columns and not df_grouped[col].isnull().all():
+                 axes[i].plot(df_grouped['round'], df_grouped[col], label=label, color=color, alpha=0.8, linewidth=1.5)
+                 axes[i].set_ylabel(label)
+                 axes[i].grid(True, linestyle='--', alpha=0.6)
+                 axes[i].legend()
+            else:
+                 axes[i].text(0.5, 0.5, f'{label} data not available', horizontalalignment='center', verticalalignment='center', transform=axes[i].transAxes)
+                 axes[i].set_ylabel(label)
 
-        # Plot Value Loss
-        axes[ax_idx].plot(df_grouped['round'], df_grouped['value_loss'], label='Value Loss', color='orange', alpha=0.8, linewidth=1.5)
-        axes[ax_idx].set_ylabel('Value Loss')
-        axes[ax_idx].grid(True, linestyle='--', alpha=0.6)
-        axes[ax_idx].legend()
-        ax_idx += 1
-
-        # Plot Entropy
-        axes[ax_idx].plot(df_grouped['round'], df_grouped['entropy'], label='Entropy', color='green', alpha=0.8, linewidth=1.5)
-        axes[ax_idx].set_ylabel('Policy Entropy')
-        axes[ax_idx].grid(True, linestyle='--', alpha=0.6)
-        axes[ax_idx].legend()
-        ax_idx += 1
-
-        # Plot Approx KL (optional)
-        if 'approx_kl' in df_grouped.columns:
-             axes[ax_idx].plot(df_grouped['round'], df_grouped['approx_kl'], label='Approx KL', color='red', alpha=0.8, linewidth=1.5)
-             axes[ax_idx].set_ylabel('Approx KL Divergence')
-             axes[ax_idx].grid(True, linestyle='--', alpha=0.6)
-             axes[ax_idx].legend()
-             ax_idx += 1
-
-        # Plot Clip Fraction (optional)
-        if 'clip_frac' in df_grouped.columns:
-             axes[ax_idx].plot(df_grouped['round'], df_grouped['clip_frac'], label='Clip Fraction', color='purple', alpha=0.8, linewidth=1.5)
-             axes[ax_idx].set_ylabel('Clip Fraction')
-             axes[ax_idx].grid(True, linestyle='--', alpha=0.6)
-             axes[ax_idx].legend()
-             ax_idx += 1
-
-        # Set x-axis label only on the bottom plot
         axes[-1].set_xlabel('Training Round')
-
-        plt.tight_layout(rect=[0, 0.03, 1, 0.96]) # Adjust layout to prevent title overlap
+        plt.tight_layout(rect=[0, 0.03, 1, 0.96])
         save_path = os.path.join(exp_path, "ppo_training_curves.png")
         try:
             plt.savefig(save_path)
             plot_logger.info(f"Saved PPO training curves plot to {save_path}")
         except Exception as e:
             plot_logger.error(f"Error saving PPO training plot: {e}")
-        plt.close(fig) # Close the figure to free memory
+        plt.close(fig)
 
     except Exception as e:
         plot_logger.error(f"Error generating PPO training curves plot: {e}", exc_info=True)
@@ -759,63 +741,47 @@ def plot_game_summary(dfR, exp_path, dfLogs=None):
 
     try:
         fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
-        # Use experiment name in title
         exp_name_title = os.path.basename(os.path.normpath(exp_path))
         fig.suptitle(f'Market Summary ({exp_name_title})')
 
         # --- Plot Efficiency ---
         if 'market_efficiency' in dfR.columns:
-             # Clamp efficiency for plotting if values are outside [0,1]
-             eff_plot = np.clip(dfR['market_efficiency'].astype(float).fillna(0), 0, 1) # Ensure float before clip
+             eff_plot = np.clip(pd.to_numeric(dfR['market_efficiency'], errors='coerce').fillna(0), 0, 1)
              axes[0].plot(dfR['round'], eff_plot * 100, label='Market Efficiency', alpha=0.7, linewidth=1)
-             # Optional: Add a rolling average
-             window_size = max(1, min(50, len(dfR)//10)) # Dynamic window size, max 50
+             window_size = max(1, min(50, len(dfR)//10))
              if len(dfR) >= window_size:
-                 try: # Rolling can fail on very short series or all NaNs
-                     rolling_eff = eff_plot.rolling(window=window_size, center=True, min_periods=1).mean()
+                 try:
+                     rolling_eff = pd.Series(eff_plot).rolling(window=window_size, center=True, min_periods=1).mean()
                      axes[0].plot(dfR['round'], rolling_eff * 100, label=f'{window_size}-Round Avg Eff', color='red', linestyle='--', linewidth=1.5)
-                 except Exception as roll_e:
-                     plot_logger.warning(f"Could not calculate rolling efficiency: {roll_e}")
-             axes[0].set_ylabel('Efficiency (%)')
-             axes[0].set_ylim(-5, 105) # Allow slight margin outside 0-100
-             axes[0].grid(True, linestyle='--', alpha=0.6)
-             axes[0].legend()
+                 except Exception as roll_e: plot_logger.warning(f"Could not calculate rolling efficiency: {roll_e}")
+             axes[0].set_ylabel('Efficiency (%)'); axes[0].set_ylim(-5, 105); axes[0].grid(True, linestyle='--', alpha=0.6); axes[0].legend()
         else:
-             axes[0].text(0.5, 0.5, 'Market Efficiency data not found', horizontalalignment='center', verticalalignment='center', transform=axes[0].transAxes)
-             axes[0].set_ylabel('Efficiency (%)')
+             axes[0].text(0.5, 0.5, 'Market Efficiency data not found', ha='center', va='center', transform=axes[0].transAxes); axes[0].set_ylabel('Efficiency (%)')
 
         # --- Plot Price Deviation ---
         if 'abs_diff_price' in dfR.columns and 'eq_p' in dfR.columns:
-             # Calculate relative price deviation (%) if possible
-             # Replace 0 eq_p with NaN to avoid division by zero, then fill resulting NaN deviation with 0
-             eq_p_safe = dfR['eq_p'].astype(float).replace(0, np.nan)
-             rel_price_dev = (dfR['abs_diff_price'].astype(float) / eq_p_safe * 100).fillna(0)
+             abs_diff = pd.to_numeric(dfR['abs_diff_price'], errors='coerce')
+             eq_p_safe = pd.to_numeric(dfR['eq_p'], errors='coerce').replace(0, np.nan)
+             rel_price_dev = (abs_diff / eq_p_safe * 100).fillna(0)
              axes[1].plot(dfR['round'], rel_price_dev, label='Avg Price Deviation', alpha=0.7, linewidth=1)
              if len(dfR) >= window_size:
                  try:
-                     rolling_dev = rel_price_dev.rolling(window=window_size, center=True, min_periods=1).mean()
+                     rolling_dev = pd.Series(rel_price_dev).rolling(window=window_size, center=True, min_periods=1).mean()
                      axes[1].plot(dfR['round'], rolling_dev, label=f'{window_size}-Round Avg Dev', color='red', linestyle='--', linewidth=1.5)
-                 except Exception as roll_e:
-                     plot_logger.warning(f"Could not calculate rolling price deviation: {roll_e}")
-             axes[1].set_ylabel('Avg Price Dev from Eq (%)')
-             axes[1].grid(True, linestyle='--', alpha=0.6)
-             axes[1].legend()
-             # axes[1].set_yscale('log') # Optional: log scale if deviation varies greatly, needs careful handling of zeros
-             axes[1].set_ylim(bottom=-1) # Allow slight negative if needed, but focus on positive deviations
+                 except Exception as roll_e: plot_logger.warning(f"Could not calculate rolling price deviation: {roll_e}")
+             axes[1].set_ylabel('Avg Price Dev from Eq (%)'); axes[1].grid(True, linestyle='--', alpha=0.6); axes[1].legend(); axes[1].set_ylim(bottom=-1)
         else:
-             axes[1].text(0.5, 0.5, 'Price Deviation data not found', horizontalalignment='center', verticalalignment='center', transform=axes[1].transAxes)
-             axes[1].set_ylabel('Avg Price Dev from Eq (%)')
+             axes[1].text(0.5, 0.5, 'Price Deviation data not found', ha='center', va='center', transform=axes[1].transAxes); axes[1].set_ylabel('Avg Price Dev from Eq (%)')
 
-        axes[-1].set_xlabel('Round') # Set x-label only on bottom plot
-
-        plt.tight_layout(rect=[0, 0.03, 1, 0.96]) # Adjust layout
+        axes[-1].set_xlabel('Round')
+        plt.tight_layout(rect=[0, 0.03, 1, 0.96])
         save_path = os.path.join(exp_path, "market_summary_plot.png")
         try:
             plt.savefig(save_path)
             plot_logger.info(f"Saved market summary plot to {save_path}")
         except Exception as e:
             plot_logger.error(f"Error saving market summary plot: {e}")
-        plt.close(fig) # Close the figure to free memory
+        plt.close(fig)
 
     except Exception as e:
         plot_logger.error(f"Error generating game summary plot: {e}", exc_info=True)
