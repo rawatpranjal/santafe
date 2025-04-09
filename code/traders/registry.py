@@ -1,47 +1,59 @@
 # traders/registry.py
 import logging
-from .base import BaseTrader
+
+# --- Import Base Strategies ---
 from .zic import ZICBuyer, ZICSeller
-from .kaplan import KaplanBuyer, KaplanSeller # <<< ADD THIS IMPORT
-from .ql import QLTrader
+from .kaplan import KaplanBuyer, KaplanSeller
+from .zi import ZIBuyer, ZISeller
+from .zip import ZipBuyer, ZipSeller
 
-logger = logging.getLogger('trader.registry')
+# --- Import Heuristic/Belief Strategies ---
+from .gd import GDBuyer, GDSeller    # <-- IMPORT GD CLASSES
+from .el import ELBuyer, ELSeller    # <-- IMPORT EL CLASSES (Assuming el.py exists)
 
-# Registry mapping strategy names to (BuyerClass, SellerClass) tuples
-_trader_registry = {
+# --- Import RL Strategies ---
+# Use the potentially renamed PPOTrader class (now PPO-LSTM interface)
+from .ppo import PPOTrader
+
+# --- Trader Registration Dictionary ---
+# Maps lowercase strategy names to (BuyerClass, SellerClass) tuples
+_TRADER_CLASSES = {
+    # Baselines
     "zic": (ZICBuyer, ZICSeller),
-    "kaplan": (KaplanBuyer, KaplanSeller), # <<< ADD THIS LINE
-    # "dqn": (QLTrader, QLTrader), # Optional: Keep old name mapping?
-    "dqn_pricegrid": (QLTrader, QLTrader),
-    # Add 'gd', 'el', 'skeleton', etc. when implemented
+    "kaplan": (KaplanBuyer, KaplanSeller),
+    "zi": (ZIBuyer, ZISeller),
+    "zip": (ZipBuyer, ZipSeller),
+
+    # Heuristic/Belief-based
+    "gd": (GDBuyer, GDSeller),      # <-- REGISTER GD
+    "el": (ELBuyer, ELSeller),      # <-- REGISTER EL
+
+    # RL Agents
+    "ppo_lstm": (PPOTrader, PPOTrader), # New entry for the LSTM agent interface
+    # Add back old PPO if needed, or other RL agents like DQN
 }
 
-def get_trader_class(strategy_type: str, is_buyer: bool) -> type[BaseTrader]:
-    """
-    Factory function to retrieve the appropriate trader class based on strategy type and role.
-    """
-    strategy_type_lower = strategy_type.lower() # Case-insensitive lookup
-    if strategy_type_lower not in _trader_registry:
+def get_trader_class(strategy_name, is_buyer):
+    """Gets the appropriate trader class based on strategy name and role."""
+    logger = logging.getLogger('registry')
+    strategy_name = strategy_name.lower() # Ensure consistent lookup
+
+    if strategy_name not in _TRADER_CLASSES:
+        logger.error(f"Unknown trader strategy name: '{strategy_name}'")
         available = available_strategies()
-        logger.error(f"Unknown trader strategy type: '{strategy_type}'. Available: {available}")
-        raise ValueError(f"Unknown trader strategy type: '{strategy_type}'. Available: {available}")
+        logger.error(f"Available strategies are: {available}")
+        # Provide a more informative error message
+        raise ValueError(f"Unknown trader strategy name: '{strategy_name}'. Available: {available}")
 
-    buyer_class, seller_class = _trader_registry[strategy_type_lower]
-    TraderClass = buyer_class if is_buyer else seller_class
+    buyer_class, seller_class = _TRADER_CLASSES[strategy_name]
 
-    # Check if the selected class expects rl_config (useful for auction setup)
-    import inspect
-    try:
-        sig = inspect.signature(TraderClass.__init__)
-        expects_rl_config = 'rl_config' in sig.parameters
-    except ValueError: # Handles built-in types or classes without standard __init__
-        expects_rl_config = False
-
-    logger.debug(f"Registry returning class: {TraderClass.__name__} for type '{strategy_type}' (Buyer={is_buyer}), expects_rl_config={expects_rl_config}")
-    return TraderClass
+    if is_buyer:
+        # logger.debug(f"Registry providing Buyer class for '{strategy_name}': {buyer_class.__name__}")
+        return buyer_class
+    else:
+        # logger.debug(f"Registry providing Seller class for '{strategy_name}': {seller_class.__name__}")
+        return seller_class
 
 def available_strategies():
-    """Returns a list of registered strategy type names."""
-    return list(_trader_registry.keys())
-
-# Create an empty file named __init__.py in the traders directory if it doesn't exist
+    """Returns a sorted list of available strategy names."""
+    return sorted(list(_TRADER_CLASSES.keys())) # Sort for consistent output

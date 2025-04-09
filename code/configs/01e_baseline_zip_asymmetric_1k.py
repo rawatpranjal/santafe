@@ -1,20 +1,21 @@
-# config_01e_zip_asymmetric_1k.py
+# 01e_baseline_zip_asymmetric_1k.py
 # Run 5: ZIP Market Baseline (Asymmetric, 1000 Rounds)
 
 import random
 import numpy as np
 
 # --- Timing and Phases ---
-TOTAL_ROUNDS = 1000 # Updated to 1000 rounds
+TOTAL_ROUNDS = 1000
 TRAINING_ROUNDS = 0
 EVALUATION_ROUNDS = TOTAL_ROUNDS
 
 STEPS_PER_PERIOD = 25
 NUM_PERIODS = 3
 
+# --- CONFIG Dictionary ---
 CONFIG = {
     # --- Experiment Identification ---
-    "experiment_name": "01e_baseline_zip_asymmetric_1k", # Added suffix
+    "experiment_name": "01e_baseline_zip_asymmetric_1k", # Matches filename base
     "experiment_dir": "experiments",
 
     # --- Auction Settings ---
@@ -50,7 +51,7 @@ CONFIG = {
     "load_rl_model_path": None,
 }
 
-# --- Sanity Check Prints ---
-_exp_name = CONFIG.get("experiment_name", "default_exp")
-print(f"# Config File Loaded: {_exp_name}")
-print(f"# Total Rounds: {TOTAL_ROUNDS}")
+# --- Sanity Check Prints (Optional) ---
+# _exp_name = CONFIG.get("experiment_name", "default_exp")
+# print(f"# Config File Loaded: {_exp_name}")
+# print(f"# Total Rounds: {TOTAL_ROUNDS}")

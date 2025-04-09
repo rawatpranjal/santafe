@@ -1,20 +1,21 @@
-# config_01e_zip_asymmetric_1k.py
-# Run 5: ZIP Market Baseline (Asymmetric, 1000 Rounds)
+# 01d_baseline_zic_asymmetric_1k.py
+# Run 4: ZIC Market Baseline (Asymmetric, 1000 Rounds)
 
 import random
 import numpy as np
 
 # --- Timing and Phases ---
-TOTAL_ROUNDS = 1000 # Updated to 1000 rounds
+TOTAL_ROUNDS = 1000
 TRAINING_ROUNDS = 0
 EVALUATION_ROUNDS = TOTAL_ROUNDS
 
 STEPS_PER_PERIOD = 25
 NUM_PERIODS = 3
 
+# --- CONFIG Dictionary ---
 CONFIG = {
     # --- Experiment Identification ---
-    "experiment_name": "01e_baseline_zip_asymmetric_1k", # Added suffix
+    "experiment_name": "01d_baseline_zic_asymmetric_1k", # Matches filename base
     "experiment_dir": "experiments",
 
     # --- Auction Settings ---
@@ -30,8 +31,8 @@ CONFIG = {
     "gametype": 6453,
 
     # --- Trader Configuration ---
-    "buyers": [{"type": "zip"}] * 6,
-    "sellers": [{"type": "zip"}] * 4,
+    "buyers": [{"type": "zic"}] * 6,
+    "sellers": [{"type": "zic"}] * 4,
 
     # --- PPO Hyperparameters ---
     "rl_params": {},
@@ -50,7 +51,7 @@ CONFIG = {
     "load_rl_model_path": None,
 }
 
-# --- Sanity Check Prints ---
-_exp_name = CONFIG.get("experiment_name", "default_exp")
-print(f"# Config File Loaded: {_exp_name}")
-print(f"# Total Rounds: {TOTAL_ROUNDS}")
+# --- Sanity Check Prints (Optional) ---
+# _exp_name = CONFIG.get("experiment_name", "default_exp")
+# print(f"# Config File Loaded: {_exp_name}")
+# print(f"# Total Rounds: {TOTAL_ROUNDS}")
