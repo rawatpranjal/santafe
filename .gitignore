@@ -1,0 +1,40 @@
+# Python bytecode and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+.venv/
+*/venv/
+*/env/
+*/.venv/
+
+# IDE / Editor configuration
+.idea/
+.vscode/
+
+# OS-specific files
+.DS_Store
+
+# --- Project Specific ---
+
+# Experiment outputs (logs, plots, csv data, models)
+# This is the most important line for this project!
+experiments/
+
+# Explicitly ignore common output file types JUST IN CASE they appear outside 'experiments/'
+# (Optional, as 'experiments/' should cover most cases)
+# *.log
+# *.csv
+# *.png
+# *.jpg
+# *.jpeg
+# *.pth
+
+# Backup files
+*~
+*.bak
+*.swp
