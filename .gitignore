@@ -9,6 +9,25 @@ __pycache__/
 
 # Experiment outputs
 experiments/
+results/
+src_code/experiments/
+
+# Test coverage
+.coverage
+htmlcov/
+pytest_cache/
+.pytest_cache/
+
+# Temporary files
+*.csv
+*.log
+*.tmp
+*.bak
+*~
+
+# IDE files
+.vscode/
+.idea/
 
 # Virtual environments (add yours if named differently)
 venv/
