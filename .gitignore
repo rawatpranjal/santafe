@@ -33,3 +33,6 @@ pytest_cache/
 venv/
 env/
 .venv/
+
+# Generated codebase aggregation files (too large for GitHub)
+for_gemini/*.txt

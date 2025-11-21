@@ -133,3 +133,102 @@ content_copy
 expand_less
 IGNORE_WHEN_COPYING_START
 IGNORE_WHEN_COPYING_END
+
+Of course. Let's continue building out the HOW_TO_USE_FOR_CLAUDE.md file. The next sections will cover how to modify the codebase to add new features (like a new agent) and provide a quick reference to the most important files. This makes the document a comprehensive guide for any future interactions.
+
+code
+Markdown
+download
+content_copy
+expand_less
+
+# How to Use This Repository (For Claude Assistant)
+
+... (Sections 1, 2, and 3 from the previous response) ...
+
+---
+
+## 4. How to Extend the Codebase (Development Workflow)
+
+This section outlines the standard procedures for adding new components, such as a new trading agent, ensuring that any changes are robustly tested and integrated.
+
+### Task 4: Adding a New Trading Agent
+
+**Objective:** To introduce a new trading strategy (e.g., "StrategyX") into the simulation environment.
+
+**Step-by-Step Procedure:**
+
+1.  **Create the Agent File:**
+    *   In the `src/santafe_gym/traders/` directory, create a new file named `strategy_x.py`.
+    *   Inside this file, define `StrategyXBuyer(BaseTrader)` and `StrategyXSeller(BaseTrader)` classes. They must inherit from `BaseTrader`.
+    *   Implement the core logic by overriding the `make_bid_or_ask()`, `request_buy()`, and `request_sell()` methods.
+
+2.  **Register the New Agent:**
+    *   Open `src/santafe_gym/traders/registry.py`.
+    *   Import your new classes: `from .strategy_x import StrategyXBuyer, StrategyXSeller`.
+    *   Add a new entry to the `_TRADER_CLASSES` dictionary:
+        ```python
+        _TRADER_CLASSES = {
+            # ... existing agents ...
+            "strategy_x": (StrategyXBuyer, StrategyXSeller),
+        }
+        ```
+
+3.  **Write Verification Tests:**
+    *   In the `tests/traders/` directory, create a new test file named `test_strategy_x.py`.
+    *   Write specific `pytest` functions to test the core logic of your new agent.
+        *   Does it quote within profitable bounds?
+        *   Does it accept trades correctly?
+        *   Does its unique logic (e.g., a learning update) work as expected under controlled conditions?
+    *   Run `./scripts/run_all_tests.sh` and ensure all tests, including your new ones, pass.
+
+4.  **Test in an Experiment:**
+    *   Create a new configuration file in `experiments/configs/`, for example, `test_strategy_x.py`.
+    *   In this config, create a market population that includes your new agent (e.g., `{"type": "strategy_x"}`).
+    *   Run this new experiment using `python experiments/run_experiments.py --config_file experiments/configs/test_strategy_x.py`.
+    *   Analyze the results to ensure it performs as expected.
+
+### Task 5: Modifying the PPO Agent's Features
+
+**Objective:** To experiment with the feature set used by the `PPOHandcrafted` agent.
+
+**Step-by-Step Procedure:**
+
+1.  **Locate the State Generation Method:**
+    *   Open `src/santafe_gym/traders/ppo_handcrafted.py`.
+    *   The core logic is within the `_get_state()` method.
+
+2.  **Add or Modify a Feature:**
+    *   To add a feature, increment `self.state_dim` in the `__init__` method.
+    *   Add your new calculation to `_get_state()`, ensuring the value is normalized to the `[-1, 1]` range. Assign it to the next available index in the `state` numpy array.
+    *   **Crucially, document the new feature** with a comment explaining what it represents and how it's calculated.
+
+3.  **Verify and Retrain:**
+    *   Run the test suite (`./scripts/run_all_tests.sh`) to ensure you haven't introduced any bugs.
+    *   You will need to re-run the Phase 2 training regimen (`python experiments/run_experiments.py --phase 2`) to train a new model that can leverage this new feature.
+
+---
+
+## 5. Quick Reference: Key Files and Their Purpose
+
+-   **I want to run the main experiment and get the final report.**
+    -   `./scripts/run_benchmark.sh` -> This is the one-click script for the main Phase 1 tournament and report.
+    -   `experiments/run_experiments.py --phase 1` (or 2, or 3) -> For running specific phases of the research plan.
+
+-   **I want to see the "brain" of the best RL agent.**
+    -   `src/santafe_gym/traders/ppo_handcrafted.py`: The `_get_state()` method defines the 12 features it "sees".
+    -   `src/santafe_gym/traders/ppo_core.py`: The `MLPAgent` class defines the neural network architecture, and `PPOLogic` contains the learning algorithm.
+
+-   **I want to see the "brain" of the famous Kaplan agent.**
+    -   `src/santafe_gym/traders/kp.py`: The `make_bid_or_ask()` method contains its dual-mode (background/truthtelling) logic.
+
+-   **I want to change the parameters of an experiment (e.g., run for more rounds).**
+    -   Find the relevant file in `experiments/configs/` (e.g., `phase1_classical_benchmark.py`) and edit the Python variables at the top.
+
+-   **I want to understand exactly how the market works.**
+    -   `src/santafe_gym/auction.py`: The `_run_bid_offer_substep` and `_run_buy_sell_substep` methods contain the core market rules.
+
+-   **I want to see the final, aggregated results from the last major run.**
+    -   Look in the relevant subdirectory within `/results/` and open the `ANALYSIS_REPORT.md` file.
+
+This document should serve as a stable reference point. If you need to review the project's status or execute a task, refer to this guide first.
