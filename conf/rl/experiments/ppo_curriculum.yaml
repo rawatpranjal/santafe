@@ -1,0 +1,175 @@
+# PPO Curriculum Learning Configuration
+# Progressive difficulty: ZIC → Mixed → Kaplan
+
+defaults:
+  - /rl/ppo@_here_
+  - /rl/training@_here_
+  - _self_
+
+# Experiment metadata
+experiment:
+  name: "ppo_curriculum"
+  description: "Train PPO with curriculum learning from easy to hard opponents"
+  tags: ["ppo", "curriculum", "progressive", "adaptive"]
+
+# Base environment configuration
+env:
+  # Market structure
+  num_agents: 8
+  num_tokens: 4
+  max_steps: 100
+  min_price: 0
+  max_price: 1000
+
+  # RL agent setup
+  rl_agent_id: 1
+  rl_is_buyer: true
+
+  # Curriculum will override these
+  opponent_type: "ZIC"  # Starting opponent
+  difficulty: "easy"  # Starting difficulty
+
+  # Adaptive reward shaping
+  profit_weight: 1.0
+  market_making_weight: 0.1
+  exploration_weight: 0.01
+  invalid_penalty: -0.1
+  efficiency_bonus_weight: 0.1
+  normalize_rewards: true
+
+# Curriculum stages
+curriculum:
+  enabled: true
+  auto_advance: true  # Automatically progress when targets met
+
+  stages:
+    # Stage 1: Learn basics against ZIC
+    - name: "basics"
+      timesteps: 500_000
+      env_config:
+        opponent_type: "ZIC"
+        difficulty: "easy"
+        exploration_weight: 0.02  # More exploration early
+      ppo_config:
+        learning_rate: 0.0003
+        ent_coef: 0.015  # Higher entropy for exploration
+      success_criteria:
+        min_efficiency: 0.80
+        min_profit_ratio: 1.1
+        eval_episodes: 100
+
+    # Stage 2: Mixed easy opponents
+    - name: "mixed_easy"
+      timesteps: 500_000
+      env_config:
+        opponent_mix: ["ZIC", "ZIC", "ZIP"]
+        difficulty: "medium"
+        exploration_weight: 0.01
+      ppo_config:
+        learning_rate: 0.0002
+        ent_coef: 0.01
+      success_criteria:
+        min_efficiency: 0.75
+        min_profit_ratio: 1.05
+        eval_episodes: 100
+
+    # Stage 3: Balanced mixed market
+    - name: "mixed_balanced"
+      timesteps: 750_000
+      env_config:
+        opponent_mix: ["ZIC", "ZIP", "GD"]
+        difficulty: "medium"
+        exploration_weight: 0.008
+      ppo_config:
+        learning_rate: 0.00015
+        ent_coef: 0.008
+        n_epochs: 12
+      success_criteria:
+        min_efficiency: 0.73
+        min_profit_ratio: 1.0
+        eval_episodes: 150
+
+    # Stage 4: Strategic opponents
+    - name: "strategic"
+      timesteps: 750_000
+      env_config:
+        opponent_mix: ["ZIP", "GD", "Kaplan"]
+        difficulty: "hard"
+        exploration_weight: 0.005
+      ppo_config:
+        learning_rate: 0.0001
+        ent_coef: 0.005
+        n_epochs: 15
+      success_criteria:
+        min_efficiency: 0.70
+        min_profit_ratio: 0.95
+        eval_episodes: 200
+
+    # Stage 5: Expert market (optional)
+    - name: "expert"
+      timesteps: 500_000
+      env_config:
+        opponent_mix: ["GD", "Kaplan", "Kaplan"]
+        difficulty: "expert"
+        exploration_weight: 0.002
+        invalid_penalty: -0.2  # Harsh penalties
+      ppo_config:
+        learning_rate: 0.00005  # Very careful learning
+        ent_coef: 0.002
+        n_epochs: 20
+      success_criteria:
+        min_efficiency: 0.65
+        min_profit_ratio: 0.90
+        eval_episodes: 300
+
+# PPO base hyperparameters
+ppo:
+  n_steps: 2048
+  batch_size: 64
+  gamma: 0.99
+  gae_lambda: 0.95
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+
+  # Adaptive network that grows with curriculum
+  policy_kwargs:
+    net_arch:
+      - 128
+      - 128
+    activation_fn: "torch.nn.Tanh"
+
+# Training configuration
+training:
+  total_timesteps: 3_000_000  # Total across all stages
+  n_envs: 1  # Reduced to 1 to debug multiprocessing issues
+  eval_freq: 10_000
+  save_freq: 50_000
+  log_interval: 100
+
+  # Curriculum-specific settings
+  curriculum_eval_freq: 25_000  # Check advancement criteria
+  patience: 100_000  # Max steps at a stage if stuck
+  warmup_steps: 10_000  # Steps before checking criteria
+
+# Logging and checkpointing
+output:
+  checkpoint_dir: "./checkpoints/ppo_curriculum"
+  tensorboard_log: "./logs/ppo_curriculum"
+  model_save_path: "./models/ppo_curriculum"
+  save_stage_models: true  # Save model after each stage
+
+# Weights & Biases configuration
+wandb:
+  enabled: true
+  project: "santafe-double-auction"
+  entity: null
+  name: "ppo-curriculum-${now:%Y%m%d-%H%M%S}"
+  tags: ["ppo", "curriculum", "progressive", "phase4"]
+  notes: "Curriculum learning from ZIC to Kaplan opponents"
+  log_stage_transitions: true
+
+# Overall success metrics
+metrics:
+  final_efficiency_target: 0.75
+  final_profit_target: 1.0
+  generalization_test: true  # Test on all opponent types

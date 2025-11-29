@@ -1,0 +1,18 @@
+# @package _global_
+# Part 1: ZIP self-play, PER environment
+
+experiment:
+  name: "p1_self_zip_per"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 1
+  num_steps: 100
+  gametype: 6453
+
+agents:
+  buyer_types: ["ZIP", "ZIP", "ZIP", "ZIP"]
+  seller_types: ["ZIP", "ZIP", "ZIP", "ZIP"]

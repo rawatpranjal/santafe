@@ -1,0 +1,18 @@
+# @package _global_
+# Part 4: LLM self-play, BSSS environment
+
+experiment:
+  name: "p4_self_llm_bsss"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 10
+  num_steps: 100
+  gametype: 6453
+
+agents:
+  buyer_types: ["LLM", "LLM"]
+  seller_types: ["LLM", "LLM", "LLM", "LLM", "LLM", "LLM"]

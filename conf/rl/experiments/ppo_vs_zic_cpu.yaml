@@ -1,0 +1,91 @@
+# PPO vs ZIC Training Configuration - CPU Optimized
+# Reduced parallelism for CPU-only training
+
+defaults:
+  - /rl/ppo@_here_
+  - /rl/training@_here_
+  - _self_
+
+# Experiment metadata
+experiment:
+  name: "ppo_vs_zic_cpu"
+  description: "Train PPO agent against ZIC (CPU optimized)"
+  tags: ["ppo", "zic", "baseline", "easy", "cpu"]
+
+# Environment configuration
+env:
+  # Market structure
+  num_agents: 8  # 4 buyers, 4 sellers
+  num_tokens: 4  # Tokens per agent
+  max_steps: 100  # Steps per episode
+  min_price: 0
+  max_price: 1000
+
+  # RL agent setup
+  rl_agent_id: 1
+  rl_is_buyer: true  # Train as buyer first
+
+  # Opponent configuration
+  opponent_type: "ZIC"  # Zero-Intelligence Constrained
+  difficulty: "easy"  # All ZIC opponents
+
+  # Reward shaping
+  profit_weight: 1.0
+  market_making_weight: 0.05  # Small bonus for providing liquidity
+  exploration_weight: 0.01
+  invalid_penalty: -0.1
+  efficiency_bonus_weight: 0.1
+  normalize_rewards: true
+
+# PPO hyperparameters (CPU optimized)
+ppo:
+  learning_rate: 0.0003
+  n_steps: 2048
+  batch_size: 64
+  n_epochs: 10
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.01
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+
+  # Network architecture
+  policy_kwargs:
+    net_arch:
+      - 128
+      - 128
+    activation_fn: "torch.nn.Tanh"
+
+# Training configuration (CPU optimized)
+training:
+  total_timesteps: 500_000  # Reduced from 1M for faster initial training
+  n_envs: 2  # Reduced from 8 for CPU (can increase to 4 if CPU handles well)
+  eval_freq: 10_000
+  eval_episodes: 50  # Reduced from 100 for faster eval
+  save_freq: 50_000
+  log_interval: 50  # More frequent logging
+
+  # Curriculum settings
+  use_curriculum: false
+
+# Logging and checkpointing
+output:
+  checkpoint_dir: "./checkpoints/ppo_vs_zic_cpu"
+  tensorboard_log: "./logs/ppo_vs_zic_cpu"
+  model_save_path: "./models/ppo_vs_zic_cpu"
+
+# Weights & Biases configuration (disabled for CPU testing)
+wandb:
+  enabled: false  # Disable to reduce overhead on CPU
+  project: "santafe-double-auction"
+  entity: null
+  name: "ppo-vs-zic-cpu-${now:%Y%m%d-%H%M%S}"
+  tags: ["ppo", "zic", "phase4", "cpu"]
+  notes: "CPU-optimized baseline training against ZIC opponents"
+
+# Success metrics
+metrics:
+  target_efficiency: 0.85
+  target_profit_ratio: 1.2
+  convergence_window: 50_000  # Reduced window for faster convergence check

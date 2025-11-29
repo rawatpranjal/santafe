@@ -1,0 +1,18 @@
+# @package _global_
+# Part 2: ZIP self-play, RAN environment
+
+experiment:
+  name: "p2_self_zip_ran"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 10
+  num_steps: 100
+  gametype: 9999
+
+agents:
+  buyer_types: ["ZIP", "ZIP", "ZIP", "ZIP"]
+  seller_types: ["ZIP", "ZIP", "ZIP", "ZIP"]

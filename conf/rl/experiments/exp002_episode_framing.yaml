@@ -1,0 +1,136 @@
+# Experiment 002: Episode-Total Profit Optimization
+# Hypothesis: Sparse end-of-episode rewards + episode structure observations
+#             enable strategic profit maximization over full episode.
+# Expected: Agent learns multi-step planning, beats ZIC by 50%+ in profit
+
+defaults:
+  - /rl/ppo@_here_
+  - /rl/training@_here_
+  - _self_
+
+# Experiment metadata
+experiment:
+  name: "exp002_episode_framing"
+  description: "Sparse episode rewards with planning horizon for profit optimization"
+  tags: ["exp002", "sparse-rewards", "episode-planning", "profit-max"]
+
+# Disable normalization
+normalize: false
+
+# Environment configuration
+env:
+  # Market structure
+  num_agents: 8  # 4 buyers, 4 sellers
+  num_tokens: 4  # Tokens per agent
+  max_steps: 100  # Steps per episode
+  min_price: 0
+  max_price: 1000
+
+  # RL agent setup
+  rl_agent_id: 1
+  rl_is_buyer: true  # Train as buyer
+
+  # Opponent configuration
+  opponent_type: "ZIC"  # Pure ZIC for clean baseline
+  difficulty: "easy"
+
+  # Reward shaping: SPARSE EPISODE REWARDS
+  use_sparse_episode_reward: true  # NEW: Only reward at episode end
+  profit_weight: 1.0  # Scale final episode profit (NOT 100x - see notes)
+
+  # Intermediate rewards (disabled for sparse mode)
+  market_making_weight: 0.0
+  exploration_weight: 0.0
+  efficiency_bonus_weight: 0.0
+  bid_submission_bonus: 0.0
+  surplus_capture_weight: 0.0
+
+  # Penalties (still active for safety)
+  invalid_penalty: -0.5  # Keep safety net
+
+  normalize_rewards: false  # Keep raw signals
+
+# PPO hyperparameters
+ppo:
+  learning_rate: 0.0005
+  n_steps: 2048  # Rollout length
+  batch_size: 64
+  n_epochs: 10
+  gamma: 0.99  # Important for episode-total rewards
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.05  # Higher exploration for planning
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+
+  # Network architecture
+  policy_kwargs:
+    net_arch:
+      - 128
+      - 128
+    activation_fn: "torch.nn.Tanh"
+
+# Training configuration
+training:
+  total_timesteps: 500_000  # 500K for validation (~2.5 hours)
+  n_envs: 2  # Parallel environments
+  eval_freq: 10_000  # Evaluate every 10K steps
+  eval_episodes: 50  # Episodes for evaluation
+  save_freq: 50_000  # Checkpoint frequency
+  log_interval: 50  # Logging frequency
+
+  # No curriculum
+  use_curriculum: false
+
+# Logging and checkpointing
+output:
+  checkpoint_dir: "./checkpoints/exp002_episode_framing"
+  tensorboard_log: "./logs/exp002_episode_framing"
+  model_save_path: "./models/exp002_episode_framing"
+
+# Weights & Biases configuration
+wandb:
+  enabled: false  # Disabled for CPU training
+  project: "santafe-double-auction"
+  entity: null
+  name: "exp002-episode-framing-${now:%Y%m%d-%H%M%S}"
+  tags: ["exp002", "sparse-rewards", "episode-planning"]
+  notes: "Exp-002: Sparse episode rewards with planning observations"
+
+# Success metrics
+metrics:
+  target_efficiency: 0.70  # Minimum viability
+  target_profit_ratio: 3.0  # Beat baseline by 7.7x
+  convergence_window: 100_000
+
+# Experiment-specific notes
+notes: |
+  Exp-002: Episode-Total Profit Optimization
+
+  Key Changes from Exp-001:
+  - use_sparse_episode_reward: true (NEW - only reward at episode end)
+  - profit_weight: 100.0 → 1.0 (final profit already large, no saturation)
+  - 7 new observation features (steps remaining, tokens remaining, profit so far, etc.)
+  - ent_coef: 0.03 → 0.05 (higher exploration for planning)
+  - Train from scratch (no curriculum transfer)
+
+  Hypothesis:
+  Sparse end-of-episode rewards combined with episode structure awareness
+  (steps/tokens remaining, profit accumulated, future valuations) enable
+  strategic multi-step planning. Agent learns to maximize TOTAL episode profit
+  rather than immediate step rewards.
+
+  Expected Outcomes:
+  - Best Case: Profit/ep >3.0, agent learns strategic timing
+  - Medium Case: Profit/ep ~2.0, some strategic behavior
+  - Worst Case: Sparse reward too difficult, no learning
+
+  Key Questions:
+  1. Does sparse reward provide enough gradient despite difficulty?
+  2. Will agent learn to time trades strategically?
+  3. How does planning horizon affect profit extraction?
+
+  Next Steps:
+  - If profit >3.0: Proceed to opponent-specific specialists (Exp-003)
+  - If profit 1.5-3.0: Try hybrid rewards (small step + large episode bonus)
+  - If profit <1.5: Revert to step rewards with better planning features

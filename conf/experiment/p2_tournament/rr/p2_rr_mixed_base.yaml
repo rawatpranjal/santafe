@@ -1,0 +1,18 @@
+# @package _global_
+# Part 2: Round Robin mixed market, BASE environment
+
+experiment:
+  name: "p2_rr_mixed_base"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 10
+  num_steps: 100
+  gametype: 6453
+
+agents:
+  buyer_types: ["Skeleton", "ZIC", "ZIP", "GD"]
+  seller_types: ["Kaplan", "Skeleton", "ZIC", "ZIP"]

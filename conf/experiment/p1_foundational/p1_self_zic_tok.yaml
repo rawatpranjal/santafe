@@ -1,0 +1,18 @@
+# @package _global_
+# Part 1: ZIC self-play, TOK environment
+
+experiment:
+  name: "p1_self_zic_tok"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 1
+  num_periods: 10
+  num_steps: 100
+  gametype: 6453
+
+agents:
+  buyer_types: ["ZIC", "ZIC", "ZIC", "ZIC"]
+  seller_types: ["ZIC", "ZIC", "ZIC", "ZIC"]

@@ -1,0 +1,18 @@
+# @package _global_
+# Part 1: ZI self-play, EQL environment
+
+experiment:
+  name: "p1_self_zi_eql"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 10
+  num_steps: 100
+  gametype: 5555
+
+agents:
+  buyer_types: ["ZI", "ZI", "ZI", "ZI"]
+  seller_types: ["ZI", "ZI", "ZI", "ZI"]

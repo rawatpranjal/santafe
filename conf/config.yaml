@@ -1,0 +1,65 @@
+# conf/config.yaml - Main Hydra Configuration for Santa Fe v2.0
+# Override with: python run_market.py experiment=benchmark_zic
+
+defaults:
+  - _self_
+  - experiment: ???  # Must be specified on command line
+
+# Market Parameters (AURORA Rules - 1993 Santa Fe Tournament)
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4          # Per trader
+  num_periods: 10        # Periods per round
+  num_steps: 100         # Steps per period
+  gametype: 6453         # SFI game type (seed for value generation)
+  clearing_rule: "aurora"  # AURORA matching rule
+  deadsteps: 0           # Consecutive no-trade steps before early termination (0 = disabled)
+
+# Experiment Settings
+experiment:
+  name: "default_experiment"
+  num_rounds: 100
+  rng_seed_auction: 42
+  rng_seed_values: 123
+  output_dir: "./results/${experiment.name}"
+  log_level: "INFO"
+
+# Agent Configuration (Example - will be overridden by experiment configs)
+agents:
+  num_buyers: 5
+  num_sellers: 5
+  buyer_types: []   # Defined in experiment/*.yaml
+  seller_types: []  # Defined in experiment/*.yaml
+
+# Reinforcement Learning Hyperparameters (for RL agents)
+rl:
+  algorithm: "ppo"
+  learning_rate: 3e-4
+  n_steps: 2048
+  batch_size: 64
+  n_epochs: 10
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.01
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  total_timesteps: 1_000_000
+
+# Weights & Biases Tracking
+wandb:
+  enabled: false
+  project: "santafe-da-v2"
+  entity: null  # Set to your W&B username
+  tags: []
+
+# Hydra Settings
+hydra:
+  run:
+    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}
+  job:
+    chdir: false
