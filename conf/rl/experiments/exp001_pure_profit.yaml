@@ -1,0 +1,132 @@
+# Experiment 001: Pure Profit Maximization
+# Hypothesis: Agent is "altruistic" because cooperative rewards dominate profit signal.
+#             Eliminating ALL non-profit rewards will force selfish profit extraction.
+# Expected: Profit/ep >3.0, beat ZIC by 50%+, learn "selfish" trading
+
+defaults:
+  - /rl/ppo@_here_
+  - /rl/training@_here_
+  - _self_
+
+# Experiment metadata
+experiment:
+  name: "exp001_pure_profit"
+  description: "Pure profit maximization - eliminate all cooperative signals"
+  tags: ["exp001", "profit-max", "selfish", "zic"]
+
+# Disable normalization
+normalize: false
+
+# Environment configuration
+env:
+  # Market structure
+  num_agents: 8  # 4 buyers, 4 sellers
+  num_tokens: 4  # Tokens per agent
+  max_steps: 100  # Steps per episode
+  min_price: 0
+  max_price: 1000
+
+  # RL agent setup
+  rl_agent_id: 1
+  rl_is_buyer: true  # Train as buyer
+
+  # Opponent configuration
+  opponent_type: "ZIC"  # Pure ZIC for clean baseline
+  difficulty: "easy"
+
+  # Reward shaping: PURE PROFIT ONLY
+  profit_weight: 100.0  # 100x from baseline (1.0) - ONLY reward personal profit!
+  market_making_weight: 0.0  # Was 0.5 → 0.0 (REMOVE liquidity provision reward)
+  exploration_weight: 0.0  # Was 0.05 → 0.0 (REMOVE exploration bonus)
+  invalid_penalty: -0.5  # Was -0.01 → -0.5 (Keep safety net, 0.5% of max profit)
+  efficiency_bonus_weight: 0.0  # Was 0.2 → 0.0 (REMOVE market efficiency reward)
+  bid_submission_bonus: 0.0  # Was 0.02 → 0.0 (REMOVE participation reward)
+  surplus_capture_weight: 0.0  # Was 0.1 → 0.0 (REMOVE surplus bonus)
+  normalize_rewards: false  # Keep raw profit signals
+
+# PPO hyperparameters
+ppo:
+  learning_rate: 0.0005  # Keep from v2
+  n_steps: 2048  # Rollout length
+  batch_size: 64
+  n_epochs: 10
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.03  # Keep moderate exploration from v2
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+
+  # Network architecture
+  policy_kwargs:
+    net_arch:
+      - 128
+      - 128
+    activation_fn: "torch.nn.Tanh"
+
+# Training configuration
+training:
+  total_timesteps: 500_000  # 500K for quick validation (~2.5 hours)
+  n_envs: 2  # Parallel environments
+  eval_freq: 10_000  # Evaluate every 10K steps
+  eval_episodes: 50  # Episodes for evaluation
+  save_freq: 50_000  # Checkpoint frequency
+  log_interval: 50  # Logging frequency
+
+  # No curriculum
+  use_curriculum: false
+
+# Logging and checkpointing
+output:
+  checkpoint_dir: "./checkpoints/exp001_pure_profit"
+  tensorboard_log: "./logs/exp001_pure_profit"
+  model_save_path: "./models/exp001_pure_profit"
+
+# Weights & Biases configuration
+wandb:
+  enabled: false  # Disabled for CPU training
+  project: "santafe-double-auction"
+  entity: null
+  name: "exp001-pure-profit-${now:%Y%m%d-%H%M%S}"
+  tags: ["exp001", "pure-profit", "selfish", "zic"]
+  notes: "Exp-001: Pure profit maximization - eliminate all cooperative signals"
+
+# Success metrics (aggressive targets)
+metrics:
+  target_efficiency: 0.70  # Minimum viability (down from 0.85)
+  target_profit_ratio: 3.0  # Beat baseline (0.39) by 7.7x
+  convergence_window: 100_000
+
+# Experiment-specific notes
+notes: |
+  Exp-001: Pure Profit Maximization
+
+  Key Changes from Baseline:
+  - profit_weight: 1.0 → 100.0 (100x increase)
+  - efficiency_bonus_weight: 0.2 → 0.0 (REMOVED)
+  - market_making_weight: 0.5 → 0.0 (REMOVED)
+  - bid_submission_bonus: 0.02 → 0.0 (REMOVED)
+  - exploration_weight: 0.05 → 0.0 (REMOVED)
+  - surplus_capture_weight: 0.1 → 0.0 (REMOVED)
+  - invalid_penalty: -0.01 → -0.5 (increased to keep safety)
+
+  Hypothesis:
+  Current agent achieves 85-89% efficiency but only 0.39 profit/episode because
+  cooperative rewards (efficiency_bonus, market_making) dominate profit signal.
+  By eliminating ALL non-profit rewards, agent should learn "selfish" trading
+  that maximizes personal profit even at expense of market efficiency.
+
+  Expected Outcomes:
+  - Best Case: Profit/ep >3.0 (7.7x improvement), beats ZIC by 50%+
+  - Medium Case: Profit/ep ~2.0 (5x improvement), matches ZIC
+  - Worst Case: Profit/ep <1.0, sparse reward signal insufficient
+
+  Key Questions:
+  1. Does pure profit signal provide enough learning gradient?
+  2. Will agent learn to trade actively or remain passive?
+  3. How many invalid actions with -0.5 penalty?
+
+  Next Steps:
+  - If profit >3.0: Proceed to Exp-002 (add exploration)
+  - If profit 1.5-3.0: Try Exp-001b with profit_weight=50.0
+  - If profit <1.5: Need dense intermediate rewards

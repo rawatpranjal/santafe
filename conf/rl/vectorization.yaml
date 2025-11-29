@@ -1,0 +1,35 @@
+# Vectorized Environment Configuration for Parallel Training
+#
+# SubprocVecEnv creates n_envs parallel environments, each in its own process.
+# This enables true multiprocessing for faster training on multi-core CPUs.
+
+# Number of parallel environments
+n_envs: 16  # As specified in plan.md (Task 3.3)
+
+# Multiprocessing start method
+# - "fork": Fast startup, not thread-safe (Linux default, avoid with PyTorch)
+# - "spawn": Slower startup, thread-safe (Windows default, cross-platform)
+# - "forkserver": Balanced, thread-safe (recommended for PyTorch/CUDA)
+# - null: Use platform default
+start_method: "forkserver"
+
+# Vector environment class
+vec_env_cls: "SubprocVecEnv"  # Options: SubprocVecEnv, DummyVecEnv
+
+# Evaluation environments (separate from training)
+eval:
+  n_envs: 4  # Fewer envs for evaluation
+  seed: 1000  # Different seed from training
+
+# Environment configuration
+env:
+  num_buyers: 5
+  num_sellers: 5
+  num_tokens_per_agent: 3
+  max_timesteps: 100
+  price_min: 0
+  price_max: 100
+  rl_agent_type: "buyer"  # "buyer" or "seller"
+  opponent_type: "ZIC"  # "ZIC", "Kaplan", "Mixed"
+  use_enhanced_env: true  # Use EnhancedDoubleAuctionEnv with richer features
+  pure_profit_mode: true  # Use raw profit as reward (Chen et al. style)

@@ -1,0 +1,28 @@
+# @package _global_
+# Part 4: LLM model comparison (GPT-4, GPT-3.5, Claude)
+
+experiment:
+  name: "p4_model_comparison"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 10
+  num_steps: 100
+  gametype: 6453
+
+agents:
+  buyer_types: ["LLM", "ZIC", "ZIC", "ZIC"]
+  seller_types: ["ZIC", "ZIC", "ZIC", "ZIC"]
+
+# Model comparison settings
+llm:
+  models:
+    - name: "gpt-4"
+      provider: "openai"
+    - name: "gpt-3.5-turbo"
+      provider: "openai"
+    - name: "claude-3-sonnet"
+      provider: "anthropic"

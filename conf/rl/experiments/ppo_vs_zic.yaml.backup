@@ -1,0 +1,91 @@
+# PPO vs ZIC Training Configuration
+# Easy scenario: Learn to trade against random zero-intelligence opponents
+
+defaults:
+  - /rl/ppo@_here_
+  - /rl/training@_here_
+  - _self_
+
+# Experiment metadata
+experiment:
+  name: "ppo_vs_zic"
+  description: "Train PPO agent against ZIC (Zero-Intelligence Constrained) opponents"
+  tags: ["ppo", "zic", "baseline", "easy"]
+
+# Environment configuration
+env:
+  # Market structure
+  num_agents: 8  # 4 buyers, 4 sellers
+  num_tokens: 4  # Tokens per agent
+  max_steps: 100  # Steps per episode
+  min_price: 0
+  max_price: 1000
+
+  # RL agent setup
+  rl_agent_id: 1
+  rl_is_buyer: true  # Train as buyer first
+
+  # Opponent configuration
+  opponent_type: "ZIC"  # Zero-Intelligence Constrained
+  difficulty: "easy"  # All ZIC opponents
+
+  # Reward shaping
+  profit_weight: 1.0
+  market_making_weight: 0.05  # Small bonus for providing liquidity
+  exploration_weight: 0.01
+  invalid_penalty: -0.1
+  efficiency_bonus_weight: 0.1
+  normalize_rewards: true
+
+# PPO hyperparameters (override defaults)
+ppo:
+  learning_rate: 0.0003  # Standard for PPO
+  n_steps: 2048  # Rollout length
+  batch_size: 64
+  n_epochs: 10
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.01  # Moderate exploration
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+
+  # Network architecture
+  policy_kwargs:
+    net_arch:
+      - 128  # Larger network for complex observations
+      - 128
+    activation_fn: "torch.nn.Tanh"
+
+# Training configuration
+training:
+  total_timesteps: 1_000_000  # 1M steps for baseline
+  n_envs: 8  # Parallel environments
+  eval_freq: 10_000  # Evaluate every 10K steps
+  eval_episodes: 100  # Episodes for evaluation
+  save_freq: 50_000  # Checkpoint frequency
+  log_interval: 100  # Logging frequency
+
+  # Curriculum settings
+  use_curriculum: false  # No curriculum for baseline
+
+# Logging and checkpointing
+output:
+  checkpoint_dir: "./checkpoints/ppo_vs_zic"
+  tensorboard_log: "./logs/ppo_vs_zic"
+  model_save_path: "./models/ppo_vs_zic"
+
+# Weights & Biases configuration
+wandb:
+  enabled: true
+  project: "santafe-double-auction"
+  entity: null  # Use default entity
+  name: "ppo-vs-zic-${now:%Y%m%d-%H%M%S}"
+  tags: ["ppo", "zic", "phase4"]
+  notes: "Baseline training against ZIC opponents"
+
+# Success metrics
+metrics:
+  target_efficiency: 0.85  # Target 85% market efficiency
+  target_profit_ratio: 1.2  # Aim for 20% better than random
+  convergence_window: 100_000  # Check convergence over this window

@@ -1,0 +1,92 @@
+# PPO vs Kaplan Training Configuration
+# Hard scenario: Learn to compete against strategic "sniper" opponents
+
+defaults:
+  - /rl/ppo@_here_
+  - /rl/training@_here_
+  - _self_
+
+# Experiment metadata
+experiment:
+  name: "ppo_vs_kaplan"
+  description: "Train PPO agent against Kaplan (strategic sniper) opponents"
+  tags: ["ppo", "kaplan", "strategic", "hard"]
+
+# Environment configuration
+env:
+  # Market structure
+  num_agents: 8  # 4 buyers, 4 sellers
+  num_tokens: 4  # Tokens per agent
+  max_steps: 100  # Steps per episode
+  min_price: 0
+  max_price: 1000
+
+  # RL agent setup
+  rl_agent_id: 1
+  rl_is_buyer: true  # Train as buyer
+
+  # Opponent configuration
+  opponent_type: "Kaplan"  # Strategic sniper
+  difficulty: "hard"  # Challenging opponents
+
+  # Reward shaping (adjusted for strategic play)
+  profit_weight: 1.0
+  market_making_weight: 0.02  # Less emphasis on market making
+  exploration_weight: 0.005  # Less exploration needed
+  invalid_penalty: -0.2  # Stronger penalty for mistakes
+  efficiency_bonus_weight: 0.15  # Higher bonus for efficient trades
+  normalize_rewards: true
+
+# PPO hyperparameters (tuned for harder task)
+ppo:
+  learning_rate: 0.0001  # Lower learning rate for stability
+  n_steps: 4096  # Longer rollouts for strategic learning
+  batch_size: 128  # Larger batches
+  n_epochs: 15  # More epochs per update
+  gamma: 0.995  # Higher discount for long-term planning
+  gae_lambda: 0.98
+  clip_range: 0.15  # Tighter clipping for stability
+  ent_coef: 0.005  # Less exploration (strategic play)
+  vf_coef: 0.5
+  max_grad_norm: 0.3  # More conservative gradient clipping
+
+  # Network architecture (deeper for strategic reasoning)
+  policy_kwargs:
+    net_arch:
+      - 256
+      - 128
+      - 64
+    activation_fn: "torch.nn.ReLU"
+
+# Training configuration
+training:
+  total_timesteps: 3_000_000  # 3M steps (harder task)
+  n_envs: 16  # More parallel environments
+  eval_freq: 20_000  # Less frequent evaluation
+  eval_episodes: 200  # More episodes for reliable metrics
+  save_freq: 100_000  # Less frequent checkpointing
+  log_interval: 100
+
+  # Curriculum settings
+  use_curriculum: false  # Direct training against Kaplan
+
+# Logging and checkpointing
+output:
+  checkpoint_dir: "./checkpoints/ppo_vs_kaplan"
+  tensorboard_log: "./logs/ppo_vs_kaplan"
+  model_save_path: "./models/ppo_vs_kaplan"
+
+# Weights & Biases configuration
+wandb:
+  enabled: true
+  project: "santafe-double-auction"
+  entity: null
+  name: "ppo-vs-kaplan-${now:%Y%m%d-%H%M%S}"
+  tags: ["ppo", "kaplan", "strategic", "phase4"]
+  notes: "Training against strategic Kaplan snipers"
+
+# Success metrics
+metrics:
+  target_efficiency: 0.75  # Lower target (Kaplan is tough)
+  target_profit_ratio: 1.0  # Match Kaplan performance
+  convergence_window: 200_000  # Longer convergence expected

@@ -1,0 +1,18 @@
+# @package _global_
+# Part 4: LLM vs 7 ZIC, LAD environment
+
+experiment:
+  name: "p4_ctrl_llm_lad"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 10
+  num_steps: 100
+  gametype: 6453
+
+agents:
+  buyer_types: ["LLM", "ZIC", "ZIC", "ZIC"]
+  seller_types: ["ZIC", "ZIC", "ZIC", "ZIC"]

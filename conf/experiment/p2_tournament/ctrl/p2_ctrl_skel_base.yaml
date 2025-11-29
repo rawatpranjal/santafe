@@ -1,0 +1,18 @@
+# @package _global_
+# Part 2: Skeleton vs 7 ZIC, BASE environment
+
+experiment:
+  name: "p2_ctrl_skel_base"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 10
+  num_steps: 100
+  gametype: 6453
+
+agents:
+  buyer_types: ["Skeleton", "ZIC", "ZIC", "ZIC"]
+  seller_types: ["ZIC", "ZIC", "ZIC", "ZIC"]

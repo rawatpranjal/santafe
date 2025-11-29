@@ -1,0 +1,49 @@
+# PPO Hyperparameters for Double Auction Trading
+#
+# Based on Stable-Baselines3 defaults with adjustments for:
+# - Discrete action space (4 actions)
+# - Continuous observation space (9 dimensions, normalized to [0, 1])
+# - Sparse rewards (only on trades)
+# - Action masking support
+
+# Policy architecture
+policy: "MlpPolicy"  # Multi-Layer Perceptron policy
+policy_kwargs:
+  net_arch:
+    # Shared network for both actor and critic
+    - 64  # Hidden layer 1
+    - 64  # Hidden layer 2
+  activation_fn: "torch.nn.ReLU"
+
+# Learning rate schedule
+learning_rate: 0.0003  # 3e-4 (SB3 default)
+lr_schedule: "constant"  # Options: constant, linear
+
+# PPO rollout parameters
+n_steps: 2048  # Steps to collect before update (per environment)
+batch_size: 64  # Minibatch size for SGD
+n_epochs: 10  # Number of epochs for policy update
+
+# PPO clipping and losses
+clip_range: 0.2  # PPO clip parameter
+clip_range_vf: null  # Clip value function (null = no clipping)
+ent_coef: 0.01  # Entropy coefficient (encourages exploration)
+vf_coef: 0.5  # Value function coefficient
+max_grad_norm: 0.5  # Gradient clipping
+
+# Discount and GAE
+gamma: 0.99  # Discount factor
+gae_lambda: 0.95  # GAE lambda parameter
+
+# Normalization
+normalize_advantage: true  # Normalize advantages
+use_sde: false  # State-dependent exploration (for continuous actions)
+
+# Technical settings
+verbose: 1  # Logging level (0: none, 1: info, 2: debug)
+seed: 42  # Random seed for reproducibility
+device: "auto"  # "cpu", "cuda", or "auto"
+
+# Tensorboard logging
+tensorboard_log: "./runs/"
+tb_log_name: "ppo_double_auction"

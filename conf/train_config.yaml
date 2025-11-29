@@ -1,0 +1,11 @@
+# conf/train_config.yaml - Configuration for PPO Training
+# Usage: python train_ppo.py
+
+defaults:
+  - rl/ppo
+  - rl/vectorization
+  - rl/training
+  - _self_
+
+# This config aggregates all RL-specific configs for training
+# Override with: python train_ppo.py ppo.learning_rate=0.0001

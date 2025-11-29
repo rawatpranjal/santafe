@@ -1,0 +1,23 @@
+# @package _global_
+# Part 3: PPO training vs Skeleton
+
+experiment:
+  name: "p3_train_skel"
+  num_rounds: 1
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 10
+  num_steps: 100
+  gametype: 6453
+
+agents:
+  buyer_types: ["PPO", "Skeleton", "Skeleton", "Skeleton"]
+  seller_types: ["Skeleton", "Skeleton", "Skeleton", "Skeleton"]
+
+# Training configuration (Chen et al. 2010)
+training:
+  total_periods: 7000
+  steps_per_period: 25

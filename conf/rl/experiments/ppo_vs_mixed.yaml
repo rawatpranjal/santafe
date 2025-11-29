@@ -1,0 +1,96 @@
+# PPO vs Mixed Opponents Training Configuration
+# Hard scenario: Learn to trade against diverse opponents (ZIC, ZIP, GD)
+
+defaults:
+  - /rl/ppo@_here_
+  - /rl/training@_here_
+  - _self_
+
+# Experiment metadata
+experiment:
+  name: "ppo_vs_mixed"
+  description: "Train PPO agent against mixed opponents (ZIC, ZIP, GD)"
+  tags: ["ppo", "mixed", "hard", "cpu"]
+
+# Disable normalization to preserve action masking
+normalize: false
+
+# Environment configuration
+env:
+  # Market structure
+  num_agents: 8  # 4 buyers, 4 sellers
+  num_tokens: 4  # Tokens per agent
+  max_steps: 100  # Steps per episode
+  min_price: 0
+  max_price: 1000
+
+  # RL agent setup
+  rl_agent_id: 1
+  rl_is_buyer: true  # Train as buyer first
+
+  # Opponent configuration
+  opponent_type: "Mixed"  # Mixed population
+  difficulty: "hard"  # Maps to ["ZIC", "ZIP", "GD"] in environment
+
+  # Reward shaping (v2: rebalanced for active trading)
+  profit_weight: 10.0
+  market_making_weight: 0.5  # High bonus for liquidity
+  exploration_weight: 0.05  # Encourages action
+  invalid_penalty: -0.01  # Low penalty to reduce risk aversion
+  efficiency_bonus_weight: 0.2
+  bid_submission_bonus: 0.02  # Reward for placing orders
+  surplus_capture_weight: 0.1  # Reward for exploiting opportunities
+  normalize_rewards: false
+
+# PPO hyperparameters (v2: increased exploration)
+ppo:
+  learning_rate: 0.0005
+  n_steps: 2048
+  batch_size: 64
+  n_epochs: 10
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.03  # High entropy for exploration
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+
+  # Network architecture
+  policy_kwargs:
+    net_arch:
+      - 128
+      - 128
+    activation_fn: "torch.nn.Tanh"
+
+# Training configuration (CPU optimized)
+training:
+  total_timesteps: 500_000
+  n_envs: 2
+  eval_freq: 10_000
+  eval_episodes: 50
+  save_freq: 50_000
+  log_interval: 50
+
+  # Curriculum settings
+  use_curriculum: false
+
+# Logging and checkpointing
+output:
+  checkpoint_dir: "./checkpoints/ppo_vs_mixed"
+  tensorboard_log: "./logs/ppo_vs_mixed"
+  model_save_path: "./models/ppo_vs_mixed"
+
+# Weights & Biases configuration
+wandb:
+  enabled: false
+  project: "santafe-double-auction"
+  entity: null
+  name: "ppo-vs-mixed-${now:%Y%m%d-%H%M%S}"
+  tags: ["ppo", "mixed", "phase4", "cpu"]
+  notes: "CPU-optimized training against mixed opponents (ZIC, ZIP, GD)"
+
+# Success metrics
+metrics:
+  target_efficiency: 0.85
+  target_profit_ratio: 1.2
+  convergence_window: 100_000

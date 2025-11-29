@@ -1,0 +1,96 @@
+# PPO vs ZIC Training Configuration
+# Easy scenario: Learn to trade against random zero-intelligence opponents
+
+defaults:
+  - /rl/ppo@_here_
+  - /rl/training@_here_
+  - _self_
+
+# Experiment metadata
+experiment:
+  name: "ppo_vs_zic"
+  description: "Train PPO agent against ZIC (Zero-Intelligence Constrained) opponents"
+  tags: ["ppo", "zic", "baseline", "easy"]
+
+# Disable normalization to preserve action masking
+normalize: false
+
+# Environment configuration
+env:
+  # Market structure
+  num_agents: 8  # 4 buyers, 4 sellers
+  num_tokens: 4  # Tokens per agent
+  max_steps: 100  # Steps per episode
+  min_price: 0
+  max_price: 1000
+
+  # RL agent setup
+  rl_agent_id: 1
+  rl_is_buyer: true  # Train as buyer first
+
+  # Opponent configuration
+  opponent_type: "ZIC"  # Zero-Intelligence Constrained
+  difficulty: "easy"  # All ZIC opponents
+
+  # Reward shaping (v2: rebalanced for active trading)
+  profit_weight: 1.0
+  market_making_weight: 0.5  # Was 0.05 → 0.5 (10x increase for liquidity provision)
+  exploration_weight: 0.05  # Was 0.01 → 0.05 (5x increase to encourage action)
+  invalid_penalty: -0.01  # Was -0.1 → -0.01 (10x reduction to reduce risk aversion)
+  efficiency_bonus_weight: 0.2  # Was 0.1 → 0.2 (2x increase for good trades)
+  bid_submission_bonus: 0.02  # NEW: Reward for submitting competitive orders
+  surplus_capture_weight: 0.1  # NEW: Reward for exploiting profitable opportunities
+  normalize_rewards: false  # Was true → false (preserve signal strength)
+
+# PPO hyperparameters (v2: increased exploration)
+ppo:
+  learning_rate: 0.0005  # Was 0.0003 → 0.0005 (faster learning)
+  n_steps: 2048  # Rollout length
+  batch_size: 64
+  n_epochs: 10
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_range: 0.2
+  ent_coef: 0.03  # Was 0.01 → 0.03 (more exploration)
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+
+  # Network architecture
+  policy_kwargs:
+    net_arch:
+      - 128  # Larger network for complex observations
+      - 128
+    activation_fn: "torch.nn.Tanh"
+
+# Training configuration (CPU optimized)
+training:
+  total_timesteps: 500_000  # 500K steps for initial CPU training
+  n_envs: 2  # Parallel environments (reduced for CPU)
+  eval_freq: 10_000  # Evaluate every 10K steps
+  eval_episodes: 50  # Episodes for evaluation (reduced for CPU)
+  save_freq: 50_000  # Checkpoint frequency
+  log_interval: 50  # Logging frequency (more frequent for CPU)
+
+  # Curriculum settings
+  use_curriculum: false  # No curriculum for baseline
+
+# Logging and checkpointing (v2: reward-tuned model)
+output:
+  checkpoint_dir: "./checkpoints/ppo_vs_zic_v2"
+  tensorboard_log: "./logs/ppo_vs_zic_v2"
+  model_save_path: "./models/ppo_vs_zic_v2"
+
+# Weights & Biases configuration (disabled for CPU)
+wandb:
+  enabled: false  # Disabled for CPU training
+  project: "santafe-double-auction"
+  entity: null  # Use default entity
+  name: "ppo-vs-zic-${now:%Y%m%d-%H%M%S}"
+  tags: ["ppo", "zic", "phase4", "cpu"]
+  notes: "CPU-optimized baseline training against ZIC opponents"
+
+# Success metrics
+metrics:
+  target_efficiency: 0.85  # Target 85% market efficiency
+  target_profit_ratio: 1.2  # Aim for 20% better than random
+  convergence_window: 100_000  # Check convergence over this window

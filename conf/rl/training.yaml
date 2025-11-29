@@ -1,0 +1,58 @@
+# Training Pipeline Configuration for PPO Double Auction Agent
+#
+# This config controls the overall training loop, checkpointing, evaluation,
+# and curriculum learning progression.
+
+# Total training timesteps
+total_timesteps: 1_000_000  # 1M steps (across all envs)
+
+# Checkpointing
+save_freq: 50_000  # Save model every N steps (per env)
+checkpoint_dir: "./checkpoints/"
+save_replay_buffer: false  # PPO doesn't use replay buffer
+
+# Evaluation
+eval_freq: 10_000  # Evaluate every N training steps
+eval_episodes: 10  # Number of episodes per evaluation
+eval_deterministic: true  # Use deterministic policy for evaluation
+
+# Logging
+log_interval: 10  # Log training stats every N updates
+wandb:
+  enabled: true
+  project: "santafe-v2"
+  entity: null  # Set to your W&B username/team
+  name: null  # Auto-generated if null
+  tags:
+    - "ppo"
+    - "double-auction"
+    - "phase3"
+  notes: "PPO training on double auction market"
+
+# Curriculum learning (Phase 4 Task 4.2)
+curriculum:
+  enabled: false  # Enable curriculum learning
+  stages:
+    - name: "zic"
+      opponent_type: "ZIC"
+      timesteps: 300_000  # Train for 300k steps against ZIC
+      success_threshold: 0.7  # Move to next stage if reward > threshold
+
+    - name: "kaplan"
+      opponent_type: "Kaplan"
+      timesteps: 500_000  # Train for 500k steps against Kaplan
+      success_threshold: 0.6
+
+    - name: "mixed"
+      opponent_type: "Mixed"
+      timesteps: 200_000  # Final stage with mixed opponents
+
+# Early stopping
+early_stopping:
+  enabled: false
+  patience: 100_000  # Stop if no improvement for N steps
+  min_delta: 0.01  # Minimum improvement threshold
+
+# Reproducibility
+seed: 42
+deterministic_cudnn: false  # Set true for full reproducibility (slower)
