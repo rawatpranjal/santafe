@@ -1,0 +1,20 @@
+# @package _global_
+# Santa Fe Pure ZIC Market
+# Expected: ~98% efficiency (near optimal)
+
+experiment:
+  name: "santafe_pure_zic"
+  num_rounds: 50
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 10
+  num_steps: 100
+  gametype: 6453
+
+# All ZIC traders - should achieve high efficiency
+agents:
+  buyer_types: ["ZIC", "ZIC", "ZIC", "ZIC", "ZIC"]
+  seller_types: ["ZIC", "ZIC", "ZIC", "ZIC", "ZIC"]

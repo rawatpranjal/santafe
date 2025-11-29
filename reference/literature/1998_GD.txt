@@ -1,0 +1,1283 @@
+GAMES AND ECONOMIC BEHAVIOR 22, 1]29 Ž1998.
+ARTICLE NO. GA970576
+
+
+
+
+                      Price Formation in Double AuctionsU
+                                       Steven Gjerstad†
+
+                      Hewlett-Packard Laboratories, Palo Alto, California 94304
+
+                                                and
+
+                                         John Dickhaut
+
+    Carlson School of Management, Uni¨ ersity of Minnesota, Minneapolis, Minnesota 55455
+
+                                   Received November 30, 1995
+
+
+        We develop a model of information processing and strategy choice for partici-
+     pants in a double auction. Sellers in this model form beliefs that an offer will be
+     accepted by some buyer. Similarly, buyers form beliefs that a bid will be accepted.
+     These beliefs are formed on the basis of observed market data, including frequen-
+     cies of asks, bids, accepted asks, and accepted bids. Then traders choose an action
+     that maximizes their own expected surplus. The trading activity resulting from
+     these beliefs and strategies is sufficient to achieve transaction prices at competi-
+     tive equilibrium and complete market efficiency after several periods of trading.
+     Journal of Economic Literature Classification Numbers: D41, D44, D8 Q 1998
+     Academic Press
+
+
+
+
+                                    1. INTRODUCTION
+
+   The double auction ŽDA. is one of the most common exchange institu-
+tions, used extensively in stock markets such as the New York Stock
+Exchange, commodity markets such as the Chicago Mercantile Exchange,
+and in markets for financial instruments, including options and futures.
+The prevalence of this institution can be traced to its operational simplic-
+ity, efficiency, and its capacity to respond quickly to changing market
+conditions. Nevertheless, the DA is a persistent puzzle in economic theory.
+
+   * We thank Vernon Smith and Arlington Williams for providing data for comparison with
+the model in this paper. We thank Dan Friedman, Leo Hurwicz, John Ledyard, Kevin
+McCabe, Charlie Plott, Jason Shachat, Vernon Smith, Arlington Williams, and Steve Williams
+for helpful discussions. We also would like to thank two referees for several useful sugges-
+tions. We especially thank Jim Jordan for his help with the formulation of this model as an
+informationally decentralized decision process.
+   †
+     E-mail: gjerstad@hpl.hp.com.
+
+                                                 1
+                                                                                0899-8256r98 $25.00
+                                                                      Copyright Q 1998 by Academic Press
+                                                           All rights of reproduction in any form reserved.
+2                        GJERSTAD AND DICKHAUT
+
+
+How is information that is held separately by many market participants}in
+the form of privately known reservation values and marginal costs}quickly
+and accurately coordinated through the trading process to reach the
+competitive equilibrium ŽCE. price and allocation?
+   In the double auction, any seller may at any time Žduring a specified
+trading period. submit an offer that is then observed simultaneously by all
+buyers and sellers. Similarly, any buyer may submit a bid that is observed
+by the other buyers and by the sellers. When a buyer’s bid is acceptable to
+some seller, that seller may then accept the buyer’s bid, and a trade is
+executed between the buyer whose bid was accepted and the seller who
+accepted this bid. Similarly, buyers may accept a seller’s offer at any time.
+   Market experiments have established that transaction prices converge
+quickly to a competitive equilibrium price in the DA for a wide variety of
+market environments. Experimental investigation of trader behavior and
+market performance in the DA began with Smith Ž1962.. Smith induced
+supply and demand conditions by giving buyers a redemption value for
+each unit of an abstract commodity purchased, and by giving sellers a cost
+for each unit of this abstract commodity sold. Buyers receive a surplus
+equal to the difference between their redemption value and the purchase
+price negotiated with a seller, and sellers receive a surplus equal to the
+difference between the purchase price paid by the buyer and their unit
+cost. Since reservation prices}and therefore supply and demand condi-
+tions}are known to the experimenter when this procedure is employed,
+the procedure makes possible a comparison between experimental out-
+comes and theoretical predictions. The basic result observed in these
+experiments is that prices do converge quickly to within a few cents of
+competitive equilibrium prices in markets with stationary supply and
+demand. Smith and many other economists in the 35 years since his initial
+studies have also documented features of the path of convergence to
+equilibrium in a variety of market environments. For surveys and interpre-
+tation of these experimental results, see Plott Ž1982. and Smith Ž1982..
+   Models of trader behavior in the DA have been constructed by several
+authors, including Easley and Ledyard Ž1993., Friedman Ž1991., Gode and
+Sunder Ž1993., and Wilson Ž1987.. Although these models have furthered
+understanding of the interaction of individual behavior and institution in
+the DA, we provide a model that accounts for several important regulari-
+ties of double auction data that no one of the previous models predicts or
+replicates in simulations. For comparison of the predictions of the last
+three models with properties of experimental data, see Cason and Fried-
+man Ž1993, 1996..
+   We model individual behavior of sellers and buyers in a continuous DA
+and demonstrate that the persistent puzzle of convergence to CE prices
+and allocations in the DA can be resolved with traders whose information
+                 PRICE FORMATION IN DOUBLE AUCTIONS                         3
+
+processing and strategy choices are simple and intuitive. For each possible
+bid, each buyer forms a subjective belief that some some seller will accept
+the bid. The buyer then determines which bid will maximize her own
+expected surplus. Similarly, each seller determines which offer will maxi-
+mize his expected surplus. Subjective beliefs are formed using only ob-
+served market activity, including bids, offers, and accepts of bids and
+offers. This procedure does not require any knowledge of the types Žcosts
+and valuations. of other buyers and sellers; in fact, traders in this model do
+not even have beliefs about the types of others. Nevertheless, this behavior
+results in efficient allocations, and convergence of transaction prices to
+within a few cents of CE prices within several periods of trading. In
+addition, these beliefs respond quickly to changes in market conditions,
+such as shifts in market demand or supply.
+   The organization of the paper is as follows. The model is formulated in
+Section 2. Simulations of the model are shown and some important
+statistical properties of these simulations are reported in Section 3. Section
+4, the conclusion, summarizes the relationship between our model and
+experimental data.
+
+
+
+                             2. THE MODEL
+
+   Like most forms of market organization, the double auction is an
+informationally decentralized system. Our model emphasizes this structure
+to give a more compelling answer to Hayek’s question: How is privately
+held information coordinated through the market process? Hurwicz et al.
+Ž1975. have shown that in general equilibrium environments, even with
+nonconvexities, there are simple and intuitive forms of market organiza-
+tion and bidding behavior Žwhich they call the B process. that lead to
+Pareto optimal outcomes. Gjerstad and Shachat Ž1996. construct a map
+between partial equilibrium environments of standard market experiments
+and general equilibrium economies. In this paper, we develop a model of
+informationally decentralized bargaining for these environments that re-
+sults not only in Pareto optimal outcomes, but also in substantial stability
+of transaction prices. Our bargaining model, together with the general
+equilibrium interpretation of the environments considered here, results in
+a model of learning competitive equilibrium in a class of general equilib-
+rium environments.
+   In this section, we describe the elements of a microeconomic system,
+interpret the double auction environment and institution within this
+framework, and construct an informationally decentralized model of trader
+behavior for these environments in the double auction institution.
+4                              GJERSTAD AND DICKHAUT
+
+
+   The double auction is an example of a microeconomic system, as in
+Hurwicz Ž1972. and Smith Ž1982.. The primary features of a microeco-
+nomic system are the en¨ ironment e, consisting of the characteristics of the
+economic agents, and the institution I, which includes the messages that
+traders may send to one another, the allocation rules, and the adjustment
+process rules. A microeconomy is an economic system S s (e, I), together
+with behavioral actions b i for market participants, as shown in Fig. 1.
+   The environment e consists of a set A s  1, 2, . . . , n4 of agents, and for
+each agent i characteristics e i consisting of that agent’s preferences,
+technology, and endowment. The environment is then e s Ł i g A e i. The
+institution I consists of a message space M i for each agent, an adjustment
+process rule specifying the sequence of agent messages, and an outcome
+function or allocation function hŽ m t . s Ž h1 Ž m t ., h2 Ž m t ., . . . , h n Ž m t ..,
+where m t s Ž m1t , m2t , . . . , m nt . g Mt s Ł i g A Mti is the vector of agents’
+messages.
+   According to Smith Ž1982, p. 930.,
+      We want to measure messages because we want to be able to identify the
+      behavioral modes, b i Ž e i, I ., revealed by the agents and test hypotheses derived
+      from theories about agent behavior.
+
+  When an environment e and an institution I are specified in a market
+experiment, and an outcome X is observed, the only elements remaining to
+be specified are the behavioral actions  b i Ž Ht ¬ e i , I.4i g A where Ht is the
+history of activity observed by agents through time t. The focus of the
+research in this paper is to specify forms of behavior  b i Ž Ht ¬ e i, I.4i g A that
+are consistent with observations X from exchange environments e when
+the institution I is the double auction. We now describe a representation
+of the double auction in terms of this framework.
+
+
+
+
+                                          FIGURE 1
+                      PRICE FORMATION IN DOUBLE AUCTIONS                                          5
+
+                                      2.1. En¨ ironment
+    In the double auction market environments we consider, there are two
+goods: an experimental currency X and a fictitious commodity Y. Our
+theory addresses the case of markets with the set of traders partitioned
+into a group I of sellers and a group J of buyers. Both types of agents
+Žsellers and buyers. are assumed to have preferences over monetary
+rewards that are monotonically increasing.
+    Seller i g I has a vector of induced unit costs c i s Ž c 1i , c i2 , . . . , c im i . for
+production of an abstract commodity. here c 1i is the cost to seller i of the
+first unit sold, c i2 is the cost of the second unit, and so on. We index the
+cost of each unit because the model of trader behavior is developed for
+traders who frequently sell Žor purchase. multiple units. The gain to seller
+i on his kth unit sold is the difference ps,k i Ž pk , c ik . s pk y c ik between the
+price pk received from a buyer for that unit, and the cost c ik at which the
+unit is produced. If seller i sells m i F m i units at prices p1 , p 2 , . . . , pm i ,
+                                                     mi Ž
+then the utility to this seller is Us, i ŽÝ ks1             pk y c ik .., where Us, i Ž?. is mono-
+                             1
+tonically increasing.
+    Gjerstad and Shachat Ž1996. ŽGS96. show that the cost vector of each
+seller i g I is dual to a technology that is described by a production
+function f i Ž x .. Let x s, i G Ýims1  i c i . A seller with an endowment v
+                                            i                                                 s, i s
+Ž x s, i , 0. will have sufficient currency Žthe input good. to produce each of
+the m i units for which he has finite cost. Then characteristics of seller i
+are described by the vector e s, i s Ž f i , v s, i .. In Example 1 below, we carry
+out their construction for one seller in a market experiment.
+    Buyer j g J has a vector of unit valuations ¨ j s Ž ¨ j1, ¨ j2 , . . . , ¨ jn j .,
+where ¨ j1 is the redemption value for the first unit acquired, ¨ j2 is the
+redemption value for the second, and so forth. Buyer j has an endowment
+x b, j of trading currency that is sufficient to purchase each unit at a price
+up to the redemption value of the unit, i.e., x b, j G Ý nls1                   j ¨ 1 . Monetary
+                                                                                    j
+rewards for buyers are the difference p b,l j Ž pl , ¨ jl . s ¨ jl y pl between the
+redemption values of units purchased and the price pl paid to a seller. If
+buyer j purchases n j F n j units at prices p1 , p 2 , . . . , pn j the monetary gain
+from trading for buyer j is Ýnls1      j Ž ¨ l y p ., and the utility of this monetary
+                                               j         l
+                    n j Ž ¨ y p .., where U
+gain is Ub, j ŽÝ ls1       l
+                           j   l                 b, j
+                                                      Ž?.  is monotonically increasing.
+    For any vector of valuations ¨ j , GS96 show that there is a quasi-linear
+utility function u j Ž x, y . s x q ¨ j Ž y . y x j and an endowment v j s Ž x j , 0.
+
+
+  1
+    In Section 2.4.6, where sellers’ strategies are formulated, we assume that seller i attempts
+to maximize surplus on each of his m i units separately and in sequence.
+6                           GJERSTAD AND DICKHAUT
+
+
+such that the demand for good X by this buyer is ¨ j . The characteristics of
+buyer j are then e b, j s Ž u j , v b, j .. In Example 1, we carry out their
+construction for one buyer in a market experiment.
+  We describe the environment of an induced cost and valuation experi-
+ment by the collection
+
+                    e s  Ž f i , v s, i . 4 igI j  Ž u j , v b , j . 4 jgJ .
+
+   EXAMPLE 1. Figure 2 shows supply and demand conditions for market
+trading experiment 3pda01 run in the experimental lab at the University of
+Arizona by Vernon Smith and Arlington Williams. In this market there are
+four buyers, each with positive valuations for three units, and four sellers,
+each with finite costs for three units. The vector of buyers’ valuations is
+
+                 f s   3.30, 2.25, 2.104 ,  2.80, 2.35, 2.204 ,
+                         2.60, 2.40, 2.154 ,  3.05, 2.35, 2.304 4 .
+The vector of sellers’ cost is
+
+                c s   1.90, 2.35, 2.504 ,  1.40, 2.45, 2.604 ,
+                         2.10, 2.30, 2.554 ,  1.65, 2.35, 2.404 4 .
+Since buyer j with redemption value ¨ jl makes a monetary gain at any
+purchase price p - ¨ jl , and since buyers’ preferences are assumed to be
+monotonically increasing in monetary gain, this buyer is willing to pay any
+price up to ¨ jl for the lth unit purchased. Therefore, the demand shown in
+Fig. 2 is determined by arraying the buyers’ redemption value vectors.
+Supply is obtained analogously.
+
+
+
+
+                                         FIGURE 2
+                   PRICE FORMATION IN DOUBLE AUCTIONS                              7
+
+  The diagram on the left of Fig. 3 shows the production function f 1Ž x .
+that is dual to the cost vector c1 s  1.90, 2.35, 2.504 for seller 1 in this
+market, where
+
+                           ¡xr1.90                  0 F s F 1.90
+
+              f 1Ž x . s   ~ Ž x q 0.45. r2.35      1.90 - x F 4.25
+                                                                                 Ž 1.
+                           ¢3Ž x q 0.75. r2.50      4.25 - x F 6.75
+                                                    6.75 - x.
+
+We assume that seller 1 has an endowment v s, 1 s Ž x s, 1 , 0., where x s, 1 is
+large enough to produce all three units. It is easy to verify that the supply
+of a cost-minimizing producer with the production function f 1 will be 0
+units if the price is below 1.90, 1 unit if the price is between 1.90 and 2.35,
+and so on, so the seller’s vector of unit costs is dual to the production
+function in Eq. Ž1.. The characteristics of seller 1 are then e 1 s Ž f 1 , v s, 1 ..
+   The diagram on the right of Fig. 3 shows two indifference curves for
+buyer 1, whose vector of unit valuations is ¨ 1 s  3.30, 2.25, 2.104 . For buyer
+1, define the valuation function ¨ 1 by
+
+                                ¡3.30 y              0FyF1
+
+                   ¨ 1Ž y . s   ~
+                              2.25 y q 1.05          1-yF2
+                                                                                 Ž 2.
+                                ¢
+                              2.10 y q 1.35
+                              7.65
+                                                     2-yF3
+                                                     3 - y.
+
+If we assume that buyer 1 has the endowment v b, 1 s Ž x b, 1 , 0. s Ž7.65, 0.
+and that the utility function of buyer 1 is u1Ž x, y . s x q ¨ 1Ž y . y 7.65, then
+the lower indifference curve in Fig. 3 corresponds to u1 s 0 and the upper
+one to u1 s 1.
+   If the production functions and endowments of the remaining three
+sellers and the utility functions and endowments of the other 3 buyer are
+
+
+
+
+                                      FIGURE 3
+8                         GJERSTAD AND DICKHAUT
+
+
+constructed in this way, then the environment is e s Ž f i , v s, i .4is14
+                                                                             j
+Ž u j , v b, j .4js1. In what follows, we refer to this market as the symmetric
+                  4
+
+market design.
+
+
+Trading Periods
+   A typical laboratory market experiment involves trading over several
+periods. Each seller has costs induced for the trading period, and each
+buyer has valuations induced. A buyer’s valuation for a unit remains in
+effect throughout the trading period or until the buyer transacts that unit.
+After a unit is transacted, the seller’s cost and the buyer’s valuation for the
+unit just transacted are removed from the supply and demand schedules,
+trading continues, and this process proceeds until there are no more
+surplus enhancing trades remaining, or until time expires in the trading
+period. At the conclusion of a trading period, the costs and valuations are
+reinitialized}possibly at different amounts}in the subsequent period. In
+market experiment 3pda01, the supply and demand conditions in Fig. 2
+were employed in each of nine trading periods, each lasting 300 sec.
+
+
+                                2.2. Institution
+   In the double auction, sellers post ask prices and buyers post bids. The
+message space defines the set of allowable messages for each agent. In this
+paper we consider the double auction with a bid]ask spread reduction rule
+Ždefined below.. In effect, this produces restrictions on agents’ messages as
+a function of some previous messages of other agents. In a microeconomic
+system, adjustment process rules specify the set of allowable messages for
+each trader, the time when exchange of message begins, a transition rule
+governing the sequencing and exchange of messages, and a stopping rule.
+The DA imposes no restrictions on the sequencing of messages: any trader
+can send a message at any time during the trading period. Allocation of
+units is by mutual consent between any buyer and seller. If a seller’s ask is
+acceptable to a buyer, then a transaction is completed when the buyer
+takes Žaccepts. the seller’s ask. Similarly, a buyer’s bid may be accepted by
+a seller.
+
+  DEFINITION 1 ŽMESSAGE SPACE.. Let N˜ s  x : x s nr100 for n g N 4 .
+                                                                            ˜
+Seller i at time t has a message space Mts, i, where Mts, i ;  i4 =  04 = N.
+Buyer j has a message space Mt , where Mt ;  04 =  j4 = N.
+                                b, j          b, j                 ˜
+
+  DEFINITION 2 ŽASKS.. An ask a by seller i is an amount that seller i is
+willing to accept from a buyer as payment for a unit of the commodity
+being traded. To submit an ask of a seller i sends the message Ž i, 0, a..
+                  PRICE FORMATION IN DOUBLE AUCTIONS                           9
+
+  DEFINITION 3 ŽBIDS.. A bid b by buyer j is an amount that buyer j is
+willing to pay to some seller for a unit. Buyer j submits this bid by sending
+the message Ž0, j, b ..
+  DEFINITION 4 ŽSPREAD REDUCTION RULE.. The lowest ask in the mar-
+ket at any time is called the outstanding ask and is denoted oa. At any
+time sellers may place an ask a g N˜ with a - oa. The highest bid is called
+the outstanding bid ob. At any time, buyers may make a bid b g N˜ above
+the outstanding bid. The outstanding ask oa and outstanding bid ob define
+the bid]ask spread w ob, oax. In markets with a spread reduction rule, all
+bids and asks must fall within the bid]ask spread.
+  Note that in a double auction with the bid]ask spread reduction rule,
+any ask that is permissible must be lower than the current outstanding ask,
+so each new ask either results in a trade or it becomes the new outstanding
+ask. A similar remark applies to bids.
+     DEFINITION 5 ŽACCEPTANCE.. If seller i sends the message Ž i, 0, a. and
+holds the outstanding ask oa s a, then a take of oa by buyer j is an
+agreement by j to purchase a unit from seller i at the transaction price
+p s oa. Buyer j accepts the outstanding ask oa by sending the message
+Ž0, j, b ., where b G oa. Similarly, if the outstanding bid ob is held by buyer
+jX , then a take of ob by seller iX is an agreement by iX to sell a unit to buyer
+jX at the transaction price p s ob.
+
+                       2.3. Obser¨ ed History Ž Outcome.
+  EXAMPLE 2 ŽMESSAGES AND HISTORIES.. Consider the market of Exam-
+ple 1 depicted in Fig. 2. If the first action in the period is an offer of 3.00
+by seller 3, we indicate this with the message m1 s Ž3, 0, 3.00.. Suppose
+that the next action is a bid of 3.00 by buyer 1, which we indicate with the
+message m 2 s Ž0, 1, 3.00.. At this point a trade is completed between seller
+3 and buyer 1 at the price 3.00. We indicate the history of these two
+messages by the list
+
+                       H 2 s  h1 , h 2 4
+                           s  Ž 3, 0, 3.00. , Ž 3, 1, 3.00. 4 .
+
+Note that in H2 the triple h 2 unambiguously denotes an accept by buyer 1
+of the offer of 3.00 made with message 1 by seller 3, because seller 3 holds
+the outstanding offer of 3.00, which is the transaction price. ŽSee Accept of
+oa in Definition 6..
+   DEFINITION 6 ŽHISTORIES.. After n messages have been sent, there will
+be a history Hn consisting of n ordered triples. For any message m nq1 s
+Ž m nq 1, 1 , m nq1, 2 , m nq1, 3 . that is sent, one of six cases will hold:
+10                           GJERSTAD AND DICKHAUT
+
+
+    In¨ alid ask or bid. A message m nq 1 s Ž i, 0, a. is not valid if a G oa.
+An invalid ask will not be included in the history. In effect, the institution
+ignores messages that violate the spread reduction rule. Similarly, a
+message m nq 1 s Ž0, j, b . is not valid if b F ob.
+     No ask outstanding. If no ask has been made since the last transaction,
+then there is no outstanding ask, and any ask a g N˜ is valid. If in addition,
+m nq 1, 3 ) ob, then h nq1 s m nq1.
+     No bid outstanding. Similarly, if no bid has been made since the last
+transaction, then there is no outstanding bid, and any bid b g N˜ is valid. If
+m nq 1, 3 - oa, then h nq1 s m nq1.
+       Accept of ob. If m nq 1, 1 / 0 and m nq1, 3 F ob, then seller m nq1, 1 is
+making an offer at or below ob, so m nq 1 is an accept of ob. The buyer’s
+identity is found by looking back in Hn and finding the last h k with
+h k, 2 / 0, that is, kU s max k : h k, 2 / 04 . Then Ž h nq1, 1 , h nq1, 2 , h nq1, 3 . s
+Ž m nq 1, 1 , h k U , 2 , ob ..
+         Accept of oa. If m nq 1, 2 / 0 and m nq1, 3 G oa, then m nq1 is an accept
+of oa Žby buyer m nq 1, 2 .. The seller’s identity is found by looking back in
+Hn and finding kU s max k : h k, 1 / 04 . Then Ž h nq1, 1 , h nq1, 2 , h nq1, 3 . s
+Ž h k U , 1 , m nq1, 2 , oa..
+    Impro¨ ing ask or bid. If m nq 1, 3 g Ž ob, oa. then m nq1 is either an
+improving ask, or an improving bid, and h nq 1 s m nq1.
+
+
+                                    2.4. Beha¨ ior
+
+2.4.1. Frequencies of Takes
+   As noted in Section 2.1, sellers attempt to maximize ps,k i Ž pk , c ik . and
+buyers attempt to maximize p b,l j Ž pl , ¨ jl .. Since asks or bids must be
+accepted for a transaction to take place, we take the point of view that
+sellers will maximize expected surplus myopically, where the expectation is
+taken relative to beliefs pŽ a. that an ask a will be accepted by some buyer.
+These beliefs are formed on the basis of observed market data Žas
+described in Section 2.4.2.. Similarly, buyers are assumed to maximize
+expected surplus myopically, where the expectation is taken relative to
+beliefs q Ž b . that a bid b will be accepted by some seller.
+   The history that traders consider in forming beliefs is restricted to those
+messages leading up to the last L transactions, where L g  0, 1, 2, . . . 4 .
+The parameter L is the memory length of traders. Note that the numbers
+of messages remembered and the clock time elapsed within the traders’
+memory may vary, while the number of trades completed within the
+traders’ memory does not vary Žonce L trades have occurred.. The next
+                      PRICE FORMATION IN DOUBLE AUCTIONS                                      11
+
+definition provides a procedure for truncating the history, so that beliefs
+can be constructed using the data within the traders’ memories. The
+procedure for constructing beliefs using this Žtruncated. history is de-
+scribed in Section 2.4.2.
+
+   Note 1. We will work with the vector Hn , although traders do not have
+access to all of the information in Hn . Traders know their own asks or
+bids, but do not know the identity of the trader making other bids or asks.
+Information about identities is not used in the formation of beliefs or
+strategies, so use of Hn is made only to avoid complicating notation.
+
+  DEFINITION 7 ŽREMEMBERED HISTORY.. Let Hn be the space of possi-
+ble history vectors of length n. Given Hn g Hn , we make the following
+definitions:
+
+     Trade function. For a vector Hn , define a function T : Hn ¬  0, 14 n by
+setting Tk Ž Hn . s Ih k, 1 ?h k, 2 ) 04Ž h k .. Then each component Tk of T indicates
+whether a trade occurred in the kth element of the history.
+       Number of trades. Let x s Ž x 1 , x 2 , . . . , x n .. For each n, define Sn :
+ 0, 14 n ¬ N by SnŽ x . s Ý nks1 x k . Then SnŽT Ž Hn .. is the number of trades
+resulting from the first n messages.
+       Remembered history. Let L be the memory length of a given trader.
+For fixed n and Hn , to simplify notation, let S s S nŽT Ž Hn ... Let nX be the
+position of trade S y L if S ) L, and let nX s 0 if S F L. Define H˜nŽ L. by
+H˜nŽ L. s  h nXq1 , h nXq2 , . . . , h n4 .
+      Deletion of oa and ob from history. Let nY s max k : Tk Ž Hn . s 14 , i.e.,
+ Y
+n is the index of the most recent trade. Let nU be the index of the lowest
+Žmost recent. ask in the vector  h nYq1 , . . . , h n4 . Let n# be the index of the
+highest bid in the vector  h nYq1 , . . . , h n4 . Note that if TnŽ Hn . s 0, then h n, 3
+is either the outstanding ask or the outstanding bid, as a consequence of
+the spread reduction rule, and if TnŽ Hn . s 1, then there is no outstanding
+bid and no outstanding ask. If TnŽ Hn . s 0 and h n, 1 s 0, then h n, 3 is the
+outstanding bid. If h k, 1 / 0 for some k g  nY q 1, . . . , n y 14 , then nU / B
+and we define HnŽ L. by HnŽ L. '  h nXq1 , h nXq2 , . . . , h nU y1 , h nU q1 , . . . , h ny1 4 .
+That is, HnŽ L. is H˜nŽ L. with h nU and h n# removed. This is done because it is
+not known at time n if the outstanding ask or bid will be accepted. The
+other case}where h n, 3 is the outstanding ask}is treated similarly. Then
+HnŽ L. is the history remembered by traders with memory length L who
+observe the history Hn .
+    Set of asks and bids. Let DnŽ L. be the set of all asks and bids that have
+been made in HnŽ L., i.e., DnŽ L. ' Dk g nXq1, . . . , n4_n#, nU 4  h k, 34 .
+12                            GJERSTAD AND DICKHAUT
+
+
+   DEFINITION 8 ŽASK FREQUENCIES.. For each d g DnŽ L., let AŽ d . be the
+total number of asks that have been made at d, and let TAŽ d . be the total
+number of these that have been accepted. Let RAŽ d . ' AŽ d . y TAŽ d . be
+the rejected asks at d.
+   For AŽ d ., the counting procedure is as follows. For each k g  nX q
+1, . . . , n4 _ n#, nU 4 , if h k, 3 s d, h k, 1 / 0, and h k, 2 s 0, then AŽ d . is incre-
+mented by 1. If h k, 3 s d and Tk Ž h k . s 1, then h k is either a taken ask or a
+taken bid. To determine which is the case, find mU s min m G 1 : h ky m, 3
+s h k, 34 . If h kymU , 1 / 0, then AŽ d . and TAŽ d . are incremented by 1. The
+rejected asks at d are given by RAŽ d . ' AŽ d . y TAŽ d ..
+  DEFINITION 9 ŽBID FREQUENCIES.. For each d g DnŽ L., let B Ž d . be the
+total number of bids that have been made at d, and let TB Ž d . be the total
+number of these that have been accepted. Let RB Ž d . ' B Ž d . y TB Ž d ..
+The interpretations and counting procedures for B Ž d ., TB Ž d ., and RB Ž d .
+are analogous to those described in Definition 8 for asks.
+  At each time during a market, the proportion of asks at a g D that have
+been accepted is
+
+                                                TA Ž a .
+                                    ˇp Ž a. s
+                                                 AŽ a.
+
+whenever AŽ a. ) 0. The proportion of bids at b g D that have been
+accepted is
+
+                                                TB Ž b .
+                                    qˇŽ b . s
+                                                BŽ b.
+
+whenever B Ž b . ) 0.
+  In stationary market environments, these empirical frequencies show
+substantial regularity: ˇ
+                        pŽ a. tends to be a decreasing function of a and qˇŽ b .
+tends to be an increasing function of b.
+  Note 2. In what follows, the sets of asks and bids are frequently
+denoted D, with the subscripts and superscripts omitted. When traders
+have finite memory, that will be noted. After n messages have been sent,
+the relevant set of asks and bids is DnŽ L. and the relevant history is HnŽ L..
+
+2.4.2 Beliefs
+   While the frequencies ˇ  pŽ a. and qˇŽ b . tend to be monotonic when the
+number of asks and bids is large, there is more variability in small samples.
+For this reason, it is useful to work with a modification of these summary
+statistics.
+                  PRICE FORMATION IN DOUBLE AUCTIONS                                 13
+
+   Modification of ˇpŽ a. is made by taking the point of view that if an ask
+aX - a is rejected, then had that ask been made at a it would also have
+been rejected. This assumption is made because a ) aX and is therefore
+less appealing to buyers than aX , which was rejected. Similarly, if ask aX ) a
+was made and taken, then that ask would also have been taken if it were
+made at a. Furthermore, if a bid bX ) a is made, then an ask aX s bX would
+have been taken if it had been made Žthe assumption being that this ask of
+aX would be acceptable to the buyer who bid bX .. This heuristic }and an
+analogous one for buyers’ beliefs}are formalized in the next two defini-
+tions.
+  DEFINITION 10 ŽSELLERS’ BELIEFS.. For each potential as a g D, define
+
+                                  Ý d G aTA Ž d . q Ý d G a B Ž d .
+            ˆp Ž a. s                                                           .   Ž 3.
+                        Ý d G aTA Ž d . q Ý d G a B Ž d . q Ý d F a RAŽ d .
+
+  Then ˆpŽ a. is the seller’s belief that an ask amount a will be acceptable
+to some buyer. We assume that sellers always believe that an ask at
+a s 0.00 will be accepted with certainty, and that there is some value
+M ) 0 such that ˆ  pŽ M . s 0.
+  The notation of Eq. Ž3. is simplified by the following definitions. Let
+TAGŽ a. s Ý d G aTAŽ d ., BGŽ a. s Ý d G a B Ž d ., and RALŽ a. s Ý d F a RAŽ d ..
+These are the taken asks greater than or equal to a, the bids greater than
+or equal to a, and the rejected asks less than or equal to a, respectively.
+Then Eq. Ž3. may be rewritten as
+
+                                      TAG Ž a . q BG Ž a .
+                   ˆp Ž a. s                                          .             Ž 4.
+                               TAG Ž a . q BG Ž a . q RAL Ž a .
+
+  DEFINITION 11 ŽBUYERS’ BELIEFS.. For each possible bid b g D, define
+
+                                 Ý d F b TB Ž d . q Ý d F b A Ž d .
+           qˆŽ b . s                                                            .   Ž 5.
+                        Ý d F b TB Ž d . q Ý d F b A Ž d . q Ý d G b RB Ž d .
+
+   We assume that buyers always believe that qˆŽ0.00. s 0 and that there is
+some value M ) 0 such that qˆŽ M . s 1.
+   As in Definition 10, to simplify notation in Eq. Ž5. we introduce
+functions TBLŽ b . s Ý d F b TB Ž d ., ALŽ b . s Ý d F b AŽ d ., and RBGŽ b . s
+Ý d G b RB Ž d .. These are the taken bids less than or equal to b, the asks less
+than or equal to b, and the rejected bids greater than or equal to b. Then
+
+                                       TBL Ž b . q AL Ž b .
+                   qˆŽ b . s                                          .             Ž 6.
+                               TBL Ž b . q AL Ž b . q RBG Ž b .
+14                               GJERSTAD AND DICKHAUT
+
+
+  With the specification of seller’s beliefs in Definition 10, the belief
+function ˆ pŽ a. is a monotonically decreasing function of a ŽProposition 1..
+The argument of pŽ?. is the price that the seller asks, and the value of pŽ?.
+at a represents the seller’s assessment of the probability Žbelief. that an
+offer at a will be accepted by some buyer. It is reasonable to expect that
+seller’s beliefs are monotonic: this captures the intuition that a trader who
+has seen an ask of a rejected should decrease the belief that a will be
+accepted later, and decrease the belief that an ask at any value greater
+than a will be accepted. The buyers’ belief function has an analogous
+property: qˆŽ b . is a monotonically increasing function of the bid b.
+
+
+2.4.3 Spread Reduction Rule and Beliefs
+    The spread reduction rule has the effect of making the probability of a
+ take for an ask a G oa equal to 0 Žwhere oa is the outstanding offer from
+ Definition 4.. We denote this modification of ˆ  pŽ a. by ˜ pŽ a., where ˜pŽ a. s
+ˆpŽ a. if a - oa, and ˜pŽ a. s 0 if a G oa. Similarly, q˜Ž b . s 0 for all b with
+ b F ob. These facts are incorporated into traders’ beliefs in the following
+ definition.
+
+     DEFINITION 12. Let ˜              pŽ a. s ˆ
+                                               pŽ a. ? Iw0, o a.Ž a. for each a g D. That is,
+˜pŽ a. s ˆpŽ a. if a - oa and ˆpŽ a. s 0 if a G oa. For all b g D, let q˜Ž b . s
+ q˜Ž b . s qˆŽ b . ? IŽ o b, M xŽ b ..
+
+
+2.4.4. Cubic Spline Interpolation
+   The belief functions in Definition 12 are defined on the set D of all
+offers and bids within the traders’ memory. These beliefs are extended to
+the positive reals using cubic spline interpolation. For each successive pair
+of data points Ž a k , ˜
+                       pŽ a k .. and Ž a kq1 , ˜
+                                               pŽ a kq1 .., we construct a cubic equa-
+tion pŽ a. s a 3 a3 q a 2 a2 q a 1 a q a 0 passing through these two points
+with the following four properties:
+
+     1.    pŽ a k . s ˜
+                      pŽ a k .
+     2.    pŽ a kq 1 . s ˜
+                         pŽ a kq1 .
+     3.    pX Ž a k . s 0
+     4.    pX Ž a kq 1 . s 0
+
+  These four conditions generate the four equations represented in matrix
+Eq. Ž7. below. The coefficients a j are obtained as the solution to the
+                   PRICE FORMATION IN DOUBLE AUCTIONS                                    15
+
+equation
+
+                 a3k         a2k       ak     1     a3    ˜p Ž ak .
+               a3kq 1       a2kq1     a kq1   1     a2
+                                                       s ˜
+                                                         p Ž a kq 1 . .
+                                                                                    Ž 7.
+                3a2k        2 ak       1      0     a1        0
+              3a2kq 1      2 a kq1     1      0     a0        0
+
+The function q Ž b . is defined similarly, using the pairs Ž bk , q˜Ž bk .. and
+Ž bkq 1 , q˜Ž bkq1 ...
+
+2.4.5. Monotonicity of Beliefs
+  The function ˆ  pŽ a. defined in Section 2.4.2 is monotonically nonincreas-
+ing. That is, as the ask a is increased, ˆ     pŽ a. }the belief that an ask a will
+be accepted}is nonincreasing in a. Similarly, qˆŽ b . is nondecreasing in b:
+buyers believe higher bids are more likely to be accepted. These results are
+proven in Propositions 1 and 2. This monotonicity property is extended
+successively to ˜pŽ a., q˜Ž b ., pŽ a., and q Ž b . in Propositions 3]6.
+  PROPOSITION 1.         For all a1 g D, a2 g D, with a1 - a2 , ˆ
+                                                                pŽ a1 . G ˆ
+                                                                          pŽ a2 ..
+  Proof. Let GŽ a. s TAGŽ a. q BGŽ a.. Note that GŽ a2 . F GŽ a1 . and
+RALŽ a1 . F RALŽ a2 . because a1 - a2 . Multiplying these two inequalities
+results in
+
+                        G Ž a2 . RAL Ž a1 . - G Ž a1 . RAL Ž a2 . .                 Ž 8.
+Now add GŽ a2 .GŽ a1 . to both sides of inequality Ž8. and from this sum
+factor out GŽ a2 . from the left side of the equation and factor GŽ a1 . out of
+the right side, then divide both sides of the resulting inequality by w GŽ a1 .
+q RALŽ a1 .xw GŽ a2 . q RALŽ a2 .x to get ˆ
+                                          pŽ a1 . G ˆ
+                                                    pŽ a2 .. B
+  PROPOSITION 2.         For all b1 g D, b 2 g D with b1 - b 2 , qˆŽ b1 . F qˆŽ b 2 ..
+  Proof. The proof is similar to the proof of Proposition 1. B
+  PROPOSITION 3. The function ˜
+                              pŽ a. is nonincreasing.
+    Proof. Since ˜  pŽ a. s ˆ
+                            pŽ a. Iw0, o a.Ž a., and since ˆ
+                                                           pŽ a. is nonincreasing,
+˜pŽ a. is also nonincreasing. B
+  PROPOSITION 4. The function q˜Ž b . is nondecreasing.
+  Proof. The proof is similar to the proof of Proposition 3. B
+  PROPOSITION 5. Let a1 g D and a2 g D, with a1 - a2 . Then pŽ a. is
+nonincreasing on Ž a1 , a2 ..
+16                                 GJERSTAD AND DICKHAUT
+
+
+  Proof. The belief function pŽ a. is given by pŽ a. s a 3 a3 q a2 a2 q a 1 a
+q a 0 on the interval Ž a1 , a2 ., where the coefficients a j are given by the
+solution to Eq. Ž7.. The slope of pŽ a. on this interval is
+
+                                pX Ž a . s 3 a 3 a2 q 2 a 2 a q a 2 .                                   Ž 9.
+The coefficients a 3 , a 2 and a 1 can be obtained from Eq. Ž7. by Cramer’s
+rule. Substitution of these values into Eq. Ž9. results in
+
+                          6 Ž a2 y a1 . Ž p Ž a1 . y p Ž a2 . .
+            pX Ž a . s                                4              Ž a y a1 . Ž a y a2 . .
+                                       Ž a2 y a1 .
+Note that a2 y a1 , pŽ a1 . y pŽ a2 ., and Ž a2 y a1 . 4 are all nonnegative.
+Since a y a1 ) 0 and a y a2 - 0 on Ž a1 , a2 ., it follows that pŽ a. is
+nonincreasing on Ž a1 , a2 .. B
+   PROPOSITION 6. The belief function q Ž b . is nondecreasing.
+   Proof. The proof is similar to the proof of Proposition 5. B
+
+2.4.6. Expected Surplus Maximization
+   When attempting to sell his kth unit, seller i with cost c ik - oa may
+make an offer a g w0, oa. that results in expected surplus Ewps,k i Ž a, c ik .x s
+Ž a y c ik . ? pŽ a.. The maximum expected surplus of seller i for the sale of
+this unit 2 is
+
+                       S s,k i s max  max ag Ž o b , o a. E ps,k i Ž a, c ik . , 0 4 .               Ž 10 .
+  Similary, if buyer j with valuation ¨ jl for her lth unit bids b g Ž ob, `.,
+this results in an expected surplus Ewp b,l j Ž b, ¨ jl .x s Ž ¨ jl y b . ? q Ž b .. The
+maximum expected surplus on this unit for buyer j is
+
+                      S bl , j s max max ag Ž o b , o a. E p bl , j Ž b, ¨ jl . , 0 .
+                                      ½                                              5                Ž 11 .
+
+2.4.7. Timing of Messages
+  Let t be the parameter for time within a trading period. Let T be the
+length of the trading period and let tk g w0, T . be the time of the k th
+offer, bid, or acceptance of an offer or bid. At time tk let Ts,ki be the
+  2
+    Seller i with cost vector c i s  c1i , c i2 , . . . , c im i 4, faces the problem of choosing a sequence
+of asks or accepts to maximize Ý m  ks 1 pi y c i , where pi is the purchase price received for
+                                      i Ž       k          k.               k
+
+unit k. We assume that the seller will attempt to maximize the surplus of each unit in
+sequence, independently other units. In addition to simplifying the strategy choice, this is
+consistent with the myopic formulation of strategy choice. A similar remark applies to buyers.
+                     PRICE FORMATION IN DOUBLE AUCTIONS                                                   17
+
+random variable that specifies the time that seller i would allow to elapse
+before sending a message; let Tb,k j be the random variable that specifies
+the time that buyer j would allow to elapse before sending a message.
+    We assume that Ts,ki is exponentially distributed, and that the parameter
+a s, i in the distribution of Ts,ki depends only on the maximum expected
+surplus S s,k i of seller i Žfrom Eq. Ž10.. on the length T of the trading
+period, and on tk , the time elapsed in the trading period. We write this
+dependence as a s, i s f s, i Ž S s,k i ; tk , T .. Similarly, for buyers, b b, j s
+f b, j Ž Sb,l j ; tk , T .. Then the probability that seller iX will be the next trader to
+send a message in the market is
+
+
+                                                 f s, iX Ž S s,k iX ; tk , T .
+              ps, iX s
+                         Ý i g I f s, i Ž S s,k i ; tk , T . q Ý j g J f b , j Ž S bl , j ; tk , T .
+                                       a s, iX
+                   s                                           .                                       Ž 12 .
+                         Ý i g I a s, i q Ý j g J b b , j
+
+
+Equation Ž12. indicates that the probability that seller iX is the next to send
+a message is equal to the parameter a s, iX of seller iX divided by the sum of
+the parameters of all agents. This is shown in the following proposition.
+    PROPOSITION 7. If Ts,ki and Tb,k j are independent exponentially distributed
+random ¨ ariables on w0, `. with parameters a s, i s f s, i Ž S s,k i ; tk , T . and b b, j s
+f b, j Ž Sb,l j ; tk , T ., i.e,
+
+
+                                  Pr  Ts, i - t 4 s 1 y eya s , i ?t ,
+
+
+then the probability that seller iX will be the next trader to send a message is
+ps, iX , where ps, iX is gi¨ en by Eq. Ž12..
+  Proof. Consider, for example, seller 1. Let
+
+
+                                 Ts, y1 s          min         Ts, i , Tb , j 4 .
+                                                 i)1, jG1
+
+
+
+This random variable is exponentially distributed with parameter
+
+
+                                 a s, y1 s Ý a s, i q Ý b b , j .
+                                                 i)1               jG1
+18                                GJERSTAD AND DICKHAUT
+
+
+Then the probability that seller 1 is the next seller to move will be the
+probability that Ts, 1 - Ts, y1 , i.e.,
+
+                  ps, 1 s Pr  Ts, 1 - Ts, y1 4
+                              `    u
+                                                ya s , 1?t
+                       s   H0 H0 a      s, 1 ? e           ? a s, y1 ? ey a s , y 1?u dt du
+
+                                   a s, 1
+                       s                           .                                          Ž 13 .
+                            a s, 1 q a s, y1
+
+After substitution of the definitions of a s, 1 and a s, y1 , the expression in
+Eq. Ž13. is the same as Eq. Ž12. for iX s 1. B
+   There are two reasons for defining the timing of each trader’s message
+as an exponential random variable. The first is an important conceptual
+issue: with this formulation, the mechanism is informationally decentral-
+ized, in that the information about each trader’s surplus is not held by any
+agent. Each trader’s timing decision is independents of any Žunobserved.
+characteristics }such as costs or valuations}of other traders. The second
+issue is empirical. With this formulation, the timing of bids and asks is
+testable within the model, and it is possible to compare the timing data for
+various specifications of the functions f s, i Ž S s,k i ; tk , T . and f b, j Ž Sb,l j ; t k , T .
+with timing data from experiments. It should be noted that the arguments
+of f s, i Ž?. may be any data observed by or known to seller i. In the
+formulation above, the surplus S s,k i is a summary statistic derived from the
+information privately held by and publicly observed by seller i.
+   The specifications of f s, i Ž S s,k i ; tk , T . and f b, j Ž S b,l j ; tk , T . used in the
+simulations reported in Section 3 are
+
+                                                                         T
+                           f s, i Ž S s,k i ; tk , T . s S s,k i ?                            Ž 14 .
+                                                                     Ž T y atk .
+and
+                                                                          T
+                         f b , j Ž Sbl , j ; Tk , T . s Sbl , j ?                  ,          Ž 15 .
+                                                                     Ž T y atk .
+where a g Ž0, 1..
+  This specification has been chosen to reflect two empirical observations
+about timing of bids and offers in experimental markets. There is strong
+positive rank-order correlation between buyers’ valuations and the order in
+which buyers purchase units, and strong negative rank-order correlation
+between sellers’ costs and the order in which units are sold. In the
+formulation above, buyers with high valuations will have higher maximum
+                        PRICE FORMATION IN DOUBLE AUCTIONS                       19
+
+expected surplus, and will therefore have a larger parameter b b, j for the
+timing decision. Since the expected time until buyer j sends a message is
+proportional to the reciprocal of b b, j , buyers with high valuations will tend
+to send messages more frequently and will trade earlier. Similarly, sellers
+with low costs will trade earlier. The second observation is that trading
+activity is typically concentrated at the beginning of the trading period,
+when many high surplus units are traded, and toward the end of the
+period. The term TrŽT y atk . in Eqs. Ž14. and Ž15. is consistent with these
+observations, since high surplus units will trade earlier, but as tk ª T, this
+term approaches 1rŽ1 y a., and low surplus units will be traded toward
+the close of each period if a is near 1.
+   Although the model is formulated so that timing data can be obtained
+and examined, we have followed the reduced form in Eq. Ž12. in simula-
+tions and generated messages without the time stamp.
+   EXAMPLE 3 ŽBELIEFS, SURPLUS, AND TIMING.. Consider again the mar-
+ket of Example 1. In Example 2 we discuss the first two messages sent in
+experiment 3pda01, which result in the history H2 s Ž3, 0, 3.00.,
+Ž3, 1, 3.00.4 . The set of bids and offers D where the beliefs ˆ  pŽ a. and qˆŽ b .
+are calculated is D s  3.004 j  0.00, 10.004 . The values of ˆ  pŽ a. at these
+three points are ˆ    pŽ0.00. s 1.0, ˆpŽ3.00. s 1.0, and ˆ  pŽ10.00. s 0.0. The
+values of qˆŽ b . at these three points are qˆŽ0.00. s 0.0, qˆŽ3.00. s 1.0, and
+qˆŽ10.00. s 1.0. Since there is no outstanding ask or bid, the spread
+reduction rule has no effect, so ˜ pŽ a. s ˆ
+                                           pŽ a. for all a g D and q˜Ž b . s qˆŽ b .
+for all b g D. Finally, the belief functions pŽ a. and q Ž b ., shown in Fig. 4,
+are
+
+              ¡1                                           0 F b F 3.00
+   p Ž a. s   ~    1
+                        Ž 100 q 180 x q 39 x 2 q 2 x 3 .   3.00 F b F 1.00 Ž 16 .
+              ¢   343
+                  0                                        10.00 F b,
+
+
+
+
+                                         FIGURE 4
+20                         GJERSTAD AND DICKHAUT
+
+
+and
+
+                        ¡1
+                        ~ 27 x Ž 3 y 2 x .
+                               2
+                                                   0.00 F b F 3.00
+              qŽ b. s
+                        ¢1                         b ) 3.00.
+                                                                         Ž 17 .
+
+
+After the trade between seller 3 and buyer 1 in this example, the lowest
+cost units of sellers 1]4 are 1.90, 1.40, 2.30, and 1.65, respectively. The
+highest unit values for buyers 1]4 are 2.25, 2.80, 2.60, and 3.05. The
+expected surplus maximizing bids and offers and the maximum expected
+surplus for each agent are easily determined from these values and costs
+and the belief functions in Eqs. Ž16. and Ž17.. The values of the maximum
+expected surplus for buyers 1]4 are 0.38, 0.66, 0.55, and 0.81. For sellers
+1]4, the values of maximum expected surplus are 2.55, 2.91, 2.27, and 2.73.
+As a result, given the formulation of the timing of messages in Eqs. Ž14.
+and Ž15., in our model an offer will be more than 4 times as likely as a bid
+with this history. Even if the next message is an offer, the expected surplus
+of sellers will continue to be greater than the expected surplus for buyers,
+and there is a high probability of a series of decreasing offers. As a result,
+the next transaction price is likely to move toward the market equilibrium
+of 2.35.
+
+
+                              3. SIMULATIONS
+
+   While the formation of traders’ beliefs, their choices of strategies, and
+the timing of messages are simple and intuitive, the dynamics of the model
+are complex because of the nonstationarity of beliefs and the probability
+distribution over the timing of agents’ messages. As a result, analytic
+characterization of properties of the model is difficult to obtain. For this
+reason, much of the evidence presented on the performance of the model
+is from simulations. It may be possible to obtain analytic results on
+asymptotic convergence of prices to an approximate equilibrium, but
+asymptotic convergence alone does not provide information about the
+path. For the important question of the path of convergence to equilib-
+rium, simulations are useful tool for investigating properties of this model.
+
+                                   3.1. Criteria
+   The primary objective of this section is to demonstrate that prices and
+allocations in our model converge to the competitive equilibrium price and
+allocation. To identify the effect on convergence to competitive equilib-
+rium of the belief formation and strategy choice defined in Section 2.4, we
+                    PRICE FORMATION IN DOUBLE AUCTIONS                                  21
+
+compare the outcomes of simulations of our model to the ‘‘zero-intelli-
+gence trade’’ ŽZI. model of Gode et al. Ž1993., which has no belief
+formation or learning.3 By convergence of the sequence of prices, we mean
+that for some n 0 G 1, each element of the sequence Ž pn . nsn N
+                                                                  0
+                                                                    of transac-
+tion prices is ‘‘close to’’ pe , the competitive equilibrium price. This condi-
+tion is met if the mean absolute deviation of transaction price from
+equilibrium price is small, so we measure convergence using this statistic.
+Of course, convergence to competitive equilibrium implies convergence to
+a Pareto optimum, so we also test this weaker condition. With efficiency
+measured as the ratio of surplus extracted by agents to total surplus
+possible, we find that in simulations of the model, market allocations are
+nearly efficient Žover 99.9% of possible surplus is extracted after several
+periods of trading., and prices are close to competitive equilibrium prices.
+Note that while we do not examine the market allocation directly, the
+outcome is a competitive equilibrium if and only if the transaction prices
+are the competitive equilibrium price and the allocation is Pareto optimal,
+and we do establish that these two conditions hold Žapproximately. in
+simulations of our model.
+
+                                  3.2. En¨ ironments
+   Throughout this section, we consider a market design with four sellers,
+each with finite unit costs for three units, and four buyers, each with
+positive unit valuations for three units. The unit costs and valuations for
+the design we consider are given in Example 1 of Section Ž2.1. and are
+depicted in Fig. 2 Žand in the left column of Fig. 5.. We reported statistics
+from seven laboratory market experiments reported initially by Ketcham
+et al. Ž1984. and statistics from 100 simulations of our model with the same
+environment parameters. Finally, to demonstrate that our model is capable
+of responding to shifts in market conditions, we show the results of a
+simulation in which the market design described above is employed through
+five periods of trading, and then for the remaining five periods of the
+simulation each unit cost and unit valuation are increased to amounts 0.50
+above those employed in periods 1]5.
+
+                                    3.3. E¨ aluation
+ The only free parameter in the model is the memory length of traders.
+We report simulations with memory length L s 5. For short memory
+
+  3
+    In this model, sellers make offers which are random and uniformly distributed on the
+interval w c, M x, where c is the seller’s cost, and M is some upper bound on their set of
+possible choices. Buyers make bids that are uniformly distributed on w0, ¨ x where ¨ is the
+buyer’s valuation.
+22                      GJERSTAD AND DICKHAUT
+
+
+
+
+                                 FIGURE 5
+
+
+
+
+lengths Ž L F 3. the outcomes are unstable. For long memory lengths
+Ž L G 8. the outcomes are similar to those with intermediate memory
+lengths Ž4 F L F 7., but computation time increases significantly. It should
+also be noted that beliefs change more slowly in markets with shifts in
+supply and demand if memory length is long, so traders with intermediate
+and short memory lengths will adapt to changes in market conditions more
+quickly.
+                     PRICE FORMATION IN DOUBLE AUCTIONS                             23
+
+                                         TABLE I
+        Efficiency Statistics from Simulations of Models and from Laboratory Data
+
+              Periods         Symmetric           Model             ZI Model
+             evaluated         markets          simulations        simulations
+
+       First two periods         0.907             0.9982             0.968
+       Entire experiment         0.959             0.9991             0.968
+       Last two periods          0.970             0.9992             0.967
+
+
+
+
+Efficiency
+   The sum of consumers’ and producers’ surpluses provides a convenient
+measure of efficiency for these markets. We evaluate the surplus obtained
+by traders in the market divided by the maximum surplus available to
+determine the efficiency of trade. Table I summarizes efficiency statistics
+from the seven laboratory markets, from 100 simulations of our model, and
+from 100 simulations of the ZI model. This table show that our model
+attains higher efficiency than both the laboratory experiments and the ZI
+model simulations.
+
+
+Con¨ ergence
+   The diagrams in the left column of Fig. 5 show graphs of the supply and
+demand conditions for the symmetric market 3pda01. On the right side of
+that figure in the top row is a graph of the sequence of transaction price
+through the nine periods of trading in this laboratory market. In that
+figure, the equilibrium price is shown as a solid line across the diagram.
+Prices from each of the nine trading periods are separated by a vertical
+line, and the number of transactions in each period is indicated at the
+bottom of the diagram below the vertical line that indicates the end of the
+trading period. A simulation of our model under the same supply and
+demand conditions is shown in the right side of Fig. 5 in the center row.
+Price sequences from laboratory experiments with this design Žas in the top
+of Fig. 5. and from simulations with this market design Žas in the center
+row of Fig. 5. both converge quickly to prices near the competitive
+equilibrium price, and an equilibrium quantity of trade typically occurs in
+each period.
+   The belief functions pŽ a. and q Ž b . shown in Fig. 6 are produced using
+data from the the end of the second period of the simulation of Fig. 5,
+using Definitions 10 and 11 of Section 2.4.2. In this graph, a seller’s belief
+that ask a will be accepted by a buyer is shown for each ask from 2.32 to
+24                             GJERSTAD AND DICKHAUT
+
+
+
+
+                                          FIGURE 6
+
+
+
+2.38; buyers’ beliefs are shown for bids from 2.30 to 2.36.4 These belief
+functions are monotonic Žsee Propositions 5 and 6., so the value of the
+sellers’ belief is pŽ a. s 1 for all a - 2.33 and it is 0 for all a ) 2.38. With
+this belief function, and with myopic surplus maximization, the optimal ask
+is approximately 2.33 for any seller with unit cost below 2.30. The buyers’
+belief functions in this case have a similar property: the optimal bid for a
+buyer with valuation of 2.40 or greater is 2.35. At the beginning of each
+period, the sellers’ costs are 1.90, 1.40, 2.10, and 1.65 and the buyers’
+valuations are 3.30, 2.80, 2.60, and 3.05, so the first action at the beginning
+of the third period will be either an ask of 2.33 or a bid at 2.35. We see in
+the center row of Fig. 5 that the first transaction price is 2.35 in period 3 of
+this simulation: the belief functions and strategy choice described fre-
+quently produce transactions at equilibrium, even from the beginning of
+the trading period.
+   The figures in the bottom row of Fig. 5 show a simulation of the ZI
+model in the symmetric market environment. While the ZI traders attain
+high efficiency in this market design, that model does not result in the
+formation of equilibrium prices. In the ZI model, there is no belief
+formation process. As a result, there is no convergence of transaction
+prices to equilibrium, as the diagram on the right side of the bottom row in
+Fig. 5 clearly shows.5 In Table II, the mean absolute deviation of transac-
+
+  4
+    Note that the range from the lowest cost to the highest valuation in this market is 1.40 to
+3.30, with an equilibrium price of 2.35; beliefs are focused in a narrow range around the
+equilibrium price.
+  5
+    Gode and Sunder w1993, p. 129x argue: ‘‘By the end of a period, the price series in budget
+constrained ZI trader markets converges to the equilibrium level almost as precisely as the
+price series from human trader markets does.’’ In the ZI simulation of figure 5, final trades in
+8 of 10 periods are within 0.10 of equilibrium. We apply a definition of convergence that is
+more demanding and conforms more closely to the intuitive notion of convergence of market
+prices. We argue that prices in a stable market environment converge if, after several periods,
+the mean deviation of all trades from equilibrium is small. By this criterion, the ZI model
+does not converge to equilibrium.
+                       PRICE FORMATION IN DOUBLE AUCTIONS                                    25
+
+                                        TABLE II
+        Convergence Statistics from Simulations of Models and from Laboratory Data
+
+            Periods              Symmetric            Model               ZI Model
+           evaluated              markets           simulations          simulations
+
+      First two periods             0.101              0.077                0.276
+      Entire experiment             0.050              0.045                0.237
+      Last two periods              0.088              0.040                0.209
+
+
+
+tion price from equilibrium price is shown for 100 simulations of the ZI
+model in the symmetric market design.6 This statistic is also shown for 100
+simulations of our model7 for the seven laboratory markets. These data
+Žand the ZI simulation graph at the bottom of Fig. 5. show that the ZI
+model does not result in convergence to competitive equilibrium. The
+behavior in our model does produce convergence to approximate equilib-
+rium prices after several periods of trading. The contrast between the
+outcome of the simulations of the ZI model and that of our model identify
+the effect on market convergence of belief formation and myopic surplus
+maximization in our model. From the graphs and the statistics, it is clear
+that this effect is substantial. Moreover, data on mean absolute deviation
+in Table II show not only that our model converges to within a few cents of
+the equilibrium price, but that the rate of convergence is similar to}al-
+though initially slightly faster than}that found in laboratory experiments.
+
+Shifting Conditions
+   The diagram on the left of Fig. 7 shows two sets of supply and demand
+conditions. The lower set, shown with thicker lines labeled S and D, is
+identical to the supply and demand conditions in Fig. 2 and Fig. 5. If after
+several periods of trading, buyers have each valuation increased by 0.50
+and sellers have the cost of each unit increased by 0.50, then the new
+supply and demand are those shown with thinner lines in Fig. 7. The
+equilibrium quantity of trade and the total surplus are unaffected by this
+shift, but the equilibrium price increases from 2.35 to 2.85. Since expecta-
+tions focus near the original equilibrium after several periods of trading
+Žsee Fig. 6., the dynamics of movement to the new equilibrium can be
+examined by considering this type of market. The sequence of transaction
+   6
+     Although the mean absolute deviation in the last two periods of the ZI model simulations
+is less than in the first two periods, this is not the result of convergence. The price sequence
+in each period constitutes a draw from the same distribution.
+   7
+     The timing specification employed in the simulations is given in equations Ž14. and Ž15..
+In one alternative tested, all agents with positive surplus were equally likely to send a
+message. This resulted in higher variance in transaction prices and in more instability in the
+outcomes.
+26                       GJERSTAD AND DICKHAUT
+
+
+
+
+                                  FIGURE 7
+
+
+
+prices from a simulation of our model in this type of market}with the
+shift occurring after five periods of trading}is shown on the right side of
+Fig. 7. From periods 6 through 10 in this market, the equilibrium price is
+2.85. In the simulation shown, convergence to the original equilibrium
+occurs by the end of period 2. Beginning in period 6, the equilibrium price
+shifts up 0.50. By the end of the period 7, transaction prices establishes
+near the new equilibrium price. This simulation shows that in the model
+developed here, traders respond to shifting market parameters, and prices
+quickly adjust to a new equilibrium.
+
+                      3.4. Boundaries on Performance
+   Although we have developed a model that simultaneously converges to
+competitive equilibrium prices, produces efficient outcomes, and responds
+quickly to altered market conditions, we want to indicate a direction for
+improvement in the outcomes of the bargaining behavior developed in our
+model. We do so by describing a distinctive feature of price sequences
+from experimental markets.
+                                 N
+   We split the sequence Ž pn . ns1  into two subsequences, one consisting of
+those exchange prices Ž pn . ng Ns that were initially proposed by the selling
+side of the market, and the other consisting of the transaction prices
+Ž pn . ng N that were proposed initially by the buying side. We provide
+           b
+evidence that in laboratory experiments, the mean of Ž pn . ng Ns is greater
+than the mean of Ž pn . ng N b. Yet in simulation of our model, this pattern is
+reversed. This observation allows us to evaluate behavior in the model and
+uncover a key difference between the behavior of laboratory subjects and
+behavior in the model, providing direction for further research on bargain-
+ing behavior in DA markets.
+   In laboratory trading experiments, there is a clear difference between
+mean prices of trades initiated by sellers and those initiated by buyers. For
+                 PRICE FORMATION IN DOUBLE AUCTIONS                        27
+
+example, in the seven symmetric markets we consider, Table III shows the
+market equilibrium price for each of these experiments in column 2 and
+the mean difference of transaction price from the equilibrium in column 3.
+Column 4 shows the mean difference between the transaction price and
+equilibrium price for all trades initially proposed by sellers. Column 5
+shows the same statistics for all trades initially proposed by buyers. Note
+that in each of these seven experiments, the transactions initiated by
+sellers have a higher mean price than those initiated by buyers. Two
+additional data sets}one involving over 11, 000 trades}are examined by
+Gjerstad Ž1995. and this price difference is a feature of all markets in both
+data sets considered there. In simulations of our model we find that this
+feature is reversed, and as a result, we are able to discern a different
+between the bargaining behavior of laboratory subjects and behavior in the
+model.
+   Consider again the belief functions pŽ a. and q Ž b . shown in Fig. 6. In
+the description of the beliefs in these graphs in Section 3.3, we note that at
+the beginning of a period, sellers in this market with these beliefs will all
+have an optimal offer of 2.33 and buyers’ optimal bids will all be 2.35. At
+the beginning of the third period, the first action will be either an ask of
+2.33 or a bid at 2.35. Suppose that the first action is a bid of 2.35. As a
+result of the spread reduction rule, buyers’ bids must be greater than 2.35.
+A bid of 2.36 would result in an expected surplus Ž ¨ j2 y 2.36. ? 1 for each
+of the four buyers in this market. Since the distribution of costs and
+valuations at the beginning of each period in this market is symmetric, and
+since the probability of each trader being the next to send a message is
+equal to that trader’s proportion of total surplus Žsee Proposition 7., the
+probability that a buyer will send the next message is approximately 0.50,
+so that the probability of two consecutive bids is approximately 0.25, and in
+this case the price will be above the equilibrium price. In general, the
+
+
+
+                                    TABLE III
+            Price Sequence and Subsequence Means in Symmetric Markets
+
+            Market      pe        p y pe      pa y pe      p b y pe
+
+            3pda01    $2.35       $0.04        $0.12        $0.01
+            2pda17    $6.20       $0.03        $0.07        $0.00
+            2pda20    $6.20       $0.06        $0.12        $0.01
+            2pda21    $5.30      y$0.03       y$0.01       y$0.04
+            2pda24    $4.70       $0.02        $0.04       y$0.02
+            2pda47    $6.35      y$0.03       y$0.01       y$0.05
+            2pda53    $7.55       $0.00        $0.01       y$0.02
+            Mean                  $0.01        $0.05       y$0.02
+28                            GJERSTAD AND DICKHAUT
+
+
+distribution of absolute deviations from equilibrium is approximately geo-
+metric, since a low price results from a sequence of asks and a high price
+results from a sequence of bids. Recall that in Table III, the transactions
+initiated by the selling side typically are above equilibrium, so the simula-
+tions and the laboratory markets lead to the opposite result in this respect.
+   While this is a subtle feature of DA data, a model that eliminates this
+difference would capture fine aspects of bargaining behavior and would
+represent progress in modeling behavior in this institution.
+
+
+
+                                 4. CONCLUSIONS
+
+   In this paper we have defined beliefs for agents in a double auction
+market that are generated endogenously on the basis of observed market
+activity. An agent’s choice of an action depends only on these beliefs and
+on that agent’s private information about his or her own costs or valua-
+tions. Agents who adopt the simple bargaining strategy of myopic expected
+surplus maximization and employ these beliefs trade at prices that con-
+verge quickly and accurately to within several cents of the market equilib-
+rium price and reach the competitive allocation. These beliefs and strate-
+gies are flexible enough to respond quickly to changes in supply and
+demand conditions.
+   Laboratory market experiments dating back 35 years have demonstrated
+that human subjects quickly and reliably reach competitive equilibrium
+outcomes. The model developed in this paper demonstrates that this
+capability of double auction market participants to reach competitive
+equilibrium outcomes may result from simple, intuitive information pro-
+cessing and strategy choice. Since we know that laboratory subjects oper-
+ate with limited information-processing capabilities and boundedly rational
+strategy choices, this finding resolves, at least for the class of environments
+considered here, the puzzle Hayek posed.
+
+
+
+                                    REFERENCES
+
+Cason, T. N., and Friedman, D. Ž1993.. ‘‘An empirical analysis of price formation in double
+  auction markets,’’ in The Double Auction Market: Institutions, Theories, and E¨ idence ŽD.
+  Friedman and J. Rust, Eds.., pp. 253]283. Reading, MA: Addison-Wesley.
+Cason, T. N., and Friedman D. Ž1996.. ‘‘Price formation in double auction markets,’’ J.
+  Econom. Dynam. Control 20, 1307]1337.
+Easley, D., and Ledyard, J. Ž1993.. ‘‘Theories of Price Formation and Exchange in Double
+  Oral Auctions,’’ in The Double Action Market: Institutions, Theories, and E¨ idence ŽD.
+  Friedman and J. Rust, Eds.., pp. 63]97. Reading, MA: Addison-Wesley.
+                     PRICE FORMATION IN DOUBLE AUCTIONS                                   29
+
+Friedman, D. Ž1991.. ‘‘A Simple Testable Model of Price Formation in the Double Auction
+  Market,’’ J. Econom. Beha¨ ior Organization 15, 47]70.
+Gjerstad, S. ‘‘Price Formation in Double Auctions,’’ Ph.D. Thesis, University of Minnesota,
+  1995.
+Gjerstad, S., and Shachat, J. Ž1996.. ‘‘A General Equilibrium Structure for Induced Supply
+  and Demand,’’ UCSD Discussion Paper no. 96]35, October 1996.
+Gode, D., and Sunder, S. Ž1993.. ‘‘Allocative Efficiency of Markets with Zero Intelligence
+  Traders: Market as a Partial Substitute for Individual Rationality,’’ J. Political Economy
+  101, 119]137.
+Hurwicz, L., Radner, R., and Reiter, S. Ž1975.. ‘‘A Stochastic Decentralized Resource
+  Allocation Process: Part I,’’ Econometrica 43, 363]393.
+Hurwicz, L. Ž1972.. ‘‘On Informationally Decentralized Systems,’’ in Decision and Organiza-
+  tion ŽC. B. McGuire and R. Radner, Eds.., pp. 297]336. Minnesota: Univ. of Minnesota
+  Press.
+Ketcham, J., Smith, L., and Williams, A. W. Ž1984.. ‘‘A Comparison of Posted-Offer and
+  Double Auction Pricing Institutions,’’ Re¨ . Econom. Stud. 51, 595]614.
+Plott, C. Ž1982.. ‘‘Industrial Organization Theory and Experimental Economics,’’ J. Econom.
+  Literature 20, 1485]1527.
+Smith, V. L. Ž1962.. ‘‘An Experimental Study of Competitive Market Behavior,’’ J. Political
+  Economy 70, 111]137.
+Smith, V. L. Ž1982.. ‘‘Microeconomic Systems as an Experimental Science,’’ Amer. Econom.
+  Re¨ . 72, 923]955.
+Wilson, R. B. Ž1987.. ‘‘On Equilibria of Bid-Ask Markets,’’ in Arrow and the Ascent of Modern
+  Economic Theory ŽG. W. Feiwel, Ed.., pp. 375]414. New York: New York Univ. Press.
+

@@ -1,0 +1,9 @@
+# @package _global_
+# Pure Skeleton market - homogeneous population
+experiment:
+  name: "pure_skeleton"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['Skeleton', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton']
+  seller_types: ['Skeleton', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton']

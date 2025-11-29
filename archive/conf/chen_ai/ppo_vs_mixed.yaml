@@ -1,0 +1,24 @@
+# @package _global_
+# Chen AI Experiment: 1 PPO vs 7 Mixed strategies
+
+experiment:
+  name: "chen_ppo_vs_7_mixed"
+  output_dir: ./results/${experiment.name}
+  num_rounds: 1
+  rng_seed_auction: 6453
+  rng_seed_values: 6453
+
+market:
+  min_price: 0
+  max_price: 100
+  num_tokens: 4
+  num_periods: 7000
+  num_steps: 25
+  gametype: 6453
+
+agents:
+  num_buyers: 4
+  num_sellers: 4
+  # PPO vs diverse opponent pool
+  buyer_types: ['PPO', 'Kaplan', 'ZIP', 'ZIC']
+  seller_types: ['GD', 'ZIP', 'ZIC', 'Kaplan']

@@ -1,0 +1,8 @@
+# @package _global_
+experiment:
+  name: "validation_zip"
+  num_rounds: 50
+
+agents:
+  buyer_types: ["ZIP", "ZIP", "ZIP", "ZIP", "ZIP"]
+  seller_types: ["ZIP", "ZIP", "ZIP", "ZIP", "ZIP"]

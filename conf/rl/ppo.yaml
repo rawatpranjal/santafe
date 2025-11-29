@@ -10,24 +10,24 @@
 policy: "MlpPolicy"  # Multi-Layer Perceptron policy
 policy_kwargs:
   net_arch:
-    # Shared network for both actor and critic
-    - 64  # Hidden layer 1
-    - 64  # Hidden layer 2
+    # Larger network for market microstructure learning
+    - 256  # Hidden layer 1
+    - 256  # Hidden layer 2
   activation_fn: "torch.nn.ReLU"
 
 # Learning rate schedule
-learning_rate: 0.0003  # 3e-4 (SB3 default)
+learning_rate: 0.0001  # Lower LR for larger network stability
 lr_schedule: "constant"  # Options: constant, linear
 
 # PPO rollout parameters
-n_steps: 2048  # Steps to collect before update (per environment)
-batch_size: 64  # Minibatch size for SGD
-n_epochs: 10  # Number of epochs for policy update
+n_steps: 4096  # Larger rollouts reduce variance
+batch_size: 256  # Better gradient estimates
+n_epochs: 20  # More policy refinement per rollout
 
 # PPO clipping and losses
 clip_range: 0.2  # PPO clip parameter
 clip_range_vf: null  # Clip value function (null = no clipping)
-ent_coef: 0.01  # Entropy coefficient (encourages exploration)
+ent_coef: 0.15  # Initial entropy (will decay to 0.005 via callback)
 vf_coef: 0.5  # Value function coefficient
 max_grad_norm: 0.5  # Gradient clipping
 
@@ -45,5 +45,5 @@ seed: 42  # Random seed for reproducibility
 device: "auto"  # "cpu", "cuda", or "auto"
 
 # Tensorboard logging
-tensorboard_log: "./runs/"
+tensorboard_log: null  # Set to "./runs/" to enable if tensorboard installed
 tb_log_name: "ppo_double_auction"

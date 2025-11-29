@@ -4,15 +4,15 @@
 # and curriculum learning progression.
 
 # Total training timesteps
-total_timesteps: 1_000_000  # 1M steps (across all envs)
+total_timesteps: 1_000_000  # 1M steps for ZIC dominance
 
 # Checkpointing
-save_freq: 50_000  # Save model every N steps (per env)
+save_freq: 100_000  # Save model every N steps (per env)
 checkpoint_dir: "./checkpoints/"
 save_replay_buffer: false  # PPO doesn't use replay buffer
 
 # Evaluation
-eval_freq: 10_000  # Evaluate every N training steps
+eval_freq: 50_000  # Evaluate every N training steps
 eval_episodes: 10  # Number of episodes per evaluation
 eval_deterministic: true  # Use deterministic policy for evaluation
 

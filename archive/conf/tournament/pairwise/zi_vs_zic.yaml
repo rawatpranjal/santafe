@@ -1,0 +1,9 @@
+# @package _global_
+# Pairwise: ZI vs ZIC
+experiment:
+  name: "pairwise_zi_vs_zic"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['ZI', 'ZI', 'ZI', 'ZI', 'ZIC', 'ZIC', 'ZIC', 'ZIC']
+  seller_types: ['ZI', 'ZI', 'ZI', 'ZI', 'ZIC', 'ZIC', 'ZIC', 'ZIC']

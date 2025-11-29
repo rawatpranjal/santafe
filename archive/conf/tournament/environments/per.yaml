@@ -1,0 +1,29 @@
+# @package _global_
+# PER Environment: Single Period only
+# No learning opportunity - tests zero-shot trading capability
+
+experiment:
+  name: "tournament_per"
+  description: "Single period only - no learning opportunity"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 1    # ONLY 1 PERIOD - key difference
+  num_steps: 100
+  gametype: 6458  # PER environment gametype
+
+agents:
+  num_buyers: 4
+  num_sellers: 4
+  buyer_types: ["Kaplan", "ZIC", "ZIP", "GD", "ZI2", "Lin", "Perry", "Jacobson"]
+  seller_types: ["Kaplan", "ZIC", "ZIP", "GD", "ZI2", "Lin", "Perry", "Jacobson"]
+
+metrics:
+  track_efficiency: true
+  track_price_dynamics: true
+  track_volume_distribution: true
+  track_profit_shares: true
+  calculate_autocorrelation: false  # Can't calculate with single period

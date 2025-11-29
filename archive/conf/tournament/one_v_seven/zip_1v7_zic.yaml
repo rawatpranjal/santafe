@@ -1,0 +1,9 @@
+# @package _global_
+# One ZIP vs 7 ZIC (parasitic test)
+experiment:
+  name: "zip_1v7_zic"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['ZIP', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC']
+  seller_types: ['ZIP', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC']

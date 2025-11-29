@@ -1,0 +1,9 @@
+# @package _global_
+# Pure ZIP market - homogeneous population
+experiment:
+  name: "pure_zip"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['ZIP', 'ZIP', 'ZIP', 'ZIP', 'ZIP', 'ZIP', 'ZIP', 'ZIP']
+  seller_types: ['ZIP', 'ZIP', 'ZIP', 'ZIP', 'ZIP', 'ZIP', 'ZIP', 'ZIP']

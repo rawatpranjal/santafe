@@ -1,0 +1,718 @@
+See discussions, stats, and author profiles for this publication at: https://www.researchgate.net/publication/226978565
+
+The Agent-Based Double Auction Markets: 15
+Years On
+Chapter · January 2010
+DOI: 10.1007/978-4-431-99781-8_9
+
+CITATIONS
+
+READS
+
+8
+
+28
+
+2 authors:
+Shu-heng Chen
+
+Chung-Ching Tai
+
+254 PUBLICATIONS 1,880 CITATIONS
+
+13 PUBLICATIONS 102 CITATIONS
+
+National Chengchi University
+
+SEE PROFILE
+
+Tunghai University
+
+SEE PROFILE
+
+All content following this page was uploaded by Shu-heng Chen on 04 November 2014.
+The user has requested enhancement of the downloaded file. All in-text references underlined in blue are added to the original document
+and are linked to publications on ResearchGate, letting you access and read them immediately.
+
+The Agent-Based Double Auction Markets: 15
+Years On
+Shu-Heng Chen and Chung-Ching Tai
+
+Abstract Novelties discovering as a source of constant change is the essence of
+economics. However, most economic models do not have the kind of noveltiesdiscovering agents required for constant changes. This silence was broken by Andrews and Prager 15 years ago when they placed GP (genetic programming)-driven
+agents in the double auction market. The work was, however, neither economically
+well interpreted nor complete; hence the silence remains in economics. In this article, we revisit their model and systematically conduct a series of simulations to
+better document the results. Our simulations show that human-written programs, including some reputable ones, are eventually outperformed by GP. The significance
+of this finding is not that GP is alchemy. Instead, it shows that novelties-discovering
+agents can be introduced into economic models, and their appearance inevitably
+presents threats to other agents who then have to react accordingly. Hence, a potentially indefinite cycle of change is triggered.
+Key words: Novelties Discovering, Economic Changes, Double Auctions, Genetic
+Programming, Autonomous Agents
+
+1 Introduction: It Takes Time to See “Change”
+Economics is about change, and that subject has been clearly stated in Alfred Marshall’s following famous quotation:
+Shu-Heng Chen
+AI-ECON Research Center, Department of Economics, National Chengchi University,
+No.64, Sec.2, ZhiNan Rd., Wenshan District, Taipei City 11605, Taiwan (R.O.C), e-mail:
+chen.shuheng@gmail.com
+Chung-Ching Tai
+Department of Economics, Tunghai University, No.181, Sec.3, Taichung Harbor Road, Taichung
+40704, Taiwan (R.O.C.) e-mail: chungching.tai@gmail.com
+
+1
+
+2
+
+S.-H. Chen & C.-C. Tai
+Economics, like biology, deals with a matter, of which the inner nature and constitution, as
+well as outer form, are constantly changing. ([18], p. 772)
+
+While “constantly changing” is highlighted frequently in various documents of
+daily life, it seems that economists have not yet been sure whether they do have a
+capable model for this subject. In fact, the recent book by Frydman and Goldberg
+(2007) has just affirmed the lack of an adequate economic model for change, which
+has also been pointed out by Herbert Simon many years ago [22].
+For Simon, what matters is the process which leads to constant change and novelties discovering:
+...if we want to have a theory of technological change, it will have to be a theory of the
+processes that bring about change rather than a theory of specific nature of the changes.
+[22]
+
+To have those features, the model should be able to constantly generate new opportunities (potential to change), and agents, as part of the model, should be able to
+constantly exploit these opportunities (potential to novelties discovery). What may
+or may not come to our surprise is that infinitely smart agents, the homo economicus,
+are not qualified to be constituents of this kind of models. Neither can most adaptive agents used or studied in economics serve this purpose, mainly because most of
+these adaptive agents are equipped with tools which can only handle well-structured
+problems, not the ill-structured ones.1
+Genetic programming (GP) is one algorithm, although not the only one, which
+may equip agents with those capabilities.2 Using the terms of Simon [22], genetic
+programming is a chunk-based search algorithm. These chunks, according to Simon,
+provide the basis for human agents to recognize patterns and develop intelligent
+behavior. These chunks may also be known as building blocks [17] or modules
+[21]. Simon considered that, in addition to a 10-year experience, 50,000 chunks are
+required to be an expert. These two magic numbers nicely match the two parameters
+in GP, namely, the number of evolving generations and the population size.
+Hence, an agent, endowed with a population size of 50,000 “chunks” (chromosomes, building blocks, LISP trees, parse trees), after 10-year equivalent iterations
+(learning, evolution), can become an expert. This kind of adaptive agent, referred to
+as the GP-based agents for convenience, provides us with a starting point for modeling change and novelties discovery. One of the best demonstrations is the use of
+GP in the agent-based double auction markets.3
+The rest of this paper is organized as follows. Section 2 provides a literature
+review. Section 3 presents the experimental design. The simulation results are analyzed and discussed in Section 4, followed by the conclusion in Section 5.
+1 See [22], p. 28–30.
+2 Genetic algorithms and learning classifier systems can be other alternatives. However, to the best
+of our knowledge, most agent-based economic applications of genetic algorithms do not manifest
+this capability, and, for some reason not exactly known, there are almost no agent-based economic
+applications of learning classifier systems.
+3 The reason why we choose the agent-based double auction market as the main pursuit of this
+paper is because this is one of the few economic models in which human agents, programmed
+agents and autonomous agents have been involved. See Section 2 for the details.
+
+The Agent-Based Double Auction Markets
+
+3
+
+2 Agent-Based Double Auction Markets: Literature Review
+In the double auction market, both sides of the market (buyers and sellers) are able
+to submit prices, bids from buyers and asks from sellers, to signify how much they
+want to buy or sell for certain number of units of the trading target. The bids and asks
+are then matched by first ranking them in descending order and ascending order,
+respectively. If the highest bid is greater than the lowest ask, then the transaction
+can happen, and the price can be settled somewhere between the bid and ask, say,
+in the middle. The matching will continue until all remaining bids are smaller than
+remaining asks; till then, and a round of matching is over. All unfinished or potential
+trade can be submitted in the next round with possibly more competitive or attractive
+bids and asks. Round after round, the market can continue indefinitely.
+This double auction mechanism has been practically applied to many markets.
+The pit of the Chicago commodities market is an example; the New York Stock Exchange, another. This market mechanism also inspired the earliest idea of economic
+experiments [23], and was shown to be very efficient in achieving the equilibrium
+price. Such a result, in a sense, nicely confirms the well-known Adam Smith’s invisible hand or the Hayek hypothesis [16].
+
+2.1 Gode-Sunder Model
+Since this market was shown to be so efficient, whatever individual traders actually knew, learned or did during the trading process was considered completely
+irrelevant. Gode and Sunder were thus motivated to test a hypothesis that intelligence is completely irrelevant to the market efficiency of the double auction market
+by proposing what is known as zero-intelligence agents [15]. Not only are these
+agents unable to learn, they basically behave completely randomly. Gode and Sunder showed that this kind of zero-intelligence software agent could perform as well
+as human agents in the double auction experiments.
+[15] is one of the earliest agent-based double auction markets, while back in the
+early 1990s, the term “agent-based computational economics” (ACE) has not yet
+appeared. Nonetheless, the elements of ACE were in the Gode-Sunder simulation
+model, mainly from the specification of the behavioral rules of software agents to the
+emergent outcome through the interactions of these agents. In [15], these software
+agents simply behave randomly; yet the emergent outcome was a highly efficient
+market. This result was quite surprising.
+Adam Smith’s invisible hand may be more powerful than some may have thought; it can
+generate aggregate rationality not only from individual rationality but also from individual
+irrationality. ([15], p. 119)
+
+Per [15], the invisible hand even exists in a market composed of non-purposive
+agents (individual irrationality). However, our Homo Sapiens are definitely purposive. When placed in a well-defined experiment like the double auction market,
+
+4
+
+S.-H. Chen & C.-C. Tai
+
+Homo Sapiens are naturally attracted by transaction gains, and it is not likely that
+blind bidding and asking is a sensible way to react to the information they acquired.4
+
+2.2 Santa Fe Double Auction Markets
+The purposive traders not only will not bid or ask randomly, but may even develop
+some strategies to trade, be they sophisticated or simple. In fact, an inquiry into
+the effective characterization of the “optimal” trading strategies used in the double
+auction market led to a series of tournaments, known as the Santa Fe Double Auction
+Tournament [19, 20].5 This tournament organized by the Santa Fe Institute invited
+participants to submit trading strategies (programs) and tested their performance
+in comparison with other submitted programs in the Santa Fe Token Exchange, an
+artificial market operated by the double auction mechanism. More than 20 programs
+based on different design principles were proposed, and the best-performing one
+was the Kaplan program.6
+The Santa Fe Double Auction (SFDA) Tournament provides another early example of the agent-based double auction markets. Differing from the Gode-Sunder
+model, SFDA considers software agents strategic but also hand-written by Homo
+Sapiens. This design gives the software agents a dual role. On the one hand, they
+are programmed agents (machine codes); on the other hand, they are incarnations
+of Homo Sapiens. The subtle difference between the two lies in the decision made
+on-line vs. off-line. Human agents make on-line decisions. They receive immediate
+feedback, but are pressed to react. Human-written programs are generated off-line,
+so time pressure is not imminent; however, participants receive no immediate feedback while writing their programs. Therefore, the program writing relies largely on
+the participants’ mind power and is more like a deductive process. Accordingly,
+double auction experiments and double auction tournaments provide us with two
+different ways to observe the human decision-making process. The on-line decision
+is more inductive, and, possibly, simple but spontaneous, while the off-line decision
+is more deductive, and, possibly, complex but less adaptive.
+
+2.3 Andrews-Prager Model
+[1] integrated both the human agents in experimental markets and the software
+agents in agent-based double auction markets. In [1], software agents were ran4 As we shall see below, zero-intelligence agents or slightly modified zero-intelligence agents
+
+cannot compete with some well-thought human-written programs.
+5 The first DA tournaments were held by the Santa Fe Institute in 1990. A share of $10,000 was
+offered to the writers of algorithms that could perform well in a double auction competition. The
+tournament attracted around 25 different and well thought-out strategies.
+6 Submitted by Todd Kaplan, then a student at the University of Minnesota. See Sect. 3.2.
+
+The Agent-Based Double Auction Markets
+
+5
+
+domly generated by using the initial knowledge (the primitives, the building blocks)
+inspired by the human-written program.7
+What Andrews and Prager did was to make the computer first randomly generate trading programs; in this sense, it was similar to Gode and Sunder’s zerointelligence agents. However, only in the very beginning were these programs truly
+randomly generated. After that, these programs were placed in agent-based double
+auction markets with other software agents, e.g., software agents from SFDA, and
+then tested, reviewed and revised based on their performance. Some new programs
+would be generated after that. Nevertheless, this further generation was no longer
+random, but biased toward the revision of the existing well-performing programs,
+and the deletion of the ill-performing ones. This brought the on-line learning to
+the software agents (or programmed agents) and made them become autonomous
+agents so that they could behave like human agents in the experimental markets, in
+terms of spontaneous and fast reacting.
+By using genetic programming to generate these autonomous agents, [1] were
+the first to apply genetic programming to double auction markets. Their model is
+briefly sketched in Fig. 1. What Andrews and Prager did was to fix a trader (Seller
+1 in their case) and used genetic programming to evolve the trading strategies of
+only that trader. In the meantime, one opponent was assigned the trading strategy
+“Skeleton”, a strategy prepared by the SFDA tournament. The trading strategies of
+the other six opponents were randomly chosen from a selection of the submissions
+to SFDA. Such a design was to see whether GP could help an individual trader to
+evolve very competitive strategies given their opponents’ strategies.
+
+! " #
+
+$
+
+Fig. 1 The Andrews-Prager Double Auction Model
+
+The simulation model established by [1] enables us to move one step toward
+a genuine economic model of change. The key ingredient is the autonomous agent,
+driven by genetic programming. These autonomous agents, by design, are purported
+to search for better deals to gain from. In the very foundation of classical economics,
+7 More details will be given in Sect. 3.3. In brief, all randomly generated programs can be regarded
+as samples from the span of some bases. These bases, as listed in Table 1, are all from humanwritten programs.
+
+6
+
+S.-H. Chen & C.-C. Tai
+
+these agents (autonomous agents) contribute to the discovery and exploitation of
+hidden patterns and opportunities. Their reactions further lead to the change of economy, which in turn create new opportunities for further exploitation. This indefinite
+cycle is an essential, if not the whole, part of Alfred Marshall’s biological description of economy as an “constantly changing” [18].
+Despite this great potential to interest economists, Andrews and Prager’s interpretation of their model was rather less telling, and failed to draw the attention of
+those economists who have little background in social simulation. Besides, their
+agent-based model was neither fully constructed nor extensively simulated. Only
+one market participant, instead of all, is autonomous. This certainly restricts the
+extent of endogenous change, which a genuine model of economic change may
+have. Other than that, only few experiments have been attempted, and their statistics
+were not well presented. There was no further development of this model. Hence,
+the work on the agent-based double auction market, as a genuine model of change,
+ceased until the late 1990s, when this model was finally revisited by two economists,
+Herbert Dawid [10] and Shu-Heng Chen [3].
+In the following, we shall only review the work by Chen and his colleagues,
+because the series of Chen’s work can be regarded as a direct extension of the
+Andrews-Prager model. We shall call this later-developed agent-based double auction market AIE-DA (standing for AI-ECON double auction) to distinguish it from
+SFDA and the Andrews-Prager model.
+
+2.4 AIE-DA
+The AIE-DA is probably the only agent-based double-auction market which has received extensive and systematic study. [5] first extended the Andrews-Prager model
+by making all market participants autonomous. This is also done by applying genetic
+programming, as shown in Fig. 2. The architecture of the genetic programming used
+is known as multi-population genetic programming (MGP). In brief, they viewed or
+modeled each agent as a single population of bargaining strategies. Genetic programming is then applied to evolve each population of bargaining strategies. In this
+model, a society of bargaining agents consists of many populations of programs.
+[5] first showed that the market composed of this kind of autonomous agent could
+exhibit behavior similar to what we learn from market experiments with human
+subjects [23]. Figure 3 demonstrates a typical result observed in this agent-based
+double auction market. The left panel of the figure is the simulated market environment defined by the demand and supply schedule, whereas the right panel of the
+figure gives the price dynamics resulting from the bargaining behavior generated by
+MGP agents. As we can see from Fig. 3, market prices quickly move toward the
+equilibrium price (or price interval), and then slightly fluctuate around there. The
+AIE-DA model’s successful replication of the market experiment results motivated
+us to return to the work initiated, while largely unfinished, by Andrews and Prager.
+
+The Agent-Based Double Auction Markets
+
+7
+
+Fig. 2 The AIE-DA Double Auction Market
+
+2050
+
+1550
+
+1050
+
+550
+
+50
+1
+
+501
+
+1001
+
+1501
+
+2001
+
+2501
+
+Fig. 3 Agent-Based Double Auction Market Simulation with MGP Agents.
+
+Our research question is: given a set of opponents, regardless of who they are,
+and how smart they are, as long as they are non-autonomous, can our geneticprogramming agent eventually outperform them? This, in our opinion, is the fundamental issue in a discipline where change is her sole concern and no-arbitrage state
+is the consequence of change. Notice that when opponents are non-autonomous,
+their behaviors are largely certain, even in a stochastic sense. This in turn implies
+that, unless they are perfect, there is always a way to outperform them. Since our
+autonomous agents, by design, are constantly looking for chances, opportunities,
+and patterns, finding a way to outperform them should be just a matter of time. [1]
+also had this conjecture, but they did not move far enough to document a proof.
+We, therefore, go back to where Andrews and Prager started, while clothed with
+the legacy of Alfred Marshall or Charles Darwin, to see whether we can return the
+missing element, autonomous agents, to economics.
+This research question can be further separated into two different directions: using Alfred Marshall’s term, inner nature (constitution) and outer form. The former
+focuses on the novelties discovered by the autonomous agents which can help them
+stand in an advantageous position, whereas the latter refers to their observable performance. Putting the two together, we inquire what will make them perform well.
+In fact, by observing and understanding what our autonomous agents learned, we as
+outsiders are also able to learn.
+However, it can be hard to tackle these two directions simultaneously in a single
+study, mainly because we still do not quite know how to efficiently comprehend the
+
+8
+
+S.-H. Chen & C.-C. Tai
+
+“knowledge” generated by genetic programming. This problem was also well documented in [6] and [7]. Therefore, if our focus is on the analysis of the inner nature
+of the autonomous agents, then it is desirable to have a less complex environment,
+in other words, less sophisticated opponents. Of course, it also means we will not
+be able to fully test our autonomous agents. Alternatively, if we put our autonomous
+agents in a more complex environment with more sophisticated opponents, then it
+would become much harder to trace how they beat these opponents if they behave
+so. Therefore, we generated two series of studies to deal with these two directions.
+[7, 8] are devoted to the analysis of what our autonomous agents discover when they
+outperform their opponents, whereas this paper is devoted to the second direction.
+
+3 Experimental Design
+Experiments in this paper were conducted using the AIE-DA platform. In this double auction environment, similar to [1]’s model, traders can be assigned different
+trading strategies from the economic literature. Thus GP agents and other software
+trading strategies are allowed to coexist in the market, and the combination of them
+together with the random demand-supply arrangements constitute a variety of market conditions in which we can test our autonomous agents.
+
+3.1 Market Mechanism
+Our experimental markets consist of four buyers and four sellers. Each of the traders
+can be assigned a specific strategy–either a non-autonomous trading strategy or an
+autonomous GP agent. During the trading processes, traders’ identities are fixed so
+that they cannot switch between buyers and sellers.
+In this study, we endow our traders by adopting the same token generation process as in [20]’s design. Each trader has four units of commodities to buy or to sell,
+and can submit only once for one unit of commodity at each step of a trading day.
+Since the AIE-DA is a discrete double auction market, it will not clear before receiving every trader’s order at each trading step. The AIE-DA adopts the AURORA
+trading rules such that at most one pair of traders is allowed to make a transaction
+at each trading step. The transaction price is set to be the average of the winning
+buyer’s bid and the winning seller’s ask.
+Every simulation lasts 7,000 trading days, and each trading day consists of 25
+trading steps. At the beginning of each simulation, traders’ tokens (reservation
+prices) are randomly generated with the random seed 6453.8 Therefore, each simulation starts with a new combination of traders and a new demand-supply schedule.
+
+8 Please refer to [20] for the random token-generation process.
+
+The Agent-Based Double Auction Markets
+
+9
+
+At the beginning of each trading day in a specific simulation, every trader’s tokens
+are replenished. Thus the AIE-DA is in fact a repeated double auction trading game.
+
+3.2 Trading Strategies
+In order to extensively test whether our autonomous trading agent can exhibit its
+learning capability, various kinds of trading strategies were collected from the double auction literature and were injected into the markets as GP agents’ competitors:9
+• Truth Teller: Truth-telling traders simply bid/ask with their reservation prices.
+• Skeleton: The Skeleton strategy was the strategy provided to all entrants of the
+Santa Fe Double Auction (SFDA) Tournament as a reference material [20]. The
+Skeleton strategy simply bids or asks by referring to its own reservation prices
+and the current bid or the current ask in the market.
+• Kaplan: The Kaplan strategy was designed and submitted to the SFDA Tournament by economist Todd Kaplan [20]. It is a so-called “background trader”
+strategy in the sense that it remains silent until the market bid and the market ask
+are close enough to imply a trading opportunity. When this opportunity emerges,
+the Kaplan trader will jump out and steal it. In spite of the simplicity of its tactic,
+the Kaplan strategy turned out to be the winner of the SFDA Tournament.
+• Ringuette: Submitted to the SFDA Tournament as well, the Ringuette strategy
+was designed by computer scientist Marc Ringuette. It is also a background
+trader, whose strategy is to wait until the first time when the current bid exceeds
+the current ask less a profit margin. The Ringuette strategy is a simple rule of
+thumb, and it won the second place in the SFDA tournament [20].
+• ZIC (Zero-Intelligence Constrained): The ZIC traders were proposed by [15].
+ZIC traders send random bids or asks to the market in a range bounded by
+their reservation prices. Although ZIC traders can avoid transactions which incur
+losses, they don’t have any goals or tactics during the trading process. Therefore,
+they are regarded as “zero-intelligence”.
+• ZIP (Zero-Intelligence Plus): The ZIP strategy is derived from [9]. A ZIP trader
+forms bids or asks with a chosen profit margin, and it will try to raise or lower its
+profit margin by inspecting its own status, the last shout price, and whether the
+shout prices are accepted or not. Once the profit margin is chosen, the ZIP trader
+will gradually adjust its current shout price to the target price.
+• Markup: The Markup trading strategy is drawn from [24]. Markup traders set
+up certain markup rates and consequently determine their shout prices. In this
+paper, the markup rate was set to be 0.1.10
+9 Named by or after their original designers, these strategies were modified to accommodate our
+discrete double auction mechanism in various ways. They were modified according to their original
+design concepts as much as possible. As a result, they might not be 100% the same as their original
+forms.
+10 We choose 0.1 because [24]’s simulations shows that the market efficiency will be maximized
+when traders all have 0.1 markup rates.
+
+10
+
+S.-H. Chen & C.-C. Tai
+
+• GD (Gjerstad-Dickhaut): The GD strategy is proposed by [14]. A GD trader
+scrutinizes the market history and calculates the possibility of successfully making a transaction with a specific shout price by counting the frequencies of past
+events. After that, the trader simply chooses a price as her bid/ask if it maximizes
+her expected profits.
+• BGAN (Bayesian Game Against Nature): The BGAN strategy was proposed
+by [12]. BGAN traders treat the double auction environment as a game against
+nature. They form beliefs in other traders’ bid/ask distributions and then compute
+the expected profit based on their own reservation prices. Hence their bids/asks
+simply equal their reservation prices minus/plus the expected profit. Bayesian
+updating procedures are employed to update BGAN traders’ prior beliefs.
+• EL (Easley-Ledyard): The EL strategy was devised by [11]. EL traders balance
+the profit and the probability of successfully making transactions by placing aggressive bids or asks in the beginning, and then gradually decrease their profit
+margin when they observe that they might lose chances based on other traders’
+bidding and asking behavior.
+• Empirical: The Empirical strategy was inspired by [2]’s empirical Bayesian
+traders. The Empirical trader works in the same way as Friedman’s BGAN but
+develops its belief by constructing histograms from opponents’ past shout prices.
+These strategies are chosen because they can represent, to a certain degree, various types of trading strategies observed in financial market studies. Some of them
+are simple rules of thumb, such as the Kaplan, ZIP, or EL strategies, while the others are quite sophisticated in their decision processes, such as the GD, BGAN, and
+Empirical strategies. From the viewpoint of adaptivity, some of them are adaptive in
+the sense that they adjust in response to the market situations, while the others are
+non-adaptive by repeating the same behavior regardless of the environment.
+Despite their distinct features, none of these strategies is autonomous because
+their trading tactics are predefined according to some fixed principles. In the following section, we will introduce our autonomous trading agent, whose principle is to
+constantly exploit the environment and to look for the fittest behavior at the time.
+
+3.3 GP Trading Agents
+As introduced in Sect. 2.4, each GP trader in AIE-DA comprises a number of bargaining strategies which can be represented by parse trees. We provide GP traders
+with basic market, as well as private, information and a set of elementary operators
+and functions, so that they can construct their strategies.11 Table 1 explains all such
+primitives available to the GP trader.
+
+11 The elements in the terminal and function sets are extracted from the Skeleton, Kaplan, and
+Ringuette strategies, which are human-designed trading rules and are proved to be quite efficient
+in gaining profits. Please refer to [19, 20] for the structure and the performance of these strategies.
+
+The Agent-Based Double Auction Markets
+
+11
+
+Table 1 The terminal and the function sets of the GP traders.
+
+Pass, Constant
+
+Terminal Set
+The maximum, minimum, and average prices for the previous day.
+The maximum, minimum, and average bids for the previous day.
+The maximum, minimum, and average asks for the previous day.
+The highest bid and the lowest ask in the previous trading step.
+The first, next, and last reservation prices owned by each trader.
+The number of steps left in this trading day, and the number of consecutive no-transaction steps until the current step.
+To give up bidding/asking in this step, or to shout a random number.
+
++, -, *, /
+Abs, Log, Exp, Sin, Cos, Max, Min
+If-Than-Else, If-Bigger-Than-Else, Bigger
+
+Basic arithmetic operations to add, substract, multiply, or divide.
+Basic mathematical functions.
+Basic logical operators.
+
+PMax, PMin, PAvg
+PMaxBid, PMinBid, PAvgBid
+PMaxAsk, PMinAsk, PAvgAsk
+CASK, CBID
+HT, NT, LT
+TimeLeft, TimeNonTrade
+
+Function Set
+
+We do not train our GP traders before sending them to the double auction tournament. Instead, we provide the GP traders with randomly generated strategies at the
+beginning of each experiment. This implies that our autonomous GP agents do not
+have any prior knowledge or experiences to refer to. All they can do is to test and to
+explore as many of the possibilities as they can on their own.12
+At the beginning of every trading day, each GP trader randomly picks a strategy
+from its population of strategies and uses it throughout the whole day. The performance of each selected strategy is recorded. If a specific strategy is selected more
+than once, its weighted average will be recorded.13
+GP traders’ strategies are updated–with selection, crossover, and mutation–every
+N days, where N is called the “select number”.14 Only standard crossover and mutation are performed when the GP trader renovates its strategies, which means that
+no election, ADFs (Automatically Defined Functions), or other mechanisms are implemented. When choosing the parents for the next-generation strategies, the tournament selection is implemented and the size of the tournament is 5, regardless of
+the size of the population. We also preserve the elite for the next generation, and the
+size of the elite is 1. The mutation rate is set at 5%, of which 90% is tree mutation.15
+
+12 For a more detailed explanation about how GP can be used to construct trading strategies in double auction markets, i.e., how strategies are generated and renovated with crossover and mutation,
+please refer to [4].
+13 The fitness value of GP traders is defined as the achievement of the individual efficiency, which
+will be explained later in Sect. 4.
+14 To avoid the flaw that a strategy is deserted simply because it is not selected, we set N as twice
+the size of the population, so that theoretically each strategy has the chance to be selected twice.
+15 The tournament size and the mutation rate are two important parameters which may influence
+GP traders’ performance. On the one hand, the larger the tournament size, the earlier that the
+convergence of strategies can be expected. On the other hand, the larger the mutation rate, the
+more diverse the genotypes of the strategies are. When facing a dynamic problem such as making
+bids/asks in a double auction market, the impact of different tournament sizes together with different mutation rates on GP performance can only be accessed with a comprehensive experimentation
+
+12
+
+S.-H. Chen & C.-C. Tai
+
+3.4 Experimental Procedures
+Since we have only eight traders (four buyers and four sellers) in the market while
+there are twelve trading strategies to be tested, we compare the strategies by randomly sampling (without replacement) those eight strategies and injecting them into
+the market one at a time. We did not try out all the possible combinations and permutations of strategies; instead, 300 random match-ups were created for each series
+of experiment. In each of these match-ups, any selected strategy will face strategies completely different from its own kind. For example, a certain type of strategy
+such as ZIC will never meet another ZIC trader in the same simulation. Thus, there
+is at most one GP trader in each simulated market, and this GP trader adjusts its
+bidding/asking behavior by learning from other kinds of strategies. There is no coevolution among GP traders in our experiments.
+In order to extensively test the capability of our autonomous GP agents, the ten
+multi-agent experiments were conducted by setting the GP traders’ population sizes
+to be 5, 20, 30, 40, 50, 60, 70, 80, 90, and 100, respectively. In each simulation, the
+same market demand and supply are chosen and kept constant throughout the 7,000
+trading days.16 In each trading day, buyers’ and sellers’ tokens are replenished so
+that they can start over for another 25 trading steps.
+
+4 Results–GP Agents versus Non-autonomous Traders
+In order to evaluate each trader’s performance in terms of profits, we adopt the notion of individual efficiency. Considering the inequality of each agent’s endowment
+due to the randomized match of strategies as well as the randomized reservation
+prices, direct comparisons of raw profits might be biased since “luck” may play a
+very significant role. To overcome this problem, a general index which can evaluate traders’ relative performances in all circumstances is necessary. The idea of
+individual efficiency meets this requirement.
+The individual surplus, which is the sum of the differences between one’s intramarginal reservation prices and the theoretical market equilibrium price, measures
+the potential profit that a trader can make in the market. Individual efficiency is then
+
+of different combinations. Generally speaking, in many studies the size of the tournament ranges
+from 2 to 5, while the mutation rate ranges from 1% to 10%.
+16 As mentioned in Sect. 1, we can use GP to model the learning process of an expert possessing
+intelligence based on, say, a 10-year experience and 50,000 “chunks”. In this article, each GP
+trader has to develop strategies to be used in the markets. These strategies consist of building
+blocks comprising market variables, and therefore can be viewed as combinations of “chunks”.
+Since we cannot predict how many chunks our GP traders will use, we did not parameterize this
+variable. Instead, the size of the population of strategies is utilized to characterize this capacity. In
+a similar vein, we did not model the “10-year experience” directly. 7,000 trading days are available
+for our GP traders to make their strategies as good as possible.
+
+The Agent-Based Double Auction Markets
+
+13
+
+!
+"#
+$"%&
+'(
+') *
+"
+
+!
+"#
+$"%&
+'(
+') *
+"
+
+Fig. 4 Comparisons of GP traders with non-autonomous strategies. (a) The top row are the time
+series of the individual efficiencies of all the traders. (b) The bottom row are their profit-variation
+evaluations in the final generation. The vertical axis denotes the individual efficiency, in percentage
+terms; the horizontal axis denotes the standard deviation of their individual efficiency.
+
+calculated as the ratio of one’s actual profits to its individual surplus, and thus measures the ability of a trader to explore its potential interests in various circumstances.
+In this section, we also evaluate traders’ performances from the profit-variation
+perspective. In addition to profits, a strategy’s profit stability is also taken into account because, in double auction markets, the variation in profits might be considered in human trading strategies, which are determined by the human’s risk attitudes. In this paper, we procure variations in strategies by calculating the standard
+deviation of each strategy’s individual efficiencies.
+To investigate whether our autonomous GP traders are capable of outperforming
+non-autonomous ones, we first sample GP traders with population size of 5, 50, and
+100 denoted as P5, P50, and P100, respectively, and illustrate the results in Fig. 4.
+By observing the GP traders’ performances, we can clearly answer the following
+two questions: (1) Can GP traders defeat other strategies? (2) How many resources
+are required for the GP trader to outperform other strategies?
+First, although some of the non-autonomous trading strategies are adaptive in the
+sense that they can adjust themselves according to the market situations, none of
+them exhibits an upward trend in terms of performance. In contrast with the apparent growing performances of GP agents, the performances of the non-autonomous
+strategies are relatively flat. On the other hand, GP traders are able to gradually
+improve and to outperform other strategies, even under the extreme condition of a
+population of only 5.17
+
+17 In our results, the best strategy of GP traders with a population size of 100 in the 34th generation
+is the selling strategy–Max(PMinBid, PAvg, PAvgAsk, LT), a rather simple rule which adjusts to
+the market situations by simply choosing whichever is bigger among several types of market and
+private information. For a more thorough investigation of the kinds of strategies our GP traders are
+capable of evolving, please see [7].
+
+14
+
+S.-H. Chen & C.-C. Tai
+
+Fig. 5 The improvement in GP performance in generation 34. Generation 34 is chosen because it
+is the last generation of GP traders with a population size of 100.
+
+Second, Figure 4 also illustrates the results in terms of a profit-variation framework. Other things being equal, a strategy with higher profit and less variation is
+preferred. If we draw a frontier connecting the most efficient trading strategies, Figure 4 shows that GP traders, even although exhibiting more variation in profits,
+always occupy the ends of the frontiers.
+Third, GP agents need a period of time to learn. The bigger the population, the
+fewer generations needed to defeat other strategies. In any case, it takes GP traders
+hundreds to more than a thousand trading days to achieve good performances.18
+Figure 5 presents a more complete sampling from the GP traders with different
+population sizes and provides evidence that GP traders with population sizes of 5
+and 100 constitute the slowest and quickest learners, respectively, while other GP
+traders lying in between these two enjoy guaranteed performances better than that
+of P5. These results confirm the superiority of GP traders, and imply that GP traders
+tend to learn faster when they have larger populations.
+
+5 Conclusion
+Novelties discovering as a source of constant change is the essence of economics.
+In this paper, we propose that a proper model of the constantly changing economies
+should possess the feature of creating endless opportunities for their participants.
+This feature, in turn, largely depends on whether the market participants are capable
+of constantly exploiting such opportunities.
+
+18 However, the correlation between the population size and the generations needed to defeat other
+
+strategies may not prevail in all circumstances. A GP trader in our double auction tournament is
+a specific-purpose machine which seeks to discover efficient trading strategies. In such a specific
+problem where the number of potentially efficient strategies is finite, employing too many strategies
+(say, 10,000 strategies) may not be coupled with a corresponding increase in the learning speed.
+In fact, a closer look at our data suggests a decreasing correlation between the population size and
+the generations needed to defeat the rivals when the population sizes become larger and larger.
+
+The Agent-Based Double Auction Markets
+
+15
+
+To demonstrate this point, an agent-based double auction tournament inherited
+from a series of previous studies is launched. This market allows autonomous agents
+and other non-autonomous trading strategies to pursue their mission of obtaining
+profits from market transactions. We then extensively test our autonomous agents
+with different levels of capacities under various kinds of conditions, including different types of opponents and various demand-supply arrangements.
+From the results, we can see that our autonomous GP agents are able to dominate
+the market after a period of learning. The GP traders can outperform prominent
+opponents such as the Kaplan strategy, which is a simple rule of thumb, and the GD
+strategy, which has a sophisticated design for the purpose of optimization.
+This result suggests that, unless the non-autonomous trading strategies are perfect, there are always chances to take advantage of them. The strategies constructed
+by our autonomous GP traders, albeit naive in the beginning and simple at the end,
+are capable of exploiting such opportunities. By continually looking for chances,
+they gradually become experts in capturing the patterns in their markets.
+The significance of this finding shows that novelties-discovering agents can be
+introduced into economic models, and their appearance inevitably presents threats
+to other agents who then have to react accordingly. Hence, a potentially indefinite
+cycle of change is triggered. The existence of autonomous agents, in this sense,
+becomes the driving force behind an endogenously changing economy.
+A natural next step is to compare the behavior of our GP traders to that of human
+subjects. Human players are supposed to be more adaptive than the programmed
+agents [20]. We can test this with human experiments, and try to identify whether
+there is a difference between their abilities in terms of novelties discovering in future
+research.
+Acknowledgements The authors are grateful to the two anonymous referees for their suggestions
+in regard to the former version of this paper submitted to the WCSS 2008 post-conference proceedings. National Science Council Research Grant No. NSC 95-2415-H-004-002-MY3 and National
+Chengchi University Top University Program No. 98H432 are also gratefully acknowledged.
+
+References
+1. Andrews, M., & Prager, R. (1994). Genetic programming for the acquisition of double auction
+market strategies. In K. E. Kinnear, Jr. (Ed.), Advances in Genetic Programming (pp. 355–
+368). Cambridge, MA: MIT Press.
+2. Chan, N. T., LeBaron, B., Lo, A. W., Poggio, T. (1999). Agent-based models of financial
+markets: A comparison with experimental markets. MIT Artificial Markets Project, Paper
+No. 124, September 5, 1999. Available via CiteSeer.
+http://citeseer.ist.psu.edu/chan99agentbased.html. Cited 18 June 2008.
+3. Chen, S.-H. (2000). Toward an agent-based computational modeling of bargaining strategies
+in double auction markets with genetic programming. In K. S. Leung, L.-W. Chan, & H. Meng
+(Eds.), Intelligent Data Engineering and Automated Learning-IDEAL 2000: Data Mining,
+Financial Engineering, and Intelligent Agents, Lecture Notes in Computer Sciences 1983
+(pp. 517–531). Springer.
+
+16
+
+S.-H. Chen & C.-C. Tai
+
+4. Chen, S.-H., Chie, B.-T., & Tai, C.-C. (2001). Evolving bargaining strategies with genetic
+programming: An overview of AIE-DA Ver. 2, Part 2. In B. Verma, & A. Ohuchi (Eds.), Proceedings of Fourth International Conference on Computational Intelligence and Multimedia
+Applications ( ICCIMA 2001 ) (pp. 55–60). IEEE Computer Society Press.
+5. Chen, S.-H., & Tai, C.-C. (2003). Trading restrictions, price dynamics and allocative efficiency in double auction markets: An analysis based on agent-based modeling and simulations. Advances in Complex Systems, 6(3), 283–302.
+6. Chen, S.-H., Kuo, T.-W., & Hsu, K.-M. (2008). Genetic programming and financial trading:
+How much about “what we know”? In C. Zopounidis, M. Doumpos, & P. Pardalos (Eds.),
+Handbook of Financial Engineering, Chapter 8. Springer.
+7. Chen, S.-H., Zeng, R.-J., & Yu, T. (2008). Co-evolving trading strategies to analyze bounded
+rationality in double auction markets. In R. Riolo, T. Soule, & B. Worzel (Eds.), Genetic
+Programming Theory and Practice VI (pp. 195–213). Springer.
+8. Chen, S.-H., Zeng, R.-J., & Yu, T. (2009). Micro-behaviors: Case studies based on agentbased double auction markets. In Y. Kambayashi (Ed.), Multi-Agent Applications with Evolutionary Computation and Biologically Inspired Technologies: Intelligent Techniques for
+Ubiquity and Optimization. IGI Global.
+9. Cliff, D., & Bruten, J. (1997). Zero is not enough: On the lower limit of agent intelligence
+for continuous double auction markets. Technical Report no. HPL-97-141, Hewlett-Packard
+Laboratories. (Available via CiteSeer.
+http://citeseer.ist.psu.edu/cliff97zero.html. Cited 18 June 2008.
+10. Dawid, H. (1999). On the convergence of genetic learning in a double auction market. Journal
+of Economic Dynamics and Control, 23, 1544–1567.
+11. Easley, D., & Ledyard, J. (1993). Theories of price formation and exchange in double oral
+auction. In D. Friedman, & J. Rust (Eds.), The Double Auction Market-Institutions, Theories,
+and Evidence (pp. 63–97). Redwood City, CA: Addison Wesley.
+12. Friedman, D. (1991). A simple testable model of double auction markets. Journal of Economic Behavior and Organization 15, 47–70.
+13. Frydman, R., & Goldberg, M. (2007). Imperfect Knowledge Economics: Exchange Rates and
+Risk. Princeton University Press.
+14. Gjerstad, S., & Dickhaut, J. (1998). Price formation in double auctions. Games and Economic
+Behavior, 22, 1–29.
+15. Gode, D., & Sunder, S. (1993). Allocative efficiency of markets with zero-intelligence traders:
+Market as a partial substitute for individual rationality. Journal of Political Economy, 101,
+119–137.
+16. Hayek, F. A. (1945). The use of knowledge in Society. American Economic Review, 54, 519–
+530.
+17. Holland, J. (1975). Adaptation in Natural and Artificial Systems. Ann Arbor: University of
+Michigan Press.
+18. Marshall, A. (1924). Principles of Economics. New York: MacMillan.
+19. Rust, J., Miller, J., & Palmer, R. (1993). Behavior of trading automata in a computerized
+double auction market. In D. Friedman, & J. Rust (Eds.), Double Auction Markets: Theory,
+Institutions, and Laboratory Evidence. Redwood City, CA: Addison Wesley.
+20. Rust, J., Miller, J., & Palmer, R. (1994). Characterizing effective trading strategies: Insights
+from a computerized double auction tournament. Journal of Economic Dynamics and Control,
+18, 61–96.
+21. Simon, H. (1965). The architecture of complexity. General Systems, 10, 63–76.
+22. Simon, H., Egidi, M., Viale, R., & Marris, R. (1992). Economics, Bounded Rationality and
+the Cognitive Revolution. Edward Elgar Publishing.
+23. Smith, V. (1991). Bidding and auctioning institutions: Experimental results. In V. Smith (Ed.),
+Papers in Experimental Economics (pp. 106–127). Cambridge: Cambridge University Press.
+24. Zhan, W., & Friedman, D. (2007). Markups in double auction markets. Journal of Economic
+Dynamics and Control, 31, 2984–3005.
+
+View publication stats
+
+

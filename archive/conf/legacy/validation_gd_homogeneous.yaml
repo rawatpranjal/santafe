@@ -1,0 +1,18 @@
+# @package _global_
+# Validation experiment: Homogeneous GD market
+# Expected: High efficiency convergence to competitive equilibrium
+# Reference: Gjerstad & Dickhaut (1998), Section 6.2 - Homogeneous Markets
+experiment:
+  name: "validation_gd_homogeneous"
+  num_rounds: 100
+  description: "Test GD agent efficiency in homogeneous market (all GD)"
+
+agents:
+  buyer_types: ["GD", "GD", "GD", "GD", "GD"]
+  seller_types: ["GD", "GD", "GD", "GD", "GD"]
+
+# Expected outcomes (from literature):
+# - Efficiency: 95%+ (GD agents should learn optimal beliefs and converge quickly)
+# - Price convergence: Rapid convergence to competitive equilibrium price
+# - Variance: Low price variance after initial learning period (~10-20 rounds)
+# - Beliefs: p(a) and q(b) should stabilize around equilibrium acceptance probabilities

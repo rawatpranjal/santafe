@@ -1,0 +1,95 @@
+This section evaluates sophisticated trading algorithms against our zero-intelligence baselines. We test Skeleton (simple heuristic), ZIP (adaptive learning), and Kaplan (strategic sniper) in control experiments against ZIC backgrounds. We then evaluate self-play performance for Skeleton, ZIP, and Kaplan. Finally, we run a round-robin tournament including ZIC and GD (Gjerstad-Dickhaut) across all 10 market environments.
+
+\subsection{Against Control (1 Strategy vs 7 ZIC)}
+
+We first test invasibility: whether a single sophisticated trader can maintain efficiency when surrounded by 7 ZIC agents. Table~\ref{tab:control} shows market efficiency across environments.
+
+\input{figures/table_control}
+
+All strategies maintain high efficiency (96-99\%) in standard markets, but struggle in RAN (22-23\%) where uniform token draws eliminate predictable surplus. The SHRT environment with time pressure (20 steps) shows moderate degradation (79-80\%).
+
+\subsubsection{Control Price Volatility}
+
+Table~\ref{tab:control_volatility} reports price volatility in control experiments.
+
+\input{figures/table_control_volatility}
+
+Price volatility remains consistent across strategies (8-12\%), with all achieving 0\% in RAN (no trades at meaningful prices) and low volatility in TOK (2.7-2.9\%) due to single-token simplicity.
+
+\subsubsection{Invasibility (Profit Ratios)}
+
+Table~\ref{tab:invasibility} shows profit extraction ratios: focal strategy profit divided by ZIC profit. Values above 1.0 indicate exploitation.
+
+\input{figures/table_invasibility}
+
+Skeleton achieves the highest exploitation in BSSS (3.79x) and SHRT (1.55x), while Kaplan dominates in BSSS (4.93x) and TOK (1.64x). ZIP consistently under-performs ZIC (ratios 0.57x-0.91x), suggesting its adaptive margins are too conservative against random traders.
+
+\subsection{Self-Play (All 8 Traders Same Type)}
+
+Table~\ref{tab:selfplay} presents efficiency when all 8 traders use identical strategies.
+
+\input{figures/table_selfplay}
+
+Kaplan achieves near-perfect efficiency (100\%) in most environments but collapses to 72\% in SHRT---its patient sniping strategy fails under time pressure. ZIP maintains 99\% efficiency even in SHRT, demonstrating robustness. Skeleton matches Kaplan in standard environments but also struggles under time pressure (80\% in SHRT).
+
+\subsubsection{Self-Play Price Volatility}
+
+Table~\ref{tab:selfplay_volatility} shows price stability in homogeneous markets.
+
+\input{figures/table_selfplay_volatility}
+
+Skeleton achieves the lowest volatility (3.4-7.7\%) through its simple heuristic pricing. ZIP and Kaplan show higher volatility (12-18\%) as their adaptive mechanisms explore price space.
+
+\subsubsection{Self-Play V-Inefficiency}
+
+Table~\ref{tab:selfplay_vineff} reports missed profitable trades (V-Inefficiency).
+
+\input{figures/table_selfplay_vineff}
+
+Skeleton and Kaplan minimize missed trades (0.00-0.06) except under time pressure (SHRT: 3.38-4.78). ZIP maintains moderate V-Inefficiency (0.14-1.01) across conditions.
+
+\subsection{Pairwise Competition}
+
+Table~\ref{tab:pairwise} evaluates head-to-head competition in mixed markets with 4 traders of each type per side.
+
+\input{figures/table_pairwise}
+
+Zero Intelligence (ZI) destroys market efficiency: ZIP-ZI markets achieve only 36\% efficiency with 65\% price volatility and 655 extra-marginal trades. In contrast, ZIP-ZIC markets maintain 97\% efficiency with 10\% volatility and zero extra-marginal inefficiency.
+
+\subsection{ZIP Hyperparameter Tuning}
+
+Table~\ref{tab:zip_tuning} explores ZIP parameter sensitivity in self-play.
+
+\input{figures/table_zip_tuning}
+
+Configuration B ($\beta$=0.005, $\gamma$=0.10) achieves optimal performance: 99.6\% efficiency, 0.41 V-Inefficiency (beating ZIC's 0.73), and lowest variance. Slower learning with higher momentum outperforms aggressive adaptation.
+
+\subsection{Individual Profit Analysis}
+
+Table~\ref{tab:profit_analysis} reveals surplus extraction in ZIP-ZIC mixed markets.
+
+\input{figures/table_profit_analysis}
+
+ZIP over-earns by 11.1\% relative to competitive equilibrium; ZIC under-earns by 17.1\%. ZIP's adaptive learning systematically extracts surplus from ZIC's random pricing.
+
+\subsection{Round Robin Tournament}
+
+Tables~\ref{tab:roundrobin} and~\ref{tab:roundrobin_summary} present mixed-market tournament results with all 5 strategies competing simultaneously.
+
+\input{figures/table_roundrobin}
+
+\input{figures/table_roundrobin_summary}
+
+ZIP wins 6 of 10 environments with average rank 1.9, demonstrating broad effectiveness. Skeleton achieves best average rank (1.8) through consistent 2nd-place finishes. ZIC ranks 3rd on average (2.8). Kaplan and GD underperform (rank 4.2), with GD's only victory coming in the anomalous RAN environment where its market-making behavior captures massive profits from uniform-price draws.
+
+\subsection{Summary}
+
+Our experiments establish clear performance hierarchies:
+\begin{itemize}
+\item \textbf{Efficiency}: ZIP $>$ Skeleton $\approx$ Kaplan (ZIP robust in SHRT)
+\item \textbf{Invasibility}: Kaplan $>$ Skeleton $>$ ZIP (ZIP fails to exploit ZIC)
+\item \textbf{Tournament}: ZIP $\approx$ Skeleton $>$ ZIC $>$ Kaplan, GD
+\item \textbf{Robustness}: ZIP maintains performance across all conditions
+\end{itemize}
+
+These baselines frame our evaluation of modern AI agents in subsequent sections.

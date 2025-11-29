@@ -132,3 +132,71 @@ Contents:
 - Key configuration parameters
 - Summary metrics table
 - Notable observations
+
+---
+
+## Event Log (for Market Heartbeat Visualization)
+
+Optional detailed event log for analyzing trader timing patterns.
+
+### Enabling Event Logging
+
+Add to config or command line:
+```yaml
+log_events: true
+log_dir: logs/p1_foundational
+experiment_id: exp_1.11
+```
+
+Or via command line:
+```bash
+python scripts/run_experiment.py experiment=p1_self_zic_base +log_events=true
+```
+
+### Event Log File
+
+**Pattern:** `{experiment_id}_events.jsonl`
+
+**Example:** `exp_1.11_events.jsonl`
+
+### Event Log Format (JSONL)
+
+One JSON object per line:
+
+```jsonl
+{"event_type":"bid_ask","round":1,"period":1,"step":1,"agent_id":1,"agent_type":"ZIC","is_buyer":true,"price":450,"status":"winner"}
+{"event_type":"bid_ask","round":1,"period":1,"step":1,"agent_id":2,"agent_type":"Kaplan","is_buyer":true,"price":0,"status":"pass"}
+{"event_type":"bid_ask","round":1,"period":1,"step":1,"agent_id":5,"agent_type":"ZIC","is_buyer":false,"price":520,"status":"winner"}
+{"event_type":"trade","round":1,"period":1,"step":3,"buyer_id":1,"seller_id":5,"price":520}
+```
+
+### Event Types
+
+**bid_ask**: A bid or ask submission
+- `round`, `period`, `step`: Temporal coordinates
+- `agent_id`: Global player ID
+- `agent_type`: Strategy class name (e.g., "ZIC", "Kaplan")
+- `is_buyer`: true for bid, false for ask
+- `price`: Submitted price (0 if pass)
+- `status`: "winner", "beaten", "pass", "standing", "tie_lost"
+
+**trade**: A trade execution
+- `round`, `period`, `step`: Temporal coordinates
+- `buyer_id`, `seller_id`: Global player IDs
+- `price`: Transaction price
+
+### Visualization
+
+```bash
+# Plot Market Heartbeat
+python scripts/visualize_heartbeat.py logs/exp_1.11_events.jsonl
+
+# Save to file
+python scripts/visualize_heartbeat.py logs/exp_1.11_events.jsonl -o figures/heartbeat.png
+
+# Filter to specific round/period
+python scripts/visualize_heartbeat.py logs/exp_1.11_events.jsonl --round 1 --period 1
+
+# Print summary only
+python scripts/visualize_heartbeat.py logs/exp_1.11_events.jsonl --summary
+```

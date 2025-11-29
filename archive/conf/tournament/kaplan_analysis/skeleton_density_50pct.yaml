@@ -1,0 +1,12 @@
+# @package _global_
+
+# Kaplan Analysis: 50% Skeleton (4/8)
+# High Skeleton density - balanced population
+
+experiment:
+  name: "kaplan_skeleton_density_50pct"
+  num_rounds: 100
+
+agents:
+  buyer_types: [Kaplan, Kaplan, ZIC, ZIP, Skeleton, Skeleton, Skeleton, Skeleton]
+  seller_types: [Kaplan, Kaplan, ZIC, ZIP, Skeleton, Skeleton, Skeleton, Skeleton]

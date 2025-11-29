@@ -1,0 +1,18 @@
+{
+  "self_play": {
+    "n_traders": 0,
+    "mean_efficiency": 0,
+    "best_trader": null,
+    "best_efficiency": 0
+  },
+  "invasibility": {
+    "n_traders": 5,
+    "strongest_invader": "Perry",
+    "strongest_ratio": 2.1
+  },
+  "grand_melee": {
+    "n_scenarios": 9,
+    "n_traders": 9,
+    "champion": "Jacobson"
+  }
+}

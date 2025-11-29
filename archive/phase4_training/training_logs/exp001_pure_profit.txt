@@ -1,0 +1,738 @@
+📋 Loading configuration: exp001_pure_profit
+
+============================================================
+🎯 PPO TRAINING: exp001_pure_profit
+📝 Pure profit maximization - eliminate all cooperative signals
+============================================================
+Environment: 8 agents, 4 tokens
+Opponents: ZIC
+Total Timesteps: 500,000
+Parallel Envs: 2
+============================================================
+
+🏗️ Creating environments...
+🤖 Creating new PPO model...
+Using cpu device
+
+🚀 Starting training...
+  Total timesteps: 500,000
+  Learning rate: 0.0005
+  Batch size: 64
+  Entropy coefficient: 0.03
+------------------------------------------------------------
+
+Eval num_timesteps=20000, episode_reward=-0.74 +/- 66.30
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | -0.74       |
+| time/                   |             |
+|    total_timesteps      | 20000       |
+| trading/                |             |
+|    efficiency           | 0           |
+|    invalid_actions      | 43          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.010171959 |
+|    clip_fraction        | 0.0903      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.19       |
+|    explained_variance   | 0.00618     |
+|    learning_rate        | 0.0005      |
+|    loss                 | 71.6        |
+|    n_updates            | 40          |
+|    policy_gradient_loss | -0.00515    |
+|    value_loss           | 735         |
+-----------------------------------------
+New best mean reward!
+Eval num_timesteps=40000, episode_reward=26.00 +/- 93.40
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 26          |
+| time/                   |             |
+|    total_timesteps      | 40000       |
+| trading/                |             |
+|    efficiency           | 0           |
+|    invalid_actions      | 34          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.007970618 |
+|    clip_fraction        | 0.102       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.12       |
+|    explained_variance   | -0.00731    |
+|    learning_rate        | 0.0005      |
+|    loss                 | 598         |
+|    n_updates            | 90          |
+|    policy_gradient_loss | -0.00277    |
+|    value_loss           | 392         |
+-----------------------------------------
+New best mean reward!
+Eval num_timesteps=60000, episode_reward=14.00 +/- 44.77
+Episode length: 100.00 +/- 0.00
+------------------------------------------
+| eval/                   |              |
+|    mean_ep_length       | 100          |
+|    mean_reward          | 14           |
+| time/                   |              |
+|    total_timesteps      | 60000        |
+| trading/                |              |
+|    efficiency           | 0.156        |
+|    invalid_actions      | 17           |
+|    profit               | 0            |
+|    profitable_trades    | 0            |
+|    trades               | 1            |
+| train/                  |              |
+|    approx_kl            | 0.0062820213 |
+|    clip_fraction        | 0.0831       |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -1.92        |
+|    explained_variance   | -0.00318     |
+|    learning_rate        | 0.0005       |
+|    loss                 | 47.1         |
+|    n_updates            | 140          |
+|    policy_gradient_loss | -0.0015      |
+|    value_loss           | 546          |
+------------------------------------------
+Eval num_timesteps=80000, episode_reward=20.00 +/- 56.57
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 20          |
+| time/                   |             |
+|    total_timesteps      | 80000       |
+| trading/                |             |
+|    efficiency           | 0.474       |
+|    invalid_actions      | 17          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.010579392 |
+|    clip_fraction        | 0.167       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.97       |
+|    explained_variance   | 0.00861     |
+|    learning_rate        | 0.0005      |
+|    loss                 | 125         |
+|    n_updates            | 190         |
+|    policy_gradient_loss | -0.0024     |
+|    value_loss           | 168         |
+-----------------------------------------
+Eval num_timesteps=100000, episode_reward=27.99 +/- 74.94
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 28          |
+| time/                   |             |
+|    total_timesteps      | 100000      |
+| trading/                |             |
+|    efficiency           | 0           |
+|    invalid_actions      | 9           |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.011322555 |
+|    clip_fraction        | 0.087       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.89       |
+|    explained_variance   | 0.00135     |
+|    learning_rate        | 0.0005      |
+|    loss                 | 214         |
+|    n_updates            | 240         |
+|    policy_gradient_loss | -0.00312    |
+|    value_loss           | 1.17e+03    |
+-----------------------------------------
+New best mean reward!
+Eval num_timesteps=120000, episode_reward=31.83 +/- 106.67
+Episode length: 100.00 +/- 0.00
+----------------------------------------
+| eval/                   |            |
+|    mean_ep_length       | 100        |
+|    mean_reward          | 31.8       |
+| time/                   |            |
+|    total_timesteps      | 120000     |
+| trading/                |            |
+|    efficiency           | 0.286      |
+|    invalid_actions      | 19         |
+|    profit               | 0          |
+|    profitable_trades    | 0          |
+|    trades               | 1          |
+| train/                  |            |
+|    approx_kl            | 0.01337526 |
+|    clip_fraction        | 0.138      |
+|    clip_range           | 0.2        |
+|    entropy_loss         | -1.92      |
+|    explained_variance   | 0.0559     |
+|    learning_rate        | 0.0005     |
+|    loss                 | 229        |
+|    n_updates            | 290        |
+|    policy_gradient_loss | -0.0058    |
+|    value_loss           | 743        |
+----------------------------------------
+New best mean reward!
+Eval num_timesteps=140000, episode_reward=37.74 +/- 103.65
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 37.7        |
+| time/                   |             |
+|    total_timesteps      | 140000      |
+| trading/                |             |
+|    efficiency           | 0.483       |
+|    invalid_actions      | 19          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.012324162 |
+|    clip_fraction        | 0.114       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.95       |
+|    explained_variance   | 0.167       |
+|    learning_rate        | 0.0005      |
+|    loss                 | 443         |
+|    n_updates            | 340         |
+|    policy_gradient_loss | -0.00418    |
+|    value_loss           | 320         |
+-----------------------------------------
+New best mean reward!
+Eval num_timesteps=160000, episode_reward=18.94 +/- 56.53
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 18.9        |
+| time/                   |             |
+|    total_timesteps      | 160000      |
+| trading/                |             |
+|    efficiency           | 0.3         |
+|    invalid_actions      | 16          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.011803261 |
+|    clip_fraction        | 0.0843      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.95       |
+|    explained_variance   | 0.0578      |
+|    learning_rate        | 0.0005      |
+|    loss                 | 85.4        |
+|    n_updates            | 390         |
+|    policy_gradient_loss | -0.00529    |
+|    value_loss           | 1.39e+03    |
+-----------------------------------------
+Eval num_timesteps=180000, episode_reward=31.43 +/- 73.30
+Episode length: 100.00 +/- 0.00
+------------------------------------------
+| eval/                   |              |
+|    mean_ep_length       | 100          |
+|    mean_reward          | 31.4         |
+| time/                   |              |
+|    total_timesteps      | 180000       |
+| trading/                |              |
+|    efficiency           | 0            |
+|    invalid_actions      | 14           |
+|    profit               | 0            |
+|    profitable_trades    | 0            |
+|    trades               | 0            |
+| train/                  |              |
+|    approx_kl            | 0.0068082456 |
+|    clip_fraction        | 0.079        |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -1.87        |
+|    explained_variance   | 0.193        |
+|    learning_rate        | 0.0005       |
+|    loss                 | 367          |
+|    n_updates            | 430          |
+|    policy_gradient_loss | -0.00244     |
+|    value_loss           | 684          |
+------------------------------------------
+Eval num_timesteps=200000, episode_reward=13.30 +/- 53.09
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 13.3        |
+| time/                   |             |
+|    total_timesteps      | 200000      |
+| trading/                |             |
+|    efficiency           | 0           |
+|    invalid_actions      | 18          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.010666916 |
+|    clip_fraction        | 0.109       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.89       |
+|    explained_variance   | 0.0526      |
+|    learning_rate        | 0.0005      |
+|    loss                 | 64.7        |
+|    n_updates            | 480         |
+|    policy_gradient_loss | -0.00623    |
+|    value_loss           | 611         |
+-----------------------------------------
+Eval num_timesteps=220000, episode_reward=25.69 +/- 71.56
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 25.7        |
+| time/                   |             |
+|    total_timesteps      | 220000      |
+| trading/                |             |
+|    efficiency           | 0.182       |
+|    invalid_actions      | 19          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.009879844 |
+|    clip_fraction        | 0.0615      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.93       |
+|    explained_variance   | 0.00976     |
+|    learning_rate        | 0.0005      |
+|    loss                 | 337         |
+|    n_updates            | 530         |
+|    policy_gradient_loss | -0.00549    |
+|    value_loss           | 1.33e+03    |
+-----------------------------------------
+Eval num_timesteps=240000, episode_reward=31.75 +/- 85.81
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 31.8        |
+| time/                   |             |
+|    total_timesteps      | 240000      |
+| trading/                |             |
+|    efficiency           | 0           |
+|    invalid_actions      | 18          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.009956313 |
+|    clip_fraction        | 0.0768      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.92       |
+|    explained_variance   | 0.0218      |
+|    learning_rate        | 0.0005      |
+|    loss                 | 72.5        |
+|    n_updates            | 580         |
+|    policy_gradient_loss | -0.00494    |
+|    value_loss           | 905         |
+-----------------------------------------
+Eval num_timesteps=260000, episode_reward=31.87 +/- 98.89
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 31.9        |
+| time/                   |             |
+|    total_timesteps      | 260000      |
+| trading/                |             |
+|    efficiency           | 0.308       |
+|    invalid_actions      | 14          |
+|    profit               | 4           |
+|    profitable_trades    | 1           |
+|    trades               | 1           |
+| train/                  |             |
+|    approx_kl            | 0.011869034 |
+|    clip_fraction        | 0.141       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.87       |
+|    explained_variance   | 0.134       |
+|    learning_rate        | 0.0005      |
+|    loss                 | 122         |
+|    n_updates            | 630         |
+|    policy_gradient_loss | -0.00373    |
+|    value_loss           | 229         |
+-----------------------------------------
+Eval num_timesteps=280000, episode_reward=35.48 +/- 109.21
+Episode length: 100.00 +/- 0.00
+------------------------------------------
+| eval/                   |              |
+|    mean_ep_length       | 100          |
+|    mean_reward          | 35.5         |
+| time/                   |              |
+|    total_timesteps      | 280000       |
+| trading/                |              |
+|    efficiency           | 0            |
+|    invalid_actions      | 14           |
+|    profit               | 0            |
+|    profitable_trades    | 0            |
+|    trades               | 0            |
+| train/                  |              |
+|    approx_kl            | 0.0069604106 |
+|    clip_fraction        | 0.112        |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -1.86        |
+|    explained_variance   | 0.303        |
+|    learning_rate        | 0.0005       |
+|    loss                 | 3.28         |
+|    n_updates            | 680          |
+|    policy_gradient_loss | 0.000105     |
+|    value_loss           | 71.5         |
+------------------------------------------
+Eval num_timesteps=300000, episode_reward=33.90 +/- 101.24
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 33.9        |
+| time/                   |             |
+|    total_timesteps      | 300000      |
+| trading/                |             |
+|    efficiency           | 0           |
+|    invalid_actions      | 14          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.012652512 |
+|    clip_fraction        | 0.165       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.87       |
+|    explained_variance   | 0.018       |
+|    learning_rate        | 0.0005      |
+|    loss                 | 940         |
+|    n_updates            | 730         |
+|    policy_gradient_loss | -0.0029     |
+|    value_loss           | 549         |
+-----------------------------------------
+Eval num_timesteps=320000, episode_reward=45.69 +/- 109.90
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 45.7        |
+| time/                   |             |
+|    total_timesteps      | 320000      |
+| trading/                |             |
+|    efficiency           | 0.333       |
+|    invalid_actions      | 13          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.008021712 |
+|    clip_fraction        | 0.0816      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.92       |
+|    explained_variance   | 0.141       |
+|    learning_rate        | 0.0005      |
+|    loss                 | 1.47e+03    |
+|    n_updates            | 780         |
+|    policy_gradient_loss | -0.00563    |
+|    value_loss           | 1.19e+03    |
+-----------------------------------------
+New best mean reward!
+Eval num_timesteps=340000, episode_reward=17.75 +/- 93.18
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 17.8        |
+| time/                   |             |
+|    total_timesteps      | 340000      |
+| trading/                |             |
+|    efficiency           | 0.375       |
+|    invalid_actions      | 24          |
+|    profit               | 2           |
+|    profitable_trades    | 1           |
+|    trades               | 2           |
+| train/                  |             |
+|    approx_kl            | 0.008013759 |
+|    clip_fraction        | 0.0754      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.95       |
+|    explained_variance   | 0.0454      |
+|    learning_rate        | 0.0005      |
+|    loss                 | 346         |
+|    n_updates            | 830         |
+|    policy_gradient_loss | -0.00088    |
+|    value_loss           | 780         |
+-----------------------------------------
+Eval num_timesteps=360000, episode_reward=45.89 +/- 107.95
+Episode length: 100.00 +/- 0.00
+------------------------------------------
+| eval/                   |              |
+|    mean_ep_length       | 100          |
+|    mean_reward          | 45.9         |
+| time/                   |              |
+|    total_timesteps      | 360000       |
+| trading/                |              |
+|    efficiency           | 0.278        |
+|    invalid_actions      | 20           |
+|    profit               | 1            |
+|    profitable_trades    | 1            |
+|    trades               | 1            |
+| train/                  |              |
+|    approx_kl            | 0.0061868876 |
+|    clip_fraction        | 0.0752       |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -1.99        |
+|    explained_variance   | 0.0989       |
+|    learning_rate        | 0.0005       |
+|    loss                 | 173          |
+|    n_updates            | 870          |
+|    policy_gradient_loss | -0.00405     |
+|    value_loss           | 1e+03        |
+------------------------------------------
+New best mean reward!
+Eval num_timesteps=380000, episode_reward=57.72 +/- 132.53
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 57.7        |
+| time/                   |             |
+|    total_timesteps      | 380000      |
+| trading/                |             |
+|    efficiency           | 0.606       |
+|    invalid_actions      | 27          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.007947227 |
+|    clip_fraction        | 0.0654      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2.02       |
+|    explained_variance   | 0.172       |
+|    learning_rate        | 0.0005      |
+|    loss                 | 122         |
+|    n_updates            | 920         |
+|    policy_gradient_loss | -0.0032     |
+|    value_loss           | 489         |
+-----------------------------------------
+New best mean reward!
+Eval num_timesteps=400000, episode_reward=29.92 +/- 72.83
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 29.9        |
+| time/                   |             |
+|    total_timesteps      | 400000      |
+| trading/                |             |
+|    efficiency           | 0.381       |
+|    invalid_actions      | 20          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 1           |
+| train/                  |             |
+|    approx_kl            | 0.010532039 |
+|    clip_fraction        | 0.122       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.96       |
+|    explained_variance   | 0.0373      |
+|    learning_rate        | 0.0005      |
+|    loss                 | 112         |
+|    n_updates            | 970         |
+|    policy_gradient_loss | -0.00449    |
+|    value_loss           | 294         |
+-----------------------------------------
+-----------------------------------------
+| rollout/                |             |
+|    ep_len_mean          | 100         |
+|    ep_rew_mean          | 24.1        |
+| time/                   |             |
+|    fps                  | 2878        |
+|    iterations           | 100         |
+|    time_elapsed         | 142         |
+|    total_timesteps      | 409600      |
+| trading/                |             |
+|    efficiency           | 0           |
+|    invalid_actions      | 17          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.006594659 |
+|    clip_fraction        | 0.0391      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.94       |
+|    explained_variance   | 0.0325      |
+|    learning_rate        | 0.0005      |
+|    loss                 | 105         |
+|    n_updates            | 990         |
+|    policy_gradient_loss | -0.00193    |
+|    value_loss           | 829         |
+-----------------------------------------
+Eval num_timesteps=420000, episode_reward=39.98 +/- 116.63
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 40          |
+| time/                   |             |
+|    total_timesteps      | 420000      |
+| trading/                |             |
+|    efficiency           | 0.258       |
+|    invalid_actions      | 18          |
+|    profit               | -1          |
+|    profitable_trades    | 0           |
+|    trades               | 1           |
+| train/                  |             |
+|    approx_kl            | 0.011788939 |
+|    clip_fraction        | 0.119       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -2          |
+|    explained_variance   | 0.16        |
+|    learning_rate        | 0.0005      |
+|    loss                 | 98.1        |
+|    n_updates            | 1020        |
+|    policy_gradient_loss | -0.00302    |
+|    value_loss           | 337         |
+-----------------------------------------
+Eval num_timesteps=440000, episode_reward=37.83 +/- 123.05
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 37.8        |
+| time/                   |             |
+|    total_timesteps      | 440000      |
+| trading/                |             |
+|    efficiency           | 0.355       |
+|    invalid_actions      | 13          |
+|    profit               | -1          |
+|    profitable_trades    | 0           |
+|    trades               | 1           |
+| train/                  |             |
+|    approx_kl            | 0.013127914 |
+|    clip_fraction        | 0.094       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.92       |
+|    explained_variance   | 0.0701      |
+|    learning_rate        | 0.0005      |
+|    loss                 | 189         |
+|    n_updates            | 1070        |
+|    policy_gradient_loss | -0.00468    |
+|    value_loss           | 392         |
+-----------------------------------------
+Eval num_timesteps=460000, episode_reward=29.48 +/- 67.09
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 29.5        |
+| time/                   |             |
+|    total_timesteps      | 460000      |
+| trading/                |             |
+|    efficiency           | 0.167       |
+|    invalid_actions      | 15          |
+|    profit               | 1           |
+|    profitable_trades    | 1           |
+|    trades               | 1           |
+| train/                  |             |
+|    approx_kl            | 0.011029979 |
+|    clip_fraction        | 0.0938      |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.96       |
+|    explained_variance   | -0.0246     |
+|    learning_rate        | 0.0005      |
+|    loss                 | 218         |
+|    n_updates            | 1120        |
+|    policy_gradient_loss | -0.00448    |
+|    value_loss           | 706         |
+-----------------------------------------
+Eval num_timesteps=480000, episode_reward=15.61 +/- 146.26
+Episode length: 100.00 +/- 0.00
+------------------------------------------
+| eval/                   |              |
+|    mean_ep_length       | 100          |
+|    mean_reward          | 15.6         |
+| time/                   |              |
+|    total_timesteps      | 480000       |
+| trading/                |              |
+|    efficiency           | 0.333        |
+|    invalid_actions      | 25           |
+|    profit               | 0            |
+|    profitable_trades    | 0            |
+|    trades               | 0            |
+| train/                  |              |
+|    approx_kl            | 0.0086954255 |
+|    clip_fraction        | 0.0625       |
+|    clip_range           | 0.2          |
+|    entropy_loss         | -1.98        |
+|    explained_variance   | 0.0469       |
+|    learning_rate        | 0.0005       |
+|    loss                 | 45.4         |
+|    n_updates            | 1170         |
+|    policy_gradient_loss | -0.00313     |
+|    value_loss           | 746          |
+------------------------------------------
+Eval num_timesteps=500000, episode_reward=17.89 +/- 76.64
+Episode length: 100.00 +/- 0.00
+-----------------------------------------
+| eval/                   |             |
+|    mean_ep_length       | 100         |
+|    mean_reward          | 17.9        |
+| time/                   |             |
+|    total_timesteps      | 500000      |
+| trading/                |             |
+|    efficiency           | 0.133       |
+|    invalid_actions      | 10          |
+|    profit               | 0           |
+|    profitable_trades    | 0           |
+|    trades               | 0           |
+| train/                  |             |
+|    approx_kl            | 0.008169537 |
+|    clip_fraction        | 0.066       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -1.93       |
+|    explained_variance   | 0.0615      |
+|    learning_rate        | 0.0005      |
+|    loss                 | 280         |
+|    n_updates            | 1220        |
+|    policy_gradient_loss | -0.00467    |
+|    value_loss           | 1.22e+03    |
+-----------------------------------------
+
+💾 Saving final model...
+  Model saved to models/exp001_pure_profit/final_model.zip
+
+📊 Final Evaluation...
+  Episodes 20/100 complete...
+  Episodes 40/100 complete...
+  Episodes 60/100 complete...
+  Episodes 80/100 complete...
+  Episodes 100/100 complete...
+
+============================================================
+✅ TRAINING COMPLETE!
+============================================================
+📊 Final Performance:
+  Mean Reward: 21.92 ± 100.57
+  Market Efficiency: 0.000
+  Total Profit: 0.00
+  Profit Ratio: 0.000
+  Trades/Episode: 0.0
+
+🎯 Target Metrics:
+  Efficiency: 0.000 / 0.700 ❌
+  Profit Ratio: 0.000 / 3.000 ❌
+
+💾 Results saved to checkpoints/exp001_pure_profit/final_results.json
+
+============================================================
+🎉 All done! Happy trading! 🎉
+============================================================

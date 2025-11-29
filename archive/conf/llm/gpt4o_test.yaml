@@ -1,0 +1,30 @@
+# @package _global_
+#
+# GPT-4o Test
+# Tests GPT-4o against GPT-4o-mini
+
+experiment:
+  name: "gpt4o_test"
+  num_rounds: 1  # Reduced to 1 for cost control
+  log_level: "INFO"
+  rng_seed_auction: 42
+  rng_seed_values: 123
+
+market:
+  num_periods: 1  # Reduced to 1 for cost control
+  num_steps: 20   # Reduced to 20 for cost control
+  num_tokens: 4
+  min_price: 0
+  max_price: 1000
+
+agents:
+  buyer_types:
+    - GPT4        # GPT-4o buyer (more capable than mini)
+    - ZIC
+    - Kaplan
+    - ZIP
+  seller_types:
+    - GPT4        # GPT-4o seller
+    - ZIC
+    - Kaplan
+    - GD

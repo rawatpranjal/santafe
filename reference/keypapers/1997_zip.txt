@@ -1,0 +1,2571 @@
+Zero is Not Enough: On The Lower
+Limit of Agent Intelligence For
+Continuous Double Auction Markets†
+Dave Cliff*, Janet Bruten
+Living The Vision
+HP Laboratories Bristol
+HPL-97-141
+November, 1997
+E-mail: davec@ai.mit.edu
+jlb@hplb.hpl.hp.com
+
+agent continuous
+double auction,
+trade
+
+Gode and Sunder's (1993) results from using "zero-intelligence" (ZI)
+traders, that act randomly within a structured market, appear to
+imply that convergence to the theoretical equilibrium price in
+continuous double-auction markets is determined more by market
+structure than by the intelligence of the traders in that market.
+However, it is demonstrated here that the average transaction prices
+of ZI traders can vary significantly from the theoretical equilibrium
+value when the market supply and demand are asymmetric, and that
+the degree of difference from equilibrium is predictable from a priori
+probabilistic analysis. In this sense, it is shown here that Gode and
+Sunder's results are artefacts of their experimental regime. Following
+this, 'zero-intelligence-plus' (ZIP) traders are introduced: like ZI
+traders, these simple agents make stochastic bids. Unlike ZI traders,
+they employ an elementary form of machine learning. Groups of ZIP
+traders interacting in experimental markets similar to those used by
+Smith (1962) and Gode and Sunder (1993) are demonstrated, and we
+show that the performance of ZIP traders is significantly closer to the
+human data than is the performance of Gode and Sunder's ZI traders.
+Because ZI traders are too simple, we offer ZIP traders as a slight
+upward revision of the intelligence required to achieve equilibrium in
+continuous double auction markets.
+
+*Artificial Intelligence Laboratory, Massachusetts Institute of Technology, Cambridge, Massachusetts, USA
+†This paper
+describes
+work done
+Internal
+Accession
+Datewhile
+OnlyDave Cliff held a Visiting Academic post at Hewlett-Packard Laboratories Bristol, from
+February to September 1996. The main results in this paper were presented at the First HP International Workshop on
+Interacting Software Agents, Bristol, September 1996, and at the Internet Telephony Interoperability Consortium meeting,
+Bristol, June 1997: we thank the participants of those meetings for their comments. Thanks also to Chris Preist for his
+comments on earlier versions of this manuscript.
+
+ Copyright Hewlett-Packard Company 1997
+
+1 Introduction
+Smith (1962) demonstrated that the transaction prices of remarkably small groups of human
+traders, operating in experimental continuous double auction markets, rapidly approach the
+theoretical equilibrium price. But human beings are notoriously smart creatures: the question
+of just how much intelligence is required of an agent to achieve human-level trading performance
+is an intriguing one. This question was addressed by Gode and Sunder (1993), whose results
+appear to indicate that no intelligence at all is required of the traders, so long as they are
+constrained not to enter into loss-making transactions.
+In this paper, we use the markets introduced by Smith (1962) as inspiration for a critique of
+the results presented in Gode and Sunder (1993). We demonstrate that, although zero intelligence is not enough, traders with remarkably simple adaptive mechanisms can give performance
+very similar to that of groups of human traders.
+Gode and Sunder (1993) reported results from market experiments where \zero-intelligence
+constrained" (zi-c) trader-programs, that submit random bids and o ers, are used to replace
+human traders in continuous double auction (cda) markets. They found that the imposition of
+the budget constraint (that prevents zi traders from entering into loss-making deals), is sucient
+to raise the allocative eciency of the auctions to values near 100 percent. They conclude that
+the traders' motivation, intelligence, or learning have little e ect on the allocative eciency,
+which derives instead largely from the structure of the cda markets. Thus, they claim, \Adam
+Smith's invisible hand may be more powerful than some may have thought; it can generate
+aggregate rationality not only from individual rationality but also from individual irrationality."
+(Gode & Sunder, 1993, p.119).
+This important work has been frequently cited in the experimental economics literature. See,
+for example, Friedman and Rust (1992, p.xxiii), Friedman (1992, p.19), Rust, Miller, and Palmer
+(1992, pp.160{161, 175), Bollerslev and Domowitz (1992, pp.230{231), Cason and Friedman
+(1992, pp.253, 258), Kagel and Vogt (1992, pp.292, 294), Davis and Holt (1993, p.132), Roth
+(1995, pp.52{55, 80{81), Holt (1995, p.370), Sunder (1995, p.475), Kagel (1995, pp.570, 580),
+and Camerer (1995, p.674), and has even been discussed in a recent book on the philosophy of
+cognitive science (Clark, 1997, pp.183{184).
+In this paper, we develop an analysis of the probability functions underlying cda markets
+populated by Gode and Sunder's zi-c traders. This analysis leads to predictions of market
+conditions in which zi-c traders fail to trade at equilibrium prices. We support these analytic
+results with results from simulation experiments: the zi-c traders are demonstrated to fail in
+markets similar to those used in the early experimental economics work of Smith (1962). Thus
+we claim that the zi-c traders lack sucient rationality to exhibit human-like equilibration in
+cda markets.
+This leads us to develop `zero-intelligence-plus' (zip) traders that, in the spirit of Gode
+and Sunder's work, are stochastic traders with minimal intelligence. But, unlike Gode and
+Sunder's programs, the zip traders incorporate elementary machine learning techniques to alter
+their behavior on the basis of experience. It is demonstrated that in experimental conditions
+comparable to those used by Smith (1962), where Gode and Sunder's zi-c traders either fail to
+produce human-like tendency to equilibrium or simply cannot be used, the behavior of the zip
+traders is comparable to that of human subjects. Thus, We o er zip traders as a revised lower
+limit on the degree of rationality required to trade in cda markets.
+We commence in Section 2 with brief overviews of the two papers on which our work rests.
+The rst is Smith's seminal 1962 paper describing his early work in experimental economics:
+the styles of market supply and demand functions used by Smith in that paper form the basis
+2
+
+of our critique of Gode and Sunder's work. The second is Gode and Sunder's 1993 paper itself.
+Having established the background, Section 3 presents our critique of Gode and Sunder's
+work and Section 4 introduces the zip traders and demonstrates their operation in a variety of
+markets. Related work is described in Section 4.5, and possible further developments of this
+research are discussed in Section 4.6. All the programs for our simulation experiments have been
+placed in the public domain (Cli , 1997) for use by others wishing to replicate our results or
+experiment with variations.
+
+2 Two landmarks in experimental economics
+2.1 Smith's early work
+
+Smith's 1962 paper was one of the rst to discuss in detail the use of `laboratory methods'
+in economics, conducting controlled experiments to test theoretical hypotheses or predictions.
+Such work has been of interest since at least the 1930's: for historical reviews, see Davis and
+Holt (1993, pp.5{9) and Roth (1995, pp.4{21). Smith's (1962) paper is reviewed here both as
+a means of introducing terminology and typical methods of experiment and analysis, and also
+to establish a more varied set of experimental scenarios than were used by Gode and Sunder:
+the arguments in Section 3 are supported by considering the performance of Gode and Sunder's
+zi-c traders in experimental settings similar to those used by Smith.
+In a typical simple experiment, a group of human subjects are each given the means to buy
+some number of units of an arbitrary commodity; while another group are each given some
+number of units of the commodity to sell. Each buyer will be a given a maximum limit price to
+pay for each unit of the commodity, and each seller will be given a minimum limit price below
+which each unit should not be sold. Typically, di erent buyers will be given di erent limit
+prices, as will di erent sellers. The manner in which limit prices are allocated determines the
+supply and demand for the experiment. The subjects are then allowed to buy and sell within
+a particular market mechanism. In the early experiments, the markets were experimentally
+controlled situations similar to open-outcry trading pits, but the vast majority of recent work
+has required the subjects to communicate via a computer network, which eases the control of
+free parameters and the recording of data. In an experimental cda market, Active buyers may
+`shout' (i.e., quote) bid-prices at any time, and active sellers may `shout' (i.e., quote) o er-prices
+at any time. In the remainder of this paper, we use the word \shout" to refer to a quote from
+a trader, to reinforce the metaphor of open-outcry trading pits. In addition to his work on
+experimental cda markets, Smith (1962) also experimented with a model `retail' market where
+the buyers stayed silent while the sellers shouted o er-prices.
+Each of Smith's experiments were conducted over a number of trading sessions or \days"
+(which typically lasted around 10 minutes each). At the start of each day, the rights to sell
+or buy units of commodity were given to each trader. Each seller ceased to be active in the
+market when she had sold all the units given to her at the start of the day, and each buyer
+ceased to be active when she had bought as many units as she was allocated buying-rights for
+at the start of the day. Only active traders could shout prices. A transaction occured whenever
+an active buyer decided to accept the last o er made by a seller, or an active seller decided to
+accept the last bid by a buyer. At the start of the next day, allocations of buying and selling
+rights would be redistributed to the traders, and the market would recommence trading. Usually
+the same traders held the same allocations throughout the sequence of trading days in any one
+experiment, but sometimes the market supply, or demand, or both would be altered between
+days by distributing di erent allocations of units and limit-prices.
+3
+
+In such experiments, hypotheses concerning the e ects of market-structure on the dynamics
+of the market can be tested and their implications explored by varying parameters such as
+those a ecting supply and demand, what trader actions are permissible, or the amount and
+quality of information available to each trader. Factors of interest may include the nature of the
+approach of observed transaction-prices towards the theoretical equilibrium price, the stability
+at equilibrium, the amount of potentially-available pro t that is extracted from the market by
+the sellers, and so on. In particular, Smith (1962) monitored the allocative eciency of the
+experimental markets, (de ned as the total pro t actually earned by all the traders, expressed
+as a percentage of the maximum possible total pro t that could have been earned by all the
+traders), and he introduced a price convergence measure, , which is calculated at the end of each
+trading day. For a day on which k transactions occured at prices pj : j = 1 : : :k, = 1000=P0
+where P0 is the theoretical
+q 1 Pk equilibrium price given by the intersection of the supply and demand
+curves, and 0 = k j =1 (pj , P0)2 . These two metrics of market behavior will be used in the
+discussions below.
+
+2.2 Gode and Sunder's Zero Intelligence Traders
+
+Gode and Sunder (1993) describe a set of experiments similar in style to Smith's, but which use
+\zero intelligence" (zi) programs that submit random bids and o ers to replace human traders
+in electronic cda markets. To use currently-popular terminology, Gode and Sunder's programs
+are zero-intelligence \software agents". Gode and Sunder explored the performance of both
+`unconstrained' and `constrained' zi traders, which they refer to using the abbreviations zi-u
+and zi-c, and they compare the results of these traders to results from human traders operating
+in (almost) identical experimental conditions.
+As with Smith's work, each trader is given an entitlement to buy or sell a number of units,
+each with a particular limit price. Bids and o ers were limited to the range 1 to 200 units of
+arbitrary currency. For zi-u traders, the shout-price for a unit of commodity is unconstrained
+across this range: there is a 1/200 probability that the value of a random shout is v for all
+v 2 f1; 2; : : :; 200g. This means that that the zi-u traders can enter into loss-making deals: a
+seller of a unit of commodity could shout a price less than the given limit price, or a buyer
+could shout a price greater than the limit; in either case, if the shout is accepted by another
+trader, the agent makes a loss. In contrast, zi-c traders are subject to a `budget constraint'
+that prevents them from engaging in loss-making deals: a zi-c seller can only make o ers in the
+range between the limit price and the maximum (200); and zi-c buyers can only make bids in
+the range from the minimum (1) up to their limit price. The shout prices are generated from a
+uniform distribution across the range for each zi-c trader.
+The experiments with both types of zi traders were conducted using minor simpli cations of
+the continuous double auction: traders shout prices at any time, subject to an \improvement"
+rule that only allows bid-prices to be higher than the current best bid, or o er-prices to be
+lower than the current best o er, and with a transaction cancelling any unaccepted bids and
+o ers. The traders dealt in lot-sizes of a single unit of commodity. To accommodate the lack of
+intelligence of the traders, a deal was made whenever a bid and o er crossed: whenever a buyer
+made a bid higher than the current lowest o er, or whenever a seller made an o er lower than
+the current highest bid. In both cases, the transaction price is the earlier of the two shouts.
+Gode and Sunder (1993) report on zi traders with the right to buy or sell multiple units
+of commodity during the course of the experiment, with the lot-size for each o er, bid, and
+deal xed at one unit. They state (1993, p.122) that experiments with a single unit per trader
+reported in (Gode & Sunder, 1992) gave similar results, although the single-unit-per-trader
+4
+
+studies were not concerned with the behavior of prices (Gode & Sunder, 1992, p.202). The units
+given to an individual seller may have di erent limit prices, as may the purchase rights given to
+an individual buyer. In one experiment, several traders were given limit prices for all their units
+that were extra-marginal (i.e., beyond the equilibrium point and therefore dicult to trade)
+while the other traders' assignments were all intra-marginal units. In the other experiments,
+each trader had a spread of limit prices across the range of supply or demand. To avoid requiring
+the traders to make a decision about which of their stock of units they should sell next, or which
+of their rights to buy they should exercise next, the rights to buy or sell were assigned to each
+agent in a pre-speci ed order of execution.
+Di erences in performance between the zi-u and zi-c traders, and between the zi-c and
+human traders, could indicate the di erent extents to which overall market behavior is dependent
+on human intelligence or market structure:
+\The di erence between the performance of the human markets and that of the
+zi-c markets is attributable to systematic characteristics of human traders. If zi-c
+traders are considered to have zero rationality, this di erence in performance would
+be a measure of the contribution of human rationality to market performance. On
+the other hand, the di erence between the performance of markets that do impose
+a budget constraint on zi traders and the performance of those that do not is attributable to the market discipline. Traders have no intelligence in either the zi-u
+or zi-c market: the zi-c market prevents the traders from engaging in transactions
+that they cannot settle. Consequently, we can attribute the di erences in market outcomes to the discipline imposed by the double auction on traders" (Gode & Sunder,
+1993, p.123).
+Results from ve experiments are reported in the 1993 paper. Each experiment is repeated
+three times: once with zi-u traders (six buyers and six sellers), once with zi-c traders (six buyers
+and six sellers), and once with human subjects (six or seven buyers and six or seven sellers, all
+of whom were business graduate students, given an incentive to do well by having their pro ts
+included in the grading scheme for their course). Like the zi-c traders, the humans were subject
+to the budget constraint: they could (or should) not enter into loss-making deals. Although the
+supply and demand schedules varied between experiments, in any one experiment the zi-u and
+zi-c traders had identical supply and demand schedules, and the humans schedules di ered only
+slightly, when there was an extra seller or buyer. Nevertheless the human schedules were very
+similar to those of the zi traders, and had the same equilibrium price and quantity.
+Figure 1 gives an indication of the qualitative di erences between the price histories of the
+three types of trader: in all ve experiments, the same qualitative di erences emerged. Prices
+in the zi-u markets exhibited \: : : little systematic pattern and no tendency to converge toward
+any speci c level" (Gode & Sunder, 1993, p.126). Price histories in the human markets were
+similar to those in Smith's early experiments: the transaction prices soon settle to stable values
+close to the theoretical equilibrium price, after some initial learning and adjustment. As Gode
+and Sunder (1993, pp.127{128) note, such price series are \: : : the result of subjecting pro tmotivated, intelligent human traders to market discipline", and the main question addressed in
+their article is: to what degree is the di erence between the market activity of the human and
+zi-u traders due to the intelligence of the traders, and to what degree is it due to the imposition
+of the budget constraint? It is this issue that the data from zi-c traders helps resolve: they
+have the same budget constraint as the humans, but none of the intelligence or ability to learn
+from experience.
+5
+
+Price
+
+Price
+
+200
+
+S
+
+200
+
+Po
+D
+
+0
+
+0
+
+Qo
+
+Quantity
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6 Day
+
+2
+
+3
+
+4
+
+5
+
+6 Day
+
+2
+
+3
+
+4
+
+5
+
+6 Day
+
+Price
+
+Price
+200
+
+S
+
+200
+
+Po
+D
+
+0
+
+0
+
+Qo
+
+Quantity
+
+1
+Price
+
+Price
+200
+
+S
+
+200
+
+Po
+D
+
+0
+
+0
+
+Qo
+
+Quantity
+
+1
+
+Figure 1: Typical results from one of Gode and Sunder's experiments (redrawn from Gode and Sunder (1993,
+Fig.4, p.127)). Top: results from zi-u traders. Middle: results from zi-c traders. Bottom: results from human
+traders. The gure to the left shows the supply and demand schedules for the experiment, the gure to the right
+shows the time series of transaction prices.
+
+Gode and Sunder (1993, p.129) point out three notable features of the zi-c transactionprice time-series. First, as would be expected from traders that have no memory or adaptation
+mechanisms, there is no evidence of learning from day to day. Second, the volatility of the
+zi-c prices is intermediate between the highly volatile zi-u prices and the stable human prices:
+the presence of a budget constraint is sucient to shift the zi market behavior towards that
+of humans. Third, despite being more volatile than the human price series, the zi-c prices
+converge slowly to equilibrium during each day's trading (this is clear in the middle transactionprice time-series in Figure 1). Gode and Sunder con rm that this convergence is consistent by
+regression analysis of Smith's convergence measure, averaged across the six days of a market,
+6
+
+versus transaction sequence number.
+Gode and Sunder explain this convergence to equilibrium by reference to the progressive
+narrowing of the feasible range of transaction prices as more units are traded:
+The left end of the market demand function represent units with higher redemption values [i.e., limit prices]. Expected values of the bids generated for these units
+by zi-c traders are also higher. Therefore, these units are likely to be traded earlier
+than units further down the market demand function. As the higher-value units
+are traded, the upper end of the support of zi-c bids shifts down. Similarly, as the
+lower-cost units are sold earlier in a period, the lower end of the support of zi-c
+o ers moves up. (Gode & Sunder, 1993, p.129).
+In addition to showing human-like tendency to equilibrium, zi-c traders also exhibit surprisingly high levels for Smith's measure of allocative eciency. In all ve experiments, the mean
+eciency of human traders was over 90%, and in four of them it was over 99%. In contrast,
+the zi-u traders recorded mean eciencies of 90% in two experiments, and 77%, 49%, and 86%
+in the others. But the zi-c traders scored over 99% in three experiments, and over 97% in the
+other two: the average eciency for the humans was 97.9%, while for the zi-c's it was 98.7%.
+Gode and Sunder (1993, pp.131{133) did not perform any statistical tests, but the di erence of
+0.8% between the human and zi-c traders appears unlikely to be signi cant. Thus, the main
+message of Gode and Sunder's paper is that allocative eciency appears to be almost entirely a
+product of market structure: prior to these experiments, it seemed fair to assume that the high
+eciency of human markets is a consequence of human cognitive prowess; in light of Gode and
+Sunder's results, such assumptions are clearly highly doubtful.
+Gode and Sunder close their paper with brief discussion of measurements of pro t dispersion.
+This is de ned (1993, p.133) as the cross-sectional root mean squared di erence between the
+actual pro ts and the equilibrium pro ts of individual traders. The equilibrium pro t of a trader
+is the pro t the trader would realize if all units are traded at the equilibrium price. Formally,
+if ai is the actual pro t earned by trader i, and pi is the theoretical equilibrium
+q 1 Pn pro t 2for that
+trader, then for a group of n traders the pro t dispersion is given by n i=1 (ai , pi ) .
+Measures of pro t dispersion were highest for the zi-u traders, and lowest for the human
+traders. The values for zi-c traders were closer to those of the humans than the zi-u traders, but
+were generally greater in magnitude (no statistical signi cance tests were performed). In two of
+the ve experiments, the human data showed a de nite decline in dispersion over a number of
+trading days: \Without memory or learning, the zi markets exhibit no such trend. These results
+suggest that, in contrast to aggregate eciency, distributional aspects of market performance
+may be sensitive to human motivation and learning." (Gode & Sunder, 1993, p.134).
+While Gode and Sunder's work is elegant and yields impressive results, there are some
+questionable aspects. For instance, the maximum and minimum values for shout-prices have
+to be speci ed in advance, which implies that a priori information is employed by the traders.
+Furthermore, it is not obvious how zi-c traders could be used in situations such as Smith's
+\retail" experiment where only sellers shout (at the very least, some extension of Gode and
+Sunder's methods would have to be speci ed). However, these are relatively minor super cial
+criticisms. A much more fundamental critique of Gode and Sunder's work is presented in the
+next section.
+
+7
+
+3 Critique: Zero is not enough
+Gode and Sunder's central argument, that the structure of a double auction market is largely
+responsible for achieving high levels of allocative eciency, regardless of the intelligence, motivation, or learning of the agents in the market, is not in doubt. However, in this section, the
+equilibrating tendencies of the zi-c traders is questioned. Gode and Sunder state (1993, p.131):
+\: : : the convergence of transaction price [to the theoretical equilibrium price] in zi-c
+markets is a consequence of the market discipline; trader's attempts to maximize
+their pro ts, or even their ability to remember or learn about events of the market,
+are not necessary for such convergence."
+This statement is demonstrated below to be incorrect. In Section 3.1 the probability distributions underlying the zi-c markets are discussed qualitatively, noting that the average transaction
+prices observed in the market are determined by the intersection of the probability density functions for the buyers' and sellers' random bids and o ers. The mean or expected value of the
+transaction-price distribution is shown qualitatively to be close to the equilibrium price only in
+situations where the magnitude of the gradient of linear supply and demand curves is roughly
+equal. Then, in Section 3.2, analytic results are presented that demonstrate that the expected
+value is equal to the equilibrium price only in certain special cases, and that the expected value
+di ers signi cantly in other situations. To reinforce this result, empirical results from simulation
+studies are presented in Section 3.3, which are discussed further in Section 3.4.
+
+3.1 Qualitative Discussion
+
+Parameters relevant to the discussion that follows are shown in Figure 2.
+Price
+Pmax
+Dmax
+Smax
+
+S
+
+Po
+D
+Dmin
+Smin
+Pmin
+
+Qo
+Quantity
+
+Figure 2: Parameters for qualitative discussion. O ers and bids are both subject to a maximum possible price
+Pmax and a minimum possible price Pmin. The Supply Curve S slopes upwards from Smin to Smax and the Demand
+Curve D slopes downward from Dmax to Dmin. The Supply and demand curves intersect at a point indicating
+the Equilibrium Price P0 and the Equilibrium Quantity Q0 . In this graph Dmin > Smin and Dmax > Smax but
+
+these conditions are not obligatory.
+
+Because the zi traders randomly generate bid and o er prices within given upper and lower
+limits, and assuming (without loss of generality) that the prices vary continuously between those
+8
+
+limits, it is possible to construct probability density functions (pdfs) for the prices of bids and
+o ers shouted in the market.
+In the case of zi-u traders, the construction of the pdf is trivial: as noted by Gode and
+Sunder (1993, p.121), for prices in the range 1 to 200, the probability that a randomly generated
+bid or o er is nearest some integer value i is 1=200 (= 0:005) for all i = 1; 2; : : :; 200. Thus a
+graph of the zi-u pdf shows a uniform distribution of probabilities, as illustrated in Figure 3.
+Probability(P=p)
+
+0.005
+
+1
+
+Price p
+
+200
+
+Figure 3: Probability density function (pdf) for prices `shouted' by zi-u traders: this pdf applies both to the
+sellers's o er-prices and the buyers' bid-prices.
+
+However, the zi-c traders have slightly more complex pdfs. Consider the case for a zi-c
+seller: it can only generate an o er price between its allocated limit price, and the predetermined system-wide maximum price Pmax for bids or o ers (Pmax = 200 in Gode and Sunder's
+experiments), and the seller's individual pdf is uniform over that range. Thus, for the market
+as a whole, the sellers' supply curve acts as a lower bound on the o er prices generated at any
+given quantity (shown in Figure 4), and so the pdf for o er prices in the market rises from zero
+to some threshold value, at which it might plateau, before falling back sharply to zero at Pmax
+(Figure 5). This qualitative description can be justi ed as follows: there is no probability of an
+o er price below the lowest seller's cost Smin; as prices higher than Smin are considered, more
+o ers are likely because there are more sellers able to bid; once prices greater than the maximum
+seller's cost Smax are considered, increasing prices are not increasingly likely as all sellers are
+able to make o ers in that price range (hence the potential for plateau); and the probability of
+an o er above the system maximum Pmax is zero.
+Similarly, the range of possible prices for bids from zi-c buyers is bounded from above by
+the demand curve (formed by the buyers' limit prices) and from below by the system-wide
+minimum price Pmin for bids or o ers (i.e. Pmin = 1 in Gode and Sunder's experiments): see
+Figure 6. Thus the pdf for bid prices in the market is zero at prices below Pmin, constant for
+prices between Pmin and the minimum buyer limit price Dmin, then falls gradually to reach zero
+at the highest buyer limit price Dmax: see Figure 7.
+Having established qualitative pdfs for the o ers generated by the sellers and the bids
+generated by the buyers, we can now consider the pdf for transaction prices: recall that a
+transaction is made when a buyer's bid is accepted because it is higher than the current best
+(lowest) o er, or when a seller's o er is accepted because it is lower than the current best
+(highest) bid. But the current best bid and o er must both be valid, i.e. they must come from
+9
+
+Price
+Probability(P=p)
+Pmax
+Smax
+
+Smin
+Pmin
+
+Quantity
+Pmin
+
+Smin
+
+Figure 4: The supply curve provides a lower
+
+bound on the range of possible o er prices from
+zi-c sellers at any given quantity; the system maximum Pmax provides an upper bound.
+
+Price p
+
+Smax
+
+Pmax
+
+Figure 5: Qualitative probability density function (pdf) for zi-c sellers: see text for discussion.
+
+Price
+Probability(P=p)
+Pmax
+Dmax
+
+Dmin
+Pmin
+
+Quantity
+Pmin
+
+Figure 6: The demand curve provides an upper
+
+bound on the range of possible bid prices from zic buyers at any given quantity; the system minimum Pmin provides a lower bound.
+
+Dmin
+
+Price p
+
+Dmax
+
+Pmax
+
+Figure 7: Qualitative probability density function (pdf) for zi-c buyers: see text for discussion.
+
+one of the pdfs in Figures 5 and 7. Thus, the pdf for transaction prices will be determined by
+the intersection of the pdfs of the o er prices and bid prices: transactions require a valid bid
+and a valid o er; despite the fact that many bids may be made at prices lower than Smin, no
+seller can accept one; and although many o ers may be made at prices higher than Dmax, no
+buyer can accept one. Figure 8 shows the intersection of the pdfs for o er and bid prices; and
+the corresponding pdf for transaction prices.
+Finally, note that in Figure 8 the peak of the pdf, indicating the most probable transaction
+price(s), is determined by the intersection of the supply and demand curves; that it, the peak
+probability occurs at the Equilibrium Price P0 (cf. Figure 2), and the pdf is symmetric about
+the peak. Thus, qualitatively at least, it would appear that near-equilibrium transaction prices
+10
+
+Probability(P=p)
+
+Pmin
+
+Probability(P=p)
+
+Dmin
+
+Smin
+
+Dmax
+Smax
+
+Pmin Smin
+
+Dmax
+
+Pmax
+
+Price p
+
+Pmax
+
+Price p
+
+Figure 8: Left: darkest-shaded triangular area shows the intersection of the pdfs for o er and bid prices; this
+area indicates the pdf for transaction prices, but requires normalisation so that the area of the triangle is unity.
+Right: corresponding normalised pdf for transaction prices.
+
+are expected because of the shape of the pdf for valid deals: this zi-c system is structured a
+priori to generate mean transaction prices close to the theoretical equilibrium price.
+If this is true, it is only because the transaction price pdf has a shape closely approximating
+an isoscoles triangle, which is a consequence of the supply curve S and the demand curve D
+being symmetric about the line of constant price at P0 (i.e., having gradients of opposite sign
+but approximately equal magnitude). As is proven in the next section, when the linear S and
+D curves have gradients opposite in sign and identical in magnitude, the mean transaction
+price is identical to the equilibrium price: the equilibrating tendency of the zi-c traders is
+thus a consequence of the underlying probability distributions of the system. Furthermore,
+it is demonstrated below that, in general, the mean transaction price of zi-c traders di ers
+signi cantly from the theoretical equilibrium price.
+
+3.2 Analytic Arguments
+
+Let f (p) denote the pdf for transaction prices. If f (p) is known, then the mean or expected
+value E (P ) of the transaction prices can be calculated from the standard formula:
+
+E (P ) =
+
+Z1
+
+,1
+
+p  f (p) dp
+
+(1)
+
+Consider the case where the supply and demand curves are symmetric (i.e., have opposite
+sign and equal magnitude), as illustrated in Figure 9. The corresponding pdf is shown in
+Figure 10. Such a market is similar to Smith's (1962) `Chart 1', and the markets used by Gode
+and Sunder (1993).
+The transaction-price pdf can be written as:
+
+8
+>
+p < Smin
+>
+< 0m1p + cs ifSmin
+f1 (p) = > ,m p + c P  p p DP0
+max
+>
+: 0 1 d p 0> D
+max
+
+11
+
+(2)
+
+Probability(P=p)
+
+Price
+
+Cd
+
+Pmax
+Smax
+Dmax
+
+S
+
+Po
+
+h1
+
+Smin
+Dmin
+
+D
+
+Pmin
+
+Cs
+
+Qo
+
+Smin
+
+Po
+
+Dmax
+
+Pmax
+
+Price p
+
+Quantity
+
+Figure 10: Transaction-price pdf for supply and
+
+Figure 9: Symmetric supply and demand.
+
+demand curves of Figure 9: see Equation 2.
+
+Let k = Dmax , P0 ; note that, as the pdf is an isosceles triangle, k  P0 , Smin and h1 k = 1.
+Also, from Figure 10, m1 = h1 =k = 1=k2 . Therefore, substituting Equation 2 into Equation 1
+gives:
+
+E (P ) =
+=
+
+Z Dmax
+ZSPmin0
+
+pf1 (p) dp
+
+Smin
+
+p(m1p + cs ) dp +
+
+= P0 +
+
+Z0
+
+,k
+
+= P0 +
+
+1
+
+Z Dmax
+P0
+
+p(m1 p + h1 ) dp +
+
+m1p3 + 1 h1 p2
+
+0
+
+p(,m1p + cd ) dp
+
+Zk
+0
+
+p(,m1p + h1 ) dp
+
+ 1
+k
+1
+3
+2
++ , m1p + h1 p
+3
+2
+
+3
+2
+,k
+0
+1
+1
+1
+1
+= P0 + 3 m1k3 , 2 h1 k2 , 3 m1 k3 + 2 h1 k2
+= P0 2
+(3)
+Thus, Equation 3 demonstrates that when the supply and demand curves are linear, having
+opposite sign and equal magnitude, the mean transaction price E (P ) is equal to the equilibrium
+price P0 .
+Now consider the case for a pdf where the supply curve is at, so that Smin = Smax = P0
+(see e.g. `Chart 4' in Smith (1962)). Such a supply curve is illustrated in Figure 11, with the
+corresponding transaction-price pdf shown in Figure 12.
+The pdf f2 (p) for such a market is given by:
+
+8
+>
+if p < P0
+<0
+f2(p) = > m2p + c2 P0  p  Dmax
+(4)
+:0
+p > Dmax
+For m2 = ,h2 =j where j = Dmax , P0 , and c2 = 2Pm =j 2. Note also that because f2(p)
+is a pdf and a right-triangle, h2j=2 = 1, so h2 = 2=j and hence m2 = ,2=j 2. Substituting
+Equation 4 into Equation 1 gives:
+
+12
+
+Price
+
+Probability(P=p)
+
+Pmax
+
+c2
+
+Dmax
+
+S
+Po
+
+h2
+
+D
+
+Dmin
+Pmin
+
+Pmin Po
+
+Qo
+Quantity
+
+Dmax
+
+Pmax
+
+Price p
+
+Figure 11: Flat supply curve.
+
+Figure 12: Pdf for at supply.
+
+E (P ) =
+
+Z Dmax
+P0
+
+= P0 +
+= P0 +
+
+pf2 (p) dp
+
+Zj
+0
+
+1
+
+m2p2 dp +
+
+3
+3 m2p
+
+Zj
+0
+
+h2p dp
+
+j  1 j
++ 2 h2p2
+0
+
+= P0 + 13 m2j 3 + 12 h2j 2
+= P0 + 13  ,j 22 j 3 + 21  2j j 2
+
+0
+
+= P0 + j
+3
+= P0 + 13 (Dmax , P0 ) 2
+(5)
+So Equation 5 indicates that, when all the sellers have the same limit price, the expected
+transaction price of zi-c traders will di er from the equilibrium price P0 by an amount equal
+to one third of the di erence between P0 and the maximum buyer price, Dmax. So long as
+P0 =
+6 Dmax, the expected value of the zi-c transaction prices will di er from the equilibrium
+price P0 .
+Finally, consider the case of \box design" schedules (Davis & Holt, 1993, p.141), where both
+the supply curve and the demand curve are at, so that Smin = Smax and Dmin = Dmax. Such
+markets are similar to Smith's (1962) `Chart 6'. If demand equals supply, then there is an
+indeterminate `price tunnel' and the equilibrium price cannot be accurately predicted. However,
+if demand exceeds supply (as illustrated in Figure 13), the equilibrium price P0 is equal to
+Dmax: the excess demand encourages price competition among buyers that will lead to bidprice increases until the maximum buyer limit price is reached. This gives a rectangular pdf,
+illustrated in Figure 14 and stated formally as f3 (p) in Equation 6.
+13
+
+Price
+
+Probability(P=p)
+
+Pmax
+
+S
+
+Po
+
+D
+h3
+
+Smin
+
+Pmin
+
+Pmin Smin
+
+Qo
+Quantity
+
+Po
+
+Pmax
+
+Price p
+
+Figure 13: Flat supply and demand, with excess
+
+Figure 14: Pdf for at supply and demand.
+
+demand.
+
+8
+>
+< 0 if p < Smin
+f3 (p) = > h3 Smin  p  P0
+: 0 p > P0
+
+(6)
+
+Let i = P0 , Smin and note that h3 i = 1. Substituting Equation 6 into Equation 1 gives:
+
+E (P ) =
+
+Z P0
+Smin
+
+pf3 (p) dp
+
+= Smin +
+= Smin +
+
+Zi
+01
+
+h3 p dp
+h3 p2
+
+i
+
+2
+0
+1
+= Smin + 2 h3 i2
+= Smin + 1 (P0 , Smin)
+2
+1
+= 2 (P0 + Smin) 2
+(7)
+Hence Equation 7 demonstrates that, in situations where both supply and demand are at,
+and there is excess demand, then so long as Smin =
+6 P0 the expected value E (P ) of transaction
+prices will di er from P0 .
+By the same reasoning, mutatis mutandis, if supply and demand are at but supply exceeds
+demand, then the excess supply encourages bid-price cuts and so P0 = Smin; the expected value
+E (P ) di ers from P0 so long as Dmax =
+6 P0, and is given by Equation 8:
+E (P ) = 12 (P0 + Dmax)
+(8)
+These four examples show that, for zi-c traders, while E (P ) = P0 in special circumstances,
+in general E (P ) =
+6 P0. Similar arguments could be made for zi-c systems with discrete rather
+14
+
+than continuous prices. The following section presents empirical evidence that supports the
+analytic argument developed here.
+
+3.3 Simulation Studies
+
+To test these analytic predictions, we wrote a computer simulation to study the behavior of
+zi-c traders under di erent supply and demand schedules. The simulator was written in the C
+programming language: full details of the code, with sample input and output les, are given by
+Cli (1997). The simulator allows for a number of zi-c traders to be allocated roles as buyers or
+sellers, and to be given limit prices for their bids and o ers. Results from four experiments are
+shown here, corresponding to the four types of supply-demand schedules examined analytically
+in the previous section. All experiments were run for ten trading sessions (or \days"), which
+continued until either eleven transactions had occurred, or no buyers or sellers were able to
+shout prices (because they were all unable to improve on the current best shout-prices). In each
+experiment, the theoretical equilibrium values are P0 = 200 and Q0 = 6.
+Figure 15 shows a symmetric schedule where the supply and demand curves have opposite
+signs but equal magnitudes: there are eleven buyers each with the right to buy one unit, and
+eleven sellers each with a single unit to sell, The intersection of the curves indicates P0 = 200.
+Figure 16 shows the average transaction price of each of the ten days, over 50 experiments,
+with lines above and below indicating the standard deviation. As is clear, the observed average
+transaction price is close to 200, which is the value predicted by Equation 3.
+3.00
+
+400
+
+S
+
+350
+
+2.50
+
+300
+2.00
+
+250
+200
+
+1.50
+
+150
+1.00
+
+100
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+D
+
+50
+1
+
+2
+
+3
+
+4
+
+5 6
+Quantity
+
+7
+
+8
+
+9
+
+10 11
+
+Figure 16: Mean daily transaction price, aver-
+
+aged over 50 zi-c experiments, for the supply and
+demand shown in Figure 15: the middle line is
+the mean value, upper and lower lines indicates
+the mean plus and minus one standard deviation. Horizontal axis is day-number, vertical axis
+is price (divided by 100). See text for discussion.
+
+Figure 15: Symmetric supply and demand
+
+curves (gradients opposite in sign and equal in
+magnitude): 11 buyers and 11 sellers. Theoretical equilibrium price P0 = 200; expected value of
+transaction prices E (P ) = 200 from Equation 3.
+
+Figure 17 shows a schedule where there is a at supply curve. Again there are 22 zi-c traders
+divided equally into buyers and sellers, each with the right to trade one unit. The intersection
+of the curves indicates P0 = 200, but Equation 5 predicts that the observed mean value of
+transactions will be closer to 240. Now recall that Equation 5 is for a continuous linear demand
+curve, while the nonlinearities in the demand curve of Figure 17 (a consequence of having only
+15
+
+eleven buyers) imply that the actual value of E (P ) may di er. By inspection, it is clear that:
+
+0 325
+1 0 325
+1
+X
+X
+E (P ) = @
+p  g (p)A = @
+g (p)A
+p=200
+
+for
+
+p=200
+
+8
+>
+0 if p < 200
+>
+>
+5 200  p < 225
+>
+>
+< 4 225  p < 250
+g (p) = > 3 250  p < 275
+>
+2 275  p < 300
+>
+>
+1 300  p < 325
+>
+: 0 p  325
+
+And hence the true value for the discrete nonlinear curve shown in the Figure is E (P ) = 233 13 .
+Figure 18 then shows the average transaction price of each of the ten days, over 50 experiments,
+with lines above and below indicating the standard deviation. As is clear, the observed average
+transaction price is close to the predicted value of 233, and signi cantly di erent from the
+theoretical equilibrium price of 200.
+350
+325
+300
+275
+250
+225
+200
+175
+150
+125
+100
+75
+50
+
+S
+
+3.00
+
+2.50
+
+2.00
+
+D
+1.50
+
+1
+
+2
+
+3
+
+4
+
+5 6
+Quantity
+
+7
+
+8
+
+9
+
+10 11
+1.00
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+Figure 17: Flat supply: 11 buyers and 11 sell-
+
+ers. Theoretical equilibrium price P0 = 200; expected value of transaction prices E (P ) ' 241
+from Equation 5, which is for a continuous linear
+demand curve: taking into account the discrete
+and nonlinear nature of the curve shown here gives
+E (P ) = 233 13 .
+
+Figure 18: Mean daily transaction price, aver-
+
+aged over 50 zi-c experiments, for the supply and
+demand shown in Figure 17: format as for Figure 16. See text for discussion.
+
+Figure 19 shows a schedule where the supply and demand curves are both at, and there
+is an excess of demand (eleven buyers and six sellers). The intersection of the curves indicates
+P0 = 200, but Equation 7 predicts E (P ) = 125. Figure 20 then shows the average transaction
+price of zi-c traders for each of the ten days, again over 50 experiments, with lines above and
+below indicating the standard deviation. As is clear, the observed average transaction price is
+close to the predicted value of 125, and signi cantly di erent from the theoretical P0.
+16
+
+Finally, Figure 21 shows at supply and demand with excess supply (six buyers and eleven
+sellers). Again, P0 = 200 but Equation 8 predicts E (P ) = 260. The results from zi-c traders
+are shown in Figure 22. Again, the observed mean transaction price is signi cantly closer to the
+predicted value of E (P ) than P0 .
+S
+
+225
+
+3.00
+
+200
+175
+
+2.50
+
+150
+2.00
+
+125
+100
+
+1.50
+
+75
+50
+D
+
+1.00
+
+25
+1
+
+2
+
+3
+
+4
+
+5
+6
+Quantity
+
+7
+
+8
+
+9
+
+10
+
+Figure 19: Flat supply and demand curves, with
+
+2
+
+4
+
+6
+
+8
+
+10
+
+Figure 20: Mean daily transaction price, aver-
+
+excess demand: 11 buyers and 6 sellers. Theoretical equilibrium price P0 = 200; expected value of
+transaction prices E (P ) = 125 from Equation 7.
+
+aged over 50 zi-c experiments, for the supply and
+demand shown in Figure 19: format as for Figure 16. See text for discussion.
+
+S
+
+340
+
+0
+
+11
+
+3.00
+
+320
+300
+
+2.50
+
+280
+2.00
+
+260
+240
+
+1.50
+
+220
+200
+D
+
+175
+1
+
+2
+
+3
+
+4
+
+5
+6
+Quantity
+
+1.00
+
+7
+
+8
+
+9
+
+10
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+11
+
+Figure 21: Flat supply and demand, with ex-
+
+Figure 22: Mean daily transaction price, aver-
+
+cess supply: 6 buyers and 11 sellers. Theoretical equilibrium price P0 = 200; expected value of
+transaction prices E (P ) = 260 from Equation 8.
+
+aged over 50 zi-c experiments, for the supply and
+demand shown in Figure 21: format as for Figure 16. See text for discussion.
+
+These four sets of simulation experiments lend strong empirical support to the analytic
+arguments of the previous section. In each case the empirical average transaction prices of zi-c
+traders are close to the value predicted from the relevant E (P ) equation, and in the simulations
+shown here the average transaction prices are only close to the theoretical equilibrium price P0
+in situations where P0 and E (P ) are similar in value.
+17
+
+3.4 Discussion
+
+The mathematics of Section 3.2 could be criticized for ignoring the fact that the market supply
+and demand curves shift after each transaction: in principle, the analysis applied only to the
+rst transaction in each trading day. Nevertheless, there is such a good agreement between the
+theoretical predictions of the zi-c traders' failure and the results from the simulations that, in
+practice, this criticism can be ignored.
+A more subtle point is that Gode and Sunder's main claim concerned the convergence of
+transaction prices to equilibrium within a trading day: whether this happens cannot be determined from Figures 16, 18, 20, or 22, which show average transaction prices for each trading
+day.
+To determine whether the zi-c traders implemented here exhibit the same convergence to
+equilibrium as Gode and Sunder's, Figures 23 to 26 illustrate the root mean square deviation
+of transaction price from the equilibrium price (Smith's 0 ) calculated for each transaction
+sequence number. That is, for each ten-day experiment, a value 0 [1] is calculated from the
+prices of the rst transaction in each of the ten days, another value 0 [2] is calculated from the
+prices of the second transaction in each day, and so on: because each day's trading with zi-c
+agents is independent and identically distributed (iid), the day number is not relevant. For one
+experiment, this gives a vector of values 0[i] where i runs from 1 to the maximum number
+of transactions recorded in a day. Fifty experiments give fty such vectors, and the mean and
+standard deviation of the values for each element of the vector are shown in Figures 23 to 26.
+As can be seen, in the symmetric market of Figure 15 and the at-supply market of Figure 17,
+there is a clear reduction in deviation from equilibrium as the day progresses, indicating that
+the transaction prices are indeed converging on equilibrium within each trading day, as observed
+and explained by Gode and Sunder.
+1.00
+
+1.00
+
+0.80
+
+0.80
+
+0.60
+
+0.60
+
+0.40
+
+0.40
+
+0.20
+
+0
+
+2
+
+4
+
+6
+
+0.20
+
+8
+
+Figure 23: Horizontal axis: transaction se-
+
+0
+
+2
+
+4
+
+6
+
+8
+
+Figure 24: Horizontal axis: transaction se-
+
+quence number. Vertical axis: root mean square
+deviation of transaction price from equilibrium
+price, for the symmetric market of Figure 15.
+Averaged over 50 experiments, each of 10 days
+(i.e., n=500). Solid line is mean; upper and lower
+dashed lines are at plus and minus one standard
+deviation respectively.
+
+quence number. Vertical axis: root mean square
+deviation of transaction price from equilibrium
+price, for the at-supply market of Figure 17. Format as for Figure 23.
+
+18
+
+1.00
+
+1.00
+
+0.80
+
+0.80
+
+0.60
+
+0.60
+
+0.40
+
+0.40
+
+0.20
+
+0
+
+2
+
+4
+
+6
+
+0.20
+
+8
+
+Figure 25: Horizontal axis: transaction se-
+
+0
+
+2
+
+4
+
+6
+
+8
+
+Figure 26: Horizontal axis: transaction se-
+
+quence number. Vertical axis: Root mean square
+deviation of transaction price from equilibrium
+price, for the excess-demand market of Figure 19.
+Format as for Figure 23.
+
+quence number. Vertical axis: root mean square
+deviation of transaction price from equilibrium
+price, for the excess-supply market of Figure 21.
+Format as for Figure 23.
+
+However, the data in Figures 25 and 26 show that the convergence to equilibrium does not
+occur during trading days in the `box design' markets of Figures 19 and 21 respectively. There
+is no apparent convergence to equilibrium, and this is to be expected from consideration of the
+market supply and demand schedules: in these two markets, all buyers have the same limit price,
+and all sellers have the same limit price. Therefore each transaction is iid, and so there can
+be no correlation between transaction sequence number and transaction price. Thus, in these
+markets at least, there is not even a within-day convergence toward the equilibrium price.1
+
+3.5 Summary
+
+The qualitative discussion of Section 3.1 led to the analytic demonstration that while there are
+conditions under which E (P ) = P0 , in general the expected value of zi-c transaction prices will
+di er from the equilibrium price. The empirical results presented in the Section 3.3 supported
+these theoretical predictions: in all the simulation studies, the theoretical equilibrium price
+P0 = 200 and quantity Q0 = 6, yet the mean daily trading price of zi-c traders was only close
+to the theoretical P0 when the supply and demand curves were symmetric: in the other cases,
+the mean zi-c transaction prices deviated from the theoretical P0 value by amounts predictable
+from the equations for E (P ). As the zi-c traders are nothing more than stochastic systems
+generating random bids and o ers, it would appear that the following hypothesis holds:
+The mean transaction price observed in zi-c markets can be predicted from the expected value E (P ) of the probability density function (pdf) given by the intersection
+of the sellers' o er-price pdf and the buyers' bid-price pdf. Only in conditions where
+E (P ) is close to the theoretical equilibrium price P0 , will mean transaction prices
+1 It is tempting to conjecture that the speed of convergence is determined by the supply and demand schedules:
+
+Figure 24 clearly shows faster convergence than gure 23, and the lack of convergence in Figures 25 and 26 could
+be characterized as convergence at zero speed. Possibly this is a consequence of the di erences in the supply and
+demand schedules of the di erent markets: further work would be required to determine whether there is a causal
+link.
+
+19
+
+appear to be close to P0 . In general, E (P ) and P0 will di er, and mean transaction
+prices will then be at values close to E (P ) rather than P0 . In brief, any similarity
+between zi-c traders' transaction prices and the theoretical equilibrium price is more
+likely to be coincidental than causal.
+
+Furthermore, as was demonstrated in Section 3.4, although Gode and Sunder's observation of
+within-day convergence of transaction prices toward the equilibrium value was replicated here in
+two markets (Figures 15 and 17), such convergence was not observed (and indeed is theoretically
+impossible) in the `box design' markets (Figures 19 and 21).
+From this it is clear that more than zero intelligence is necessary to account for convergence
+to equilibrium. In the next section, trading agents with slightly more than zero intelligence are
+introduced, and it is demonstrated that more human-like market performance is possible with
+remarkably little extra brain-power.
+
+4 Zero-Intelligence-Plus (ZIP) Traders
+Consider a market in which each trader is aiming for a particular level of pro t: the pro t
+margin determines the di erence between the trader's limit price and shout-price. Intuitively at
+least, this has some appeal: initially, the only information known to a trader is the limit price(s)
+for the unit(s) the trader is entitled to sell or buy. In the absence of any other information,
+a pro t-oriented buyer might shout a very low bid price, say $0.05, even if the buyer's limit
+price is $10.00: there could be a seller willing to accept the low bid, and the buyer would make
+a handsome pro t. Similarly, a seller with a $1.00 limit price might, if no other shouts have
+been made, quote a price of $10.00 just to test the market. But, in a competitive market, with
+other traders holding roughly the same limit prices, these extreme shouts are unlikely to result
+in transactions. As soon as one shout has been made, every other trader in the market can use
+this to help determine a competitive price. As long as a trader can undercut a competitor and
+still make a pro t, there is an incentive to do so. Thus, however extreme the initial shouts of
+greedy traders, there is a pressure on buyers to raise their bids, and on sellers to lower their
+o ers: if the traders have set their pro t margins too high, they will have to reduce them in
+order to remain competitive.
+But it is also possible that a rational trader's pro t margin will rise during a trading period.
+For instance, at the start of trading, a seller in possession of a unit with a $1.00 limit price might
+assume that 20% pro t is a reasonable level, and so intend to shout an o er of $1.20. But, if the
+rst few o ers from competing sellers are at prices near $10.00, and there are willing buyers at
+these prices, the seller would be foolish to o er at $1.20: the seller's intended pro t level could
+be increased forty-fold, and the resulting o er price of around $9.00 is still likely to be accepted
+by a buyer.
+Thus, a plausible story can be told whereby the agents in the market adjust their pro t
+margins up or down, on the basis of the prices of bids and o ers made by the other traders, and
+whether those shouts are accepted, leading to deals, or ignored. Whether such a story applies
+to the market behavior of humans is a matter for empirical enquiry. The notes in this section
+report on the development of simple mechanisms where individual traders adjust their pro t
+margins using market price information. It is demonstrated that remarkably simple adaptive
+mechanisms can give performance that does not su er from the problems a ecting Gode and
+Sunder's zi-c traders, discussed in the previous section. Thus, these trading agents are referred
+to as \zero-intelligence-plus" (zip) traders.
+20
+
+One aim of this work is identifying minimal mechanisms that endow autonomous software
+agents with bargaining behaviors appropriate to market-based environments. The emphasis on
+minimalism comes not only from a desire for computational eciency, but also in a speculative
+attempt at sketching the minimum mechanistic complexity necessary and sucient for explaining
+human bargaining behaviors in simple market environments.
+Section 4.1 discusses at a qualitative level the conditions for raising or lowering a trader's
+pro t margin. Section 4.2 then describes adaptive mechanisms that allow a trader's pro t margin
+to alter over time. Results from simulation studies of zip traders operating in the markets used to
+illustrate the failure of zi-c traders are then presented in Section 4.3. The intention here is only
+to demonstrate that the simple adaptive mechanisms in zip traders can give results better than
+zi-c traders and more similar to those of human traders. Following the comparison of zip and
+zi-c traders, Section 4.4 presents results from using zip traders in experimental markets similar
+to those used by Smith, and illustrates the dynamics of adaptation in zip traders. Section 4.5
+describes related research, and nally Section 4.6 discusses further issues that could be explored
+with zip traders. The code and sample input and output les for the simulator system are given
+in Cli (1997).
+
+4.1 Qualitative Considerations
+
+To eliminate the need for sophisticated memory mechanisms, each zip trader alters its pro t
+margin on the basis of four factors. The rst is whether the trader is active in the market (i.e.,
+still capable of making a transaction), or inactive (i.e., has sold or bought its full entitlement of
+units, and has `dropped out' of the market for the remainder of this trading period). The three
+other factors all concern the last (most recent) shout: its price, denoted by q ; whether it was a
+bid or an o er; and whether it was accepted or rejected (i.e., whether it resulted in a transaction
+or not). As discussed above, each trader maintains a pro t margin, , which is multiplied by
+the limit price for a unit, , to determine the shout-price p. Increasing  raises p for a seller
+and lowers p for a buyer. A zip buyer will, in principle, buy from any seller that makes an o er
+less than the buyer's current bid shout-price; similarly, a zip seller sells to any buyer making a
+bid greater than the seller's current o er shout-price.
+For an inactive trader, there is little incentive to lower the pro t margin: the trader has
+already successfully engaged in however many transactions it was entitled to. Even if this was a
+result of luck, it may as well wait for the luck to run out before it starts reducing its pro t margin.
+But, if the trader drops out of the market and subsequently observes transactions occurring at
+prices which indicate that the inactive trader could have realized even higher pro ts, it should
+be able to raise its pro t margin before the start of the next day. For these reasons, zip traders
+can raise their pro t margins regardless of whether they are active or inactive, but only active
+traders reduce their margins.
+When should a trader raise its pro t margin? For a seller si , if the last shout resulted in a
+transaction, and si 's shout-price pi was less than the transaction price q , then the indications
+are that si could have asked an even higher price and still secured a deal, so si should increase
+its pro t margin i . The seller's shout price could also be increased if its shout-price equals
+the transaction price (i.e., if pi = q ), because the resultant shift in the underlying supply curve
+should be in the seller's favor. Thus, if pi  q , seller si should increase i . Similarly, a buyer bi
+should raise its pro t margin whenever events in the market indicate that it could buy a unit
+for a lower price than its current shout-price pi : that is, whenever pi  q .
+Deciding when to lower a trader's pro t margin is more dicult. If sellers compete by
+reducing their margins whenever a buyer makes an unsuccessful bid (below the sellers' lowest
+21
+
+shout), the sellers would be playing into the hands of the buyers: if the buyers make a sequence
+of very low bids, the sellers' margins could be eroded to minimal levels while the buyers' margins
+remain unchanged. The reverse holds if buyers cut their pro ts whenever a seller makes an o er
+that is rejected by the buyers. Thus, if a bid is rejected, it should be the buyers that reduce
+their margins: in particular, any buyer who would have shouted a bid lower than the rejected
+value of q should reduce their margin, thereby raising their next bid. Buyers that would have
+shouted a bid higher than q need not reduce their margins just yet. By similar arguments, when
+the last shout was a rejected o er at a price q , any seller that would have shouted an o er price
+p > q should reduce its pro t margin.
+But it may also be necessary for an agent to reduce its pro t margin when a shout is accepted
+(i.e., a transaction occurs). Consider the case when a buyer makes a bid which is then accepted
+by a seller. If the transaction price is less than the price a seller would have shouted, then that
+seller should lower its pro t margin because it is in danger of being undercut by the opposition
+(the seller that accepted the bid would have shouted a price lower than the bid). By the same
+reasoning, a buyer with a shout-price lower than that at which a seller's o er is accepted by
+some other buyer should lower its margin, so raising the price of its next bid, in order to avoid
+being priced out of the market.
+These considerations can be summarized by the pseudo-code shown in Figure 27.
+ For SELLERS:
+
+{ if (the last shout was accepted at price q)
+{ then
+1. any seller si for which pi  q should raise its profit margin
+2. if (the last shout was a bid)
+then
+1. any active seller si for which pi  q should lower its margin
+
+{ else
+1. if (the last shout was an offer)
+then
+1. any active seller si for which pi  q should lower its margin
+
+ For BUYERS:
+
+{ if (the last shout was accepted at price q)
+{ then
+1. any buyer bi for which pi  q should raise its profit margin
+2. if (the last shout was an offer)
+then
+1. any active buyer bi for which pi  q should lower its margin
+
+{ else
+1. if (the last shout was a bid)
+then
+1. any active buyer bi for which pi  q should lower its margin
+
+Figure 27: Pseudo-code for zip trading strategies.
+In order to test these qualitative bargaining mechanisms in (simulations of) real markets, it
+is necessary to specify how the pro t margins of the buyers and sellers are raised or lowered.
+22
+
+This requires a quantitative adaptation mechanism, discussed in the next section.
+
+4.2 Adaptation
+
+At a given time t, an individual zip trader (denoted by subscript i) calculates the shout-price
+pi (t) for a unit j with limit price i;j using the trader's real-valued pro t-margin i (t) according
+to the following equation:
+
+pi(t) = i;j (1 + i (t))
+
+(9)
+This implies that a seller's margin is raised by increasing i and lowered by decreasing i ,
+with the constraint that i (t) 2 [0; 1); 8t. The situation is reversed for buyers: they raise their
+margin by decreasing i and lower it by increasing i , subject to i (t) 2 [,1; 0]; 8t. The aim
+is that the value of i for each trader should alter dynamically, in response to the actions of
+other traders in the market, increasing or decreasing to maintain a competitive match between
+that trader's shout-price and the shouts of the other traders. In order to do this, some form
+of adaptation or `update' rule will be necessary. One of the simplest update rules in machine
+learning, which forms the basis of adaptation algorithms such as back-propagation in neural
+networks (e.g., Rumelhart, Hinton, & Williams, 1986) and reinforcement in classi er systems
+(e.g., Wilson, 1994, 1995), is the Widrow-Ho \delta rule":
+
+A(t + 1) = A(t) + (t)
+(10)
+Where A(t) is the actual output at time t; A(t +1) is the actual output on the next time-step;
+and (t) is the change in output, determined by the product of a learning rate coecient and
+the di erence between A(t) and the desired output at time t, denoted by D(t):
+(t) = (D(t) , A(t))
+(11)
+It is clear that, if the desired output remains constant (D(t) = k; 8t), the Widrow-Ho rule
+gives asymptotic convergence of A(t) to D(t), at a speed determined by . The Widrow-Ho
+adaptation method will be employed in the zip traders: when a trader is required to increase
+or decrease its pro t margin (on the basis of the heuristics developed in Section 4.1), a `target
+price' (denoted by i (t)) will be calculated for each trader, and the Widrow-Ho rule will then
+be applied to take the trader's shout-price on the next time-step (pi (t + 1)) closer to the target
+price i (t). Because the shout-price is calculated using the ( xed) limit price i;j and (variable)
+pro t margin i , it is necessary to rearrange Equation 9 to give an update rule for the pro t
+margin i on the transition from time t to t + 1:
+
+i (t + 1) = (pi (t) + i (t))=i;j , 1
+
+(12)
+Where i (t) is the Widrow-Ho delta value, calculated using the individual trader's learning
+rate i:
+i (t) = i (i (t) , pi (t))
+(13)
+This raises the question of how to set the target price i (t). While a simple method would
+be to set the target price equal to the price of the last shout (i.e., i (t) = q (t)), this presents a
+signi cant problem. When the last shout price is very close to, or equal to, the trader's current
+shout price (i.e., pi (t) ' q (t)), the value of i (t) given by Equation 13 will be very small, or
+zero. Thus, traders who would have shouted prices close to q (t) are likely to make negligible
+23
+
+alterations to their pro t margins, and so will shout very similar prices when next given the
+opportunity. But in a competitive market, there is a need for the agents to be constantly testing
+the market, always pushing for higher margins. For example, if it happens that all traders
+are shouting prices in the range $1.00 to $1.05, the di erences between their shouts and the
+transaction prices will never be more than a few cents, so they will hardly alter their shouts,
+and so the system will stabilize at this price range even if the true competitive equilibrium is at
+$10.00. This sounds unlikely because, intuitively, it is desirable to have sellers always trying for
+higher prices and buyers always trying for lower prices. Thus, it is necessary for the target price
+to be di erent from the current shout or transaction price: for example, if a transaction occurs
+at $1.00, a trader with a limit price of $0.50 should aim for a price higher than $1.00, while a
+buyer with a limit price of $1.75 should aim for a target price lower than $1.00.
+There are many ways in which the target price i (t) could be determined. In the current zip
+traders, the target price is generated using a stochastic function of the shout price q (t), shown
+in Equation 14:
+
+i(t) = Ri (t)q(t) + Ai (t)
+
+(14)
+Where Ri is a randomly generated coecient that sets the target price relative to the price
+q(t) of the last shout, and Ai(t) is a (small) random absolute price alteration (or perturbation).
+When the intention is to increase the dealer's shout price, Ri > 1:0 and Ai > 0:0; when the
+intention is to decrease it, 0:0 < Ri < 1:0 and Ai < 0:0. Every time a trader's pro t margin is
+altered, the target price is calculated using newly-generated random values of Ri and Ai , which
+are independent and identically distributed for all traders. The use of relative increases ensures
+that large values of q (t) are altered by greater amounts than small values of q (t). For example,
+a shout of q =$10.00 might give a seller's target price of $12.50 (an absolute increase of $2.50)
+while a shout of $2.00 leads to a target of $2.50 (an absolute increase of $0.50), but the relative
+increase is the same in both cases (i.e., 25%). The use of small absolute perturbations ensures
+that even very small shout prices lead to targets that di er by a few cents, and can be considered
+as random noise in the calculation of the target price.
+Finally, in many applications of the Widrow-Ho rule where the desired output D(t) varies
+dynamically, the learning system requires `damping' to prevent high-frequency oscillations around
+D(t). Consider the case where a trader's observations of the shouts and transactions in the market lead it to repeatedly increase its pro t margin: if the next transaction to occur indicates
+that the pro t margin is now too high, it may be premature to immediately reduce the margin;
+it might be better to reduce the rate of increase of the margin, rather than the margin itself.
+If the rst indication that the margin should be reduced is reinforced by subsequent shouts
+or transactions, then eventually the rate of increase can take on a negative value (leading to
+reductions in the pro t margin). Figuratively, the sequence of prices for shouts and transactions
+builds a \momentum" indicating which way the pro t margin should be altered. This can easily
+be achieved by giving each trader a momentum coecient, denoted by i ( i 2 [0; 1]) so that
+if i = 0 the trader takes no account of past changes when determining the next change to the
+value of the pro t margin i , but with larger non-zero values of i greater emphasis is accorded
+to past changes. Such momentum mechanisms are often employed in back-propagation neural
+network learning (Rumelhart et al., 1986). Equation 15 shows the general form of the equation
+for momentum-based updates, with ,i (0) = 0; 8i:
+,i (t + 1) = i ,i (t) + (1 , i)i (t)
+(15)
+Using ,i in place of i in Equation 12, and de ning ,i (0) = 0; 8i, gives the following update
+24
+
+rule, which is used in the zip traders:2
+
+i (t + 1) = (pi(t) + ,i (t))=i;j , 1
+
+(16)
+The behavior of groups of zip traders using the pro t margin update rule of Equation 16
+are illustrated in the following sections. In all the experiments reported there, Ri is uniformly
+distributed over the range [1:0; 1:05] for price increases and over [0:95; 1:0] for price decreases,
+giving relative rises or falls of up to 5%, and Ai is uniformly distributed over [0:0; 0:05] for
+increases and [,0:05; 0:0] for decreases, giving absolute alterations of up to ve cents, thereby
+modeling a degree of uncertainty or error in the trader's formulation of the target price. The
+value of each trader's learning rate i is randomly generated when the trader is initialized,
+using values uniformly distributed over [0:1; 0:5], and remains xed for the duration of the
+experiment. Similarly, each trader's momentum coecient i is randomly generated from a
+uniform distribution over [0:0; 0:1] and remains constant for the duration of the experiment.
+Initial values for the i pro t margins of the traders are randomly generated values using a
+uniform distribution over the range [0:05; 0:35] for sellers and [,0:35; ,0:05] for buyers: that is,
+all traders commence each experiment with the pro t margins between 5 and 35 percent.
+
+4.3 Results
+
+To allow direct comparison, results are presented here from zip traders operating in the markets
+that were used to show the failure of zi-c traders: the supply and demand curves for these
+markets were illustrated in Figures 15, 17, 19, and 21. To give a representative view of the
+performance of zip traders, all experiments are conducted with the same parameter values
+(listed in the previous paragraph), rather than with values optimized or `tuned' to give good
+performance for each di erent market's supply and demand curves. Results showing the average
+of 50 runs for zip traders in these four markets are shown in Figures 28, 29, 30, and 31. As can
+be seen by comparison with the zi-c results in Figures 16, 18, 20, and 22, the average transaction
+prices of the zip traders in these markets are much closer to the theoretical predictions than
+are those of the zi-c traders. Figures 28 and 29 clearly show average transaction prices rapidly
+converging to the theoretical equilibrium price of $2.00, typically within the rst four trading
+days and remaining at that level for the remaining days, with very little variance.
+The data presented in Figures 30 and 31 are less satisfactory: the initial average transaction
+prices are close to those of the zi-c traders, but this is followed by a comparatively slow (yet
+steady) approach to the theoretical equilibrium price, from below. To further illustrate the
+behavior of zip traders in these two markets, Figures 32 and 33 show data from experiments
+where there were 30 trading days, rather than 10. As is clear from these gures, the long-term
+tendency of the zip traders is towards the equilibrium price. If the various system parameters
+(such as the initial distributions of pro t margins, and the distributions of learning rates and
+momentum values) were altered, faster approach to equilibrium could be demonstrated.
+Similarly, the approach to equilibrium from below in Figure 28 is an artefact of the buyers
+and sellers having initial values of pro t margin drawn from distributions over the same ranges
+of percentages: because the sub-marginal sellers have lower limit prices than the sub-marginal
+buyers, the absolute pro t values (i.e., measured in $) are lower for the sellers than for the buyers,
+and so initial transactions are more likely to occur at less-than-equilibrium prices. Again, the
+initial settings of the traders' parameters could be altered to eliminate this bias (i.e., give the
+sellers higher percentage pro t margins than the buyers).
+2 Note that when there is no momentum ( i = 0), Equation 16 reduces to Equation 12.
+
+25
+
+3.00
+
+3.00
+
+2.50
+
+2.50
+
+2.00
+
+2.00
+
+1.50
+
+1.50
+
+1.00
+
+0
+
+2
+
+4
+
+6
+
+8
+
+1.00
+
+10
+
+Figure 28: Mean zip transaction prices, aver-
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+Figure 29: Mean zip transaction prices, aver-
+
+aged over 50 zip experiments, for the supply and
+demand shown in Figure 15 (P0 = $2:00): format
+as for Figure 16. See text for discussion.
+
+aged over 50 zip experiments, for the at supply
+shown in Figure 17 (P0 = $2:00): format as for
+Figure 18. See text for discussion.
+
+However, the intention here is not to demonstrate zip traders with optimal parametersettings: rather, the data in these graphs serves to demonstrate that the simple zip trading
+strategies can readily achieve results that are impossible when using zi-c traders, and are closer
+to those expected from human subjects or traditional rational-expectations theoretical predictions, with the same zip parameter values in a variety of market conditions. On these grounds
+at least, the minimally adaptive zip traders represent a signi cant advance on the work of Gode
+and Sunder.
+3.00
+
+3.00
+
+2.50
+
+2.50
+
+2.00
+
+2.00
+
+1.50
+
+1.50
+
+1.00
+
+0
+
+2
+
+4
+
+6
+
+8
+
+1.00
+
+10
+
+Figure 30: Mean zip transaction prices, aver-
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+Figure 31: Mean zip transaction prices, aver-
+
+aged over 50 zip experiments, for the at supply
+and demand, with excess demand, shown in Figure 19 (P0 = $2:00): format as for Figure 20.
+Trading for 10 days. See text for discussion.
+
+aged over 50 zip experiments, for the at supply
+and demand, with excess supply, shown in Figure 21 (P0 = $2:00): format as for Figure 22.
+Trading for 10 days. See text for discussion.
+
+It is also possible to plot Smith's measure of allocative eciency and Gode and Sunder's
+26
+
+3.00
+
+3.00
+
+2.50
+
+2.50
+
+2.00
+
+2.00
+
+1.50
+
+1.50
+
+1.00
+
+0
+
+10
+
+20
+
+1.00
+
+30
+
+Figure 32: Mean zip transaction prices, aver-
+
+0
+
+10
+
+20
+
+30
+
+Figure 33: Mean zip transaction prices, aver-
+
+aged over 50 zip experiments, for the at supply
+and demand, with excess demand, shown in Figure 19 (P0 = $2:00): format as for Figure 20.
+Trading for 30 days. See text for discussion.
+
+aged over 50 zip experiments, for the at supply
+and demand, with excess supply, shown in Figure 21 (P0 = $2:00): format as for Figure 22.
+Trading for 30 days. See text for discussion.
+
+measure of pro t dispersion for the zip traders. As with the zi-c traders, measures of allocative
+eciency for zip traders are typically very high (often averaging 100%). For this reasons, graphs
+of zip allocative eciency are not very informative, and so are not plotted here. However, plots
+of pro t dispersion are more revealing: time series of average pro t dispersion values for both
+zi-c and zip traders in the four markets introduced in Figures 15, 17, 19, and 21 are shown in
+Figures 34 to 37 respectively.
+0.9
+
+0.9
+
+0.8
+
+0.8
+
+0.7
+
+0.7
+
+0.6
+
+0.6
+
+0.5
+
+0.5
+
+0.4
+
+0.4
+
+0.3
+
+0.3
+
+0.2
+
+0.2
+
+0.1
+
+0.1
+
+0.0
+
+0
+
+2
+
+4
+
+6
+
+8
+
+0.0
+
+10
+
+Figure 34: Mean zi-c and zip pro t dispersion
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+Figure 35: Mean zi-c and zip pro t dispersion
+
+levels for the market of Figure 15, over 10 days.
+The zi-c traders show a near-constant mean pro t
+dispersion around 0.35, while the mean dispersion
+for zip traders falls rapidly and stabilizes at values
+less than 0.05.
+
+levels for the market of Figure 17, over 10 days.
+The zi-c traders show a near-constant mean pro t
+dispersion around 0.25, while the mean dispersion
+for zip traders falls rapidly and stabilizes at values
+close to 0.01.
+
+As can be seen from the pro t dispersion gures, in all cases the nal (Day 10) pro t
+27
+
+0.9
+
+0.9
+
+0.8
+
+0.8
+
+0.7
+
+0.7
+
+0.6
+
+0.6
+
+0.5
+
+0.5
+
+0.4
+
+0.4
+
+0.3
+
+0.3
+
+0.2
+
+0.2
+
+0.1
+
+0.1
+
+0.0
+
+0
+
+2
+
+4
+
+6
+
+8
+
+0.0
+
+10
+
+Figure 36: Mean zi-c and zip pro t dispersion
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+Figure 37: Mean zi-c and zip pro t dispersion
+
+levels for the market of Figure 19, over 10 days.
+The zi-c traders show a near-constant mean pro t
+dispersion around 0.6, while the mean dispersion
+for zip traders falls gradually from approximately
+0.65 to near 0.4.
+
+levels for the market of Figure 21, over 10 days.
+The zi-c traders show a near-constant mean pro t
+dispersion around 0.5, while the mean dispersion
+for zip traders falls steadily from less than 0.4 to
+around 0.1
+
+dispersion is signi cantly less for zip traders than for zi-c traders. In Figures 34 and 35 the zip
+pro t dispersion falls sharply over the rst four days and then levels out to a roughly constant
+value; in Figures 36 and 37 the fall is less dramatic but could, presumably, be made more
+rapid by appropriate alteration of the parameter-settings, as was discussed previously. But, to
+reiterate, the intention here is to show the performance of zip traders with identical parameter
+settings in a variety of markets, rather than with parameter settings tuned for each market. As
+was discussed in Section 2.2, Gode and Sunder (1993) note that the zi-c pro t dispersion levels
+are lower than those of the zi-u traders but appreciably higher than those of human traders.
+As is demonstrated in Figures 34 to 37, zip traders rapidly adapt to give pro t dispersion levels
+that are in some cases approximately a factor of ten less than those of zi-c traders. On this
+basis, it seems safe to claim that the performance of the zip traders in the experimental markets
+used here is signi cantly closer to that of human traders than is the performance of zi-c traders.
+
+4.4 Discussion
+
+In addition to comparing the behavior of zip and zi-c traders, we can also compare the behavior
+of zip traders to Smith's (1962) results from human subjects. The symmetric market in Figure 15
+is clearly comparable to the markets used in some of Smith's early experiments (e.g., Charts 1
+to 3 in Smith (1962)). The at-supply market in Figure 17 is comparable to Smith's (1962)
+Chart 4), and the excess-demand market in Figure 19 is comparable to Smith's (1962) Chart 6).
+In particular, Smith notes that in his excess-demand market, \: : : The approach to equilibrium
+is from below, and the convergence is relatively slow": both of these qualities are exhibited by
+the zip trader results in Figures 30 and 32 but not the zi-c trader results in Figure 20.
+In the zip experiments shown so far, the supply and demand schedules have remained xed
+for the duration of the experiment. However Smith (1962) also experimented with dynamic
+changes in supply or demand: in some of his experiments, at the end of a trading day a new set
+of limit prices was distributed to the buyers, sellers, or both. Typically, the human traders would
+28
+
+adapt, converging to the new market equilibrium values. This rapid, robust, and decentralized
+adaptation is one of the attractions of using the continuous double auction as a market organization. Thus, it is important to explore the behavior of zip traders when supply or demand
+alter (either increase or decrease).
+Figure 38 shows a transaction-price time-series from one experiment which uses the symmetric market of Figure 15 for the rst ten days. At the end of Day 10, the demand curve is shifted
+upwards by adding $0.50 to each buyer's limit price (P0 increases to $2.25), and the experiment
+continues for another ve days. Figure 39 shows the average results from 50 such experiments.
+Similarly, Figure 40 shows transaction prices from one experiment where the symmetric market
+of Figure 15 is again used for the rst ten days, but an increase in supply is then imposed by
+subtracting $0.50 from each seller's limit price (P0 decreases to $1.75) and trading continues
+for another ve days. Figure 41 shows the average results from 50 such experiments. These
+gures clearly demonstrate that groups of zip traders are capable of rapidly adjusting to new
+equilibrium values resulting from changes in supply or demand.
+3.00
+
+3.00
+
+2.50
+
+2.50
+
+2.00
+
+2.00
+
+1.50
+
+1.50
+
+1.00
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+12
+
+14
+
+1.00
+
+16
+
+Figure 38: Transaction-price time series for
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+12
+
+14
+
+16
+
+Figure 39: Mean zip transaction prices, aver-
+
+one experiment with a sudden increase in demand. Initial market is illustrated in Figure 15
+(P0 = $2:00). After 10 trading days, demand is
+increased (P0 = $2:25) and the experiment continues for another 5 days. See text for discussion.
+
+aged over 50 increased-demand experiments.
+
+4.5 Related Work
+
+As was noted earlier, Gode and Sunder's work on zi traders has been cited approvingly in
+a number of texts discussing continuous double auction markets. Despite this, there appear
+to be very few papers that are comparable to the work described here: we know of no other
+critiques of Gode and Sunder's work, and have found only two papers that describe arti cial
+trading agents similar to the zip traders developed here. These two papers are by Easley and
+Ledyard (1992) and Rust et al. (1992), discussed below. Cli (1997) provides an extended
+critique of the market-based control literature (e.g. Clearwater (1996)), noting that the problem
+of incorporating bargaining mechanisms in software agents is commonly avoided by introducing
+centralized auctioneer processes. For this reason, no work in market-based control is reviewed
+here. Cli (1997) also discusses the lack of relevant work in the eld known as \arti cial life".
+29
+
+3.00
+
+3.00
+
+2.50
+
+2.50
+
+2.00
+
+2.00
+
+1.50
+
+1.50
+
+1.00
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+12
+
+14
+
+1.00
+
+16
+
+Figure 40: Transaction-price time series for
+
+0
+
+2
+
+4
+
+6
+
+8
+
+10
+
+12
+
+14
+
+16
+
+Figure 41: Mean zip transaction prices, aver-
+
+one experiment with a sudden increase in supply. Initial market is illustrated in Figure 15
+(P0 = $2:00). After 10 trading days, supply is
+increased (P0 = $1:75) and the experiment continues for another 5 days. See text for discussion.
+
+aged over 50 increased-supply experiments.
+
+Easley and Ledyard (1992) consider several theories for price formation and equilibration,
+attempting to explain how human traders converge to equilibrium. They introduce a mathematical notation which they use to describe speci c hypotheses concerning trading strategies and
+equilibration in double-auctions; a number of analytic proofs then lead to three speci c predictions, which they test by comparison to data from human experiments. Their trading strategies
+are simple mechanisms which rely on a memory of data from past trading days. Speci cally,
+Easley and Ledyard's trading strategies use the following information: the lowest-priced o er or
+transaction in the previous day's trading; the highest-priced bid or transaction in the previous
+day's trading; the most recent bid, o er and transaction prices in the current day's trading; the
+time remaining to the end of the current trading day; and an indicator of whether the agent
+has traded in the current day (their traders are designed to trade only one unit per day, so this
+indicator is similar to the way in which the zip traders cease to be active once they have traded
+all their entitlement; however, zip traders may enter into more than one transaction per day).
+Clearly, Easley and Ledyard's trading strategies could require more memory than a zip trader,
+and also their strategy is only fully e ective after the rst day of trading; yet it is often on the
+rst day that the most signi cant shifts in behavior occur. Easley and Ledyard's analysis relies
+on a simplifying assumption that is questionable in practice: they assume that, when more than
+one trader is interested in a transaction, the buyer with the highest shout price or the seller
+with the lowest shout price is guaranteed the deal (Easley & Ledyard, 1992, p.70). Despite (or
+possibly because of) this, several of the experimental observations they present contradict their
+theoretical predictions. Furthermore, as Easley and Ledyard (1992, p.87) note, their theory
+does not apply to experiments in which one side of the market is not allowed to bid or o er
+(e.g., retail markets), and it doesn't predict the e ects of shifts in supply and demand curves.
+In Section 4.4, we showed the responses of zip traders when supply and demand alter, and the
+human-like equilibration of zip traders in `retail' markets is discussed in detail by Cli (1997).
+Because zip traders give good performance in situations where Easley and Ledyard's work cannot be applied, it seems fair to claim that zip traders are both simpler than, and an advance
+30
+
+on, the work of Easley and Ledyard (1992).
+Rust et al. (1992) report on a series of experimental economics tournaments they organized,
+where other researchers were invited to submit software agents that would compete against one
+another in a simpli ed double auction. The double auction was simpli ed by synchronizing it
+into a two-stage process that was iterated several times per trading day. In the rst stage, all
+traders simultaneously shout a bid or o er, and these shouts are distributed to all traders. In
+the second stage, the trader with the highest current bid and the trader with the current lowest
+o er are given the option of entering into a transaction: they can either agree a deal, or refuse.
+In addition to the array of bids and o ers, each trader has access to public information which
+includes: the number of buyers; the number of sellers; the identities of the traders; the number
+of rounds (experiments), periods (days per experiment) and timesteps (iterations per day); the
+number of units each agent will have; and the distribution from which the unit limit prices are
+generated (Rust et al., 1992, p.164). The trading agents were allowed to be both buyers and
+sellers, although some researchers submitted seller-only or buyer-only strategies. A number of
+tournaments were held, and the di erent strategies were ranked in order of the pro ts they
+generated. Few details are given of the speci cations of the di erent strategies, so a detailed
+comparison with zip traders is dicult. However, a key di erence between these tournaments
+and the zip (and zi-c) experiments is that the tournaments involved heterogeneous groups of
+traders. Traders with radically di erent strategies could compete in the same market, and much
+of the focus in Rust et al. (1992) is on the way in which the di erent trading strategies interacted,
+both with a xed number of di erent strategies and in `evolutionary' tournaments where the
+relative numbers of the di erent trading strategies altered over time, so more pro table strategies
+became more numerous than less pro table ones. The `population dynamics' of the tournaments
+occupy much of the discussion:
+\We nd that the top-ranked programs yield a fairly \realistic" working model
+of a [double auction] market in the sense that their collective behavior is consistent
+with the key \stylized facts" of human experiments. We also nd that a very simple
+strategy is a highly e ective and robust performer in these markets. This strategy was
+able to outperform more complex algorithms that use statistically based predictions
+of future transaction prices, explicit optimizing principles, or sophisticated \learning
+algorithms". The basic idea behind the approach can be described quite simply:
+wait in the background and let others do the negotiating, but when bid and [o er]
+get suciently close, jump in and \steal the deal". However, the results of our
+evolutionary tournaments show that when too many other traders try to imitate this
+strategy, market eciency can fall precipitously: : : . Speci cally, if too many traders
+\wait in the background", little information is generated until just before the end of
+the trading period. This tends to produce \closing panics" as traders rush to unload
+their [units] in the nal seconds of the trading period, resulting in failure to execute
+all potentially pro table transactions." (Rust et al., 1992, p.157, original emphasis).
+Thus, there is no focus in Rust et al. (1992) on explicit critiques of Gode and Sunder's zi
+traders, or on exploring the behavior of homogeneous groups of traders in particular market environments such as the symmetric, at supply, excess-supply `box', excess-demand `box', increaseddemand symmetric, or increased-supply symmetric used with zip traders in Sections 4.3 and 4.4,
+or the zip `retail' markets described in Cli (1997). Furthermore, the reproductive success of
+the \wait in the background" trader strategy indicates that the `evolutionary' tournaments can
+favor trading strategies that, when used to form homogeneous groups of traders, can give rise
+to market dynamics that are manifestly sub-optimal.
+31
+
+The recent work of Epstein and Axtell (1996) includes studies of bilateral trade between
+simple software agents in spatially distributed markets, but the trade mechanisms involve the
+exchange or bartering of two commodities: there is no money or price mechanism in their models
+(Epstein & Axtell, 1996, p.101), and so their work also does not bear comparison with Gode
+and Sunder's.
+
+4.6 Further Work
+
+While the results presented in the previous section indicate that the zip bargaining mechanisms
+give results more comparable to human traders than do Gode and Sunder's zi-c traders, there
+are many possible ways in which this work could be extended.
+First, the rationale for the zip mechanisms comes from the qualitative arguments of Section 4.1, and while the results are promising, it would be more satisfactory to develop a more
+rigorous, analytic treatment of these mechanisms. The qualitative rationale could perhaps be
+supported by game-theory analysis, or the algorithmic complexity could be analysed both in
+time and in space (e.g. costs for storage and network bandwidth). Furthermore, it would be
+attractive to develop proofs concerning the convergence to equilibrium of zip systems.
+Also, the demonstrations of the zip traders come from simulations of minimally simple
+markets, similar to those used in Smith's early experiments. There are a variety of ways in
+which the complexity of the market environments could be increased, which may reveal the
+need for revisions or extensions to the basic zip mechanisms introduced here. A recent masters
+thesis by van Montfort (1997) describes experiments using our zip traders in spatially structured
+environments (i.e., segmented markets), and studying zip traders in markets where intertemporal
+arbitrage is permitted.
+The current zip traders can deal with the right to sell or buy one or more units of commodity
+with the same limit price. Relatively straightforward extensions include endowing the agents
+with the right to buy or sell multiple units of commodity, where each agent's units have di erent
+limit prices, possibly also with the lot-size of each deal being chosen by the agents. A natural
+next step would then be to have multiple types of commodity, with the possibility of substitution
+between di erent commodity types.
+A signi cant issue to examine is the extent to which the market dynamics are a ected by the
+division of time into discrete `days': in many real markets this assumption may be untenable,
+and it may be the case that agents `drop out' of the market and re-enter it in an asynchronous
+fashion, for varying periods of time. The introduction of delays and noise into distributed
+markets is also likely to have a signi cant impact on their dynamics. In particular, delays and
+noise introduce uncertainty and risk: received signals might be incorrect, through corruption
+by noise or as a consequence of being out-of-date. Because of this, it may be necessary for
+the traders to reason about their `beliefs' concerning the reliability of the data used in making
+trading decisions.
+As a complement to the current system where zip traders buy and sell in a commodity
+market, zip traders could be developed for use in asset markets, where the items bought and
+sold can generate an income (the dividend stream) while they are owned (see, e.g., Davis and
+Holt (1993, p.162 .) and Sunder (1995)). Moreover, the current zip market is a spot market:
+it would also be interesting to evaluate the performance of zip traders in derivative markets.
+It is seems very probable that, as market organizations with fewer simplifying constraints
+are used and as the range of possible actions available to the traders increases, more complex
+decision and adaptation mechanisms will be required. An obvious rst approach would be to
+introduce \higher-order" adaptation mechanisms so that values which are currently parameters
+32
+
+for each agent become variables. That is, the values for the learning rate ( in Equation 13) and
+momentum ( in Equation 15) for each agent could be varied dynamically on the basis of that
+agent's experiences in the market. Also, other variables may be introduced into the adaptation
+and bargaining mechanisms: there are a number of variables that the current zip traders do not
+take account of which a human trader might use to determine more pro table prices. Examples
+include: whether there are more buyers than sellers (or more o ers than bids shouted) and vice
+versa; the time remaining until the end of the trading period; predictions of cyclical uctuations
+in supply and demand; the average prices of the competition (to allow aggressive or predatory
+pricing, under-selling or over-bidding to attack the competition); and so on. Also, the current
+zip traders are speci ed as discrete-time processes, but in more realistic (i.e., more complex)
+markets, it is likely that continuous-time processes will be required.
+Although more traditional machine learning techniques may also be usefully employed, recent
+work in biologically-inspired computing (so-called \arti cial life") has seen the development
+of a number of adaptation mechanisms that could be employed in automatically adapting or
+tuning trading agents. Such techniques include the wide variety of neural-network learning
+algorithms (see e.g. Rumelhart and McClelland (1986) and Hertz, Krogh, and Palmer (1991)),
+and evolutionary approaches such as genetic programming and classi er systems (see e.g. (Davis,
+1991)). This may allow further exploration or strengthening of the links between evolutionary
+and economic dynamics (see e.g. Hodgson (1993) and Vromen (1995)). In all cases, the pro t
+accrued by an agent could be used as an obvious reinforcement payo of \ tness" or \reward".
+
+4.7 Summary
+
+This section commenced with the simple qualitative arguments, presented in Section 4.1, for how
+a minimally intelligent trader might operate, and Section 4.2 then discussed some elementary
+quantitative adaptation mechanisms taken from the machine learning literature. Together, these
+strategy and adaptation mechanisms de ne the current zip traders.
+The results presented in Section 4.3 demonstrated that the zip traders yield better results
+than zi-c traders: Section 3.3 showed zi-c traders converging to equilibrium in one market but
+failing (as predicted) in another three: the zip traders do not fail to reach equilibrium in any
+of these four markets. It was also demonstrated that pro t dispersion is lower in zip trader
+markets than in zi-c markets, so the zip results are closer to the human-trader data presented
+by Gode and Sunder (1993).
+The zip traders were demonstrated to give results qualitatively similar to those of Smith's
+(1962) human subjects: even the modes of failure are similar in zip and human traders. That is,
+like humans, zip traders showed a slow approach to equilibrium from below in the excess-demand
+markets of Figures 30 and 32. Also, Cli (1997) shows zip traders exhibiting a convergence to
+below-equilibrium prices in the `retail' markets where only sellers shout prices: Smith (1962)
+describes similar results with human traders. Signi cantly, in these markets inspired by Smith's
+experiments, Gode and Sunder's zic traders either fail to give results comparable to human
+data, or cannot even be used without revising and extending their speci cation.
+Smith (1962) also experimented with altering supply and demand mid-way through the
+experiment, and with `high-volume' markets where his human subjects were given the right to
+buy or sell more than one unit per day. Again, zip traders exhibit human-like performance in
+such markets.
+The similarities between theoretical predictions, human data, and zip traders are striking
+and signi cant because of the simplicity of the trading strategies and adaptation mechanisms
+in the zip traders. While Section 3 demonstrated that zi-c traders are too simple, the results
+33
+
+in this section indicate that zip traders are simple enough to give human-like performance, but
+not too simple. Having established these baseline results, Section 4.6 sketched out possibilities
+for extending this work. Clearly, there is much further work that could be done.
+
+5 Conclusion
+Computational trading agents can be viewed as mechanistically rigorous statements of potential
+models of human bargaining behaviors, although it is likely that more complex mechanisms
+would be required to further account for the many subtleties and nuances of human behavior:
+empirical work in experimental economics and human psychology would also be necessary to
+validate any models. Once validated, such model agents could be used in the manner intended
+in the work of Arthur (1993) or Easley and Ledyard (1992), for conveniently testing theories
+concerning the behavior of humans in di erent market structures and conditions.
+Gode and Sunder's work was an important contribution to the eld of experimental economics, providing an absolute lower limit on the mechanistic complexity of trading agents, and
+demonstrating that allocative eciency is a poor indicator of the intelligence of agents in a
+double-auction market. However, the critique presented in Section 3 indicates that some of the
+tendencies of zi-c traders towards theoretical equilibrium values are predictable from a priori
+analysis of the probability functions of the system. There is a sense in which the zi-c simulation
+experiments (both our own, and Gode and Sunder's) are super uous: the mathematical analysis
+predicts both the failures and the (apparent) successes of markets populated by zi-c traders.
+The failings of the zi-c traders indicates a need for bargaining mechanisms more complex than
+the simple stochastic generation of bid and o er prices.
+The work on zip traders, reported in Section 4, should be viewed as a preliminary sketch
+of what forms such bargaining mechanisms might take. The zip traders are more complex
+than Gode and Sunder's zi-c traders, but only slightly, and in any case are manifestly much
+less complex than humans. Nevertheless, the results from the zip traders, both in terms of
+equilibration and pro t dispersion, are clearly closer to those from human experimental markets
+than are the results from zi-c traders. It is reassuring to see that very simple mechanisms can
+give such human-like results, but there is much further work that could be done in exploring
+behavior of zip traders in more complex market environments, and in attempting to extend the
+behavioral sophistication of such traders without unduly adding to their complexity.
+
+References
+Arthur, W. B. (1993). On designing economic agents that behave like human agents. Evolutionary
+Economics, 3, 1{22.
+Bollerslev, T., & Domowitz, I. (1992). Some e ects of restricting the electronic order book in an automated trade execution system. In Friedman, D., & Rust, J. (Eds.), The Double Auction Market:
+Institutions, Theories, and Evidence, pp. 221{252. Addison-Wesley, New York.
+Camerer, C. (1995). Individual decision making. In Kagel, J. H., & Roth, A. E. (Eds.), The Handbook
+of Experimental Economics, pp. 587{703. Princeton University Press, Princeton, NJ.
+Cason, T., & Friedman, D. (1992). An empirical analysis of price formation in double auction markets. In
+Friedman, D., & Rust, J. (Eds.), The Double Auction Market: Institutions, Theories, and Evidence,
+pp. 253{284. Addison-Wesley, New York.
+Clark, A. J. (1997). Being There: Putting Brain, Body, and World Together Again. MIT Press Bradford
+Books, Cambridge MA.
+
+34
+
+Clearwater, S. H. (Ed.). (1996). Market-Based Control: A Paradigm for Distributed Resource Allocation.
+World Scienti c, Singapore.
+Cli , D. (1997). Minimal-intelligence agents for bargaining behaviors in market-based environments. HP
+Labs technical report HP{97{91, Hewlett Packard Research Laboratories, Bristol, England.
+Davis, D. D., & Holt, C. A. (1993). Experimental Economics. Princeton University Press, Princeton, NJ.
+Davis, L. (Ed.). (1991). Handbook of Genetic Algorithms. Van Nostrand Reinhold, New York.
+Easley, D., & Ledyard, J. (1992). Theories of price formation and exchange in double oral auctions. In
+Friedman, D., & Rust, J. (Eds.), The Double Auction Market: Institutions, Theories, and Evidence,
+pp. 63{98. Addison-Wesley, New York.
+Epstein, J. M., & Axtell, R. (1996). Growing Arti cial Societies: Social Science from the Bottom Up.
+MIT Press Bradford Books, Cambridge MA.
+Friedman, D. (1992). The double auction market institution: A survey. In Friedman, D., & Rust, J. (Eds.),
+The Double Auction Market: Institutions, Theories, and Evidence, pp. 3{26. Addison-Wesley, New
+York.
+Friedman, D., & Rust, J. (Eds.). (1992). The Double Auction Market: Institutions, Theories, and Evidence. Addison-Wesley, New York.
+Gode, D. K., & Sunder, S. (1992). Lower bounds for eciency of surplus extraction in double auctions. In
+Friedman, D., & Rust, J. (Eds.), The Double Auction Market: Institutions, Theories, and Evidence,
+pp. 199{219. Addison-Wesley, New York.
+Gode, D. K., & Sunder, S. (1993). Allocative eciency of markets with zero-intelligence traders: Market
+as a partial substitute for individual rationality. Journal of Political Economy, 101 (1), 119{137.
+Hertz, J., Krogh, A., & Palmer, R. G. (1991). An Introduction to the Theory of Neural Computation.
+Lecture Notes Volume I. Addison Wesley.
+Hodgson, G. M. (1993). Economics and Evolution: Bringing life back into economics. Polity Press,
+Cambridge.
+Holt, C. A. (1995). Industrial organization: A survey of laboratory research. In Kagel, J. H., & Roth,
+A. E. (Eds.), The Handbook of Experimental Economics, pp. 349{443. Princeton University Press,
+Princeton, NJ.
+Kagel, J. H. (1995). Auctions: A survey of experimental research. In Kagel, J. H., & Roth, A. E. (Eds.),
+The Handbook of Experimental Economics, pp. 501{585. Princeton University Press, Princeton,
+NJ.
+Kagel, J. H., & Vogt, W. (1992). Buyer's bid double auctions: Preliminary experimental results. In
+Friedman, D., & Rust, J. (Eds.), The Double Auction Market: Institutions, Theories, and Evidence,
+pp. 285{306. Addison-Wesley, New York.
+Roth, A. E. (1995). Introduction to experimental economics. In Kagel, J. H., & Roth, A. E. (Eds.), The
+Handbook of Experimental Economics, pp. 3{109. Princeton University Press, Princeton, NJ.
+Rumelhart, D. E., Hinton, G. E., & Williams, R. J. (1986). Learning internal representations by error
+propagation. In Rumelhart, D. E., & McClelland, J. L. (Eds.), Parallel Distributed Processing,
+Volume 1: Foundations, pp. 318{362. MIT Press Bradford Books, Cambridge MA.
+Rumelhart, D. E., & McClelland, J. L. (Eds.). (1986). Parallel Distributed Processing, Volume 1: Foundations. MIT Press Bradford Books, Cambridge MA.
+Rust, J., Miller, J., & Palmer, R. (1992). Behavior of trading automota in a computerized double auction
+market. In Friedman, D., & Rust, J. (Eds.), The Double Auction Market: Institutions, Theories,
+and Evidence, pp. 155{198. Addison-Wesley, New York.
+Smith, V. L. (1962). An experimental study of competitive market behavior. Journal of Political Economy,
+70, 111{137.
+
+35
+
+Sunder, S. (1995). Experimental asset markets: A survey. In Kagel, J. H., & Roth, A. E. (Eds.), The
+Handbook of Experimental Economics, pp. 445{500. Princeton University Press, Princeton, NJ.
+van Montfort, G. (1997). Economic agents for controlling complex systems. Master's thesis, Delft University of Technology Faculty of Technical Mathematics and Informatics. Unpublished.
+Vromen, J. J. (1995). Economic Evolution. Routledge, London.
+Wilson, S. W. (1994). ZCS: A zeroth level classi er system. Evolutionary Computation, 2 (1), 1{18.
+Wilson, S. W. (1995). Classi er tness based on accuracy. Evolutionary Computation, 3 (2), 149{175.
+
+36
+
+

@@ -1,0 +1,37 @@
+# @package _global_
+# Grand Melee - Long Periods (20 periods)
+
+experiment:
+  name: "grand_melee_long_periods"
+  num_rounds: 10
+  log_level: "INFO"
+  rng_seed_auction: 12356
+
+market:
+  num_periods: 20  # Double the default
+  num_steps: 100
+  num_tokens: 10
+  min_price: 0
+  max_price: 1000
+
+agents:
+  buyer_types:
+    - ZIC
+    - ZIP
+    - GD
+    - Kaplan
+    - ZI2
+    - Lin
+    - Perry
+    - Jacobson
+    - Skeleton
+  seller_types:
+    - ZIC
+    - ZIP
+    - GD
+    - Kaplan
+    - ZI2
+    - Lin
+    - Perry
+    - Jacobson
+    - Skeleton

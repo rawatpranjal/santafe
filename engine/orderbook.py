@@ -12,7 +12,7 @@ This implementation maintains 1:1 fidelity with the Java code, including:
 - Chicago Rules for trade pricing
 """
 
-from typing import Tuple
+from typing import Any, Tuple
 import numpy as np
 from numpy.random import Generator, default_rng
 
@@ -33,6 +33,7 @@ class OrderBook:
         min_price: int,
         max_price: int,
         rng_seed: int,
+        deadsteps: int = 0,
     ) -> None:
         """
         Initialize order book for a trading period.
@@ -44,12 +45,14 @@ class OrderBook:
             min_price: Minimum allowed price (inclusive)
             max_price: Maximum allowed price (inclusive)
             rng_seed: Random seed for reproducible tie-breaking
+            deadsteps: Consecutive no-trade steps before early termination (0 = disabled)
         """
         self.num_buyers = num_buyers
         self.num_sellers = num_sellers
         self.num_times = num_times
         self.min_price = min_price
         self.max_price = max_price
+        self.deadsteps = deadsteps
 
         # Random number generator for tie-breaking (Java lines 442-476)
         self.rng: Generator = default_rng(rng_seed)
@@ -57,34 +60,37 @@ class OrderBook:
         # Current time step (0 = initialization)
         self.current_time: int = 0
 
+        # Consecutive no-trade counter for early termination (DATManual lines 1495-1498, 2238-2240)
+        self.consecutive_no_trades: int = 0
+
         # === ORDER BOOK STATE ===
         # bid[x][y] = bid of buyer x at time y (0 if none)
         # Shape: (num_buyers+1, num_times+1) - 1-indexed
-        self.bids: np.ndarray = np.zeros((num_buyers + 1, num_times + 1), dtype=np.int32)
+        self.bids: np.ndarray[Any, np.dtype[np.int32]] = np.zeros((num_buyers + 1, num_times + 1), dtype=np.int32)
 
         # ask[x][y] = ask of seller x at time y (0 if none)
-        self.asks: np.ndarray = np.zeros(
+        self.asks: np.ndarray[Any, np.dtype[np.int32]] = np.zeros(
             (num_sellers + 1, num_times + 1), dtype=np.int32
         )
 
         # === MARKET STATE ===
         # High bidder/asker IDs and prices at each time
-        self.high_bidder: np.ndarray = np.zeros(num_times + 1, dtype=np.int32)
-        self.low_asker: np.ndarray = np.zeros(num_times + 1, dtype=np.int32)
-        self.high_bid: np.ndarray = np.zeros(num_times + 1, dtype=np.int32)
-        self.low_ask: np.ndarray = np.zeros(num_times + 1, dtype=np.int32)
+        self.high_bidder: np.ndarray[Any, np.dtype[np.int32]] = np.zeros(num_times + 1, dtype=np.int32)
+        self.low_asker: np.ndarray[Any, np.dtype[np.int32]] = np.zeros(num_times + 1, dtype=np.int32)
+        self.high_bid: np.ndarray[Any, np.dtype[np.int32]] = np.zeros(num_times + 1, dtype=np.int32)
+        self.low_ask: np.ndarray[Any, np.dtype[np.int32]] = np.zeros(num_times + 1, dtype=np.int32)
 
         # === TRADE EXECUTION ===
-        self.trade_price: np.ndarray = np.zeros(num_times + 1, dtype=np.int32)
-        self.buyer_accepted: np.ndarray = np.zeros(num_times + 1, dtype=bool)
-        self.seller_accepted: np.ndarray = np.zeros(num_times + 1, dtype=bool)
+        self.trade_price: np.ndarray[Any, np.dtype[np.int32]] = np.zeros(num_times + 1, dtype=np.int32)
+        self.buyer_accepted: np.ndarray[Any, np.dtype[np.bool_]] = np.zeros(num_times + 1, dtype=bool)
+        self.seller_accepted: np.ndarray[Any, np.dtype[np.bool_]] = np.zeros(num_times + 1, dtype=bool)
 
         # === POSITION TRACKING ===
         # Cumulative trades through each time step
-        self.num_buys: np.ndarray = np.zeros(
+        self.num_buys: np.ndarray[Any, np.dtype[np.int32]] = np.zeros(
             (num_buyers + 1, num_times + 1), dtype=np.int32
         )
-        self.num_sells: np.ndarray = np.zeros(
+        self.num_sells: np.ndarray[Any, np.dtype[np.int32]] = np.zeros(
             (num_sellers + 1, num_times + 1), dtype=np.int32
         )
 
@@ -95,12 +101,12 @@ class OrderBook:
         # 2 = New bid/ask, now current bidder/asker
         # 3 = New bid/ask, beaten by another
         # 4 = New bid/ask, tied and lost random tie-break
-        self.bid_status: np.ndarray = np.zeros(num_buyers + 1, dtype=np.int32)
-        self.ask_status: np.ndarray = np.zeros(num_sellers + 1, dtype=np.int32)
+        self.bid_status: np.ndarray[Any, np.dtype[np.int32]] = np.zeros(num_buyers + 1, dtype=np.int32)
+        self.ask_status: np.ndarray[Any, np.dtype[np.int32]] = np.zeros(num_sellers + 1, dtype=np.int32)
 
         # === NEW ORDERS TRACKING ===
-        self.num_bids: np.ndarray = np.zeros(num_times + 1, dtype=np.int32)
-        self.num_asks: np.ndarray = np.zeros(num_times + 1, dtype=np.int32)
+        self.num_bids: np.ndarray[Any, np.dtype[np.int32]] = np.zeros(num_times + 1, dtype=np.int32)
+        self.num_asks: np.ndarray[Any, np.dtype[np.int32]] = np.zeros(num_times + 1, dtype=np.int32)
 
     def add_bid(self, bidder: int, price: int) -> bool:
         """
@@ -152,6 +158,7 @@ class OrderBook:
         1. Price must be in range [min_price, max_price]
         2. If previous time had a trade: any in-range bid is valid (book cleared)
         3. If no previous trade: bid must strictly improve high bid
+        4. Bid must not cross the market (bid >= standing ask)
 
         Args:
             price: Proposed bid price
@@ -166,6 +173,11 @@ class OrderBook:
         if self.current_time > 0 and self.trade_price[self.current_time - 1] > 0:
             return True
 
+        # NOTE: In AURORA, crossing the market is ALLOWED because trades happen
+        # in the buy/sell stage, not automatically when bids/asks cross.
+        # The crossed-market check was removed because it caused deadlocks when
+        # the spread was 1 point (e.g., bid=69, ask=70 - no valid bid/ask possible).
+
         # Must improve on current high bid
         if self.current_time > 0:
             return bool(price > self.high_bid[self.current_time - 1])
@@ -177,7 +189,11 @@ class OrderBook:
         """
         Validate ask according to AURORA rules (Java lines 183-195).
 
-        Symmetric to bid validation: ask must beat current low ask.
+        Rules:
+        1. Price must be in range [min_price, max_price]
+        2. If previous time had a trade: any in-range ask is valid (book cleared)
+        3. If no previous trade: ask must strictly improve low ask
+        4. Ask must not cross the market (ask <= standing bid)
 
         Args:
             price: Proposed ask price
@@ -191,6 +207,11 @@ class OrderBook:
         # If there was a trade last time, book is cleared -> any ask valid
         if self.current_time > 0 and self.trade_price[self.current_time - 1] > 0:
             return True
+
+        # NOTE: In AURORA, crossing the market is ALLOWED because trades happen
+        # in the buy/sell stage, not automatically when bids/asks cross.
+        # The crossed-market check was removed because it caused deadlocks when
+        # the spread was 1 point (e.g., bid=69, ask=70 - no valid bid/ask possible).
 
         # Must improve on current low ask
         if self.current_time > 0 and self.low_ask[self.current_time - 1] > 0:
@@ -333,7 +354,13 @@ class OrderBook:
         if self.ask_status[winner] == 4:
             self.ask_status[winner] = 2
 
-    def execute_trade(self, buyer_accepts: bool, seller_accepts: bool) -> int:
+    def execute_trade(
+        self,
+        buyer_accepts: bool,
+        seller_accepts: bool,
+        buyer_id: int | None = None,
+        seller_id: int | None = None,
+    ) -> int:
         """
         Execute trade with Chicago Rules pricing (Java lines 259-282).
 
@@ -344,8 +371,10 @@ class OrderBook:
         - Neither accepts → no trade (price = 0)
 
         Args:
-            buyer_accepts: True if high bidder accepts the low ask
-            seller_accepts: True if low asker accepts the high bid
+            buyer_accepts: True if a buyer accepts the offer
+            seller_accepts: True if a seller accepts the bid
+            buyer_id: ID of the buying agent (if buyer_accepts is True)
+            seller_id: ID of the selling agent (if seller_accepts is True)
 
         Returns:
             Trade price (0 if no trade occurred)
@@ -372,12 +401,25 @@ class OrderBook:
             price = self.high_bid[t]
 
         # Record trade
-        if buyer_accepts or seller_accepts:
-            self._add_trade(price)
+        if price > 0:
+            # Default to current leaders if IDs not provided (backward compatibility)
+            # But for Rule 14/15 support, caller should provide IDs
+            final_buyer_id = (
+                buyer_id if buyer_id is not None else int(self.high_bidder[t])
+            )
+            final_seller_id = (
+                seller_id if seller_id is not None else int(self.low_asker[t])
+            )
+            self._add_trade(price, final_buyer_id, final_seller_id)
+            # Reset consecutive no-trade counter on successful trade
+            self.consecutive_no_trades = 0
+        else:
+            # Increment consecutive no-trade counter
+            self.consecutive_no_trades += 1
 
         return price
 
-    def _add_trade(self, price: int) -> None:
+    def _add_trade(self, price: int, buyer_id: int, seller_id: int) -> None:
         """
         Record a completed trade (Java lines 283-300).
 
@@ -385,24 +427,21 @@ class OrderBook:
 
         Args:
             price: Trade price
+            buyer_id: ID of the buyer
+            seller_id: ID of the seller
+
+        Note:
+            increment_time() is called BEFORE this method, which already copies
+            positions from t-1 to t. This method only needs to increment.
         """
         t = self.current_time
         self.trade_price[t] = price
 
-        # Update position counters
-        buyer_id = self.high_bidder[t]
-        seller_id = self.low_asker[t]
-
+        # Update position counters (increment only, positions already copied by increment_time)
         if buyer_id > 0:
-            # Copy previous position
-            if t > 0:
-                self.num_buys[buyer_id, t] = self.num_buys[buyer_id, t - 1]
             self.num_buys[buyer_id, t] += 1
 
         if seller_id > 0:
-            # Copy previous position
-            if t > 0:
-                self.num_sells[seller_id, t] = self.num_sells[seller_id, t - 1]
             self.num_sells[seller_id, t] += 1
 
     def increment_time(self) -> bool:
@@ -448,3 +487,16 @@ class OrderBook:
         self.ask_status[:] = 0
 
         return True
+
+    def should_terminate_early(self) -> bool:
+        """
+        Check if period should terminate early due to consecutive no-trades.
+
+        Based on DATManual specification (lines 2238-2240):
+        "If the 'deadsteps' parameter is set to 0 this will cause the period to
+        be ended, but if deadsteps > 0 further steps may appear after the line."
+
+        Returns:
+            True if deadsteps threshold reached and period should end early
+        """
+        return self.deadsteps > 0 and self.consecutive_no_trades >= self.deadsteps

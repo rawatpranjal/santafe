@@ -1,0 +1,22 @@
+# @package _global_
+# Santa Fe 1993 Tournament BASE environment replication
+# Base case with standard parameters
+
+experiment:
+  name: "santafe_base"
+  num_rounds: 100  # Run many rounds for statistical significance
+
+# Market parameters from 1993 tournament
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4     # Standard 4 tokens per trader
+  num_periods: 10   # 10 periods per round
+  num_steps: 100    # 100 time steps per period
+  gametype: 6453    # BASE environment gametype
+
+# Mixed market with all 7 traders from Java implementation
+agents:
+  # Mix different strategies for tournament recreation
+  buyer_types: ["Kaplan", "ZIC", "ZI2", "Lin", "Jacobson", "Perry", "Skeleton"]
+  seller_types: ["Kaplan", "ZIC", "ZI2", "Lin", "Jacobson", "Perry", "Skeleton"]

@@ -1,0 +1,28 @@
+# @package _global_
+# Rust Stew Experiment: 9v9 Heterogeneous Market with PPO Agent
+# PPO competes against diverse classical strategies
+
+experiment:
+  name: "rust_stew_9v9_ppo"
+  output_dir: ./results/${experiment.name}
+  num_rounds: 1
+  rng_seed_auction: 6453
+  rng_seed_values: 6453
+
+market:
+  min_price: 0
+  max_price: 100
+  num_tokens: 4
+  num_periods: 5000
+  num_steps: 25
+  gametype: 6453
+
+agents:
+  num_buyers: 9
+  num_sellers: 9
+  # PPO replaces one ZIC on buyer side
+  buyer_types: ['PPO', 'Kaplan', 'Kaplan', 'ZIP', 'ZIP', 'GD', 'GD', 'ZIC', 'ZIC']
+  seller_types: ['Kaplan', 'Kaplan', 'ZIP', 'ZIP', 'GD', 'GD', 'ZIC', 'ZIC', 'ZIC']
+
+ppo:
+  model_path: null  # Set to trained model path before running

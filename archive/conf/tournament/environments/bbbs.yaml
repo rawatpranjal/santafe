@@ -1,0 +1,31 @@
+# @package _global_
+# BBBS Environment: Duopsony - 6 Buyers, 2 Sellers
+# Tests performance under buyer market power (many buyers, few sellers)
+
+experiment:
+  name: "tournament_bbbs"
+  description: "Duopsony test - 6 buyers vs 2 sellers"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 75
+  gametype: 6453  # Same as BASE
+
+# Asymmetric configuration: 6 buyers, 2 sellers (Santa Fe spec)
+agents:
+  num_buyers: 6    # Many buyers
+  num_sellers: 2   # Few sellers (duopsony)
+  buyer_types: ["Kaplan", "ZIC", "ZIP", "GD", "ZI2", "Lin", "Perry", "Jacobson"]
+  seller_types: ["Kaplan", "ZIC", "ZIP", "GD", "ZI2", "Lin", "Perry", "Jacobson"]
+
+metrics:
+  track_efficiency: true
+  track_price_dynamics: true
+  track_volume_distribution: true
+  track_profit_shares: true
+  calculate_autocorrelation: true
+  track_market_power: true  # Additional metric for oligopoly

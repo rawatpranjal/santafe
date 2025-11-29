@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-11-24T19:32:06.585792",
+  "checkpoint_dir": "./checkpoints/test_learning_curve",
+  "opponent_type": "ZIC",
+  "episodes_per_eval": 10,
+  "results": {
+    "ppo_final": {
+      "avg_profit": 0.0,
+      "std_profit": 0.0,
+      "avg_efficiency": 0.1950760189890625,
+      "avg_trades": 0.0,
+      "num_episodes": 10
+    }
+  }
+}

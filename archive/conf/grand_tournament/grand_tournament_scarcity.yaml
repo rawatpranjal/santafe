@@ -1,0 +1,17 @@
+# @package _global_
+
+# Grand Tournament: SCARCITY Environment
+# Single token only - tests one-shot trading
+
+experiment:
+  name: "grand_tournament_scarcity"
+  num_rounds: 100
+
+agents:
+  buyer_types: [ZIC, ZIP, Kaplan, GD, ZI2, Skeleton, Lin, Perry, Jacobson, ZI]
+  seller_types: [ZIC, ZIP, Kaplan, GD, ZI2, Skeleton, Lin, Perry, Jacobson, ZI]
+
+market:
+  num_tokens: 1  # Scarcity
+  num_periods: 10
+  num_steps: 100

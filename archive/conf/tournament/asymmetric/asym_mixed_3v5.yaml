@@ -1,0 +1,9 @@
+# @package _global_
+# Mixed traders, 3v5 asymmetric
+experiment:
+  name: "asym_mixed_3v5"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['ZIC', 'Kaplan', 'ZIP']
+  seller_types: ['ZIC', 'ZIP', 'GD', 'Kaplan', 'ZI2']

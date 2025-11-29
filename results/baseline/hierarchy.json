@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-11-24T19:24:01.309878",
+  "results": [
+    {
+      "agent": "Kaplan",
+      "test_avg_profit": 135.96333333333334,
+      "zic_avg_profit": 118.86952380952381,
+      "profit_ratio": 1.1438031294817046,
+      "efficiency": 97.72578265223223
+    },
+    {
+      "agent": "GD",
+      "test_avg_profit": 134.56,
+      "zic_avg_profit": 118.86714285714285,
+      "profit_ratio": 1.1320201425360847,
+      "efficiency": 97.5296261087325
+    },
+    {
+      "agent": "ZIP",
+      "test_avg_profit": 101.42666666666666,
+      "zic_avg_profit": 122.44333333333333,
+      "profit_ratio": 0.8283559741921434,
+      "efficiency": 96.4139547710801
+    },
+    {
+      "agent": "ZI2",
+      "test_avg_profit": 107.17333333333333,
+      "zic_avg_profit": 122.41095238095238,
+      "profit_ratio": 0.8755207867332132,
+      "efficiency": 97.19408106747726
+    },
+    {
+      "agent": "Lin",
+      "test_avg_profit": 134.75666666666666,
+      "zic_avg_profit": 118.60428571428571,
+      "profit_ratio": 1.1361871609875176,
+      "efficiency": 97.31478997904317
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+Having established performance baselines with legacy heuristic algorithms and modern reinforcement learning agents, we now evaluate Large Language Models (LLMs) in zero-shot trading scenarios. Unlike PPO agents that require extensive training, LLMs leverage pre-trained semantic reasoning to interpret market state descriptions and generate trading decisions through natural language prompts. This section investigates whether foundation models can match or exceed hand-crafted trading heuristics without domain-specific optimization, and quantifies the computational cost-performance trade-offs of this approach.
+
+\subsection{Experimental Design: Prompt Engineering for Economic Agents}
+
+We evaluate GPT-4o-mini and GPT-4o in standardized market environments (1 round, 1 period, 20 steps) against Zero Intelligence Constrained (ZIC), Kaplan, ZIP, and GD baselines. The LLM agents receive natural language prompts describing their role (buyer/seller), private valuation, current market state (best bid/ask, spread, time remaining), and trading constraints. Each agent must output structured JSON responses specifying bid/ask prices or accept/pass decisions. No examples, demonstrations, or fine-tuning are provided; agents operate purely from pre-trained knowledge and system prompt rules.
+
+A critical methodological contribution is the systematic evaluation of \textit{prompt engineering} as an optimization technique. We tested 7 distinct prompt variations to identify which market information and framing improves trading performance. Table~\ref{tab:prompt_variations} summarizes these experiments.
+
+\begin{table}[h]
+    \centering
+    \caption{Prompt Engineering Experiments: Information vs Performance}
+    \label{tab:prompt_variations}
+    \begin{tabular}{llccc}
+        \toprule
+        \textbf{Variation} & \textbf{Key Information Added} & \textbf{Buyer vs ZIC} & \textbf{Seller Profit} & \textbf{Efficiency} \\
+        \midrule
+        Conservative & Constraints only & 0.28$\times$ & 6 & 95.6\% \\
+        Aggressive & ``Be competitive, act now'' & 1.95$\times$ & 7 & 93.9\% \\
+        Market Knowledge & Distribution, equilibrium hints & 0.24$\times$ & -3 & 96.4\% \\
+        Refined Mechanics & Midpoint pricing, range & 1.27$\times$ & 2 & 95.2\% \\
+        Seller-Clarified & Explicit constraint examples & 1.93$\times$ & 10 & 93.9\% \\
+        \textbf{Ultra-Clear} & \textbf{Condition-action + examples} & \textbf{2.19}$\times$ & \textbf{20} & \textbf{96.5\%} \\
+        GPT-4o (same) & Same as ultra-clear & 2.0$\times$ & 18 & 93.7\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The results reveal a non-monotonic relationship between information and performance. Adding abstract strategic guidance (``act aggressively'') improved buyer profit from 0.28$\times$ to 1.95$\times$ ZIC. However, adding verbose market knowledge (distribution details, equilibrium predictions) \textit{degraded} performance to 0.24$\times$ ZIC and caused sellers to make loss-making bids. The optimal prompt (``Ultra-Clear'') uses concrete examples in condition-action format:
+
+\begin{quote}
+\textit{``BUYERS: You profit when you BUY BELOW your valuation. \
+Your bid must be: LESS THAN your valuation AND HIGHER than current best bid. \
+Example: If valuation=200, current bid=150, you can bid 151-199.''}
+\end{quote}
+
+This format achieved 2.19$\times$ ZIC buyer profit and 96.5\% efficiency, outperforming the aggressive-only prompt while eliminating seller confusion that caused negative profits in earlier variations. A complete example of the prompt-response cycle for a single trading step is provided in Appendix~\ref{app:llm_trader}.
+
+\subsection{Zero-Shot Performance vs Legacy Baselines}
+
+Table~\ref{tab:llm_performance} presents final performance metrics using the ultra-clear prompt configuration. The efficiency metric captures allocative efficiency as actual surplus divided by equilibrium surplus. The profit ratio measures LLM earnings relative to ZIC mean profit in the same market.
+
+\input{figures/table_llm_performance}
+
+GPT-4o-mini achieved 96.5\% efficiency with 2.19$\times$ ZIC buyer profit and 20 profit for sellers across 1-period validation. These results demonstrate that semantic understanding of market rules translates effectively to profitable trading when prompts provide concrete examples rather than abstract principles. The buyer agent successfully balanced aggression (capturing 2x profit vs ZIC) with constraint satisfaction (zero invalid actions). The seller agent made positive profits despite structural disadvantages noted in Section 5.
+
+Comparing to legacy baselines, GPT-4o-mini buyers outperformed ZIC (2.19$\times$) and approached Kaplan's profit margins (1.10$\times$ in Table~\ref{tab:llm_performance}). However, sellers significantly underperformed relative to ZIC sellers in the same markets. This asymmetry likely reflects the two-stage AURORA protocol favoring buyers: buyers can accept seller asks immediately (stage 2), while sellers must wait for buyer bids. Future work should investigate whether prompt modifications can address this structural bias.
+
+\subsection{Model Comparison: Intelligence vs Cost}
+
+We tested GPT-4o (stronger, more expensive) against GPT-4o-mini (weaker, cheaper) using identical ultra-clear prompts. Table~\ref{tab:model_comparison} compares performance and cost.
+
+\begin{table}[h]
+    \centering
+    \caption{Model Comparison: Intelligence Premium Test}
+    \label{tab:model_comparison}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Model} & \textbf{Efficiency} & \textbf{Buyer Profit} & \textbf{Seller Profit} & \textbf{Cost/Run} \\
+        \midrule
+        GPT-4o-mini & \textbf{96.5\%} & 192 (2.19$\times$ ZIC) & 20 & \textbf{\$0.31} \\
+        GPT-4o & 93.7\% & ~Similar & ~Similar & \$0.50 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Surprisingly, GPT-4o-mini \textit{outperformed} GPT-4o in efficiency (96.5\% vs 93.7\%) despite lower capability. Both models achieved similar profit ratios. This finding suggests that well-engineered prompts with concrete examples are more important than raw model intelligence for bounded economic tasks. The weaker model's superior cost-efficiency (\$0.31 vs \$0.50 per run) makes it the clear choice for production deployment.
+
+\subsection{Diagnosis: Seller Role Confusion}
+
+Early experiments revealed a critical failure mode: sellers tried to ask \textit{below their cost}, generating loss-making bids. Examination of decision logs showed sellers interpreting ``ask lower'' as an absolute directive rather than relative to current ask. For example, with cost=121 and current ask=150, sellers bid 118 (below cost) instead of 101-149 (above cost, below ask).
+
+The root cause was directional ambiguity in natural language. ``Lower'' could mean (1) lower than current ask (correct), or (2) lower absolute value (incorrect interpretation causing losses). Adding explicit examples eliminated this confusion:
+
+\begin{quote}
+\textit{``SELLERS: You profit when you SELL ABOVE your cost. \
+Example: If cost=100, current ask=150, you can ask 101-149.''}
+\end{quote}
+
+This modification increased seller profit from 2 (refined mechanics) to 10 (seller-clarified) to 20 (ultra-clear), demonstrating the importance of concrete constraints over abstract instructions.
+
+\subsection{Key Findings: What Information Helps vs Hurts}
+
+Our systematic prompt engineering experiments identified clear patterns:
+
+Information that helped includes concrete examples with specific numbers (``If valuation=200, bid 151-199''), condition-action framing (``You profit when you BUY BELOW valuation''), and concise mechanics (``Trade price = midpoint between bid and ask'').
+
+Information that hurt includes verbose market knowledge (distribution details, equilibrium predictions), strategic hints (``early trades = high value''), and ambiguous directives (``ask lower'' without context).
+
+The pattern suggests that foundation models excel at following explicit rules with concrete examples but struggle with abstract strategic reasoning or statistical concepts. This aligns with findings in other domains where chain-of-thought prompting with examples outperforms abstract instructions.
+
+\subsection{Computational Cost-Performance Trade-offs}
+
+Table~\ref{tab:cost_analysis} compares computational requirements across agent types.
+
+\begin{table}[h]
+    \centering
+    \caption{Computational Requirements: LLM vs RL vs Legacy}
+    \label{tab:cost_analysis}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Agent Type} & \textbf{Setup Cost} & \textbf{Per-Run} & \textbf{Efficiency} & \textbf{Scalability} \\
+        \midrule
+        \textbf{GPT-4o-mini} & \$0 & \textbf{\$0.31} & \textbf{96.5\%} & High \\
+        GPT-4o & \$0 & \$0.50 & 93.7\% & High \\
+        PPO (trained) & 6-12 hrs & \$0 & TBD & Medium \\
+        Kaplan & \$0 & \$0 & 98.5\% & High \\
+        ZIP & \$0 & \$0 & 87.3\% & High \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The cost-performance frontier reveals distinct use cases. Legacy traders provide maximum efficiency per dollar; once implemented, they run indefinitely at zero marginal cost. However, they require expert domain knowledge to design. PPO agents discover strategies through self-play but demand computational resources for training. LLM agents offer zero-setup deployment at recurring API costs (\$0.31 per 1-period test for GPT-4o-mini).
+
+For research requiring rapid prototyping across market designs, LLMs prove cost-effective. Modifying prompts to test new rules requires no retraining or recalibration. However, for production deployment in high-frequency trading, cumulative API costs become prohibitive. At current rates, replicating the original 1993 Santa Fe Tournament (18,114 games) would cost \$5,615 for GPT-4o-mini, compared to \$0 for legacy traders.
+
+\subsection{Implications and Future Work}
+
+Our prompt engineering experiments demonstrate that foundation models can compete with hand-crafted trading algorithms (2.19$\times$ ZIC) when provided concrete examples rather than abstract strategy. However, this performance required systematic iteration through 7 prompt variations to identify which information helps versus hurts. The finding that verbose market knowledge \textit{degraded} performance suggests fundamental limitations in how LLMs process statistical concepts versus explicit rules.
+
+The ultra-clear prompt format generalizes beyond trading: any economic domain requiring constraint satisfaction (auctions, bargaining, resource allocation) may benefit from condition-action framing with concrete examples. This methodology of \textit{empirical prompt engineering}, systematically testing information components, offers a template for deploying LLMs in strategic environments.
+
+Future work should investigate: (1) adding prior period information to anchor expectations in multi-period settings, (2) few-shot learning with example trades, (3) dynamic prompting that adjusts based on inventory, and (4) testing alternative models (Claude, Llama) to verify generalizability. The current results establish that zero-shot LLMs can succeed in bounded trading tasks given proper prompt engineering.

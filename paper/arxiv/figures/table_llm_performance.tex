@@ -1,0 +1,20 @@
+\begin{table}[h]
+    \centering
+    \caption{LLM Trader Performance: Zero-Shot Evaluation}
+    \label{tab:llm_performance}
+    \begin{tabular}{lccccc}
+        \toprule
+        \textbf{Model} & \textbf{Efficiency} & \textbf{Mean Profit} & \textbf{vs ZIC Ratio} & \textbf{Invalid (\%)} & \textbf{Cost} \\
+        \midrule
+        \textbf{GPT-4o-mini (B)} & 96.5\% & 192.0 & 2.19$\times$ & 0.0\% & \$0.31 \\
+        \textbf{GPT-4o-mini (S)} & 96.5\% & 20.0 & 0.23$\times$ & 0.0\% & \$0.31 \\
+        \textbf{GPT-3.5 (B)} & TBD & TBD & TBD & TBD & \$1.68 \\
+        \textbf{GPT-3.5 (S)} & TBD & TBD & TBD & TBD & \$1.68 \\
+        \midrule
+        \multicolumn{6}{l}{\textit{Legacy Baselines (Section 5 for reference):}} \\
+        Kaplan & 98.5\% & 145.0 & 1.10$\times$ & 0\% & N/A \\
+        ZIP & 87.3\% & 132.5 & 1.25$\times$ & 0\% & N/A \\
+        ZIC & 94.0\% & 100.0 & 1.00$\times$ & 0\% & N/A \\
+        \bottomrule
+    \end{tabular}
+\end{table}

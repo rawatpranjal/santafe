@@ -1,0 +1,37 @@
+# @package _global_
+# Grand Melee - Ultra High Pressure (25 steps)
+
+experiment:
+  name: "grand_melee_ultra_pressure"
+  num_rounds: 10
+  log_level: "INFO"
+  rng_seed_auction: 12354
+
+market:
+  num_periods: 5
+  num_steps: 25  # Quarter time!
+  num_tokens: 10
+  min_price: 0
+  max_price: 1000
+
+agents:
+  buyer_types:
+    - ZIC
+    - ZIP
+    - GD
+    - Kaplan
+    - ZI2
+    - Lin
+    - Perry
+    - Jacobson
+    - Skeleton
+  seller_types:
+    - ZIC
+    - ZIP
+    - GD
+    - Kaplan
+    - ZI2
+    - Lin
+    - Perry
+    - Jacobson
+    - Skeleton

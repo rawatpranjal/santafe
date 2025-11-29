@@ -1,0 +1,82 @@
+{
+  "description": "Scenario 2: Chicago Rules (Both Accept)",
+  "purpose": "Verify 50/50 random price selection when both buyer and seller accept",
+  "setup": {
+    "num_buyers": 1,
+    "num_sellers": 1,
+    "num_times": 2,
+    "min_price": 0,
+    "max_price": 200,
+    "seed": 42
+  },
+  "agents": [
+    {
+      "player_id": 1,
+      "is_buyer": true,
+      "num_tokens": 2,
+      "valuations": [100, 95]
+    },
+    {
+      "player_id": 1,
+      "is_buyer": false,
+      "num_tokens": 2,
+      "valuations": [70, 75]
+    }
+  ],
+  "timesteps": [
+    {
+      "time": 1,
+      "actions": {
+        "bids": {
+          "1": 90
+        },
+        "asks": {
+          "1": 80
+        },
+        "buyer_accepts": {
+          "1": true
+        },
+        "seller_accepts": {
+          "1": true
+        }
+      },
+      "expected_outcomes": {
+        "high_bidder": 1,
+        "high_bid": 90,
+        "low_asker": 1,
+        "low_ask": 80,
+        "buyer_accepted": true,
+        "seller_accepted": true,
+        "trade_price": 90,
+        "comment": "Both accept → 50/50 random with seed 42. OrderBook uses rng.integers(2) which with seed 42 returns 0, so bid price (90)"
+      }
+    },
+    {
+      "time": 2,
+      "actions": {
+        "bids": {
+          "1": 92
+        },
+        "asks": {
+          "1": 78
+        },
+        "buyer_accepts": {
+          "1": true
+        },
+        "seller_accepts": {
+          "1": true
+        }
+      },
+      "expected_outcomes": {
+        "high_bidder": 1,
+        "high_bid": 92,
+        "low_asker": 1,
+        "low_ask": 78,
+        "buyer_accepted": true,
+        "seller_accepted": true,
+        "trade_price": 78,
+        "comment": "Both accept → next random call returns 1, so ask price (78)"
+      }
+    }
+  ]
+}

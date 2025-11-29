@@ -1,0 +1,12 @@
+# @package _global_
+
+# Kaplan Analysis: Baseline WITHOUT Skeleton
+# Control group - mixed strategies excluding Skeleton
+
+experiment:
+  name: "kaplan_baseline_no_skeleton"
+  num_rounds: 100
+
+agents:
+  buyer_types: [Kaplan, Kaplan, ZIC, ZIC, ZIP, ZIP, GD, GD]
+  seller_types: [Kaplan, Kaplan, ZIC, ZIC, ZIP, ZIP, GD, GD]

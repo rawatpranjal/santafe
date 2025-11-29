@@ -1,0 +1,25 @@
+# @package _global_
+# Rust Stew Experiment: 18v18 Large Heterogeneous Market (Baseline - No AI)
+# All classical strategies competing at tournament scale
+
+experiment:
+  name: "rust_stew_18v18_baseline"
+  output_dir: ./results/${experiment.name}
+  num_rounds: 1
+  rng_seed_auction: 6453
+  rng_seed_values: 6453
+
+market:
+  min_price: 0
+  max_price: 100
+  num_tokens: 4
+  num_periods: 5000
+  num_steps: 25
+  gametype: 6453
+
+agents:
+  num_buyers: 18
+  num_sellers: 18
+  # Larger balanced mix: 4 Kaplan, 5 ZIP, 4 GD, 5 ZIC
+  buyer_types: ['Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'ZIP', 'ZIP', 'ZIP', 'ZIP', 'ZIP', 'GD', 'GD', 'GD', 'GD', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC']
+  seller_types: ['Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'ZIP', 'ZIP', 'ZIP', 'ZIP', 'ZIP', 'GD', 'GD', 'GD', 'GD', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC']

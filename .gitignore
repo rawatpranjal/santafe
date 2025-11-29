@@ -3,14 +3,20 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
 
 # OS-specific files
 .DS_Store
 
-# Experiment outputs
-experiments/
-results/
+# Experiment outputs (keep for now - active results)
+outputs/
 src_code/experiments/
+
+# Reference material archives (large directories)
+reference/archive_v1.0/
+reference/oldcode/extracted/
 
 # Test coverage
 .coverage
@@ -36,3 +42,4 @@ env/
 
 # Generated codebase aggregation files (too large for GitHub)
 for_gemini/*.txt
+llm_outputs/

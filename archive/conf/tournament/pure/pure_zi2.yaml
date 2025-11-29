@@ -1,0 +1,9 @@
+# @package _global_
+# Pure ZI2 market - homogeneous population
+experiment:
+  name: "pure_zi2"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['ZI2', 'ZI2', 'ZI2', 'ZI2', 'ZI2', 'ZI2', 'ZI2', 'ZI2']
+  seller_types: ['ZI2', 'ZI2', 'ZI2', 'ZI2', 'ZI2', 'ZI2', 'ZI2', 'ZI2']

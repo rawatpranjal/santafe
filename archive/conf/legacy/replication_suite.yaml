@@ -1,0 +1,13 @@
+# @package _global_
+experiment:
+  name: "replication_suite"
+  num_rounds: 20
+  num_periods: 5
+
+# We will run separate runs for each agent type by overriding this config from CLI
+# or we can define a mixed market.
+# For replication, we want homogeneous markets first.
+
+agents:
+  buyer_types: ["ZIC", "ZIC", "ZIC", "ZIC"]
+  seller_types: ["ZIC", "ZIC", "ZIC", "ZIC"]

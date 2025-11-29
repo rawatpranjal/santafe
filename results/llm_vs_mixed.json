@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-11-24T19:54:21.674388",
+  "model": "GPT4-mini",
+  "episodes": 3,
+  "results": {
+    "avg_profit": 1.6666666666666667,
+    "std_profit": 0.9428090415820634,
+    "avg_trades": 2.0,
+    "avg_efficiency": 0.8792207792207792,
+    "num_episodes": 3,
+    "profit_ratio_vs_zic": 0.7374631268436579
+  }
+}

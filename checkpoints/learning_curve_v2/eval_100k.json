@@ -1,0 +1,22 @@
+{
+  "timestamp": "2025-11-24T19:44:47.592073",
+  "checkpoint_dir": "./checkpoints/learning_curve_v2",
+  "opponent_type": "Mixed",
+  "episodes_per_eval": 50,
+  "results": {
+    "ppo_100k": {
+      "avg_profit": 1.22,
+      "std_profit": 1.446236495183274,
+      "avg_efficiency": 0.8756855879128257,
+      "avg_trades": 1.52,
+      "num_episodes": 50
+    },
+    "ppo_500k": {
+      "avg_profit": 0.94,
+      "std_profit": 1.2232742946698423,
+      "avg_efficiency": 0.9000294106934652,
+      "avg_trades": 1.26,
+      "num_episodes": 50
+    }
+  }
+}

@@ -1,0 +1,60 @@
+# @package _global_
+#
+# Experiment 2.2: PPO vs Kaplan (Curriculum Level 2)
+#
+# Goal: Train PPO agent to compete against Kaplan "sniper" agents who wait
+# patiently for good opportunities.
+#
+# Expected outcome: PPO learns either:
+# 1. Patient strategy (out-wait Kaplan), OR
+# 2. Trigger strategy (force Kaplan to act early)
+#
+# Prerequisite: Load checkpoint from Experiment 2.1 (PPO vs ZIC)
+
+defaults:
+  - /rl/ppo
+  - /rl/vectorization
+  - /rl/training
+
+# Experiment metadata
+experiment:
+  name: "2_2_ppo_vs_kaplan"
+  description: "PPO learns to compete against Kaplan sniper agents (curriculum stage 2)"
+  phase: "4.2"
+  task: "Train PPO against more sophisticated opponents"
+  prerequisite: "2_1_ppo_vs_zic (load pretrained weights)"
+
+# Training configuration
+training:
+  total_timesteps: 2_000_000  # Longer training for harder opponents
+
+  # W&B logging
+  wandb:
+    enabled: true
+    name: "ppo_vs_kaplan_curriculum_level_2"
+    tags: ["ppo", "kaplan", "curriculum-stage-2", "phase-4.2", "sniper-test"]
+    notes: |
+      Experiment 2.2: PPO learns to compete with Kaplan sniper agents.
+      Success metric: PPO profit comparable to Kaplan (strategic parity).
+      Loads pretrained weights from Stage 1 (vs ZIC).
+
+# Environment configuration
+vectorization:
+  env:
+    num_buyers: 5
+    num_sellers: 5
+    num_tokens_per_agent: 3
+    max_timesteps: 100
+    price_min: 0
+    price_max: 100
+    rl_agent_type: "buyer"
+    opponent_type: "Kaplan"  # Upgrade to Kaplan opponents
+    seed: 42
+
+# PPO configuration with checkpoint loading
+ppo:
+  # Load pretrained model from Stage 1
+  load_checkpoint: "./checkpoints/2_1_ppo_vs_zic/final_model.zip"
+
+  # Optionally reduce learning rate for fine-tuning
+  # learning_rate: 0.00005  # Lower LR for stability

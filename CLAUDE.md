@@ -1,234 +1,145 @@
-Of course. Here is a HOW_TO_USE_FOR_CLAUDE.md file.
+------------------
+BEHAVIOUR
+------------------
+
+- Do not echo my sentiment. If I am wrong, tell me immediately.
+- Present your independent technical opinion *first* before addressing my specific request.
+- Assume my initial assumptions may be flawed. Challenge the premise if it leads to suboptimal engineering/science.
+- Act as a Principal Engineer/Scientist doing a code review. Be concise, strict, and focused on correctness over politeness.
+- Never claim a task is "done" without running a verification step. 
+- Do not say "I have fixed the bug." Say "The build passed with log output X, indicating the bug is fixed."
+- Do not stop early to save tokens. If the context limit approaches, save state and continue.
+- Always mention paths and links at the end to the output of your work for easy access. 
+- Always run code in background and check stdout logs for updates (do no wait for it to end). 
+------------------
+HIGH LEVEL CONTEXT
+------------------
+
+- Context: This repo is code base for a research paper that impliments traders in double auction and introduces rl and llm agents
+
+- Always end responses with a one-paragraph TL;DR. No bullets, just prose. Focus on big picture, not tiny details. Break the TL'DR into plan (what are you trying to do and why), progress (on current plans), problems (where you are stuck), future plans (what is next). Each gets 1-2 lines. 
+
+- Documents: claude.md (instructions for the ai), plan.md (the master plan), checklists.md (the checklists to verify that we have faithfully replicated the santafe tournament and its traders and the rl and llm traders)
+
+------------------
+CORE DETAILS
+------------------
+
+- Metrics (metrics.md) in each market run we want to track: a) market efficiency (as a % of the best possible allocation i.e. central planner market clearing), b) individual performance / profits of each trader (and based on these its rank over the entire tournament), c) variation in the prices where trades happened (volatility and deviation from clearing prices) or how random the prices were (autocorrelation).
+
+- Literature (reference/keypapers): key papers are gode-1993, smith-1962, rust-1994, cliff-1997, gd-1998, chen-2010. The insights from the literature are summarized in (literature.md): a) markets converge to the theoretical competitive equilibrium even when traders have strictly *private* information (knowing only their own costs/values) and possess no knowledge of aggregate supply and demand b) Gode & Sunder famously demonstrated that "Zero-Intelligence" can achieve near-perfect market efficiency. This implies that the allocative efficiency of a market is primarily a property of the market rather than the cognitive sophistication of the participants. c) Rust et al.), the winning strategy (sniper-Kaplan) was one of the simplest codebases entered. The dominant strategy was to to "wait in the background" and snipe a deal only when the bid-ask spread narrows. However, this strategy is parasitic—it relies on *other* (less intelligent) traders to reveal information and provide liquidity. For a market to function continuously, there must be a steady inflow of "noise traders" (impatient or random participants). d)Chen & Tai showed that while human-written strategies (like Kaplan) might dominate initially, autonomous "Genetic Programming" agents eventually learn to defeat them. If these 
+
+- Primary Sources (1993 Santa Fe Tournament):**
+  - **AURORA Protocol:** [DATManual_full_ocr.txt](./reference/oldcode/DATManual_full_ocr.txt) - Complete rules (4,303 lines)
+  - **Tournament Analysis:** [chartradingdat_full_ocr.txt](./reference/oldcode/chartradingdat_full_ocr.txt) - Results & strategies (1,856 lines)
+  - **Java Implementation:** `reference/oldcode/extracted/double_auction/java/da2.7.2/` - 49 Java files including:
+    - SRobotKaplan.java, SRobotZI1.java, SRobotZI2.java (trader strategies)
+    - SGameRunner.java, PeriodHistory.java (market logic)
+  - **Key Papers (reference/keypapers/):**
+    - [1962_smith_classroom_experiments.txt](./reference/keypapers/1962_smith_classroom_experiments.txt) - Smith's foundational CDA experiments
+    - [1992_santafe_report.txt](./reference/keypapers/1992_santafe_report.txt) - Santa Fe tournament foundation
+    - [1993_gode_sunder.txt](./reference/keypapers/1993_gode_sunder.txt) - ZIC benchmark
+    - [1997_zip.txt](./reference/keypapers/1997_zip.txt) - ZIP algorithm (Cliff)
+    - [1998_GD.txt](./reference/keypapers/1998_GD.txt) - GD algorithm
+    - [2015_genetic_programming.txt](./reference/keypapers/2015_genetic_programming.txt) - GP agents (Chen et al.)
+
+- Santa fe rules (rules.md): in this paper we work on the santafe rules and only that. No other rule set will apply. We can try different configs (settings) but the rules are god given and fixed. The tournament features autonomous computer programs acting as either buyers or sellers of tokens, operating within a star network topology where all communication is handled through a central Monitor program (the "AURORA Protocol"). The game proceeds in discrete time steps organized hierarchically into rounds and periods. For each round, players are assigned private token values (redemption values for buyers, costs for sellers) generated by a common formula based on four uniform random variables (`A`, `B`, `C`, `D`), whose ranges are governed by the four-digit `gametype` parameter. Critically, agents must consume their tokens sequentially to maximize profit, and the final ranking is determined by the total accumulated token profit, which is converted to dollar prizes based on the game's theoretical competitive equilibrium surplus. Trading is governed by "Chicago Rules" focusing on a continuous interaction between the current highest bid (`CurrentBid`) and the current lowest offer (`CurrentAsk`). In the alternating Bid-Ask steps, all eligible buyers may submit a bid, and all eligible sellers may submit an offer. To be valid, a new bid must be **strictly higher** than the standing `CurrentBid`, and a new offer must be **strictly lower** than the standing `CurrentAsk`. This rule provides essential **incumbent protection**; matching a standing price is illegal. If multiple agents submit the new best price simultaneously, a random draw breaks the tie to determine the new `CurrentBidder` or `CurrentAsker`. In the subsequent Buy-Sell step, only the holders of the best standing prices (`CurrentBidder` and `CurrentAsker`) are eligible to transact. The Bidder may issue a `BUY` request to accept the `CurrentAsk` price, or the Asker may issue a `SELL` request to accept the `CurrentBid` price. If a trade occurs, the transaction price is determined by the accepted standing price (not an average). Upon the completion of any successful trade, the entire market state is immediately cleared: both the `CurrentBid` and `CurrentAsk` are reset to null, forcing the next Bid-Ask step to start fresh. Periods conclude either when a fixed time limit (`ntimes`) is reached or when a specified number of consecutive steps (`deadsteps`) pass without any mutually profitable trades occurring.
+
+- Tournament details (tournament.md): this contains the environments
+
+- Paper structure (paper.md): this document contains the experimental design of the entire paper and all the simulation/experiments/tournaments we will need to do. This also contains the way we log experiments and also the configs that are needed to run all experiments. 
+
+- Results (results.md): this document stores all the results of the experiments run in paper.md. This stores the main sets of results and from which the paper will be written. 
+
+- Configs and Logs (configs_and_logs.md): This tells us the naming convention for logs and configs such that the repo is well structured. When you are running expeirments, you must follow this guidelines. 
+
+- The paper itself: `paper/arxiv/` contains the LaTeX source. Structure:
+  ```
+  01_intro.tex           # Introduction
+  02_research_motivation.tex  # Research motivation
+  03_lit_review.tex      # Literature review
+  04_method.tex          # Methodology (AURORA protocol, agents)
+  05_results_zero_intel.tex   # Results: ZI/ZIC/ZIP baseline [DONE]
+  06_results_santafe.tex      # Results: Santa Fe tournament (GD, Kaplan, etc.)
+  07_results_rl.tex           # Results: PPO agents
+  08_results_llm.tex          # Results: LLM agents
+  08_discussion.tex           # Discussion & conclusion
+  appendix_a_ppo_trader.tex   # PPO implementation details
+  appendix_b_llm_trader.tex   # LLM prompts
+  appendix_c_market.tex       # Market mechanics
+  ``` 
+
+------------------
+PAPER WRITING STYLE
+------------------
+
+When writing or editing the research paper, follow these rules strictly. Do not use bullets or bulleted lists in the paper text. Do not use markdown formatting such as bold or italic in running prose. Do not use m-dashes. Structure the paper using paragraphs, sections, and subsections only. Tables are permitted and should remain anchored to the subsection in which they appear. Write in complete sentences and flowing paragraphs. Also when you make an update to the paper, compile it. Do not wait for me to ask you to compile.
+
+------------------
+TECHNICAL DETAILS
+------------------
+
+- Repo Structure
+/
+├── claude.md        # Instructions for AI agents
+├── results.md       # Experiment design and reuslts
+├── readme.md        # Basic project info
+├── pyproject.toml   # Dependencies
+├── engine/          # Core market logic - DON'T add random scripts
+├── traders/         # Agent implementations (organized by type)
+│   ├── base.py      # Base trader class
+│   ├── legacy/      # Classical traders (ZIC, ZIP, GD, Kaplan, etc.)
+│   ├── llm/         # LLM-based traders
+│   └── rl/          # RL-based traders (PPO, etc.)
+├── envs/            # Gymnasium RL environments
+├── scripts/         # ALL runner/utility scripts go here
+├── tests/           # ALL tests (organized by phase)
+├── conf/            # ALL Hydra configs
+├── results/         # Experiment outputs (JSON, CSV)
+├── outputs/         # Hydra run outputs (logs, configs)
+├── checkpoints/     # Trained RL models
+├── models/          # Alternative model storage
+├── llm_outputs/     # LLM experiment artifacts
+├── logs/            # Training/run logs
+├── reference/       # Source materials (read-only). This includes the original santa fe papers. 
+├── paper/           # The research paper drafts and figures
+└── archive/         # Old/deprecated code
+
+-  Tinkering Guidelines:
+| What You're Adding | Where It Goes |
+|-------------------|---------------|
+| New script | `scripts/` |
+| Experiment output | `results/` |
+| Config variation | `conf/experiment/` |
+| Trained model | `checkpoints/` |
+| Log file | `logs/` |
+| Temporary analysis | `paper/scratch/` (gitignored) |
+| New classical trader | `traders/legacy/` |
+| New LLM trader | `traders/llm/` |
+| New RL trader | `traders/rl/` |
+| RL environment | `envs/` |
+| Hydra run output | `outputs/` |
+| LLM experiment results | `llm_outputs/` |
+| Deprecated code | `archive/` |
+| New test | `tests/` |
+
+- Tinkering Rules: a) NEVER add loose files to root b) NEVER add scripts to `engine/` or `traders/` c) Results go in `results/`, not scattered around d) One trader = one file in appropriate `traders/` subdirectory
+
+- Workflow Loop:
+1. read claude.md
+2. read relevant parts in plan.md (never edit this)
+3. read relevant bits in checklists/ folder
+4. do the work and make changes. 
+5. update tracker.md for daily log (reverse choronological, minimal, concise bullets only)
+6. update results.md if we have main results from the experiment.
+
+- Command Reference
+uv sync                    # Install dependencies
+mypy . --strict           # Type checking
+ruff check .              # Linting
+black .                   # Formatting
+pytest tests/             # Run all tests
+pytest tests/phase2/      # Run phase-specific tests
+python scripts/run_experiment.py experiment=<name>
+python scripts/run_ai_experiments.py --suite chen_ppo
 
-This document is designed to be a simple, clear guide for you (and other LLMs) to understand and interact with the repository. It explains the project's structure, how to perform the key tasks (testing, running experiments, analyzing results), and where to find the most important files. This ensures that you can efficiently get up to speed on the project's status and assist with development, analysis, or writing tasks.
-
-code
-Markdown
-download
-content_copy
-expand_less
-
-# How to Use This Repository (For Claude Assistant)
-
-**Project:** `santafe-1` - A research platform for simulating the Santa Fe Double Auction market and studying trading agent behavior.
-
-**Objective:** To replicate foundational economic experiments and test the performance of modern Reinforcement Learning agents against classical heuristics.
-
-This document provides a guide to the repository's structure and the core workflows for testing, running experiments, and analyzing results.
-
----
-
-## 1. Core Repository Structure
-
-The project is organized into four main directories, each with a distinct purpose:
-
--   **`/src/santafe_gym/`**: This is the core simulation library. It contains all the fundamental Python code that makes the market run.
-    -   `auction.py`: The market engine. Implements the rules of the double auction.
-    -   `utils.py`: Helper functions for equilibrium calculation, data analysis, and plotting.
-    -   `traders/`: Contains the "brains" of each trading agent. Each `.py` file defines a different strategy (e.g., `kp.py` for Kaplan, `zip.py` for ZIP, `ppo_handcrafted.py` for our main RL agent).
-
--   **`/tests/`**: The verification suite. Contains `pytest` tests that ensure the code in `src/` is correct and behaves as expected.
-
--   **`/experiments/`**: This is where we define our scientific studies.
-    -   `configs/`: Contains Python dictionaries that specify the parameters for each experiment (e.g., which agents participate, how many rounds to run). This is the primary place to define new experiments.
-    -   `run_experiments.py`: The main script for launching a simulation based on a given config file.
-
--   **`/analysis/`**: Scripts for processing the raw data generated by experiments.
-    -   `generate_report.py`: The primary tool for "one-click" analysis. It loads the results of an experiment and generates a summary report with tables and figures.
-
--   **`/results/`**: **(Generated Directory)** This is where all output from experiments is saved. Each experiment run creates a subdirectory here containing logs, data (`.csv`), plots (`.png`), and the final analysis report (`.md`).
-
----
-
-## 2. Core Workflows (How to Perform Key Tasks)
-
-This project is designed around a "one-click" philosophy for key tasks.
-
-### Task 1: Verify the Codebase is Working Correctly
-
-**Objective:** Run the full test suite to ensure all components are functioning as expected before running long experiments.
-
-**Command:** From the repository root directory, execute the test script:
-
-```bash
-./scripts/run_all_tests.sh
-
-What it does: This script automatically finds and runs all pytest tests in the /tests/ directory. It verifies the auction mechanics, utility functions, and the logic of individual agents.
-
-Expected Output: A message saying "✅ All tests passed successfully!" and a code coverage report. If any tests fail, it will provide a detailed error report.
-
-Task 2: Run a Scientific Experiment
-
-Objective: Execute one of the predefined experimental phases to generate data for the paper.
-
-Command: Use the experiments/run_experiments.py script, specifying which phase you want to run.
-
-Example: To run the Phase 1 Classical Benchmark:
-
-code
-Bash
-download
-content_copy
-expand_less
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-python experiments/run_experiments.py --phase 1
-
-What it does: This script will find the configuration file for the Phase 1 benchmark (experiments/configs/phase1_classical_benchmark.py), launch the simulation, and run it to completion (this may take a long time). After the simulation is finished, it will automatically call the analysis script to generate a report.
-
-To run Phase 2 (RL agent evaluation):
-
-code
-Bash
-download
-content_copy
-expand_less
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-python experiments/run_experiments.py --phase 2
-
-To run Phase 3 (MARL dynamics):
-
-code
-Bash
-download
-content_copy
-expand_less
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-python experiments/run_experiments.py --phase 3
-Task 3: Analyze the Results of an Experiment
-
-Objective: Generate (or re-generate) a summary report from an existing experiment's data.
-
-Command: Use the analysis/generate_report.py script, pointing it to the specific results directory.
-
-Example: To re-analyze the Phase 1 benchmark results:
-
-code
-Bash
-download
-content_copy
-expand_less
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-python analysis/generate_report.py --exp_dir results/phase1_classical_benchmark/
-
-What it does: This script loads the round_log_all.csv from the specified directory, runs all the analysis functions from utils.py (market performance, individual performance, tournament ranking), and writes a clean ANALYSIS_REPORT.md file back into that same directory.
-
-3. How to Assist with this Project
-
-To review an agent's logic: Look in src/santafe_gym/traders/. The ppo_handcrafted.py file is our most advanced agent.
-
-To understand an experiment's setup: Look in experiments/configs/. The files are named according to the research phase (e.g., phase1_..., phase2_...).
-
-To see the latest results: Look in the /results/ directory for the most recent experiment folder and open the ANALYSIS_REPORT.md file.
-
-To add a new experiment: Create a new configuration file in experiments/configs/ and add its name to the appropriate list in experiments/run_experiments.py.
-
-code
-Code
-download
-content_copy
-expand_less
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-
-Of course. Let's continue building out the HOW_TO_USE_FOR_CLAUDE.md file. The next sections will cover how to modify the codebase to add new features (like a new agent) and provide a quick reference to the most important files. This makes the document a comprehensive guide for any future interactions.
-
-code
-Markdown
-download
-content_copy
-expand_less
-
-# How to Use This Repository (For Claude Assistant)
-
-... (Sections 1, 2, and 3 from the previous response) ...
-
----
-
-## 4. How to Extend the Codebase (Development Workflow)
-
-This section outlines the standard procedures for adding new components, such as a new trading agent, ensuring that any changes are robustly tested and integrated.
-
-### Task 4: Adding a New Trading Agent
-
-**Objective:** To introduce a new trading strategy (e.g., "StrategyX") into the simulation environment.
-
-**Step-by-Step Procedure:**
-
-1.  **Create the Agent File:**
-    *   In the `src/santafe_gym/traders/` directory, create a new file named `strategy_x.py`.
-    *   Inside this file, define `StrategyXBuyer(BaseTrader)` and `StrategyXSeller(BaseTrader)` classes. They must inherit from `BaseTrader`.
-    *   Implement the core logic by overriding the `make_bid_or_ask()`, `request_buy()`, and `request_sell()` methods.
-
-2.  **Register the New Agent:**
-    *   Open `src/santafe_gym/traders/registry.py`.
-    *   Import your new classes: `from .strategy_x import StrategyXBuyer, StrategyXSeller`.
-    *   Add a new entry to the `_TRADER_CLASSES` dictionary:
-        ```python
-        _TRADER_CLASSES = {
-            # ... existing agents ...
-            "strategy_x": (StrategyXBuyer, StrategyXSeller),
-        }
-        ```
-
-3.  **Write Verification Tests:**
-    *   In the `tests/traders/` directory, create a new test file named `test_strategy_x.py`.
-    *   Write specific `pytest` functions to test the core logic of your new agent.
-        *   Does it quote within profitable bounds?
-        *   Does it accept trades correctly?
-        *   Does its unique logic (e.g., a learning update) work as expected under controlled conditions?
-    *   Run `./scripts/run_all_tests.sh` and ensure all tests, including your new ones, pass.
-
-4.  **Test in an Experiment:**
-    *   Create a new configuration file in `experiments/configs/`, for example, `test_strategy_x.py`.
-    *   In this config, create a market population that includes your new agent (e.g., `{"type": "strategy_x"}`).
-    *   Run this new experiment using `python experiments/run_experiments.py --config_file experiments/configs/test_strategy_x.py`.
-    *   Analyze the results to ensure it performs as expected.
-
-### Task 5: Modifying the PPO Agent's Features
-
-**Objective:** To experiment with the feature set used by the `PPOHandcrafted` agent.
-
-**Step-by-Step Procedure:**
-
-1.  **Locate the State Generation Method:**
-    *   Open `src/santafe_gym/traders/ppo_handcrafted.py`.
-    *   The core logic is within the `_get_state()` method.
-
-2.  **Add or Modify a Feature:**
-    *   To add a feature, increment `self.state_dim` in the `__init__` method.
-    *   Add your new calculation to `_get_state()`, ensuring the value is normalized to the `[-1, 1]` range. Assign it to the next available index in the `state` numpy array.
-    *   **Crucially, document the new feature** with a comment explaining what it represents and how it's calculated.
-
-3.  **Verify and Retrain:**
-    *   Run the test suite (`./scripts/run_all_tests.sh`) to ensure you haven't introduced any bugs.
-    *   You will need to re-run the Phase 2 training regimen (`python experiments/run_experiments.py --phase 2`) to train a new model that can leverage this new feature.
-
----
-
-## 5. Quick Reference: Key Files and Their Purpose
-
--   **I want to run the main experiment and get the final report.**
-    -   `./scripts/run_benchmark.sh` -> This is the one-click script for the main Phase 1 tournament and report.
-    -   `experiments/run_experiments.py --phase 1` (or 2, or 3) -> For running specific phases of the research plan.
-
--   **I want to see the "brain" of the best RL agent.**
-    -   `src/santafe_gym/traders/ppo_handcrafted.py`: The `_get_state()` method defines the 12 features it "sees".
-    -   `src/santafe_gym/traders/ppo_core.py`: The `MLPAgent` class defines the neural network architecture, and `PPOLogic` contains the learning algorithm.
-
--   **I want to see the "brain" of the famous Kaplan agent.**
-    -   `src/santafe_gym/traders/kp.py`: The `make_bid_or_ask()` method contains its dual-mode (background/truthtelling) logic.
-
--   **I want to change the parameters of an experiment (e.g., run for more rounds).**
-    -   Find the relevant file in `experiments/configs/` (e.g., `phase1_classical_benchmark.py`) and edit the Python variables at the top.
-
--   **I want to understand exactly how the market works.**
-    -   `src/santafe_gym/auction.py`: The `_run_bid_offer_substep` and `_run_buy_sell_substep` methods contain the core market rules.
-
--   **I want to see the final, aggregated results from the last major run.**
-    -   Look in the relevant subdirectory within `/results/` and open the `ANALYSIS_REPORT.md` file.
-
-This document should serve as a stable reference point. If you need to review the project's status or execute a task, refer to this guide first.

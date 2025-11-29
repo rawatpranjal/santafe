@@ -1,0 +1,17 @@
+# @package _global_
+
+# Grand Tournament: ASYMMETRIC Environment
+# Unbalanced market (6 buyers vs 4 sellers)
+
+experiment:
+  name: "grand_tournament_asymmetric"
+  num_rounds: 100
+
+agents:
+  buyer_types: [ZIC, ZIP, Kaplan, GD, Skeleton, ZI2]
+  seller_types: [ZIC, ZIP, GD, Skeleton]
+
+market:
+  num_tokens: 4
+  num_periods: 10
+  num_steps: 100

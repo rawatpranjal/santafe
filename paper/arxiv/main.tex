@@ -1,0 +1,118 @@
+\documentclass[11pt]{article}
+\usepackage[right=1in,left=1in,top=1.1in,bottom=1.1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{colorlinks, citecolor=blue, filecolor=blue, linkcolor=blue, urlcolor=blue}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[round]{natbib}
+\usepackage{amsmath,amsthm} 
+\usepackage{engord}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{pdflscape}
+\usepackage{booktabs}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.14}
+\pgfplotsset{every axis label/.append style={font=\tiny}}
+\usepackage[labelsep=period]{caption} %% This switches "Table 1: Title" to "Table 1. Title"
+
+\def\argmin{\mathop{\it argmin}}
+\def\argmax{\mathop{\it argmax}}
+\newtheorem{assume}{Assumption}
+\newtheorem{define}{Definition}
+\newtheorem{thm}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{step}{Step}
+\newtheorem{lemma}{Lemma}
+
+\usepackage{amssymb} %% Necessary, just for the \checkmark command  in tables.
+\usepackage{multirow} %% Necessary if we are doing tables in LaTeX
+
+\usepackage{xr}
+
+\usepackage{setspace}
+\onehalfspacing
+
+\usepackage{sectsty}
+\sectionfont{\large}
+\subsectionfont{\normalsize}
+\subsubsectionfont{\normalsize}
+
+\newcommand{\specialcell}[2][c]{\begin{tabular}[#1]{@{}l@{}}#2\end{tabular}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{ \vspace*{1cm} \hspace*{-0.5cm}Reinforcement Learning and Agentic Trading in Double Auctions\footnote{Pranjal Rawat is grateful for the computational resources provided by Georgetown University and the original source code provided by Rust et al.}}
+
+\author{Pranjal Rawat\thanks{PhD Candidate, Georgetown University. \href{mailto:pp712@georgetown.edu}{pp712@georgetown.edu}}}
+
+\date{ \vspace*{0.5cm} November 21, 2025 \\ \bigskip {\Large PRELIMINARY DRAFT: NOT FOR CIRCULATION} } 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\bgroup
+\let\footnoterule\relax
+
+\begin{singlespace}
+\maketitle
+
+
+\begin{abstract}
+In 1993, the Santa Fe Institute hosted a seminal tournament where simple "sniping" heuristics outperformed complex trading algorithms in a continuous double auction. Thirty years later, we revisit this environment to investigate whether modern Deep Reinforcement Learning (PPO) and Large Language Models (GPT-4o) can solve the information aggregation problem without hard-coded rules. We faithfully replicate the original synchronized double auction mechanism and introduce a new generation of agents. Our results show that: (1) PPO agents autonomously rediscover the "sniping" strategy, exploiting legacy heuristics; (2) Multi-agent PPO markets maintain high allocative efficiency, avoiding the market collapse observed in heuristic self-play; and (3) Zero-shot LLMs exhibit high efficiency but display distinct behavioral biases, prioritizing fairness over profit maximization. These findings suggest that while gradient-based learning can master market timing, semantic reasoning introduces a new, potentially stabilizing, dynamic to automated markets.
+\end{abstract}
+\end{singlespace}
+\thispagestyle{empty}
+
+\clearpage
+\egroup
+\setcounter{page}{1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{sections/01_intro}
+
+\section{Literature Review}
+\input{sections/03_lit_review}
+
+\section{The Market}
+\input{sections/04a_market}
+
+\section{The Traders}
+\input{sections/04b_traders}
+
+\section{Intelligence and Markets}
+\input{sections/05_results_zero_intel}
+
+\section{Santa Fe Tournament Replication}
+\input{sections/06_results_santafe}
+
+\section{Reinforcement Learning Trader}
+\input{sections/07_results_rl}
+
+\section{Large Language Model Trader}
+\input{sections/08_results_llm}
+
+\section{Discussion}
+\input{sections/08_discussion}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\clearpage
+\begin{singlespace}
+\bibliographystyle{plainnat}
+\bibliography{references}
+\end{singlespace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Appendices
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+\input{sections/appendix_c_market}
+\input{sections/appendix_a_ppo_trader}
+\input{sections/appendix_b_llm_trader}
+\input{sections/appendix_d_metrics}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}

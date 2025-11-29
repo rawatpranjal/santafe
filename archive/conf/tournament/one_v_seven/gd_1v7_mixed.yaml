@@ -1,0 +1,9 @@
+# @package _global_
+# One GD vs 7 mixed traders (competitive test)
+experiment:
+  name: "gd_1v7_mixed"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['GD', 'ZIC', 'ZIC', 'ZIC', 'ZIP', 'ZIP', 'GD', 'GD']
+  seller_types: ['GD', 'ZIC', 'ZIC', 'ZIC', 'ZIP', 'ZIP', 'GD', 'GD']

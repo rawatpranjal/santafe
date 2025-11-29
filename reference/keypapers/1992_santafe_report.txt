@@ -1,0 +1,5071 @@
+Behavior of Trading Automata
+in a Computerized Double
+Auction Market
+John Rust
+Richard G. Palmer
+John H. Miller
+
+SFI WORKING PAPER: 1992-02-008
+
+SFI Working Papers contain accounts of scientific work of the author(s) and do not necessarily represent the
+views of the Santa Fe Institute. We accept papers intended for publication in peer-reviewed journals or
+proceedings volumes, but not papers that have already appeared in print. Except for papers by our external
+faculty, papers must be based on work done at SFI, inspired by an invited visit to or collaboration at SFI, or
+funded by an SFI grant.
+©NOTICE: This working paper is included by permission of the contributing author(s) as a means to ensure
+timely distribution of the scholarly and technical work on a non-commercial basis. Copyright and all rights
+therein are maintained by the author(s). It is understood that all persons copying this information will
+adhere to the terms and constraints invoked by each author's copyright. These works may be reposted only
+with the explicit permission of the copyright holder.
+www.santafe.edu
+
+SANTA FE INSTITUTE
+
+Behavior of Trading Automata in a Computerized Double Auction Market
+John Rust, University of Wisconsin
+Richard Palmer, Duke University
+John H. Miller, Carnegie Mellon University
+
+and
+Santa Fe Institute
+
+dat@sfi.santafe.edu
+
+Revised, January, 1992
+
+Abstract: This paper reports the results of a series of tournaments held at the Santa Fe Institute beginning in March,
+1990 in which computer programs played the roles of buyers and sellers in a simplified synchronized double auction
+market. We show that despite the decentralized nature of the trading process and traders' incomplete information
+about supply and demand, transaction price trajectories for a heterogeneous collection of computer programs typically
+converged to the competitive equilibrium, resulting in allocations that were nearly 100% efficient. We also show that
+a very simple trading strategy is a higWy effective and robust performer in these markets. A simple rule-of-thumb
+was able to outperform more complex algoritllms that used statistically-based predictions of future transaction prices,
+explicit optimizing principles, and sophisticated "learning algorithms".
+
+Acknowledgements: This paper is forthcoming in Tile Double Auction Ma.rket: Institutions, Tlleories and
+Evidence D. Friedman, J. Geanakoplos, D. Lane and J. Rust (eds.) Addison Wesley, 1992. We are grateful for the
+generosity of the Santa Fe Institute and its Economics program for providing the facilities, salary, administrative,
+and computational support that made this research possible. John Rust is grateful to the Alfred Sloan Foundation for
+providing tournament prize money, and National Science Foundation grants SES-8721 199 for computer hardware, and
+SES-901oo46 for funding of matching human experiments at the Experimental Science Laboratory at the University
+of Arizona (Vernon Smith, Co-PI). International Business Machines provided funding for tournament organizational
+expenses. John Miller would like to acknowledge an equipment grant from Sun Microsystems. The general idea of the
+computerized double auction toumament emerged from discussions in a March 1988 meeting at the Sante Fe Institute,
+including Phil Anderson, Ken Arrow, Brian Arthur, John Holland, Tim Kehoe, Richard Palmer, John Rust, Tom
+Sargent, and Eugenia Singer. We also acknowledge helpful discussions with Robert Axelrod, Charles Plott, Vernon
+Smith, and Shyam Sunder, and extend our tllanks to particular individuals whose expertise made this tournament
+possible, including Michael Angerman, Marcella Austin, Ronda Butler-Villa, Steven Pope, Ginger Richardson, Dan
+Schneidewend, Andi Sutherland, George Tsibouris, and Della Ulibarri. We are grateful for helpful comments from Dan
+Friedman and seminar participants at the Universities of Oslo and Stockholm, and the London School of Economics.
+Finally we would like to thank all participants of tlle DA tournament for tlleir willingness to commit time and effort in
+developing an ingenious collection of trading programs.
+
+1. Introduction
+This paper reports the results of a series of computerized double auctiou tournaments held at the Santa Fe
+Institute beginning in March 1990. The tournament cousisted of over 30 computer programs (automata traders)
+playing the roles of buyers and sellers in a simplified syncrhonized double-auction (DA) market. The tournament was
+organized with several objectives in mind; I) to get new insights on the fonn of effective trading strategies, 2) to
+compare the perfonnance of automata traders and human traders, and 3) to create an artificial market to help us better
+understand the operation of the "invisible hand" in real world DA markets.
+The remarkable efficiency properties ofDA markets have been documented in numerous laboratory experiments
+using human subjects. By assigning subjects tokens with fixed redemption values and token costs, well-defined supply
+and demand curves can be constructed. The intersection of these curves defines the price and quantity at which
+neoclassical economic theory predicts trading will occur, the competitive equilibrium (CE) solution. The complication
+is that in most experimental markets each trader only knows only their own token values: no single trader has enough
+infonnation to determine the market supply and demand curves in order to compute the CEo The nearly universal
+finding of more than two decades of human experiments is that despite the presence of incomplete information and the
+small number of traders , transaction prices and quantities quickly converge to CEo The resulting market allocations are
+highly efficient; traders are typically able to exploit close to 100% of the potential profits.
+Although the textbook "supply equals demand" model may provide a good prediction of closing prices and
+quantities in DA markets, it fails to explain the dynamics by which this happens. A more sophisticated theory is
+required to show how the trading process aggregates traders' dispersed information, driving the market towards CEo
+The essence of the problem was clearly stated by Friederik Hayek nearly 50 years ago:
+"The problem is in no way solved if we can show that all the facts, if they were known to a single
+mind, would uniquely determine the solution; instead we must show how a solution is produced by the
+interactions of people each ofwhom possesses only partial knowledge. To assume that all the knowledge
+to be given to a single mind in the same manner in which we assume it to be given to us as the explaining
+economists is to assume the problem away and to disregard everything that is important and significant
+in the real world." (Hayek, 1945, p. 530)
+
+Since the use of a computer .tournament to gain insights into human trading behavior is somewhat unorthodox,
+section 2 briefly reviews current dleories of DA markets. Although these theories have provided important insights
+into the nature of tradIng strategies and price formation, it is fair to say that none of them has provided a satisfactory
+resolution of "Hayek's problem". In particular, current theories assume a substantial degree of implicit coordination by
+requiring that traders have common knowledge of each other's strategies (in game-theoretic models), or by assuming
+that all traders use the same strategy (in learning models). Little is known theoretically about price formation in
+DA markets populated by heterogeneous traders with limited knowledge of their opponents. Although experimental
+
+I
+
+2
+studies have provided considerable empirical evidence on the nature trading behavior nnder these conditions, they
+have failed to cast light on trading strategies which are essentially unobservable.
+
+In order to directly observe strategies, we sponsored a tournament in which entrants submitted trading programs
+playing the roles of buyers and sellers in a computerized DA market. To attract good programs we offered $ 10,000
+in prizes, paid out in proportion to trading profits earned by entrants' programs over the course of the tournament.
+
+In return we obtained a heterogeneous collection of trading programs to populate a unique laboratory for studying
+decentralized price formation. Section 3 describes the rules of the tournament and the structure of our "synchronized
+DA", a modified version of the traditional continuous DA market designed to simplify the task of programming
+strategies and guarantee equal trading opportunities. Section 4 presents the results of the cash tournament held at the
+Santa Fe Institute in March 1990 and subsequent non-cash "scientific" and "evolutionary" tournaments held in 1991.
+We find that the top-ranked programs yield a fairly "realistic" working model of a DA market in the sense that their
+
+.,
+
+collective behavior is consistent with the key "stylized facts" of human experiments. We also find that a very simple
+trading strategy is a highly effective and robust performer in these markets. This strategy was able to outperform more
+complex algorithms that use statistically-based predictions of future transaction prices, explicit optimizing principles,
+or sophisticated "learning algorithms". The basic idea behind the approach can be described quite simply: wait in the
+backgroundand let others do the negotiating, but when bid and ask get sufficiently close,jump in and "steal the deal" .
+
+However the results of our evolutionary tournaments show that when too many other traders try to imitate this strategy,
+market efficiency can fall precipitously due to negative information externalities. Specifically, if too many traders
+"wait in the background", little infOlmation is generated until just before the end of the trading period. This tends to
+produce "closing panics" as traders rush to unload their tokens in the final seconds of the trading period, resulting in
+failure to execute all potentially profitable transactions.
+Long-run stability in the trading environment seems to require the presence of active bidders that provide a
+flow of information to "lubricate the market". However most of the active bidding strategies seem to be too impatient,
+exposing themselves to a high risk of mistakes and consequent exploitation by the background traders. Although a
+few of the more complex trading programs appear to be resistant to short-run exploitation, none of them appear strong
+enough to resist the parasitic effects of the background traders in the long-run. We show that a market dominated by
+background traders can be "quasi-stable" if a small but steady stream of short-lived "noise-traders" enters the market.
+The noise-traders provide a flow of information and source of new capital to keep the market running despite being
+nearly totally dominated by background traders. However since price volatility is very high in such a market, it is
+likely to present attractive opportunity for exploitation by new strategies. Section 5 concludes with some observations
+on how one might find such strategies.
+
+3
+2. Review of Previous Approaches to Analyzing DA Markets
+Modern economic theory has attempted to explain the apparent disequilibrium behavior in DA markets as
+actually beiug the equilibrium outcome of a game of incomplete information. The "null hypothesis" is that observed
+trading behavior is a realization of a Bayesian-Nash equilibrium (BNE) of this game. Given the immensity of
+the strategy space (especially in continuous-time formulations), it has proven extremely difficult to characterize the
+equilibria of these games. The clearest characterizations have been obtained by Sattettbwaite and Williams (1989a,b,
+chapter 4) for a class of static DA games known as the k-Double Auction. They have established that truthrellillg is
+nearly a dominant strategy as the number of traders gets large. Unfortunately, this intuition does not appear to carry
+over to dynamic DA markets where truthful revelation is a very poor strategy: if a trader places a bid equal to her true
+redemption value and another trader accepts tl,at bid, the bidder will clearly earn zero profit.
+To the best of our knowledge the only characterization of equilibrium in a dynamic DA market is due to Wilson
+(1987). His equilibrium, described as a "waiting game Dutch Auction" (WGDA) by Cason and Friedman (chapter 8),
+"offers a concrete explanation of the mechanism by which the dispersed information about traders'
+valuations is manifested in the prices at which transactions are consummated. The mechanism, according
+to the present hypothesis, is multilateral sequential bargaining in which the traders are endogenously
+matched for transactions via a signalling process using delay as the primary signal." (p. 412)
+Cason and Friedman (1991) have shown that beyond the prediction of high ex post trading efficiency, almost
+all of the other predictions of Wilson's model are inconsistent with the behavior of hnman traders in laboratory
+experiments. Wilson's model predicts that trade will occur in the efficient order,' whereas in human experiments the
+rank correlation between the order of o'ansactions with the efficient order is typically much less than 100%. Indeed,
+Wilson's model predicts that in equilibrium all ex post efficiency losses will be dne to unrealized intra-marginal trades,
+i.e. the market may trade too few tokens but never too many. However in experimental settings, a significant fraction
+of efficiency losses are due extra-marginal trades. This is due to the fact that in human experiments, bnyers and
+sellers are not matched for transactions as predicted by Wilson's waiting game equilibrium: it is frequently the case
+
+that extra-marginal traders succeed in "bumping" intra-marginal traders.::l Furthennore, bidding behavior seems to
+be poorly described as a sequence of Dutch auctions called exclusively by the current bidder or asker. In human
+experiments there is often stiff competition for the "right" to hold the the current bid or ask, which is frequently
+"stolen" by other more eager traders. Finally, Cason and Friedman show that in human experiments transaction price
+
+1
+
+The efficient order is the trade sequence which maximizes surplus, Le. the first trade occurs between the buyer with the highest redemption value
+and the seller with the lowest token cost, the second trade occurs between the buyer and seller with the next most valuable tokens, and so on.
+
+~ This suggests that differences in traders' "impatience" may also be a function of other factors we might call "aggressiveness" (or "stupidity"?)
+
+which may have no direct relation to the magnitude of their token values.
+
+4
+
+changes are significantly negatively autocorrelated. Wilson's model predicts zero autocorrelation in price changes
+since equilibrium transaction prices must follow a martingale to preclude intertemporal arbitrage.
+Given enough freedom in the specification of traders' beliefs and risk aversion, Ledyard (1986) has shown
+that essentially any set of undominated strategy profiles can be "rationalized" as a BNE outcome of the DA trading
+game. Does this imply that game theory will eventually be able to provide an explanation for the experimental
+observations? We think there is a deeper reason why the game-tlleoretic approach may not yield a good model of
+human behavior. The problem is that the common knowledge underpinnings of game theoretic models presume an
+unreasonably high degree of implicit coordination amongst the traders, begging Hayek's question ofho,,:, coordination
+
+is achieved in a decentralized market in the first place. Game theory also assumes that there is no a priori bound on
+traders' ability to compute their BNE strategies. However even traders with infinite, costless computing capacities
+may still decide to deviate from their BNE strategies if they believe that limitations of other traders force them to use
+sub-optimal strategies. Since traders can only observe behavior, they will never be certain of exactly which strategies
+their opponents are using. This learning problem is of such a high dimensionality relative to the limited number
+of observations available within typical trading periods that it may not pay to try to adopt a sophisticated Bayesian
+updating strategy.' Game-theoretic solutions can also be "non-robust" in the sense that they depend critically on
+particular common knowledge assumptions about the fonn of the probability distribution of traders' token values.
+Typically game theorists use the "independent private values model" where each trader's tokens are lID draws from
+a fixed distribution F. It is not known whether equilibria will be substantially different if token values are correlated
+
+across traders. To our knowledge, there is no convincing evidence from the experimental literature that presence or
+absence ofcommon knowledge about the joint distribution oftoken values has a significant impact on trading outcomes.
+Indeed, subjects in most experimental studies are not given any infonnation about how tokens are generated. In a
+game-theoretic model it would be impossible to even define the concept of equilibrium without such prior infonnation.
+In response to the difficulties of using game theory to analyze and explain experimental findings in dynamic DA
+. markets, economists have begun to fonnulate explicit disequilibrium trading theories based on simple, yet plausible
+rules-of-thumb. Examples of this approach include Easley and Ledyard (chapter 3), Friedman (1991), and Garcia
+(1980). The results of tllCse studies suggest that rationality is not a necessary condition for observing efficient
+outcomes and convergence to CE in DA·markets. Gode and Sunder (1992, and chapter 6) provided a particularly
+striking demonstration of this result. They showed that markets populated by "Zero Intelligence" (ZI) strategies exhibit
+very high ex post efficiencies, and the corresponding price trajectories frequently converged to CE in Ihe very first
+
+3 It has been shown (Freedman, 1963; Diaconis and Freedman, 1986) that Bayesian updating can be inconsistent in infinite-dimensional parameter
+
+spaces. In certain cases the prior distribution can completely overwhelm the data in the sense that the posterior will not converge to the "truth" even
+given an infinite number of observations. Intuitively, this will also be the case when the dimensionality of the object being learned is large relative
+to the number of observations.
+
+5
+trading period. A ZI seller with token cost C asks an amount C + U, where U is uniformly distributed over its support
+S. Similarly a Zl buyer with redemption value R bids amount R -
+
+U. At each step t of trading, a ZI trader uses lID
+
+draws U to construct its bids and asks, accepting the first profitable opposing bid or ask that comes along. Thus, ZI
+are traders are "minimally rational" in the sense that they do not attempt to optimize or learn from past observations,
+although they do avoid trading at a loss by always bidding below their redemption values or asking above their token
+costs. Gode and Sunder (1992) found that in markets populated entirely by ZI traders allocations were nearly 100%
+efficient outcomes and price trajectories typically converged to CE, provided the support of the set over which random
+draws U are taken is not too large.' These findings strongly suggest that the nice properties of DA markets may have
+more to do with the properties of the institution itself than the rationality of traders per se.'
+Although ZI traders may be collectively rational, there is a clear sense in which they are individually irrational.
+Specifically, we show that ZI traders, like Truthtellers, will be rapidly exterminated by even slightly more aggressive
+trading strategies. For this reason it seems doubtful that ZI traders will provide a good model of human trading
+behavior. Indeed, even though the price trajectories frequently converge to equilibrium, overall price volatility in DA
+markets populated by ZI traders is unrealistically high. Given the high transaction price volatility, it is somewhat
+surprising that ZI traders are even collectively rational. However if tile support S of the distribution over which the ZI
+traders' bids and offers are randomized is too large, the probability increases that extra-marginal traders will succeed
+in "bumping" intra-marginal traders, resulting in significant efficiency losses. Truthtelling can be viewed as a limiting
+form of the ZI strategy as the support S converges to {O}. Since trade in a syncronized DA market populated entirely
+by truthtellers is necessarily fully efficient, it follows that ZI traders are also close to 100% efficient, at least when the
+upper support S is sufficiently small.'
+One of the lessons from Axelrod's (1984) prisoner's dilemma tournament is that sometimes players can be "too
+smart for their own good" in the sense that sophisticated and self-interested behavior can be deterimental to achieving
+good cooperative outcomes. The question is whether this is true in DA markets as well. Is it the case that sophisticated
+optimizing strategies make individual traders better off, but reduce market efficiency? The problem is that "passive"
+
+4 The key restriction is to rule out placing bids or asks al a loss, which is true provide the support S is nonnegative. The nature of the trading rules
+also affect the results. ZI traders in continuous-time markets yield less efficient allocations than in continouNime markets than in the sychronized
+DA markets described in section 3, since they are able to place an unbounded number of bids and asks in the fonner. For details, see Oode and
+
+Sunder. chapter 6.
+.S
+
+We should also mention related work by Marimon, McGrarten and Sargent (1990) who studied the behavior of a collection of HoIland's (1975)
+classifier systems in a dynamic exchange economy. Although their economy is a more complicated dynamic market than the essentially static DA
+
+market studied here (in particular it can have multiple isolated equilibria), they also found that their artificial agents eventually converged to an
+equilibrium of the system.
+6
+
+To the extent that humans sometimes make random mistakes, ZI traders may provide insight into why static sealed-bid DA markets are less efficient
+than dynamic DA markets. For example in the "~-double auction, the level of inefficiency appears to be much more sensitive to the level of
+underbidding (as indexed by the size of the support 5) than it is in a dynamic DA.
+
+6
+
+or "nice" strategies (such as Trutheller or ZI) that are consistent with high collective efficiency may be individually
+unsustainable in the presence of aggressive players. The issue turns on the potential gains from behaving aggressively
+versus behaving passively. We suspect that an analog of the Satterthwaite-Williams result canies over to dynamic DA
+markets: namely, that the gains from behaving strategically are negligible even in markets with very small numbers of
+traders. However in order to define the gains to behaving strategically we also have to define an appropriate notion of
+what it means to behave passively or "non-strategically". Identifying non-strategic behavior with truthtelling will not
+work in dynamic DA markets since truthtelling, like ZI, is easily exploitable. 10 a large and efficient market there is
+reasonably well-defined notion of pricetaking behavior: namely, placing all bids or asks at the market price and only
+accepting a bid or offer that is at least as good as the market price. In an efficient market it seems intuitively clear that
+pricetaking should be close to a dominant strategy.' However it is less clear exactly what it means to be a pricetaker
+in thin markets with small numbers of traders where initial transaction prices are highly volatile and potentially far
+from equilibrium, a situation that is typical of the first few periods of most experimental DA markets, as well as many
+markets observed in the field.
+
+3. Structure of the DA Tournament
+Most of the trading programs used in this study were submitted in response to advertisements for a "Double
+Auction Tournament" held at the Santa Fe 10stitute in March 1990. Cash prizes totalling $10,000 were offered to
+a maximum of 100 entrants in proportion to the trading profits earned by their programs· over the course of the
+tournament. 10 addition to prize money and wide publicity, a substantial effort was devoted to make the programming
+and debugging of trading strategies as easy as possible. This included development of the Sallta Fe Token Exchange
+(SFTE) which opens at the start of each hour for token trading over the worldwide Internet computer network.'
+The computerized DA was implemented via a message-passing protocol which specifies the form of allowable
+messages that programs can send, such as bids, asks, and buy and sell orders. Entrants were provided with a simple
+"skeleton" trading program (written in C, Fortran, and Pascal) which handled all the message-passing housekeeping,
+allowing them to focus on the logic of their strategies, rather than on programming details. A central monitor program
+coordinates the trading process by communicating with all of the trading programs, executing their buy and sell orders
+and relaying their bids and asks to the other traders. Trading programs (which could also be interfaces to human
+
+"7
+
+Roberts and Postlewaite (1976) were the first to fonnally establish such a result in the context of a static complete-information Walrasian exchange
+economy. The results of SW (19&9a,b) and RSW (1990) cited in section 2 can be interpreted as an extension of the Roberts-Postlewaite result to a
+non-Wairasian exchange economy with incomplete infonnation.
+
+8 Many entrants reponed that the SFTE was useful for refining their trading programs in advance of the actual tournament.
+
+"free-ware" to allow entrants who did not have Internet access to set up their own local token exchanges.
+
+We also distributed
+
+7
+traders) communicate only with the monitor and not directly with each other as illustrated in figure 3.1. It is important
+to note that the monitor program is only a clerk: it is not an "auctioneer" and has no market-clearing authority. 9
+
+Figure 3.1: Interplayer Communication Via the Monitor
+
+The structure of our computerized DA market is very similar to the continuous-time experimental DA markets
+described in section 2. The major differences are 1) time is discretized into alternating Bid/Ask (BA) and Buy/Sell (BS)
+steps, and 2) transactions are cleared according to "AURORA rnles". The DA market opens with a BA step in which
+all traders are allowed to simultaneously post bids and asks. After the monitor informs the traders of each others' bids
+and asks, the holders of the current bid (highest outstanding bid) and current ask (lowest outstanding ask) enter into
+a BS step." During the BS step, either player can accept the other player's bid or ask. If an acceptance occurs, a
+transaction is executed. U A trading period is simply a set of S alternating BA and BS steps.
+The discretization of time was adopted to simplify the programming of trading strategies and improve the
+
+synchronization of communications between players and the monitor in a multiprocessing or network computing
+environment where delays may vary from player to player and moment to moment. In a continuous-time enviromnent
+"faster" traders have an inherent advantage. This speed advantage may arise due to communication delays (e.g.,
+simultaneous messages sent from a trader in Japan and Chicago may arrive at different times at a central computer in
+New York) or due to processing delays (e.g., machines may be able to recognize and respond to certain conditions faster
+
+than humans). By discretizing time and setting sufficiently wide response-time limits, we can effectively guarantee
+that all traders have equal trading opportunities. In the limit, our implementation of a discrete-time DA market is
+
+9 The monitor does enforce trading rules, and can impose upper and lower price limits,
+
+It also has the authority to censor illegal or late messages,
+
+although no cpu-time limits were imposed in the actual tournament.
+10 If a current bid (ask) does not exist, then aU buyers (sellers) enter into the BS step.
+
+11 If both
+
+parties accept each other's offers, the monitor randomly chooses between the current bid and ask to determine the transaction price.
+
+8
+not restrictive since a continuous-time trading environment can be arbitrarily well approximated by a discrete-time
+
+environment with very many short trading intervals. 12
+The AURORA rules were inspired by similar rules used by the AURORA computerized trading system
+developed by the Chicago Board of Trade. AURORA Rules stipulate that only the holder of the current bid or current
+ask are allowed to trade. We adopted these rules as a substitute for ad hoc tie-breaking rules which are necessary in
+discrete-time trading environment when several traders are able to simultaneously accept an outstanding bid or ask.
+Presumably the Chicago Board of Trade had a very different motivation for considering the AURORA rules. ". In
+our case, we experimented with alternative sets of trading rules and found that the AURORA rules produced a more
+interesting DA game, as well as one that was perceived as "fairer" by participants. Strategically, our DA breaks into
+a series of two simultaneous move subgames: a multiplayer game to acquire the current bid or ask in a BA step, and
+a two-player game involving a binary accept/reject decision in a BS step. In early human experiments using random
+tie-breaking rather than AURORA rules, we found that traders often expressed frustration that trade execution seemed
+more a matter of luck than strategy due to tlle fact that other traders would repeatedly win random tie-breaks for the
+acceptance of an outstanding bid or ask. On the otller hand, one might criticize the AURORA rules on the grounds
+that it makes it harder for traders to remain in the background since it forces them to "show their hand" by posting a
+winning bid or ask before being allowed to trade. We have found, however, that these rules do not place a significant
+constraint on background traders: they can still stay quietly in the background for most of the trading period, Jumping
+in the moment they detect an attractive bid or ask. Indeed, this is precisely the strategy followed by the winner of the
+tournament.
+
+An individual DA game is divided into one or more rounds, and each round is further divided into one or more
+periods. A single period of the DA game consists of a fixed number of alternating BA and BS steps as described above.
+The reason for structuring games to have multiple rounds and periods within rounds is to control players' abilities to
+learn about their opponents. Tokens and redemption values are fixed within each period of a given round, but are
+allowed to change between rounds. Thus DA games with many periods allow players to learn the value of each others'
+
+tokens, while DA games with many rounds allow players to learn about each others' strategies.
+At the start of a DA game the monitor broadcasts public information to the traders, including tlle number of
+buyers and sellers and their identities, the number of rounds, periods and time steps, the number of tokens each agent
+will have, and the joint distribution F from which the traders' token values are drawn. Next, the monitor sends each
+trader a packet of private information, namely, their realized token values. Since public information is provided by
+
+1::1
+
+The same point applies to price units in our DA market, which were rounded to the nearest integer.
+
+13 Since AURORA rules have the effect of making all transactions publicly observable, they may have been designed partly in response to trading
+
+abuses that were uncovered in the Chicago Exchanges in the late 1980's.
+
+9
+a simultaneous broadcast to all players, it serves as a means of ensuring that players have common knowledge about
+all relevant game parameters. The joint distribution F was communicated to players using a four digit gametype
+variable. Token values are represented by Tjk where j indexes the trader, and k indexes the token assigned to the
+trader. Tokens are randomly generated according to
+if j is a buyer;
+(3.1)
+
+if j is a seller,
+where" A ~ U[O,RI], B ~ U[0,R2], Ck ~ U[0,R3], andDjk ~ U[O,14]. Notice that when RI
+
+= R2 = R3 = 0
+
+we have the standard independent private-values model where tokens are independently uniformly distributed on the
+interval [0. R4]. A gametype equal to 0 indicates an environment where redemption values were generated by an
+unspecified process.
+The best way to understand what goes on in a DA market is to study the monitor output for the sample
+tournament game in Figure 3.2. The figure shows the first period of a DA game with two rounds and three periods per
+round. In this case there are four buyers and four sellers, and each trader is assigned four tokens. The implied supply
+and demand curves give a CE which is uniquely determined with a price of 691 at a quantity of II. " The '+' next
+
+to each trader's token indicates an intra-marginal token, a '-' indicates an extra-marginal token, and an '=' denotes a
+token value equal to the CE price. The first BA step yields a current bid of 435 held by B I (buyer I) and a current ask
+of 1128 held by S2 (seller 2). Neither BI nor S2 choose to accept the other's bid or ask at BS step I, so the bidding
+b!,gins'again at BA step 2. The first transaction occurs in BS step 4 when both B3 and SI simultaneously accept each
+other's offers. Here, a random tie-break results in S3 seIling its first token (denoted by capital A) at B3's bid of 717.
+Immediately after the transaction the current bid and ask are set to zero and a new BA step starts up in period 5. The
+game continues this way until the final BS step is reached in step 25. The box at the end of the monitor output provides
+a summary of the period's trading activity: tllere were 10 transactions yielding a total profit of 604, which is 91 % of the
+total surplus of 663. In this case tl,e source of tl,e inefficiency was due to two events. First, one intra-marginal trade
+was not consummated. Second, there were two extra-marginal trades made by B3 which displaced an equal number of
+intra-marginal trades. This example illustrates a typical feature of efficiency losses in dynamic DA markets, namely
+
+the coexistence of extra-marginal trades along with unconsummated intra-marginal trades. 16
+14 Each ofthe 4 digits of the gametype variable.correspond to {RI , ... , R4} according to the base·3 coding, R, = 3"(') - 1 where h( i) is the ith digit
+of gametype.
+III
+
+The discrete nature oftbe market often implies that a non-unique equilibrium point emerges, in which case an equilibrium range of either prices or
+quantities results.
+
+16
+
+The monitor output contains a number of other symbols. @ denotes a bid equal to the current bid, X and Y denotes a bid below the current bid and
+the minimum allowed price, respectively (both illegal), and Z denotes a bid above the maximum allowed price. $ denotes a bid above the current
+ask (and current bid), & denotes a bid above the current ask but not current bid, '" denotes a token traded at a loss, and! denotes a crossing of the
+current bid and ask.
+
+10
+DA game 1
+
+Fri May 24 02:14:05 1991
+
+protocol:
+nrounds:
+minprice:
+rani:
+
+monitor:
+
+5
+2
+1
+728
+26
+
+ran4:
+
+id
+
+name
+
+Bl
+B2
+B3
+B4
+
+silverbuffalo
+staecker
+perry
+anon2
+
+nperiods:
+
+maxprice:
+ran2:
+
+deadsteps:
+id name
+
+443
+3
+2000
+80
+100
+
+gametype:
+ntimes:
+ntokens:
+ran3:
+timeout:
+
+6453
+25
+4
+242
+30
+
+----------
+
+-----------51
+52
+53
+S4
+
+burchard
+pricetaker
+breton
+anderson
+
++----------------------------------------------------------------------------+
+Round
+
+1. period 1
+
++-------+-------------------------+-------------------------+----------------+
+I token I
+
+Bl
+
+B2
+
+B3
+
+B4
+
+Sl
+
+S2
+
+S3
+
+S4
+
+Equilibrium
+
++-------+-------------------------+-------------------------+----------------+
+a
+b
+c
+d
+
+754+
+
+760+
+
+761+
+
+751+
+
+651+
+
+666+
+
+646+
+
+661+
+
+691 to 691
+
+722+
+
+708+
+705+
+
+717+
+690689-
+
+719+
+702+
+
+661+
+
+675+
+
+659+
+
+665+
+
+av:
+
+680+
+
+680+
+
+779-
+
+693774-
+
+trades: 11
+
+691=
+
+683+
+776-
+
+691=
+681-
+
+678-
+
+788-
+
++-------+-------------------------+----------------~--
+
+It
+
+stepl
+
+81
+
+82
+
+83
+
+84
+
+51
+
+52
+
+53
+
+691.0
+
+------+----------------+
+
+54
+
+I cbid coff price I
+
++-------+-------------------------+-------------------------+----------------+
+11
+
+BA
+
+I
+
+435*
+
+276
+
+368
+
+440
+~
+~
+
+345
+
+1550
+
+1128* 1182
+
+1999
+
+574*
+
+1127
+
+1090
+
+966* 1065
+
+579
+
+676*
+
+803*
+
+942
+
+827
+
+930
+
+681
+
+717*
+
+652$
+a>A
+1075
+
+793
+
+770
+
+791
+
+713*
+
+957
+
+1999
+
+661*
+
+712
+
+X
+
+703
+
+I
+
+BSI
+12 BA I
+I
+Bsl
+13 BA I
+I
+BSI
+14 BA I
+I
+BSI
+15 BA I
+I
+Bsl
+16 BA I
+I
+Bsl
+17 BA I
+I
+BSI
+
+a>A
+345
+
+717
+
+216
+
+606*
+
+~
+
+611
+
+635*
+
+~
+
+640
+
+642*
+
+656*
+
+b<B
+
+<A
+
+123 BA I
+1
+BSI
+124 BA I
+I
+Bsl
+125 BA I
+I
+Bsl
+
+557
+232
+
+651*
+c<C
+550*
+
+596
+
+651*
+
+435 1128
+435 1128
+574 966
+574 966
+676 803
+676 803
+717 652
+
+778
+809
+
+606
+606
+635
+635
+642
+
+713
+713
+661
+661
+656
+656
+
+681
+
+666*
+<B
+681* 1999
+
+651
+
+666
+
+550
+550
+"651
+651
+
+681
+681
+681
+681
+
+666
+
++-------+-------------------------+-------------------------+-----Market-----+
+ITrades I
+IProfit I
+IEqlbrm I
+]Effncy I
+
+1/2
+27
+94
+29%
+
+2/3
+48
+100
+48%
+
+4/2
+125
+96
+130%
+
+3/3
+117
+99
+118%
+
+3/3
+141
+81
+174%
+
+3/3
+62
+49
+127%
+
+2/3
+45
+88
+51Y.
+
+2/2
+39
+56
+70Y.
+
+20/21
+604
+663
+91%
+
++-------+-------------------------+-------------------------+----------------+
+Figure 3.2: Sample Monitor Output
+
+11
+Environment
+
+0
+
+Parameter
+
+BASE BBBS
+
+BSSS
+
+EQL
+
+LAD
+
+PER
+
+SHRT
+
+SM!..
+
+RAN
+
+TOK
+
+games/player
+periods/player
+
+6453
+1
+2000
+4
+4
+4
+2
+3
+75
+1624
+56
+336
+
+6453
+1
+2000
+6
+2
+4
+2
+3
+50
+1624
+56
+336
+
+6453
+1
+2000
+2
+6
+4
+2
+3
+50
+1624
+56
+336
+
+0
+1
+2000
+4
+4
+4
+2
+3
+75
+1624
+56
+336
+
+0
+1
+2000
+4
+4
+4
+2
+3
+75
+1624
+56
+336
+
+6453
+1
+2000
+4
+4
+4
+6
+1
+75
+1624
+56
+336
+
+6453
+1
+2000
+4
+4
+4
+2
+3
+25
+1624
+56
+336
+
+6453
+1
+2000
+2
+2
+4
+2
+3
+50
+3428
+112
+336
+
+0007
+1
+3000
+4
+4
+4
+2
+3
+50
+1624
+56
+336
+
+6453
+1
+2000
+4
+4
+1
+2
+3
+25
+1624
+56
+336
+
+conversion
+ratio (xIO-')
+
+6.11
+
+8.95
+
+9.73
+
+3.48
+
+3.57
+
+6.97
+
+7.04
+
+6.32
+
+1.04
+
+20.6
+
+garnetype
+rninprice
+maxprice
+nbuyers
+
+nsellers
+ntokens
+
+nrounds
+nperiods
+
+ntimes
+games
+
+Table 3.1: DA Trading Environments
+Tournament entrants were told that their programs would be placed in an unspecified number of alternative
+envi~onme/lts.
+
+Each environment is a complete specification of all relevant parameters of the DA game listed in
+
+Table 3.1. Participants were told potential ranges for each of the parameters, but were not given any specific advance
+information about how the actual environments would be selected. The actual DA tournament consisted of playing a
+large number of DA games in ten separate environments presented in Table 3.1. Each of the ten environments were
+allocated $1,000 prize money, and separate conversion factors were calculated to translate token profits into dollar
+earnings. 11,e conversion factor c(i) for environment i is the ratio 1000/TS(i), where TS(i) is the total surplus
+available in environment i. Due to the lack of 100% efficiency, actual dollar payments in the tournament amounted to
+$8,937. Overall, we ran a total of2,233 games in the 10 separate environments, comprising 13,398 individual periods
+of play.
+One can see from Table 3.1 that the tournament subjected programs to a wide range of trading conditions. The
+base case (BASE), was an environment similar to the one used in pre-tournament trials at the SFTE. Other environments
+include duopoly and duospony (BBBS and BSSS), a degenerate surplus distributions where all players receive the
+same token values shifted by a common random constant (EQL), an independent private values environment where
+each trader's token is an lID draw from a uniform distribution (RAN), a single-period environment that prevented
+players from learning from previous market outcomes (PER), a "high-pressure" environment where the traders' time
+
+allotment was very short (SHRT), and an environment where each trader was only assigned a single token (TOK).
+
+OUf intention was to force programs to compete under a broad range of conditions in order to provide a rigorou·s and
+
+comprehensive test of their effectiveness.
+
+12
+To insure that tournament earnings were not due to a series of lucky token draws, we developed a sampling
+scheme that guaranteed that all trading programs had equal surplus endowments with probability 1." Once a random
+set of token values was drawn according to the sampling scheme given in (3.1), trading programs were randomly
+selected to play in a set of N games (where N = 30 is the total number of entrants) subject to the constraints that no
+program played a copy of itself in the same game and all programs played all positions (BI, B2, Sl, S2, etc.) anequal
+number of times. After this set of N games was completed, the scheme was repeated with a new set of token values.
+It follows that the differences in the trading profits earned by the traders can be ascribed to differences in their trading
+ability, since each program received the same endowment of tokens and encountered roughly the same collection of
+opponents in a large number of replications of the DA game.
+
+4. Results of DA Tournaments
+We received thirty programs for the first (cash) tournament held in March, 1990. Table 4.1 summarizes the
+entries, listed by the name of the participant(s) who submitted tile pr?gram." Of the thirty entries, fifteen were
+
+from economists, nine from computer scientists, three from mathematicians, and the remaining three were from an
+investment broker, a professor of marketing, and a joint entry from two cognitive scientists. Three of the entries were
+outgrowths of research papers describing formal models of DA trading behavior." Several of the entries emerged
+
+from working groups which co-developed sets of strategies, in some cases pre-testing them in "local tournaments"
+using our double auction software. These groups include seven entries from the Economic Science Lab (ESL) at
+the University of Arizona, three from the University of Minnesota, and two each from the University of Colorado
+(Economics) and Carnegie Mellon University (Computer Science). The table also includes four entries from SF!
+including the Zl, Truthtelling and Pricetaking strategies discussed in section 2, as well as a "skeleton" strategy
+provided to entrants as a simple example of a working trading program. Due to potential conflict of interest none of
+the latter programs were entered in the cash tournament held in March 1990 although tiley were used as experimental
+controls in subsequent "scientific toumaments". All of the entrants programmed their strategies by replacing the
+bid/ask and buy/sell subroutines of the skeleton program with their own code. Although versions of the skeleton
+program were available in C, Fortran, and Pascal, almost all of the entries (26 out of 30) were programmed in C. Only
+
+two were written in Fortran, and two in Pascal.
+
+17
+
+In the case of two trading programs that were only progranuned to play one side of the market, a Skeleton stand-in trader was substituted in the
+games they refused to play. There are slight variations in actual token endowments caused by the fact that one program occasionally "died" midway
+through a trading period. resulting in forfeiture of its potential surplus in the remaining periods of the game.
+
+IS
+
+In cases where trading programs were developed by teams of individuals and we were unable to determine the primary author. we substituted a
+program nickname supplied by the authors. We also received two anonymous entries.
+
+19
+
+The Kennet-Friedman entry is based on Friedman's (1991) model of DA trading as a Bayesian game against nature (BGAN), and the Ledyard-Olson
+entry is based on Easley and Ledyard's model described in Chapter 3.
+
+13
+We found that the most useful way of comprehending the variety of strategies in Table 4.1 was to classify them
+along the following dimensions:
+
+simple vs. complex
+adaptive vs. non-adaptive
+
+predictive vs. non-predictive
+
+stochastic vs. non-stochastic
+optimizing vs. non-optimizing.
+
+Rust, Palmer and Miller (1992) describe how these categories are defined and provide a detailed analysis of
+individual trading programs. In general we found that although there was a substantial range in program complexity, the .
+majority of the programs appeared to encode the entrant's "market intuition" using simple rules of thumb. Since these
+rules are "hardwired", most of the programs are also classified as non-adaptive. Exceptions include a neural network
+program submitted by cognitive scientists Dallaway and Harvey, and an "adaptive cellular curvefitter" submitted by
+mathematician Paul Burchard. Besides their private information about token values, most of the programs relied on
+only small number of public information variables, the current bid, ask, and elapsed time being the most important.
+Only 10 programs made use of the prior information about the distribution of of token values provided by the
+
+gametype variable. Although 20 programs made use of the number of buyers and sellers in the DA game, only two
+programs (Ledyard-Olson andStaecker) used this information in an explicit way, e.g. by including separate "monopoly
+subroutines". Most of the programs did not attempt to keep track of the behavior of individual opponents or make
+statistical predictions of future market quantities. An exception was the program of Mark Staecker, developed as
+part of a senior honors thesis at the University of Western Ontario, which predicted the next high bid, low ask and
+equilibrium price using market-level statistics from previous periods. Based on these predictions, Staecker's program
+decides if a transaction is likely to occur at the next BS step and if so, uses its predictions to place an "atractive" bid
+or ask in the next BA step.
+The top-ranked program was submitted by economist Todd Kaplan of the University of Minnesota. It was one
+of the shortest programs submitted, and is classified as simple, non-adaptive, non-predictive, non-stochastic, and non-
+
+optimizing. The second-ranked program was submitted by computer scientist Mark Ringuette from Carnegie-Mellon
+University. Despite the fact that they were independently developed, both strategies are remarkably similar. The
+strategies can be described in one line as wait in the background and let the others do the negotiating, but when bid
+
+and ask get sufficiently close,jump in· and steal the deal. These programs succeed in "stealing the deal" by bidding
+an amount greater than or equal to the previous current ask. Ringuette's program differs from Kaplan's by randomly
+
+overbidding th~ previous current ask. When time is running out or when a long time has elapsed since making its last
+trade..Ringuette's program defaults to a modified version of the Skeleton bidding strategy whereas Kaplan's program
+
+14
+places a bid equal to the smaller of the current ask or its current token value. In practice this implies that Kaplan's
+program eventually defaults to Truthtelling mode when confronting patient opponents who delay making "serious"
+bids and asks.
+
+4.1 Results or Mareh 1990 Tournament
+Table 4.2 presents the dollar payoffs earned by the eligible trading programs in the March 1990 tournament,
+broken down by environment." The top program, Kaplan, earned a total of $408, $14 higher than the second place
+program of Ringuette. The gaps separating tllird, fourth and fifth place were $7.45, $10.51 and $8.63, respectively.
+While these differences in earnings may not seem economically significant, they are statistically very significant.
+Kaplan's earnings are over 2.5 standard deviations higher than Ringuette's second place earnings, and tl,e gaps
+separating first from second, third, and fourth places are 3.8, 5.6 and 7.1 standard deviations, respectively. The average
+standard deviation in profits of $5.75 was only slightly higher than the $5.40 standard deviation in surplus allocations,
+calculated over 3,360 individual 'p~riods of play in the 10 environments. Recall that our procedure for generating
+tournament games guarantees that the token endowments of all traders are identical Witll probability I. Given the large
+number of periods of play, an appeal to the law of large numbers allows us to be very confident that differences in
+traders' earnings reflect true differences in profitability rather than randomness due to player matchings and stochastic
+elements in the programs themselves.
+The player rankings are also highly consistent acrOss the 10 environments. The average Spearnlan rank
+correlation between overall tournament payoffs and payoffs in each of the 10 environments is 77%, ranging from a
+high of 95% in environment SML to a low of 72% in environment TOK. Kendall's W-statistic, which measures the
+degree of concordance in all the rankings, is highly significant at 79%, allowing us to easily reject the hypothesis that
+player rankings in different environments are independent. It is striking that Kaplan's program took first place in 7
+out of 10 environments, coming in second place in environment EQL and third place in environment SHRT. The only
+
+place where Kaplan's program did not do well was the environment TOK where traders were endowed with only a
+single token. At the bottom end of the spectrum, the BGAN (Bayesian game against nature) program of Friedman and
+Kennet was consistently one of the worst performers in all ten environments. With earnings of $164.30 the EGAN is
+over 10 standard deviations below the earnings or the next highest competitor. "
+
+:W The NN program of Dallaway and Harvey was disqualified from the March 1990 tournament because it consistently incurred large losses. The
+
+authors submitted a revised version for the subsequent scientific tournament which perfonned satisfactorily.
+21
+
+BGAN may have suffered as a result of problems convening the program from PC Turbo Pascal to Sun Pascal. Although the converted program
+compiles without error, its numerical integration routines generate under- and overflow elTors at runtime suggesting a possible incompatibility in
+its calls to certain functions. The low dollar ranking of the program of Balcer should be disregarded since the program was only programmed to
+play the role of seller. In terms of dollar payoffs per game played, Balcer's program is about equivalent in performance to the programs Max and
+Terminafor which placed 1011, and 20'" in overall earnings.
+
+15
+AllthorlNickname
+
+Institution
+
+F
+
+L
+
+Anon-!
+
+Anonymous
+
+Anon-2
+
+Anonymous
+
+CS
+CS
+
+C
+C
+
+Carnegie Mellon
+Carnegie Mellon
+
+CS
+
+C
+
+3
+
+X
+
+CS
+
+C
+
+X
+
+Silver Buffalo
+
+Colorado
+Colorado
+
+E
+E
+
+C
+C
+
+Lin
+
+Portland State
+
+E
+
+C
+
+2
+2
+2
+2
+
+X
+
+I
+
+Perry
+
+Portland State
+
+M
+
+C
+
+3
+
+X
+
+2
+
+C
+C
+F
+
+2
+
+3
+
+.
+
+Jacobson
+Ringuette
+
+Golden Buffalo
+
+C
+
+A
+
+Anderson
+
+Minnesota
+Minnesota
+
+Bromiley
+Kaplan
+
+Minnesota
+Minnesota
+
+E
+E
+MK
+E
+
+C
+
+3
+
+Pricetaker
+
+SFI
+SFI
+
+EM
+EM
+
+C
+C
+
+2
+2
+
+SF!
+SFI
+
+EM
+EM
+
+C
+P
+
+I
+
+Exp
+Free
+Gamer
+
+Arizona ESL
+
+E
+
+C
+
+Arizona ESL
+Arizona ESL
+
+E
+E
+
+C
+C
+
+Max
+Max-R
+
+Arizona ESL
+
+E
+
+C
+
+X
+
+Arizona ESL
+
+E
+
+C
+
+X
+
+Slide
+
+Arizona ESL
+Arizona ESL
+
+C
+C
+
+2
+
+Terminator
+
+E
+E
+
+Bolcer
+
+CS
+M
+CS
+E
+
+P
+
+Dallaway/Harvey
+Kennet/Friedman
+
+UC Irvine
+Princeton lAS
+Sussex
+Tulane/UCSC
+
+2
+5
+5
+2
+
+Kindred
+
+Duke
+
+Ledyard/Olson
+
+Cal Tech
+MIT Advisors
+
+CS
+E
+
+Truthteller
+
+ZI
+
+Burchard
+
+Leinweber
+
+B
+
+C
+C
+P
+C
+C
+C
+
+Lee
+Staecker
+
+British Columbia
+
+CS
+
+C
+
+Western Ontario
+
+C
+
+Utgoff
+Wendroff/Rose
+
+Massachusetts
+Los Alamos NL
+
+CS
+CS
+M
+
+C
+F
+
+P
+
+I
+I
+
+2
+2
+
+X
+X
+
+I
+I
+I
+I
+
+X
+
+2
+
+1
+2
+
+X
+
+I
+
+X
+
+I
+I
+
+1
+2
+2
+
+X
+
+2
+
+1
+2
+
+I
+
+2
+2
+2
+2
+2
+2
+1
+2
+
+2
+
+X
+
+2
+
+X
+X
+X
+X
+
+X
+
+X
+
+X
+
+I
+
+3
+
+X
+
+2
+
+2
+2
+
+X
+
+I
+
+2
+
+X
+
+I
+
+X
+
+2
+2
+2
+
+3
+
+2
+
+0
+
+I
+I
+
+3
+
+Breton
+
+Skeleton
+
+S
+
+2
+
+3
+
+X
+X
+X
+
+X
+X
+X
+
+X
+
+Legelld:
+
+F
+
+Field-B '" broker, CS '" eomplller science, E = economics, M = malh, physics, MK
+
+L
+
+Programming Language-e, F = Fortran, P = Pascal.
+
+e
+
+Complex-X if program is MCQmplex" as defined in4.L
+
+=marketing.
+
+A Adaptive-5 Mlevel ranking defined in section 4.2: l=least adaptive, 5=most adaptive
+S
+
+SlochaSlic-X if program makes use of random number gellerator.
+
+o
+
+Optimizlrtg-X if program uses an explicit optimization principle.
+
+P
+
+Predictive-3-level ranking defined in section 4.4: 1= doesn't predict, 2=predicts market variables.
+
+CPU Ratio of CPU time con~urr.~tion to average for all programs.
+
+Table 4.1: Taxonomy of DA Trading Programs
+
+CPU
+
+86
+89
+86
+85
+88
+88
+89
+88
+88
+88
+90
+86
+88
+84
+84
+82
+86
+87
+84
+157
+261
+96
+89
+86
+99
+91
+181
+89
+187
+87
+88
+88
+86
+88
+
+16
+PER
+
+RAN
+
+44
+40
+41
+33
+36
+32
+35
+31
+37
+35
+36
+
+41
+37
+35
+34
+35
+38
+37
+36
+. 35
+
+18
+
+EQL
+42
+38
+36
+39
+36
+36
+37
+37
+35
+34
+34
+35
+35
+36
+38
+33
+37
+33
+28
+27
+35
+34
+25
+24
+24
+25
+26
+14
+17
+
+945
+1000
+
+928
+1000
+
+903
+1000
+
+Trading program
+
+Overall
+
+BASE
+
+BBBS
+
+B8BS
+
+LAD
+
+Kaplan
+Ringuette
+Staecker
+
+42
+41
+41
+.33
+34
+34
+35
+33
+36
+34
+35
+34
+33
+34
+34
+35
+34
+32
+31
+2S
+32
+30
+27
+25
+25
+
+42
+37
+39
+36
+38
+41
+33
+39
+37
+35
+27
+35
+34
+34
+30
+34
+28
+31
+32
+34
+26
+24
+32
+20
+20
+20
+
+41
+40
+37
+40
+37
+36
+37
+38
+35
+34
+40
+35
+32
+32
+32
+32
+34
+35
+33
+29
+25
+33
+
+43
+45
+43
+40
+38
+40
+36
+34
+36
+34
+36
+35
+35
+39
+33
+34
+31
+30
+30
+31
+32
+32
+23
+24
+25
+22
+26
+23
+
+Total
+
+408
+394
+387
+376
+367
+366
+360
+358
+354
+344
+342
+340
+337
+333
+330
+330
+329
+316
+299
+294
+286
+271
+242
+230
+228
+224
+210
+164
+148
+$8967
+
+Surplus
+
+SlOOClO
+
+Anon-2
+
+Ledyard
+Perry
+
+Breton
+
+Anderson
+Anon-!
+
+Burchard
+Terminator
+Golden Buffalo
+Lee
+Leinweber
+
+Silver Buffalo
+Slide
+
+Jacobson
+Bromiley
+
+Max
+Max-R
+
+Utgoff
+Kindred
+
+Free
+
+Gam",
+Wendroff
+
+Un
+
+Exp
+Kennet
+Bolcer
+
+21
+
+16
+16
+13
+
+897
+1000
+
+17
+
+6
+19
+881
+1000
+
+21
+
+22
+21
+
+23
+23
+14
+8
+898
+1000
+
+32
+
+35
+32
+36
+36
+31
+35
+32
+30
+32
+31
+21
+
+39
+33
+37
+37
+36
+33
+32
+32
+31
+25
+26
+25
+30
+27
+
+25
+
+21
+
+23
+17
+20
+19
+16
+
+26
+25
+11
+21
+
+16
+893
+1000
+
+SHRT
+38
+33
+35
+39
+35
+35
+35
+38
+35
+36
+31
+34
+35
+35
+33
+33
+32
+31
+22
+25
+26
+27
+27
+25
+25
+25
+14
+17
+13
+
+870
+1000
+
+SML
+42
+37
+38
+36
+37
+35
+37
+35
+35
+34
+32
+30
+36
+34
+25
+32
+30
+25
+32
+29
+29
+25
+22
+21
+
+15
+19
+23
+12
+
+10
+847
+1000
+
+TOK
+
+33
+46
+42
+46
+41
+40
+40
+39
+32
+28
+38
+33
+27
+22
+37
+29
+39
+32
+34
+35
+23
+4
+17
+22
+25
+27
+34
+23
+18
+905
+1000
+
+Table 4.2: Dollar Payoffs in March 1990 Double Auction Tournament
+
+While we are very confident of our ability to distinguish the best and worst programs, we are much less confident
+about the relative rankings of the middle group of programs. One can see from Table 4.2 that after the large gaps
+separating the fourth and fifth place entries (Anon-2 and Ledyard-Olson), the differences in payoffs of the next group
+of programs are within I standard deviation of each other. The next significant difference in payoffs is a $10 gap
+separating the gth place entry of Anon-I from the 10 th place entry of Burchard. Even after 3360 periods, it's clear
+that we would need many more observations to be confident of the relative rankings of programs between 5 th and gth
+place. In general it's impossible to make any reliable per.formance distinctions if we can only observe traders over a
+small number of periods. The average dollar earnings of 9.4 cents per period of play is dominated by the per period
+standard deviation in profits of 10.0 cents. Most of the latter variation is attributable to the 9.2 cent standard deviation
+
+in surplus arising from traders' random token endowments. Thus, a computerized trading environment is virtually a
+necessity if one wants to reliably discriminate good traders from bad. It appears that it would be infeasible to make
+
+17
+the same sorts of distinctions in markets with human traders given that it takes hundreds or even thousands of periods
+of play before one can be sure that differences in relative perfonnance are statistically significant.
+Total tournament payouts at the bottom of Table 4.2 provide a convenient a measure of trading efficiency, since
+conversion ratios from token profits to dollar payoffs were based on realized surplus rather than on realized profits.
+Thus, the total dollar payouts of $8,967 correspond to an 89.7% efficiency ratio." Perhaps not surprisingly, efficiency
+was highest in the environment EQL where all traders in a given DA game have symmetric token endowments (shifted
+
+by a common random component). However, the learning problem in this environment is not trivial since traders were
+not given any prior infonnation on the distribntion of token values (i.e. gametype was set equal to 0), and tllerefore
+had no way of knowing that everyone else was assigned equal tokens.
+
+It is probably also not a surprise that tlle least efficient environment was SML where there were only two
+buyers and two sellers. Human experiments reveal that the competitive properties of tlle DA market start to break
+down when there are so few traders. The SML environment is but a step away from the most extreme situation of
+bilateral bargaining, which is know to have inefficient outcomes owing to a high frequency of disagreement. The
+increased frequency of disagreement in the SML environment shows up in the distribution of trader's profits: even
+though surplus endowments are 0 only 5% of tlle time, traders walk away with 0 profits over 20% of the time. Other
+environments with relatively low efficiencies include SHRT (where there was a time constraint on trading), and BBBS
+and BSSS (duopoly and duopsony markets, respectively).
+Overall efficiency levels appear to be somewhat lower than that observed in the later periods of experimental
+markets with human traders. We suspected that tlle low trading efficiencies of the boltom 10 programs were responsible
+for most of the aggregate inefficiencies, suggesting that running a tournament that excluded these programs would
+result in a more "realistic" and efficient market. Before doing so, we gave all entrants an opportunity to revise their
+programs in light of the resnlts of the March, 1990 tournament. A second series of scientific tournaments were
+
+conducted in May, 1991 with seven revised entries. 23 The scientific tournament also included several new programs
+written by the anthors, including Skeleton, Pricetaker, and Zl.
+
+n Payouts are net of profits earned by a Skeleton "stand-in" for the programs of Dallaway~Harveyand Bolcer which only played the roles of buyer
+and seller, respectively. If we were to include profits earned by Skeleton, aggregate market efficiency would be slightly higher.
+23
+
+We received revised entries from Dallaway·Harvey, Ledyard-Qlson, and Perry, and 4 revised entries from the Arizona ESL group, Ma.r:, Ma.r:-R,
+·Slide, and Terminator.
+
+18
+4.2 Results of Scieutific aud Top 17 Touruameuts
+
+Overall player rankings in the scientific tournament were quite similar to the original tournament. Aggregate
+efficiency increased slightly from 90% to 92%, ranging from a low of 88% in SHRT to 95% in EQL. Once again tl,e
+programs of Kaplan and Ringuette are the clear winners, with Kaplan's program trading at an overall efficiency level
+of 121 %, significantly higher than Ringuette's efficiency of 116%. Staecker's program, trading at an efficiency level of
+109%, comes in third place just as in the originallOumament. 'TWo independent copies of Skeleton placed 5 ti> and 8 th
+place, which is somewhat surprising given that Skeleton was provided to all participants in advance of the lOumament
+and thus should have represented a fairly easy target to beat. " On the lower end ofthe scale the programs Gamer, Exp,
+and Lin-which were among the poorest perfonners in the original tournament-remained the poorest perfonners in
+the scientific tournament, trading at an average efficiency level of under 70%. Zl also perfonned quite poorly n'ading
+at an efficiency level of 75%, confirming our discussion in section 2. The Neural-Network trader of Dallaway and
+Harvey perfonned somewhat better than Zl, trading exclusively in the role of buyer at an efficiency level of 85%.
+
+Pricetaker turned out to be the median trader at rank 17 with an average efficiency level of 95%. This is somewhat
+below the 100% efficiency ranking we would have expected for our implementation of a naive pricetaking strategy.
+In order to see whether the leading position of Kaplan and Ringuette is a result of general superiority or merely
+a relative superiority in their ability to exploit the lowest-ranked traders, we ran a third tournament consisting of the
+top 17 players from the scientific tournament. The results of the "Top 17" tournament are summarized in table 4.3.
+We see that once again, Kaplan and Ringuette remain the leaders even after elimination of the lowest-ranked traders.
+Ringuette does slightly better than Kaplan in tenus of overall earnings, altllOugh the difference is not statistically
+
+significant. 35 Kaplan's program comes in first place in 5 of the 10 environments whereas Ringuette's program is first in
+4 environments, and the two programs are tied for first place in environment SML. The fact that Kaplan and Ringuette
+were able to maintain their high efficiency ratios in this tighter, more competitive market suggests that they are in fact
+generally superior to all of the other programs.
+
+24 Two copies of Skeleton were included in the scientific towuarneDt as a further .check on the statistical reliability of our rankings. The relative
+perfonnance of the two copies is rather close in all environments except TOK, where the two copies traded at efficiency levels of 41 % and 84%,
+respectively.
+2S
+
+Note that overall earnings in the scientific tournament were computed by summing token profits as'opposed to dollar earnings in the ~larch 1990
+tournament. This different implicit weighting scheme may account for the change in overall rankings of Kaplan and Ringuette.
+
+19
+Trading program
+
+Overall
+
+BASE BBBS
+
+BSSS
+
+LAD
+
+EQL
+
+PER
+
+RAN
+
+SHRT
+
+SML
+
+TOK
+
+Ringuette
+
+117
+
+121
+
+103
+
+116
+
+120
+
+113
+
+119
+
+120
+
+91
+
+126
+
+130
+
+Kaplan
+
+114
+
+110
+
+109
+
+122
+
+103
+
+120
+
+129
+
+III
+
+118
+
+126
+
+116
+
+Anon-1
+
+108
+
+109
+
+110
+
+110
+
+111
+
+108
+
+103
+
+106
+
+113
+
+117
+
+109
+
+Anderson
+
+105
+
+100
+
+104
+
+102
+
+115
+
+106
+
+104
+
+103
+
+102
+
+107
+
+101
+
+Staecker
+
+101
+101
+
+111
+
+103
+
+107
+
+103
+
+97
+
+117
+
+126
+
+92
+
+92
+
+107
+
+108
+84
+
+96
+
+94
+
+99
+91
+
+112
+
+95
+
+81
+
+84
+
+Perry
+
+98
+
+103
+
+104
+
+100
+
+97
+
+106
+
+106
+
+95
+
+87
+
+91
+
+97
+
+Anon-2
+
+97
+
+99
+
+102
+
+98
+
+108
+
+95
+
+93
+
+93
+
+88
+
+107
+
+124
+
+Lee
+
+96
+
+90
+
+88
+
+81
+
+96
+
+105
+
+90
+
+101
+
+88
+
+90
+
+88
+
+Ledyard/Olson
+
+96
+
+90
+
+90
+
+89
+
+98
+
+104
+
+94
+
+97
+
+90
+
+96 .
+
+103
+
+Golden Buffalo
+
+94
+
+90
+
+94
+
+88
+
+101
+
+91
+
+91
+
+97
+
+81
+
+Breton
+
+102
+
+91
+88
+
+98
+87
+
+91
+98
+
+80
+94
+
+105
+
+87
+
+92
+89
+
+81
+
+86
+
+94
+83
+
+94
+
+Leinweber
+
+92
+90
+
+85
+
+67
+
+33
+
+Skeleton
+
+89
+
+91
+
+89
+
+78
+
+89
+
+100
+
+84
+
+93
+
+97
+
+92
+74
+
+80
+
+87
+
+87
+
+87
+
+91
+84
+
+96
+
+Silver Buffalo
+
+89
+82
+
+93
+88
+
+62
+
+~acobson
+
+87
+
+91
+
+81
+
+79
+
+80
+
+71
+
+39
+104
+102
+
+Pricetaker
+
+71
+
+81
+
+81
+
+95
+
+77
+
+68
+
+87
+
+57
+
+87
+
+98
+
+96
+
+Market
+
+97
+
+98
+
+95
+
+96
+
+98
+
+99
+
+97
+
+96
+
+92
+
+96
+
+98
+
+Burchard
+
+94
+
+118
+
+Table 4.3: Trading Efficiencies in the "Top 17" Tournament
+The only program that improved significantly in the Top 17 tournament was Anderson, which moved from
+12 th place to 4 th place. The trading efficiencies of the remaining programs generally significantly declined, especially
+
+Staecker, Lee, Skeleton, Breton, and Pricetaker. However despite these declines, average market efficiency increased
+to 97%. The latter efficiency levels are as good as, if not superior to, efficiency levels observed in comparable human
+experiments. Indeed we found that when we participated as human traders in the Top 17 market, it was difficult to
+consistently trade at higher than 100% efficiency, whereas we found it relatively easy to consistently trade at higher
+than 100% efficiency in markets that included the lowest ranked trading programs. This suggests that the Top 17
+
+market may serve as a good working model of a "competitive market" such as observed in experimental markets with
+human traders.
+
+4.3 Aggregate Behavior of Computerized Traders: Some "Stylized Facts"
+
+A more detailed analysis of tournament results reveals that the top-ranked trading programs do in fact yield
+a fairly realistic working model of a a DA market in the sense that their collective behavior is consistent with the
+following stylizedfacts of human DA markets: I) convergence to CE, 2) high ex post efficiency levels, 3) reductions in
+transaction price volatility and efficiency losses in successive trading periods reflective of apparent "learning" effects,
+
+20
+4) existence of extra-marginal as weIl as intra-marginal efficiency losses, 5) low rank correlations between the realized
+order of transactions and the "efficient" order, and 6) negatively autocorrelated transaction price changes. Even in
+markets that include the less efficient lower-ranked traders, transaction price trajectories appear to be very similar to
+those observed in human markets. Indeed, we typically find that transaction prices and quantities converge close to
+the CE in the very first trading period.
+Figure 4.1 shows a typical outcome, game BASE012 of the scientific tournament. The figure plots the induced
+supply and demand curves and the transaction price trajectories in each of the three trading periods. All three trajectories
+converged to the CE, generating nearly 100% efficient outcomes. In this case the market traded at 100% efficiency
+in the first trading period, compared to 98% in the second and third periods. Despite the high ex post efficiency, the
+rank correlation coefficient between the order of the buyer's and seller's trades and the "efficient order" is very low,
+corresponding to what we observe in human experiments. For example the rank correlation for buyers and seIlers in
+period I is 60% and 48%, respectively, falling to just 10% in period 3. The infonnation in the right border of figure
+4.1· shows the times and traders involved in each transaction made in period 3. For example the 1 ,t token was traded
+in BS step 3 when buyer B3 accepted the offer of seller S4 (at a price of 429), and the 8 th token was traded in BS
+step 51 when buyer B2 accepted the offer of seller SI (at a price of 436). If trades we made in the efficient order as
+predicted by Wilson's WGDA theory described in section 2, then the first token should have been traded by B2 and
+S4 and the 8 th token should have been traded by B2 and S2. The automata traders frequently trade extra-marginal
+tokens, something that is commonly observed in human experiments but is also ruled out by game theoretic models
+such as Wilson's WGDA. For example in figure 4:1 we see that in period 3 buyer B4 succeeded in buying 3 tokens,
+"bumping" buyer B 1 who only succeeded in buying I token (in an efficient allocation, each buyer and seller trade their
+two most valuable tokens). As a result, tlle traders failed to exploit 27 units of potential surplus in period 3."
+For comparison, figure 4.2 presents typical price trajectories in a market with 100% ZI traders. The nature of
+the ZI strategy implies that transaction price sequences in successive periods are lID, so these traders cannot exhibit
+tlle type of learning behavior that is characteristic of human DA markets. It is evident that overaIl transaction price
+volatility is significantly higher for ZI traders in all periods. The zig-zag pattern of transaction price trajectories implies
+serial correlation coefficients in the neighborhood of -50% predicted by Cason and Friedman (chapter 6). Finally,
+notice that ZI traders are very impatient: they complete all their transactions in the first third of the trading period.
+
+26 The 4-way decomposition of lost surplus, EM, IM, BS, and 55 on the right hand border of figure 4.1 is explained in secti9D 4.4 and the appendix.
+
+The left border of figure 4.1 presents other statistics on the trading process, broken out by period. These include the correlation coefficient of
+transaction price changes (C), ex post efficiency (E), time of last transaction (n, Speannan rank correlations of the order of the transactions with the
+efficient order for buyers (B) and sellers (5), and the maximum and average absolute percentage deviation of transaction prices from the midpoint
+equilibrium price (A), (M).
+
+21
+Transaction Summary boseD 12
+81 brelon
+51 smith
+
+-lE
+
+Pl-
+
+82 onon2
+52 pricelok
+
+BJ koplon
+S3 fullerlo
+
+84 burchord
+54 kindeed
+
+Period
+
+P2--- w
+P3--
+
+~
+w
+
+C1 -28
+C2 -16
+
+C3 -.35
+
+". a,.
+
+g
+
+El lCO
+£2 98
+95
+T1 46
+T2 45
+T3 51
+61 57
+
+Ul
+
+£3
+
+" " " "
+
+;j
+Ul
+
+~
+
+23
+12
+48
+
+0
+
+S2
+
+74
+
+':;
+
+S~
+
+10
+4
+4"
+
+0
+N
+
+A3
+
+3
+
+•
+
+1.11
+M2
+1.13
+
+12
+10
+5
+
+0
+
+, / "'(
+
+,,
+
+3 B3<54
+5 84<54
+6 84<52
+7 84<52
+11 33<53
+17 82<53
+38 81<51
+51 82<51
+
+"" "00
+"'" 0
+
+0
+
+82
+83
+Sl
+
+Al
+A2
+
+3
+3~+
+
+82+
+
+"- 33+ 84+ 81+ 82
+"~ 62
+,
+
+64+ 83
+
+" " "
+
+"
+
+<0
+
+" "
+
+5H 52+
+
+<'1
+
+~ b:;:;:'~'~'~'~3~'2'~'~'='~3~'=.,~,~.:,:,,-"-=-~~_~~_~~_~~-.J
+
+S...rplus
+1372
+
+35678910111213141516
+
+<'1 0 1
+
+q'e:[ 8, 81 p'e:[421,443J
+
+•
+Figure 4.1: Price Trajectories in DA Game BASED 12
+
+Transoction Summary base012
+91Zi
+
+PI -
+
+-
+
+822;
+
+83z;
+
+8'2i
+
+~ r~-,--"~'~'~'~-,.-"~'~'~'~_7,,,3~'~'_~--i-'~'~'~'-~~-~, Period
+
+P2--- m
+P3-C1 -58
+C2 -48
+CJ -44
+£1 99
+E2 97
+EJ 95
+
+0
+
+0
+m
+51
+
+Tt
+
+28
+
+0
+
+T2
+
+21
+28
+27
+
+It:
+
+81
+
+62
+
+-7
+
+T.3
+
+3
+
+w
+
+as
+
+~~ ~~ ~
+S2
+
+53
+
+S~
+
+~4
+
+At
+
+5
+
+A2
+
+4
+
+52
+
+281>51
+J BJ>52
+4 Bt<51
+a B4>SJ
+9 82<53
+12 83>52
+16 82>51
+1784(52
+21 83)54
+28 84)54
+
+/
+
+<0
+
+84
+
+81
+
+5S
+
+10
+14
+
+"
+"
+
+0
+0
+
+0
+
+~~ ~ ie ,,.
+M2
+
+a
+
+"'
+9
+Surplus
+
+98'
+
+~ LO-'~~---'3:--'--5~-6~~7~-E:--9~-'~O-1~'---'1~2-,L3-,L,---"L5---.J16
+cOd1 0,' OJ :>"([566,869)
+
+Figure 4.2: Price Trajectories for Zl Traders
+The behavior displayed in figures 4.1 appears qualitatively similar to outcomes of human experiments. To
+demonstrate that these examples are not atypical, table 4.4 presents an array of trading statistics averaged over all
+tournament environments. In order to highlight learning effects, we break out the statistics by trading period. To help
+put these statistics in perspective, we also present results for a tournament with 100% ZI traders. We can see from table
+
+4.4 that the Top- 17 traders show significant interperiod learning effects: n"ading efficiency increases, the fraction of
+
+22
+price trajectories hitting the CE target increases, and price variability decreases (whether measured by the coefficient
+of variation or by the percentage deviation from the midpoint equilibrium price). The only statistics that show no
+systematic improvement in successive periods are the rank correlation coefficients of buyers' and sellers' transaction
+sequences vis a vis the efficient trading order and the serial correlation coefficient for transaction price changes. Both
+of these statistics are significantly different from the predictions of the WGDA theory (100% and 0% respectively), but
+are roughly consistent with what we observe in human experiments (30-40%, and -25%, respectively). " Efficiency
+levels are also roughly comparable, although they actually appear to be slightly higher than what we observe in human
+DA markets.
+Learning effects are much less pronounced when we include the lowest ranked trading programs, and of course
+are completely absent in markets with 100% ZI traders. Notice that while ZI traders attain the highest efficiency levels,
+price volatility (measured by any ofthe statistics in the second panel of table 4.4) is significantly higherthan tile Top-17
+traders. ZI traders are noticeably less patient, exchanging only 6% of their tokens in the second half of the trading
+period compared to over 33% for the Top-17. The statistics on the "hit rates" show that despite the high efficiency ofZI
+markets, less than 20% of all price trajectories actually converge to equilibrium, compared to nearly 27% in the third
+period in comparable markets with Top-17 traders. If we widen the target slightly and count any price trajectory that
+is within 5% of the equilibrium price interval, then the hit rate increases to over 60% for the Top-17 traders compared
+to just over 50% for the ZI traders. Hit rates for all traders in the scientific tournament are slightly lower than the ZI
+traders. The other major difference between ZI and the Top-17 traders is that the rank order correlations of the trading
+sequences are significantly higher, and the serial correlation coefficient of transaction price changes are significantly
+
+more negative.
+We are presently collecting detailed data sets that will allow us to go beyond the simple stylized facts outlined
+above and conduct more precise statistical comparisons of the behavior of human and computer traders. Our conjecture
+is that humans will display much more dramatic interperiodlearning effects than the Top-17 programs. It is also probable
+that we will find significant differences in the stochastic properties of price trajectories in later periods of ti,e game, as
+well as differences in the timing of of bids, asks, and transactions.
+
+:n See Friedman and Cason, chapter 8. They suggest that serial correlation coefficients may"be ctoser to 0 in experiments with more expeIienced
+
+subjects, but the available data are inconclusive.
+
+23
+Statistic
+(standard deviation)
+
+Top 17 Traders
+2327 Games
+
+All Traders
+4274 Games
+
+ZITraders
+2295 Games
+
+PI
+
+P2
+
+P3
+
+PI
+
+P2
+
+P3
+
+PI
+
+P2
+
+P3
+
+BRANK
+
+47.8
+
+4604
+
+46.0
+
+48.5
+
+46.9
+
+465
+
+57.6
+
+5704
+
+56.6
+
+(.9)
+
+(.9)
+
+(.9)
+
+(.6)
+
+(.6)
+
+(.6)
+
+(.9)
+
+(.9)
+
+(.9)
+
+SRANK
+
+48.0
+
+475
+
+47.2
+
+48.9
+
+48.8
+
+485
+
+53.1
+
+52.2
+
+52.5
+
+(.9)
+
+(.9)
+
+(.9)
+
+(.6)
+
+(.6)
+
+(.6)
+
+(.9)
+
+(.9)
+
+(.9)
+
+CORRCHG
+
+-26.9
+
+-24.0
+
+-23.9
+
+-29.9
+
+-27.9
+
+-27.2
+
+-48.1
+
+-46.6
+
+-4704
+
+(1.1)
+
+(1.1)
+
+(1.1)
+
+(.8)
+
+(.8)
+
+(.8)
+
+(.9)
+
+(1.0)
+
+(.9)
+
+COEFVAR
+
+8.1
+
+65
+
+6.2
+
+10.7
+
+8.7
+
+8.6
+
+12.7
+
+12.7
+
+12.7
+
+(.I )
+
+(.2)
+
+(.2)
+
+(.2)
+
+(.1)
+
+(.1)
+
+(.2)
+
+(.2)
+
+(.2)
+
+DEV,MAX
+
+. 19.1
+
+15.4
+
+14.6
+
+23.4
+
+19.8
+
+1904
+
+27.1
+
+27.0
+
+27.2
+
+(.4)
+
+(.3)
+
+(.3)
+
+(.3)
+
+(.3)
+
+(.3)
+
+(.5)
+
+(.5)
+
+(5)
+
+042
+
+.15
+
+.07
+
+-.71
+
+-1.24
+
+-1.20
+
+3.23
+
+3046
+
+3.17
+
+(.26)
+
+(.22)
+
+(.21)
+
+(.20)
+
+(.18)
+
+(.17)
+
+(.22)
+
+(.22)
+
+(.22)
+
+.21
+
+.23
+
+0.02
+
+-.03
+
+-.68
+
+-59
+
+.73
+
+1.15
+
+.60
+
+(.20)
+
+(.19)
+
+(.18)
+
+(.19)
+
+(.18)
+
+(.20)
+
+(.24)
+
+(.24)
+
+(.24)
+
+9.9
+(.1)
+
+9.7
+
+11.9
+
+12.0
+
+11.9
+
+(.1)
+
+(.2)
+
+(.2)
+
+(.2)
+
+6.5
+
+6.8
+
+6.9
+
+(.2)
+
+(.2)
+
+18.0
+
+19.7
+
+DEV, AVERAGE
+DEV,LAST
+
+ABS-DEV, AVERAGE
+
+9.9
+
+8.0
+
+7.7
+
+11.4
+
+(.2)
+
+(.2)
+
+(.2)
+
+(.2)
+
+ABS-DEV, LAST
+
+5.0
+(.2)
+
+4.6
+
+404
+
+65
+
+(.2)
+
+(.2)
+
+6.6
+(.2)
+
+(.2)
+
+(.2)
+
+6.7
+(.2)
+
+HIT RATE
+
+235
+
+26.3
+
+27.2
+
+185
+
+18.7
+
+18.9
+
+19.0
+
+(.9)
+
+(.9)
+
+(.9)
+
+(.6)
+
+(.6)
+
+(.6)
+
+(.8)
+
+(.8)
+
+(.8)
+
+HIT RATE 2
+
+48.8
+
+52.3
+
+53.2
+
+38.6
+
+39.2
+
+3904
+
+36.9
+
+36.6
+
+37.6
+
+(1.0)
+
+(1.0)
+
+(1.0)
+
+(.7)
+
+(.7)
+
+(.7)
+
+(1.0)
+
+(1.0)
+
+(1.0)
+
+HIT RATE 5
+
+57.9
+
+6204
+
+62.6
+
+48.2
+
+4904
+
+48.6
+
+52.3
+
+51.4
+
+51.2
+
+(1.0)
+
+(1.0)
+
+(1.0)
+
+(.8)
+
+(.8)
+
+(.8)
+
+(1.0)
+
+(1.0)
+
+(1.0)
+
+HIT RATE 10
+
+82.6
+
+86.2
+
+86.8
+
+no
+
+76.7
+
+76.8
+
+8204
+
+81.1
+
+81.2
+
+(.8)
+
+(.7)
+
+(.7)
+
+(.6)
+
+(.6)
+
+(.8)
+
+(.8)
+
+40.2"
+
+34.3
+
+33.4
+
+27.6
+
+26.1
+
+(.6)
+25.7 .
+
+(.8)
+
+PCT2ND
+
+5.7
+
+5.7
+
+(.5)
+
+(A)
+
+(A)
+
+(.3)
+
+(.3)
+
+(.3)
+
+(.2)
+
+(.2)
+
+5.9
+(.2)
+
+94.8
+
+96.7
+
+96.9
+
+90.6
+
+91.4
+
+9U
+
+97.0
+
+97.0
+
+96.9
+
+(.2)
+
+(.1)
+
+(.1)
+
+(.5)
+
+(.3)
+
+(.3)
+
+(.1)
+
+(.1)
+
+(.I)
+
+95.6
+
+96.8
+
+97.0
+
+92.3
+
+92.1
+
+91.8
+
+97.9
+
+97.8
+
+97.9
+
+EFF,AV
+EFF, TOTAL
+Legend:
+
+BRANK
+SRANK
+
+Rank correlation of buyers' transactions with efficient order
+Rank correlation of sellers' transactions with efficient order
+CORRCHG
+Correlation coefficient of transaction price changes
+COEFYAR
+Coefficient of variation of trllJ1sacrlon prices
+DEV,MAX
+Maximum % deviation from midpoint equilibrium price
+DEv'AV
+Average % deviation from midpoint equilibrium price
+DEV,LAST
+% deviation of last lransaction price from midpoint eq. price
+ABS·DEV.AV
+Average absolute % deviation from midpoint equilibrium price
+ASS-DEV,LAST Absolute % deviation of last transaction price frOm midpoint eq. price
+HITRATE
+% price trajectories whereq/ E [f/,il] and PI E [p,m
+HIT RATE 2
+% price trajectories wheref// E
+and PI E []lSI!' L02j:i]
+HIT RATE 5
+% price trajectories wheref/l E [2.,qJ and PI E [.95l!' L05ji]
+HIT RATE 10
+% price trajectories wheref/l E [q - I,if + I] and PI E [.91', LIji]
+PCI2ND
+% of trades occuring in 2nd halfof trading period
+EFP.AV
+Average of Profits I Surplus for individual games
+EFF,TOTAL
+Toeal Profits I Total Surplus
+
+[2.ijJ
+
+Where:
+
+1'1 is last transaction price.
+~J-j'il is equilibrium price interval.
+G,g] is equilibrium quantity interval.
+
+Table 4.4: Summary Statistics for Successive Trading Periods
+
+24
+4.4 Analysis of DA Efficiency Losses
+
+One of the stylized facts of human DA markets is that a major fraction of efficiency losses are due to trades of
+extra-marginal tokens. In order to quantify the magnitude of these losses, it's useful to distinguish between four types
+of inefficiencies that can occur in DA markets:
+1M: value oflost surplus ofnon-traded intra-marginal tokens (i.e. those that lie to the left ofthe equilibrium quantity,
+q*) when the actual number of trades q is less than q* (0 otherwise),
+EM: valu~ of lost surplus due to trade of extra-marginal tokens (i.e. those that lie to the right of q * on the supply
+and demand curves) when the actual number of trades q is greater than q * (0 otherwise),
+BS: value of lost surplus due to trades of extra-marginal buyers' tokens that displaced potential trades of an equal
+number of buyers' intra-marginal tokens,
+SS: value of lost surplus due to trades of extra-marginal seller's tokens that displaced potential trades of an equal
+number of seller's intra-marginal tokens.
+Table 4.5 presents an "inefficiency audit" that summaIizes this 4-way decomposition of efficiency losses. The
+last column of each section of table presents the ratio of total profits to total surplus in each period of play, and the
+remaining columns present a percentage breakdown of lost surplus due to each of the 4 sources, EM, 1M, SS, and BS.
+In general the audit reveals that total extra-marginal efficiency losses-the sum of EM, SS, and BS-constituted a
+substantial fraction of total efficiency losses in all enviromnents except TOK. As noted above, this finding is consistent
+with the results of human experiments that show tllat efficiency losses are frequently a result of trading too many
+tokens rather than too few tokens. Extra-marginal efficiency losses were identically zero only in the EQL and TOK
+environments. In EQL this result is to be expected given the nature of the token distribution which resulted supply
+and demand curves with large steps, each four units wide, a unique equilibrium price, and a four unit range of market
+clearing quantities. In the single token TOK environment, if an EM efficiency loss occurs it is more likely tllat some
+trader has taken a loss on a transaction. We can see that in the scientific tournament EM losses in the TOK environment
+are non-zero, refiecting the fact tllat some traders (principally the programs Free and Kindred) were trading at a loss.
+Once these lower ranked programs were removed in the Top 17 tournament, EM efficiency losses were virtually
+eliminated.
+
+Overall, Table 4.5 shows that the largest single source of inefficiency is 1M, indicating that generally too few
+rather than too many tokens were traded. This effect is most noticeable in environments TOK and SHRT. Such a result
+is to be expected for the SHRT environment due to the small number of trading steps. However the large value of 1M
+in the TOK environment is surprising, given that one would expect it would be much easier to trade a single token
+
+25
+instead of four." Intra-marginal efficiency losses were also large in the dnopsony and dnopoly environments BSSS
+and BBBS. In BBBS this may possibly reflect sellers' attempts at "collusion" in order to restrict output in an attempt
+to share joint monopoly profits. Note however that the other large source of efficiency losses is due to excessive
+competition on the long side of the market. Thus, in environment BSSS where there are 3 sellers for each buyer, the
+large value of the SS efficiency losses indicate that the six sellers became engaged in "price wars" as they competed
+to sell their tokens to the two buyers.
+Table 4.5 show that the level of intra-marginal efficiency losses are typically significantly lower in the Top 17
+tournament, reflecting the fact that the majority of the lower-ranked trading programs did poorly as a consequence of
+failing to trade all of their potentially profitable tokens: On the other hand, the relatively higher levels ofextra-marginal
+efficiency losses in the Top 17 tournament provide another indication that this is indeed a relatively more competitive
+and aggressive market.
+
+4.5 Results of the "Evolutionary Tournament"
+A limitation of the previous tournaments is that trading programs were not allowed to play against themselves.
+In order to provide a simple model of of imitation and growth processes we decided to conduct an "evolutionary
+tournament" based on ideas from evolutionary biology (Axelrod 1984, Maynard Smith, 1992)." The idea is that in
+real world markets the best traders will attempt to "clone" their strategies in order to gather a larger market share.
+These processes will tend to lead to expansion in the number of traders using effective trading rules and declines in
+
+the number using poor trading strategies. However the changing market composition may also present opportunities: •
+some trading rules (such as Anderson's) may actually perform better in a tighter, more competitive market.
+In an evolutionary tournament each trading program is assigned a measure of"fimess", and an initial population
+of programs evolves over time according to a specified set of "replicator dynamics". Specifically, let the fitness level
+of program i in game t be given by its capital stock Ki(t). A trader's fitness evolves over time according to the law
+of motion:
+
+K;(t) = Ki(t - 1) + ITi(t) - Sift)
+
+(4.1)
+
+where ITi(t) is trader i's profit in game t, and Si(t) is the surplus (i.e. token value) assigned to trader i in game t.
+Thus, our measure of fitness corresponds to trading efficiency: fitness increases when trading efficiency exceeds 100%
+
+::lS
+
+This result may indicate possible programming problems if the majority of entrants developed their programs on the assumption that traders would
+nonnally be endowed with fOUf tokens. Although tournament rules explicitly noted the possibility of single token environments, all pre-tournament
+games run on SFTE involved fOUf token environments. Entrants may have assumed that single token environments would constitute a negligible
+share of tournament profits and focused their attention on the four token case.
+from a strict biological perspective it would be more accurate to call it an "ecological tournament" since the set of species (trading
+programs) is fixed and only their relative proportions are allowed to change over time.
+
+29 Actually,
+
+26
+Scientific Tournament
+
+Case
+
+Enviroment
+BASE
+
+BBBS
+
+BSSS
+
+EQL
+
+LAD
+
+RAN
+
+SML
+
+TOK
+
+SHRT
+
+Period
+
+EM
+
+1M
+
+SS
+
+BS
+
+Top 17 Tournament
+Total
+
+EM
+
+1M
+
+SS
+
+BS
+
+Total
+
+I
+
+10.1
+
+35.8
+
+17.3
+
+36.8
+
+93.7
+
+35.8
+
+33.7
+
+13.2
+
+17.3
+
+97.0
+
+2
+
+9.6
+
+12.4
+
+34.9
+
+93.4
+
+41.0
+
+31.0
+
+12.2
+
+10.2
+
+13.9
+
+34.5
+
+93.4
+
+49.0
+
+19.4
+
+14.4
+
+15.9
+17.2
+
+97.8
+
+3
+
+43.0
+41.4
+
+2.1
+2.1
+
+48.5
+
+91.2
+
+53.1
+43.7
+
+4.8
+4.1
+
+93.7
+
+90.3
+
+10.0
+13.7
+
+32.1
+
+45.9
+47.4
+
+38.5
+
+95.9
+
+90.6
+
+13.8
+
+34.2
+
+4.9
+
+47.1
+
+95.9
+
+I
+
+4.2
+
+45.2
+
+2
+
+3.2
+
+3
+
+32
+
+48.7
+47.4
+
+2.0
+
+98.2
+
+1
+
+0.8
+
+55.0
+
+42.0
+
+2.2
+
+91.3
+
+6.8
+
+36.5
+
+50.7
+
+6.0
+
+94.2
+
+2
+
+0.7
+
+51.0
+
+46.1
+
+2.2
+
+92.2
+
+9.6
+
+13.4
+
+70.4
+
+6.6
+
+96.0
+
+3
+
+0.3
+
+57.0
+
+41.3
+
+1.5
+
+91.6
+
+11.1
+
+16.0
+
+67.5
+
+5.4
+
+96.0
+
+1
+
+0.0
+
+82.9
+
+5.7
+
+11.5
+
+94.8
+
+0.0
+
+53.1
+
+26.0
+
+20.8
+
+98.3
+
+2
+
+0.0
+
+89.7
+
+3.2
+
+7.1
+
+94.9
+
+0.0
+
+50.0
+
+24.3
+
+25.7
+
+98.8
+
+3
+
+0.0
+
+89.3
+
+4.2
+
+6.5
+
+95.1
+
+0.0
+
+50.8
+
+19.7
+
+29.5
+
+98.9
+
+1
+
+56.6
+
+13.8
+
+20.8
+
+94.0
+
+21.0
+
+26.2
+
+28.6
+
+24.2
+
+97.8
+
+2
+
+8.8
+6.4
+
+53.4
+
+18.6
+
+21.6
+
+93.9
+
+23.4
+
+17.2
+
+26.2
+
+33.2
+
+98.3
+
+3
+
+6.2
+
+53.9
+
+16.8
+
+23.1
+
+93.7
+
+29.5
+
+14.3
+
+25.5
+
+30.7
+
+98.4
+
+1
+
+21.0
+
+30.8
+
+16.9
+
+31.3
+
+91.8
+
+44.2
+
+13.3
+
+20.5
+
+22.0
+
+95.6
+
+2
+
+14.6
+
+36.7
+
+11.4
+
+37.3
+
+91.5
+
+49.9
+
+13.2
+
+14.9
+
+22.1
+
+96.4
+
+3
+
+11.6
+
+38.5
+
+10.6
+
+39.3
+
+90.8
+
+52.6
+
+15.9
+
+12.4
+
+19.1
+
+96.6
+
+1
+
+7.8
+
+72.7
+
+9.1
+
+10.4
+
+91.1
+
+8.3
+
+69.2
+
+16.9
+
+5.51
+
+93.0
+
+2
+
+7.9
+
+11.9
+
+91.3
+
+15.9
+
+50.0
+
+24.6
+
+9.5
+
+96.3
+
+6.8
+
+72.5
+74.0
+
+7.6
+
+3
+
+6.7
+
+12.4
+
+90.8
+
+16.3
+
+43.7
+
+23.5
+
+16.5
+
+97.1
+
+1
+
+11.7
+
+85.5
+
+1.4
+
+1.3
+
+95.0
+
+0.0
+
+95.7
+
+2.3
+
+2.0
+
+97.5
+
+2
+
+2.9
+
+95.6
+
+0.5
+
+1.0
+
+93.2
+
+0.0
+
+94.2
+
+5.8
+
+0.0
+
+99.1
+
+3
+
+2.3
+
+96.3
+
+0.5
+
+0.9
+
+94.0
+
+0.0
+
+95.9
+
+2.7
+
+1.4
+
+98.2
+
+1
+
+3.2
+
+62.7
+
+11.4
+
+22.6
+
+88.3
+
+4.5
+
+70.5
+
+15.5
+
+9.5
+
+89.3
+
+2
+
+3.0
+
+62.6
+
+10.6
+
+23.8
+
+88.1
+
+7.5
+
+68.0
+
+12.8
+
+11.7
+
+92.9
+
+3
+
+2.5
+
+64.5
+
+10.3
+
+22.8
+
+87.6
+
+6.4
+
+67.1
+
+15.3
+
+11.2
+
+93.4
+
+Table 4.5: Analysis of Efficiency Losses
+and declines otherwise. A real world interpretation is that traders are buying and selling shares of stock. In game t the
+trader purchases shares of stock at an initial cost of Si(t), closing out his account at the end of the day by selling off
+his shares for IIi( t). The competitive hypothesis that price and quantity converge to CE can be re-interpreted as the
+"efficient markets hypothesis" that the expected value of end-of-day holdings II itt) equals the initial purchase price
+
+Sit t). However if markets are not completely efficient, then superior traders should be able to make positive expected
+profits) tending to increase their capital stocks over time.
+
+27
+Our "replicator dynamic" posits that the fraction Pj(t) of traders using strategy j in game t is proportional to
+the relative capital share of the type j traders:
+I
+
+Pj(t) = Kj(t)
+
+/'L Ki(t)
+
+(4.2)
+
+i=l
+
+These dynamics reflect what one might call the "Dean Witter Philosophy": namely, if Dean Witter manages x% of the
+stock of investment capital, then on any given day we would expect that approximately x% of the traders in the market
+will be employed by Dean Witter.
+We begin the evolutionary tournament by endowing all traders with equal initial capital shares, Ki(O) = K,
+
+i = 1, ... , I. In a DA market with L buyers and M sellers, we begin the evolution by taking L lID draws (with
+replacement) from the population of buyers and M IID draws from the population of sellers to form the market using
+the multinomial distribution (4.2). Given a randomly selected set of traders we playa DA game. from the BASE
+environment with a randomly selected set of tokens. After trading is complete the capital stocks of the L buyers and
+
+M sellers are updated according to (4.1), new selection probabilities are computed according to (4.2), and a new set
+of players is drawn for game t = 1. It is also easy to construct a market where a constant fraction of noise-traders,
+say, p%, enters the market in each game t. For each of the L buyers and M sellers in the DA market, we draw lID
+Bernoulli random variables with parameter p. If the outcome of the m 'h Bernoulli random variable B m is 0, then the
+
+m'h seller is selected from the pool of I "permanent" traders according to (4.2), otherwise if B m = 1 then the m'"
+seller is selected at random from a fixed set of noise-trader programs (and similarly for buyers)."
+We have not proved any results about the limiting behavior of the evolutionary tournament such as whether
+or not the limiting set of traders form a stable set along the lines of Maynard Smith's notion of "evolutionary stable
+strategies" (ESS). Indeed, it is not even clear that one can define the precise conditions under which the evolution of
+capital stocks constitutes an ergodic stochastic process. It is easy to see that in the case of a closed market with no
+inflow of noise-traders the aggregate capital stock is indeed an ergodic stochastic process: any market with non-zero
+efficiency losses must eventually hit an absorbing state of zero capital with probability 1. However, our computer
+simulations suggest that the I -dimensional stochastic process of capital shares is non-ergodic. Indeed, our computer
+simulations indicate that the long-run outcome of competition among our fixed set of trading programs is unstable, i.e.
+the stable set is empty.
+
+30
+
+There are two ways to handle the profits (or losses) earned by noise-traders. One way is to update capital stocks oftbe noise-traders according
+to (4.2), treating them as a subset of the set of permanent traders. This effectively provides a lower bound of piN on any trader's panicipation
+probability, where N is the number of noise-traders. The other way is not to update the capital stocks for the programs which were selected
+as noise-traders. This latter method may still indirectly increase the capital stocks of the pennanent traders to the extent that they are able to
+systematically extract surplus from the noise-traders.
+
+28
+Figures 4.3 and 4.4 clearly illustrate this result in the case of an evolutionary tournament conducted under
+the BASE environment. We evolved capital stocks for buyers and sellers separately to test whether there are any
+asymmetries in the traders' performance. All 66 traders (33 buyers and 33 sellers) were equally endowed with an
+initial capital stock of 80,000. We stopped the tournament after 28,000 games when the buyers' capital stock had
+dwindled to less than 8% of its original value, as can be seen from the line labelled "market" in figure 4.3. The striking
+feature about both figures is that after aboutS,OOO games Kaplan's program emerges as the clear leader, dominating
+the both the buyers' and sellers' market after 20,000 games. The programs of Ringuette and Staecker have the second
+and third largest capital shares, but notice that after 20,000 games their influence begins to diminish, losing out to the
+dominant competition of the Kaplan traders. 111is effect is especially pronounced among the buyers, and after 22,000
+games the capital stocks of Ringuette and Staecker have been reduced to less than their initial allocations, allowing
+Kaplan to achieve near total domination of tile market. However this is precisely when Kaplan's program began to
+head into a precipitous decline, losing more than half of its capital stock in the succeeding 6,000 games.
+The reason for Kaplan's fall is clear: the success of a "wait in tile background" strategy depends on being in a
+market populated with active bidders. If all traders attempt to try to wait in the background, little information will be
+generated as each trader waits for tile others to make tile first move. By tile end of the period there will be a trading
+panic as all traders attempt to unload tileir tokens. Thus, there is a much higher likelibood tilat tile period will expire
+with unexploited surplus left on the table. This leads to a sharp fall in aggregate efficiency, precipitating the market
+
+"crash" that is evident in figure 4.4.
+It follows tilat it cannot be collectively stable for all traders to adopt a "wait in tile background" strategy: doing
+
+so creates a seriolls information externality that prevents the market from converging to CEo However in Kaplan's case
+the negative impact of the infonnation externality is actually not the primary reason for his precipitous decline. The
+primary reason is tilat his program switches into "truthtelling mode" once it succeeds in monopolizing tile market.
+Specifically, if a long time has elapsed since tile last trade, or if time remaining in the trading period is running out,
+Kaplan's program places a bid equal to tile minimum of tile current ask and T - 1 where T is the value of the next
+untraded token. In practice, tile current ask is likely to exceed T - 1 after a long period of inactivity (otherwise tile
+program would have already jumped in), implying tilat Kaplan's program effectively becomes a trutilteller by bidding
+
+T - 1. Long periods of inactivity-a sign of impasse between buyers and sellers-are quite likely occur when at
+least one side of tile market is dominated by background traders like Kaplan or Ringuette. It follows tilat once these
+programs succeed in monopolizing tile market Kaplan's program necessarily switches into truthtelling mode.
+Although trutiltelling is a very bad strategy in a market populated by even slightly smarrer strategies (as is
+clearly evident from the fact tilat truthteller provides the lower envelope for tile capital trajectories in figures 4.3 and
+4.4), truthtelling can be collectively stable if all traders adopt it since a market witil 100% truthtellers is necessarily
+100% efficient. Indeed, that is what we found when we ran a tournament with 100% Kaplan traders in the BASE
+
+29
+GAUSS
+
+Tue J"I 1617:31:261991
+
+Evolution of Sellers' Capitol
+<D
+<D
+
+kaplan
+
+0
+
+.
+.'"
+.
+.s
+<D
+
+en
+
+-'"
+()
+0
+
+if)
+
+N
+
+<D
+
+0
+
+",
+
+0
+
+0
+
+<l
+
+.
+
+'" "'
+
+>
+
+~
+
+0
+
+stoecker
+
+N
+
+anon1
+
+'" '"
+
+Q'
+
+N
+r~~~===:~;;;;~~~~;;~ci09~".t~t~
+th
+_',
+~
+anderson
+
+~
+o
+
+tru
+
+0
+
+0 .0
+
+ledyord
+
+0.5
+
+15
+
+1.0
+
+2.0
+
+arket
+
+~·5
+
+Gqme
+Tu~
+
+GAUSS
+
+J"I 16 16:$3,16 1991
+
+E\'ol ution of
+
+~..,~yers'
+
+Capital
+
+<D
+<D
+
+0
+
+.
+'" .'"
+.
+.s
+<D
+
+en
+
+()
+
+0
+
+if)
+
+N
+
+Q.
+
+"'0
+
+<D
+
+0
+
+0
+
+.
+
+'"> "'
+
+~
+
+0
+
+N
+
+'" '"
+
+Q'
+
+N
+
+led}'ord
+<D
+
+0
+
+anderson
+
+:i
+
+truth
+
+~arket
+
+0
+
+o O.D
+
+0.5
+
+1.(1
+
+2,.0
+
+Figures 4.3 and 4.4: Results of the "Evolutionary Tournament"
+
+30
+environment. This suggests that Kaplan's two-stage wait-in-the-background/truthtelling strategy might actually be a
+clever way to gain and maintain a monopoly position." However closer examination of figures 4.3 and 4.4 reveal the
+inherent danger of this approach. By game 22,000 Kaplan's program h~d virtually monopolized the buyers' market,
+but it still had not completely monopolized the sellers' market." Thus, Kaplan's buyers tended to get locked into a
+waiting game with each other, causing them to switch into truthtelling mode resulting in a net windfall to the sellers
+(who were still predominantly in background mode). This scenario is clearly reflected in the fact that the steady decline
+in seller's capital decelerated after game 22,000, so that by game 28,000 sellers still had nearly 60% of their initial
+capital stock. Since Kaplan's program dominated the seller's market it gained the most, multiplying its initial capital
+stock over 12 times to 984,735.
+Given the overall similarity in the programs of Kaplan and Ringuette, why does Kaplan dominate in the long
+run? Initially both Kaplan and Ringuette succeed in exploiting the other programs, as can be seen by their relatively
+equal capital shares in the first 5,000 games of the evolutionary tournament. However, once Kaplan and Ringuette start
+to co-dominate the market, Ringuette's efficiency levels fall from nearly 120% to well below 100% allowing Kaplan
+to take the lead. It is not easy to identity the precise cause of this outcome, although parts of the reasons have been
+discussed in our comparison of Kaplan and Ringuette in Rust, Palmer and Miller (1992). 11 appears that the principal
+reason for Ringuette's decline is that his program is more impatient to trade than Kaplan's, switching from the role of
+a background trader to an active bidder much sooner than Kaplan does. On the other hand, when Ringuette's program
+encounters a period of inactivity, it invokes a much more aggressive active bidding strategy than Kaplan, namely a
+slightly modified version of Skeleton. However since Skeleton consistently loses out to Kaplan when the latter is in
+"background mode", it should not be surprising that Ringuetre's program also loses given that it typically switches to
+"skeleton mode" long before Kaplan's program has switched to truthtelling mode. Specifically, Ringuette's program
+switches to skeleton mode whenever the number of elapsed steps since the last trade exceeds the smaller of 12, or 60%
+of the remaining steps in the game." In comparison Kaplan's program switches to trutillelling mode whenever the
+number of time steps since the last transaction exceeds one half of tile number of remaining steps, or whenever 5 steps
+have elapsed since the last h'ansaction and the number of sleps since his program last traded exceeds two thirds of
+the remaining steps. Thus, at the beginning of a DA game dominated by Kaplan and Ringuette, Ringuette's program
+
+is unlikely that Kaplan designed his program with this idea in mind since the rules for awarding cash prizes in the March, 1990 tournament are
+inconsistent with the use of the kinds of evolutionary tournaments which we subsequently designed,
+
+31 It
+
+32 By game 28,000 the top sellers were Kaplan (64%), Staecker (10%), Anon~l
+
+(8%), Perry (7%), Anderson (6%), and Ringuette (3%). In contrast,
+
+Kaplan controlled nearly 98% of the buyers' capital.
+33 Ringuette apparently also intended to return a bid from skeleton whenever there were fewer than 1/8 of the total number of steps remaining in the
+
+game, however due to an apparent programming error, this option is never invoked.
+
+31
+will switch to skeleton mode after BS step 12 whereas Kaplan's program will still be playing the role of a background
+trader.
+10 biological terms, our evolutionary tournaments have suggested the following conclusions: 1) Kaplan's
+strategy appears to be able to successfully invade a population ofnon-Kaplan's (including Ringuette), 2) a collection of
+100% Kaplan strategies is not collectively stable. These conclusions suggest that the outcome of "closed" evolutionary
+tournaments (I.e. ones that exclude subsequent entry of noise-traders) may be characterized by cycles of "booms" and
+"crashes" in the populations of Kaplan's. In a boom period, Kaplan's program invades and overtakes a population
+of non-Kaplan's. However a crash begins once Kaplan's program attains a near monopoly, dying off on account of
+negative information externalities which cause it to switch into truthtelling mode. 10 the latter case Kaplan's relative
+capital share will shrink until a sufficient number of active bidders are present in the market to enable Kaplan's
+program to remain in background sufficiently frequently to counterbalance the losses incurred in truthtelling mode.
+We conducted evolutionary tournaments with noise-traders and found that only a small fraction of active bidders-5
+or 10 percent-is necessary to achieve stability in capital shares. However there is little evidence that any of the other
+programs can successfully invade a population of Kaplan's that are operating in background mode. Otherwise we
+would have observed growth in their capital shares as Kaplan's program started to monopolize the market. Except for
+a slight upturn in Anderson's capital share in figure 4.4, there is no evidence that this is happening." By remaining in
+the background, Kaplan's program is able to capitalize on the mistakes of the active bidders, lifting its efficiency well
+above 100% and ensuring its growth while pushing the active bidders' efficiency well below 100% and ensuring their
+decline. 10 the absence of an active biddiug strategy that can successfully invade (or at least coexist) with a population
+of Kaplan's, there would appear to be no mechanism to stabilize the resulting cycles of booms and crashes. However
+given the passive nature of a "wait in the background" strategy, it is difficult to see how one could exploit it. Since
+this sttategy is essentially parasitic, we might pose the key open question in biological terms: are there strategies and
+
+environments that are resistant to invasion by Kaplanites?
+
+5. Conclusions
+10 this paper we have studied the behavior of a collection of computer programs playing the roles of buyers
+and sellers in a discretized version of a dynamic double auction market. One of our objectives was to use this
+market in an attempt to understand the operation of the "invisible hand". We found that despite the decentralized
+nature of the trading process and traders' incomplete information about supply and demand, tile transaction price
+trajectories of a heterogeneous collection of computer programs typically converged to the competitive equilibrium,
+
+34 The upturn in Anderson's share of sellers' capital appears to coincide with Kaplan's monopolization of the buyers' market. Thus, the upturn seems
+
+more likely to reflect Anderson's ability to capture some of windfall gains provided by Kaplan's buyers when they entered truthtelling mode than
+Anderson's ability to successfully invade a population of Kaplan's.
+
+32
+resulting in allocations that were nearly 100% efficient. Our findings complement and extend previous theoretical and
+experimental insights by Easley and Ledyard, Gode and Sunder, and Wilson, taking us one step closer to resolving
+Hayek's problem; namely to "show how a solution is produced by the interactions of people each of whom possesses
+only partial knowledge." Specifically, the fact that convergence occurs in markets where traders use simple rulesof-thumb suggests that it is the DA insritution, rather than the rationality of the traders per se, that is responsible
+for the emergence of competitive outcomes.. The DA trading rules, particularly the "New York Rules" governing
+the improvement of standing bids and offers, appear to act as a "funnel" tilat guides the uncoordinated actions of
+a heterogeneous collection of decision rules towards the CEo Other institutional features, including the discrete VS.
+continuous nature of trading process, do not appear to playa significant role in generating competitive outcomes. In
+particular, our imposition of the "AURORA Rules" restricting which traders are eligible to accept the standing bid or
+
+ask does not appear to impose a significant constraint on trading opportunities or prevent the market from converging
+to CEo
+
+Our second objective was to compare the behavior of human and automata traders. Overall, we found that the
+top-ranked trading programs appear to yield a "realistic" working model of a DA market in the sense that their collective
+behavior is consistent with the key "stylized facts" observed in human DA experiments: I) convergence to CE, 2)
+high ex post efficiency, 3) reductions in transaction price volatility and efficiency losses in successive trading periods
+reflective ofapparent "learning" effects,4) existence ofextra-marginal as well as intra-marginal efficiency losses, 5) low
+
+rank correlations between the realized order of transactions and the "efficient" order, and 6) negatively autocorrelated
+transaction price changes. More detailed statistical comparisons of human and computer traders will have to await
+the completion of matching human experiments to be conducted in our discretized DA market. The fact that our
+collection of program traders seem to behave similarly to human n·aders may not seem surprising if programmers are
+merely encoding their "market intuition" into tlleir computer programs. However, given the complexity of the DA
+
+environment and the sophistication of human intelligence, it is not obvious that human behavior in these markets can
+be captured by a few simple decision rules.
+Our final objective was to characterize the form of effective trading strategies in DA markets. We srudied a
+collection of over 30 computer programs ranging in complexity from simple rules-of-thumb to sophisticated adaptivellearuing procedures employing some of the latest ideas from the literature on artificial intelligence and cognitive
+
+science. In order to evaluate the programs. we conducted an extensive series of computer tournaments involving
+hundreds of thousands of individual DA games, covering a wide range of trading environments and compositions of
+trading partners. To our surprise, a single program emerged as the clear wimer in nearly all of the tournaments and
+trading environments. The winning program, submitted by economist Todd Kaplan of the University of Mimesota,
+was one of the simplest programs that we studied, and can be characterized as nOll-adaptive, non-predictive, nonstochastic, and non-optimizing. The basic idea behind the program is to wait in the background to let others do the
+
+33
+negotiating, but when bid and ask get sufficientiy close,jump in and "steal the deal". The program makes no use of
+prior information about the joint distribution oftoken values, and relies on only a few key variables such as its privately
+assigned token values, the current bid and ask, its number of remaining tokens, and the time remaining in the current
+period. The fact that one can design an effective trading program relying on only a few sufficient statistics confirms
+Hayek's observation about "the remarkable economy of knowledge that is required in order to take the right action in
+a competitive market".
+It appears that the success of Kaplan's strategy is due to the fact that in an efficient market, if the current bid
+
+and ask are close, then it is likely to be tile case that either I) bid and ask are close to the equilibrium price interval, or
+2) the current bid or ask are close as a result of a mistake in which one of the holders' failed to place their bid or ask
+at a sufficiently favorable price. Kaplan's program attempts to "steal the deal" by placing a bid equal to tile previous
+asking price, but only if it can make a profit at tilat price. As a result Kaplan's program tends to earn at least a normal
+profit if case I) holds, and a super-normal profit if another trader has made a mistake. Since the decision of how much
+to bid is much more difficult tilan the binary buy/sell decision, it is not surprising that mistakes in bidding are a primary
+source of poor trading perfonnance. By staying out of the bidding game, Kaplan's program is able to avoid making
+bidding mistakes on its own account while capitalizing on bidding mistakes of others.
+Another reason for the relatively poor performance of the complex, adaptive, optimiZing, and predictive
+strategies is the inherent difficulty of making accurate inferences in a noisy marketplace given only a limited number of
+
+observations on one's opponents. The randomness in traders' token endowments is the dominant source of uncertainty
+in any particular DA game. The additional variation in profits induced by mistakes or stochastic elements in the
+trading strategies is insignificant in comparison. As a result, one needs a very large number of observations on trading
+outcomes to be able to reliably distinguish good traders from bad. It follows that it is virtually impossible to try to
+recognize and exploit the individual idiosyncrasies of one's individual ttading partners unless one is interacting with
+the same group over a very long horizon. The low signal/noise ratio of realized trading profits combined with the
+high dimensionality of the space of possible trading histories and trading environments implies that programs based on
+generalleaming principles (such as neural networks and genetic algorithms) require many thousands of DA training
+games before they are able to trade even semi-effectively." Nearly all of tile top-ranked programs were based on a
+fixed set of intuitive rules-of-thumb tilat encoded the programmer's prior knowledge of trading process. This finding
+suggests that our hopes of using computerized agents endowed with general principles of artificial intelligence to
+
+evaluate alternative institutional designs may be too ambitious.
+
+35
+
+To quote from the entry by DaUaway and Harvey; "Given that we are doing the equivalent of evolving monkeys that can type Hamlet, we think
+the monkeys have reached the stage where they recognize that they should not eat the typewriter. If we could have a 4 billion year time extension
+before handing in the entry, we are completely confident of winning."
+
+34
+Given the simplicity, robustness, and effectiveness of the "wait in the background" strategy, it seems likely
+other traders would attempt to imitate it, leading to growth in the relative numbers of these sorts of background traders.
+On the other hand less profitable traders should gradually exit the market due to competitive pressures. In order to
+study the long-run equilibrium of such market we conducted an "evolutionary tournament" in which the fraction of
+each type of trader was proportional to its share of the total capital stock. The capital of each trader was updated after
+each DA game, increasing or decreasing by the difference between realized profits and the trader's surplus allocation
+in the game. Thus, the capital stocks and relative numbers of each type of trader grew or shrank depending on whether
+it traded at greater than or less than 100% efficiency. Starting from equal initial capital endowments, the background
+traders succeeded in exploiting and driving out the active bidders, nearly monopolizing the market. However the
+background traders create a negative "information externality" by waiting for their opponents to make the first move.
+If all traders do this, little information will be generated and the market would be unable to function efficiently. In
+order to avoid such a deadlock, Kaplan's program defaults to a "truthtelling" bidding strategy if a sufficiently long
+time has elapsed since a trade has occurred. AltllOugh a collection of 100% truthtellers is necessarily 100% efficient,
+it can be easily exploited by even slightly more sophisticated strategies.
+The long-run stability of this market depends on whether it is open or closed to new entrants. A closed market
+tends to be unstable, exhibiting cycles of booms and crashes in the population of background traders. In a boom period
+the background traders invade and overtake a population of active bidders. A crash begins when the background traders
+achieve a near monopoly, because the negative information externalities that they create cause Kaplan's program to
+switch into truthtelling mode. Only in a knife-edge case where Kaplan's traders are able to simultaneously monopolize
+both sides of the market is a stable equilibrium achieved with 100% truthtelling. But typically the background traders
+will succeed in monopolizing one side of the market before the other, resulting in its precipitous decline as a result of
+systematic exploitation by the background traders on the other side of the market.
+However in an open market, active bidding by a steady flow of short-lived noise-traders succeeds in stabilizing
+the pattern of booms and crashes in the number of Kaplan traders. Only a small fraction of noise-traders, comprising
+less than 10% of the market, is necessary to keep Kaplan's traders in background mode sufficiently frequently to
+counterbalance the losses they incur in truthtelling mode. Kaplan's traders make up at least 90% of the market in the
+long-run since the growth of a competitive fringe causes Kaplan's traders to shift into background mode, exploiting
+and eventually halting the growth of the fringe.
+Although the noise-traders facilitate long-run stability in market shares, the limiting market is still quite unstable.
+In particular, transaction price volatility is unrealistically high-a consequence of the fact that the Kaplan traders are
+frequently in truthtelling mode. It is unlikely that this situatlon could persist in the presence of truly adaptive traders,
+since they would eventually discover best-replies that exploit the fact that Kaplan's program eventually switches inro
+trllthtelIing mode. Since the trading programs submitted to our initial DA toumament were designed to do well in a
+
+35
+sequence of short-run encounters with heterogeneous opponents rather than in long-run interactions with homogeneous
+opponents, it is not surprising that none were successful in exploiting this particular idiosyncrasy.
+The open question is whether there exist strategies that are capable of dominating Kaplan's "wail in the
+background" strategy over a non-trivial range of environments. If we were to run another DA tournament, it seems
+
+\
+
+likely that entrants would attempt to beat Kaplan by ~eveloping more sophisticated delay and "endgame" strategies
+rather than reverting to truthtelling mode after a fixed amount of time. Thus, even though Wilson's WGDA equilibrium
+appears to be inconsistent with the behavior of humans and computer programs, we view our results as confirming his
+insight on the importance of delay as a key ingredient of an effective trading strategy. The main complicating factor
+is that traders generally don't have any prior knowledge about the strategies used by their opponents, and it may be
+very difficult to learn those strategies unless one is interacting with the same group for a very long period of time. If
+this is the case, then simple rules-of-thumb such as Kaplan's may enable one to capture the key features of an effective
+sttategy in a anonymous market consisting of short-run encounters with heterogeneous (and impatient) opponents,
+
+whereas more complicated adaptive/leaming procedures may do better in a market where one repeatedly trades over
+a long period of time with a fixed set of opponents. In future work we plan to investigate whether one can develop
+hybrid rules that graft adaptive/leaming procedures onto simple, effective rules-of-thumb, using the rule-of-thumb as
+a fall-back, but creating the possibility that it might be improved in light of trading experience." Our hope is to
+
+characterize strategies that are undominated. over a broad range of environments and consistent with long-run market
+stability.
+
+it might be smart enough to recognize that other traders were taking advantage
+of its truthtelling mode, adjusting its delay and bidding rules to insure its 100g.J.1l0 survival.
+
+36 For example, if a learning rule were"grafted" onto Kaplan's strategy,
+
+36
+
+6. References
+
+1] Abreu, D., and A. Rubinstein (1988) "Finite Automata Play the Repeated Prisoner's Dilemma" Econometrica
+57·4,345-352.
+[ 2] Andreoni, J., and J.H. Miller (1990) "Auctions with Adaptive Artificial Agents" Santa Fe Institute Working
+Paper 90-01-004.
+[ 3] Axelrod, R. (1984) The Evolution of Cooperation New York, NY: Basic Books.
+
+[ 4] Blum, M. (1967) "A Machine-Independent Theory of the Complexity of the Recursive Functions" Journal of
+
+the ACM 14-2, 322-336.
+[ 5] Bollerslev, T., and I. Domowitz (1991) "Some Effects of Restricting the Electronic Order Book in an Automated Trade Execution System" Working Paper 105, Kellogg Graduate School of Management, Nortllwestern
+University.
+[ 6] Cason, T.N., and D. Friedman (1991) "An Empirical Analysis of Price Formation in Double Auction Markets"
+
+manuscript, University of California, Santa Cruz, forthcoming in D. Friedman, J. Geanakoplos, D. Lane,
+and J. Rust (eds.) The Double Auction Market: Theories, Institutions, and Experimental Evaluations
+Redwood City, CA: Addison-Wesley.
+7] Diaconis, P., and D. Freedman (1986) "The Inconsistency of Non-Parametric Bayesian Analysis" Annals of
+
+Statistics.
+8] Easley, D., and J. Ledyard (1986) "Theories of Price Fornlation and Exchange in Double Oral Auctions"
+Social Science Working Paper 611, California Institute of Technology, Pasadena, CA 91125, forthcoming in D.
+Friedman,J. Geanakoplos, D. Lane, andJ. Rust (eds.) The Double Auction Market: Tlwories, Institutions,
+and Experimental Evaluations Redwood City, CA: Addison-Wesley.
+
+9] Freedman, D. (1963) "On the Inconsisrency of Bayes Estimates in Infinite-Dimensional Spaces" Annals of
+Sta.tistics.
+
+[10] Friedman, D. (1991) "A Simple Testable Model of Double Auction Markets" Journal of Economic Bebmior
+and Organization 47-50.
+[11] Garcia, C.B. (1980) "On the Dynamics of Prices to Equilibrium in a Double Auction Market" manuscript,
+
+University of Chicago Graduate School of Business.
+
+37
+
+[12] Gode, D.K., and S. Sunder (1991) "Allocative Efficiency of Markets with Zero Intelligence (ZI) Traders: Market
+as a Partial Substitute for Individual Rationality" manuscript, Graduate School of Industrial Administration,
+Carnegie Mellon University.
+
+[13] Hayek, F. (1945) "The Use of Knowledge in Society" American Economic Review 35·4, 519-530.
+[14] Hertz, J.A., Krogh, A.S., and R.G. Palmer (1991) Introduction to the Tlleory of Neural Computatioll
+Redwood City, CA: Addison-Wesley.
+
+[15] Holland, J. (1975) Adaptatioll in Natural alld Artificial Systems Ann Arbor, M1: University of Michigan
+Press.
+
+[16] Kagel, J.H., and W.E. Vogt (1991) "Buyer's Bid Double Auctions: Some Preliminary Experimental Results"
+manuscript, University of Pittsburgh, forthcoming in D. Friedman, J. Geanakoplos, D. Lane, and J. Rust (eds.)
+
+Tlle Double Auction Market: Tlleories, Institutions, and Experimental Evaluations Redwood City, CA:
+Addison-Wesley.
+
+'[17] Ledyard, J. (1986) "The Scope of the Hypothesis of Bayesian Equilibrium" Journal of Ecollomic Theory 39,
+59-82.
+
+[18] Marimon, R. McGratten, E. Sargent, T. (1990)"Money as Medium ofExchange in an Economy with Artificially
+Intelligent Agents" Computer Science ill Ecollomics and Mallagemellt 5, 109-123.
+
+[19] Maynard Smith, J. (1982) Evolutioll alld the Theory of Games Cambridge: Cambridge University Press.
+
+[20] Myerson, R. (1981) "Optimal Auction Design" Mathematics of Operatiolls Research 6, 58-73.
+[21] Myerson, R., and M.A. Satterthwaite (1983) "Efficient Mechanisms for Bilateral Trade" Journal of Economic
+
+Theory 29, 265-281.
+[22] Narendra, K.S. (1986) Adaptive and Leaming Systems: Tlleory and Applicatiolls New York, NY: Plenum
+Press.
+[23] Palmer, R.G., J. Rust, and J.R. Miller (1990) "Double Anction Toumament Participant's Manual" Santa .Fe
+Institute.
+
+[24] Robens, J., A. Postlewaite (1976) "The Incentives for Price-Taking Behavior in Large Exchange Econonties"
+
+Econometrica44, 115-128.
+
+38
+[25] Rustichini, A., M.A. Satterthwaite, and S.R. Williams (1990) "Convergence to Price-Taking Behavior in
+a Simple Market" Discussion Paper 914, Center for Mathematical Studies in Economics and Management
+Science, Northwestern University, Evanston, lL.
+[26] Satterthwaite, M.A., and S.R Williams (1989a) "Bilateral Trade with the Sealed-Bid k-Double Auction:
+Existence and Efficiency" Journal of Economic Theory 48, 107-133.
+[27] Satterthwaite, M.A., and S.R. Williams (1989b) "The Rate of Convergence to Efficiency in the the Buyer's Bid
+Double Auction as the Market Becomes Large" Review of Economic Studies 56, 477-498.
+[28] Selten, R, M. Mitzkewitz, and G. Uhlich (1990) "Duopoly Strategies Programmed by Experienced Players"
+manuscript, Bonn University, Germany.
+[29] Smith, V.L., A. Williams, K. Bratton, and M. Vannoni (1982) "Competitive Market Institutions: Double
+
+Auctions versus Sealed Bid-Offer Auctions" American Economic Review 72,58-77.
+[30] Wheeler, RM. Jr., and K.S. Narendra (1986) "Decentralized Learning in Finite MarkOV Chains" IEEE 'fransactions on Automatic Control AC-31-6, 519-526.
+[31] Williams, S.R. (1990) "Existence and Convergence of Equilibria in the Buyer's Bid Double Auction" Review
+of Economic Studies.
+
+[32] Wilson, R.B. (1985) "Incentive Efficiency of Double Auctions" Ecollometrica53-5, 1101-1116.
+[33] Wilson, R.B. (1987) "On Equilibria of Bid-Ask Markets" in G. Feiwell (ed.) Arrow and the Ascent of
+Modern Economic TlIeory 375-414. The MacMillan Press, Ltd.
+
+39
+Appendix: Explanation of the 4·Way Breakdown of Efficiency Losses
+Efficiency losses in any DA game can be decomposed into the following four categories:
+1M: value oflost surplus of non-traded intra-marginal tokens (i.e. those that lie to the left ofthe equilibrium quantity,
+q*) when the actual number of trades q is less than q* (or 0 otherwise),
+EM: value of lost surplus due to trade of extra-marginal tokens (i.e. those that lie to the right of q* on the supply
+and demand curves) when the actual number of trades q is greater than q * (or 0 otherwise),
+BS: value of lost surplus due to trades of extra-marginal buyers' tokens that displaced potential trades of an equal
+number of buyers' intra-marginal tokens,
+SS: value of lost surplus due to trades of extra-marginal seller's tokens that displaced potential trades of an equal
+
+number of sellers' intra-marginal tokens.
+
+In order to define these quantities, we first define 1MB and IMS as the sum of the values of all intra-marginal
+
+tokens not traded by buyers and sellers, respectively, during the period. Let EMB and EMS denote the sum of the
+values of all extra-marginal tokens traded by buyers and sellers during the period. Then we have:
+LOST SURPLUS = SURPLUS - PROFIT = 1MB - EMB + EMS - IMS
+
+(1)
+
+Let NIMB, NIMS denote the number of intra-marginal tokens that failed to be traded by buyers and sellers,
+respectively. Let NEMB and NEMS denote the number of extra-marginal tokens traded for the two respective sides of
+tile market. Then we also have the identity
+q - q* = NEMB - NlMB = NEMS - NIMS
+
+(2)
+
+Clearly when q = q* there are no net intra-marginal or extra-marginal trades, so that EM=IM=O. Then the total amount
+oflost surplus can then be unambiguously divided into the two categories BS = 1MB - EMB and SS = EMS - IMS.
+However if q > q*, then we face the problem of how to allocate lost surplus dne to trades of extra-marginal tokens
+among the three categories EM, BS, and SS, and if q < q * we face a similar problem of allocating lost surplus among
+the categories 1M, BS, and SS. Define NBS, NSS, NEM, NIM as follows:
+NEM = max(q - q*.O)
+NIM = max(q* - q,O)
+NBS = min(NIMB,NEMB)
+NSS = min(NIMS,NEMS)
+
+(3)
+
+40
+Then it is easy to see that the following identities hold:
+NIMB = NIM + NBS
+NEMB = NEM + NBS
+NIMS = NIM + NSS
+NEMS = NEM + NSS
+
+(4)
+
+Definition (3) provides an unambiguous way of decomposing the total number of inefficient trades into the 4
+categories BS, SS, EM, and 1M. There is no unambiguous way of deciding of decomposing the value of lost surplus,
+however. For example in the DA game illustrated in figure 3.2 buyer B2 u'aded two extra-marginal tokens and there
+are 3 intra-marginal tokens that Bland B2 failed to trade, and 1 intra-marginal token that S3 failed to trade. Thus,
+NEM=O, NIM=I, NBS=2, and NSS=O, which implies that EM=O and SS=O. To compute the value of BS and 1M,
+
+we need to determine which of the 3 intra-marginal buyer's tokens were "bumped". We assume that anyone of these
+tokens is equally likely to have been bumped, and thus we value each "bumped" buyer's token at IMB/3 and compute
+BS as the value of B3's two extra-marginal tokens less 21MS/3. 1M is computed as IMB/3 less the value of S3's
+untraded token. More generally EM, 1M, BS and SS can be defined as follows:
+EM = NEM (EMS - EMB)
+1M = NIM (1MB - IMS)
+BS = NBS (1MB - EMB)
+SS = NSS (EMS - IMS)
+
+(5)
+
+where EMS == EMS/ max(NEMS, 1) is the average value of extra-marginal sellers' tokens, and IMS, EMB, and 1MB
+are defined similarly. Using identities (1) through (4) it is easy to verify that the definitions of EM, 1M, BS and SS
+insure that they are always non-negative, and that the following identity holds:
+SURPLUS LOST = EM + 1M + BS + SS.
+
+(6)
+
+

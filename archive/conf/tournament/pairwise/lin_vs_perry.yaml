@@ -1,0 +1,9 @@
+# @package _global_
+# Pairwise: Lin vs Perry
+experiment:
+  name: "pairwise_lin_vs_perry"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['Lin', 'Lin', 'Lin', 'Lin', 'Perry', 'Perry', 'Perry', 'Perry']
+  seller_types: ['Lin', 'Lin', 'Lin', 'Lin', 'Perry', 'Perry', 'Perry', 'Perry']

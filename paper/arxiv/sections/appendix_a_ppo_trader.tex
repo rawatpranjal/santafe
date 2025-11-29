@@ -1,0 +1,45 @@
+\appendix
+
+\section{The Deep Reinforcement Learning Trader}
+\label{app:ppo_trader}
+
+In this study, the primary autonomous agent is trained using Proximal Policy Optimization (PPO), a policy gradient method that has become the standard for continuous and discrete control tasks due to its stability and sample efficiency. This appendix details the theoretical foundations of PPO, the specific architecture of the agent used in our experiments, and the training procedure within the double auction environment.
+
+\subsection{Proximal Policy Optimization (PPO)}
+
+Reinforcement learning seeks to find an optimal policy $\pi_{\theta}(a|s)$, parameterized by $\theta$, that maximizes the expected cumulative discounted reward $J(\theta)$:
+
+\begin{equation}
+J(\theta) = \mathbb{E}_{\tau \sim \pi_{\theta}} \left[ \sum_{t=0}^{T} \gamma^t r_t \right]
+\end{equation}
+
+where $\tau = (s_0, a_0, r_0, s_1, \dots)$ is a trajectory, $\gamma \in [0, 1]$ is the discount factor, and $r_t$ is the reward at time $t$. Standard policy gradient methods update the parameters $\theta$ by ascending the gradient $\nabla_{\theta} J(\theta)$. However, these methods often suffer from high variance and instability; large step sizes in the policy space can lead to catastrophic performance degradation.
+
+PPO addresses this by constraining the policy update. It optimizes a surrogate objective function that penalizes large deviations from the current policy $\pi_{\theta_{old}}$. The objective function $L^{CLIP}(\theta)$ is defined as:
+
+\begin{equation}
+L^{CLIP}(\theta) = \mathbb{E}_t \left[ \min(r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t) \right]
+\end{equation}
+
+where $r_t(\theta)$ is the probability ratio $\frac{\pi_{\theta}(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)}$, $\hat{A}_t$ is the estimated advantage function at time $t$, and $\epsilon$ is a hyperparameter (typically 0.2) that defines the clipping range. The advantage function $\hat{A}_t$ represents the relative value of the selected action compared to the average action at state $s_t$, and is typically estimated using Generalized Advantage Estimation (GAE).
+
+The clipping mechanism ensures that the ratio $r_t(\theta)$ stays within the interval $[1-\epsilon, 1+\epsilon]$, preventing the new policy from diverging too far from the old policy in a single update step. This trust region property is crucial for the stability of training in the highly stochastic environment of the double auction.
+
+\subsection{Agent Architecture}
+
+The PPO agent in our experiments utilizes an Actor-Critic architecture, where both the policy (Actor) and the value function (Critic) are approximated by deep neural networks.
+
+\subsubsection{State Representation}
+The input to the network is a vector $s_t \in \mathbb{R}^{N}$ representing the agent's private state and the public market state. The observation space includes the agent's current inventory of tokens, the private redemption value (or cost) of the current unit, and the accumulated profit for the period (Private State); the current best bid and best ask prices, the bid-ask spread, and the price of the last transaction (Market State); the normalized time remaining in the trading period, $t/T_{max}$ (Temporal State); and a sequence of the last $k$ price changes, enabling the agent to detect trends (Market Flow). All continuous variables (prices, time) are normalized to the range $[0, 1]$ or standardized to mean zero and unit variance to facilitate gradient descent.
+
+\subsubsection{Network Structure}
+Given the sequential nature of market data, our architecture incorporates a Long Short-Term Memory (LSTM) layer to capture temporal dependencies and market momentum. The observation vector is first processed by a dense feature extraction layer (64 units, ReLU activation). The output is fed into an LSTM layer (64 units), the state of which is maintained across the trading period. The LSTM output branches into two separate heads: an Actor Head consisting of a fully connected layer followed by a Softmax activation, outputting a probability distribution over the discrete action space; and a Critic Head consisting of a fully connected layer outputting a scalar value $V(s_t)$, representing the expected future return from state $s_t$.
+
+\subsubsection{Action Space}
+The agent operates in a discrete action space designed to mimic the relative pricing logic of human traders. The output is a categorical distribution over $K=5$ actions: Pass (do nothing, $a_0$), Accept (market order: buy at current Ask or sell at current Bid, $a_1$), Improve (limit order: bid at Best Bid + $\delta$, or ask at Best Ask - $\delta$, $a_2$), Match (limit order: bid at Best Bid, or ask at Best Ask, $a_3$), and Shade (limit order: bid at Best Bid - $\delta$, or ask at Best Ask + $\delta$, $a_4$). This relative action formulation allows the agent to remain robust to shifts in the absolute price level of the market.
+
+\subsection{Training Procedure}
+
+The agent interacts with the Double Auction environment in episodes, where one episode corresponds to one trading period (e.g., 300 time steps). The training process follows the standard PPO loop. First, during Rollout, the agent plays $N$ parallel environments for $T_{horizon}$ steps, collecting trajectories of $(s_t, a_t, r_t, s_{t+1})$ using the current policy $\pi_{\theta_{old}}$. Second, during Advantage Estimation, GAE is used to compute advantages $\hat{A}_t$ and value targets for each step in the trajectories. Third, during Optimization, the collected data is shuffled and divided into mini-batches, and the network parameters $\theta$ are updated via stochastic gradient descent to maximize the PPO objective $L^{CLIP}$ minus a value function loss term and plus an entropy bonus term (to encourage exploration). Fourth, during Update, the old policy weights are updated to the new weights, and the process repeats.
+
+We employ a curriculum learning approach to facilitate convergence. In the initial phase, the agent trains against a pool of Zero-Intelligence (ZI-C) traders, providing a rich signal of easy trading opportunities. As training progresses and the agent's proficiency increases, the opponent pool is gradually enriched with more sophisticated heuristic agents (Kaplan, ZIP), forcing the PPO agent to refine its strategy from simple arbitrage to complex sniping and liquidity provision.

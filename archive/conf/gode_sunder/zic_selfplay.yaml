@@ -1,0 +1,19 @@
+# @package _global_
+# Gode & Sunder (1993) Treatment Condition: Pure ZIC (constrained)
+# Expected efficiency: 98.7% ± 1.5% (proves budget constraints create efficiency)
+
+experiment:
+  name: "gode_sunder_zic_selfplay"
+  num_rounds: 50
+
+agents:
+  buyer_types: ["ZIC", "ZIC", "ZIC", "ZIC", "ZIC"]
+  seller_types: ["ZIC", "ZIC", "ZIC", "ZIC", "ZIC"]
+
+market:
+  min_price: 1
+  max_price: 200
+  num_tokens: 4     # Multi-unit per trader (matches Gode & Sunder)
+  num_periods: 1    # Single period per round
+  num_steps: 200    # Enough time for all trades
+  token_mode: "uniform"  # Simple uniform random (Gode & Sunder style)

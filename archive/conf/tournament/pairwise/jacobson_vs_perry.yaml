@@ -1,0 +1,9 @@
+# @package _global_
+# Pairwise: Jacobson vs Perry
+experiment:
+  name: "pairwise_jacobson_vs_perry"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['Jacobson', 'Jacobson', 'Jacobson', 'Jacobson', 'Perry', 'Perry', 'Perry', 'Perry']
+  seller_types: ['Jacobson', 'Jacobson', 'Jacobson', 'Jacobson', 'Perry', 'Perry', 'Perry', 'Perry']

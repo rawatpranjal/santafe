@@ -45,3 +45,65 @@ df_bids = load_bid_history()  # columns: step, trader_type, action_type
 sns.histplot(data=df_bids, x='step', hue='trader_type', bins=20, stat='density')
 plt.axvline(x=0.9*NTIMES, linestyle='--', label='Closing panic zone')
 ```
+
+---
+
+## Convergence Tunnel (Price Discovery)
+
+The essential visualization for understanding "what actually happened" in a single market run.
+
+### Specification
+
+| Element | Description |
+|---------|-------------|
+| **Type** | Time Series / Scatter Plot |
+| **X-Axis** | Time Step (sequence number) |
+| **Y-Axis** | Price (absolute, integer) |
+| **CE Band** | Shaded horizontal region around equilibrium price |
+| **Best Bid** | Blue stepped line showing highest bid trajectory |
+| **Best Ask** | Red stepped line showing lowest ask trajectory |
+| **All Bids** | Small blue dots (alpha=0.3) showing all bid submissions |
+| **All Asks** | Small red dots (alpha=0.3) showing all ask submissions |
+| **Trades** | Large green circles marking executed transactions |
+
+### Data Required
+
+- `step`: Time step of action
+- `price`: Bid/ask/trade price
+- `is_buyer`: True for bids, False for asks
+- `status`: "winner", "beaten", "pass" etc.
+- `event_type`: "bid_ask", "trade", "period_start"
+- `equilibrium_price`: From period_start event (or CLI override)
+
+### What This Reveals
+
+| Pattern | Interpretation |
+|---------|----------------|
+| **Spread narrowing** | Bid/ask lines converging = market finding equilibrium |
+| **Trades in CE band** | High efficiency, prices near theoretical optimum |
+| **Scattered trades** | Low efficiency, volatile/random pricing |
+| **Late trades** | Closing panic or patient snipers |
+| **Wide spread persist** | Market illiquidity or strategic waiting |
+
+### Key Questions Answered
+
+1. **Efficiency**: Do transaction prices cluster around CE?
+2. **Convergence**: How quickly does the spread narrow?
+3. **Strategic Behavior**: Wide spread = passive sniping (Kaplan) vs tight spread = active discovery (ZIC)
+4. **Volatility**: Are prices stable or scattered?
+
+### Usage
+
+```bash
+# New logs (auto CE price from period_start event)
+python scripts/visualize_tunnel.py logs/exp_events.jsonl -r 1 -p 1
+
+# Old logs (manual CE price override)
+python scripts/visualize_tunnel.py logs/old_events.jsonl --ce-price 150
+
+# Save to file
+python scripts/visualize_tunnel.py logs/exp_events.jsonl -o figures/tunnel.png
+
+# With summary statistics
+python scripts/visualize_tunnel.py logs/exp_events.jsonl --summary
+```

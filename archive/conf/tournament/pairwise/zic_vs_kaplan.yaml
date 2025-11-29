@@ -1,0 +1,9 @@
+# @package _global_
+# Pairwise: ZIC vs Kaplan
+experiment:
+  name: "pairwise_zic_vs_kaplan"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC', 'Kaplan', 'Kaplan', 'Kaplan', 'Kaplan']
+  seller_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC', 'Kaplan', 'Kaplan', 'Kaplan', 'Kaplan']

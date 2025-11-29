@@ -1,0 +1,9 @@
+# @package _global_
+# Pairwise: GD vs Lin
+experiment:
+  name: "pairwise_gd_vs_lin"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['GD', 'GD', 'GD', 'GD', 'Lin', 'Lin', 'Lin', 'Lin']
+  seller_types: ['GD', 'GD', 'GD', 'GD', 'Lin', 'Lin', 'Lin', 'Lin']

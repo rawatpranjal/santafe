@@ -4,7 +4,7 @@
 # This enables true multiprocessing for faster training on multi-core CPUs.
 
 # Number of parallel environments
-n_envs: 16  # As specified in plan.md (Task 3.3)
+n_envs: 64  # 2x for more diverse scenarios per update
 
 # Multiprocessing start method
 # - "fork": Fast startup, not thread-safe (Linux default, avoid with PyTorch)

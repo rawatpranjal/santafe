@@ -1,0 +1,53 @@
+\section{The Tournament Environment and Metrics}
+\label{app:tournament}
+
+This appendix provides the exact specifications of the "Synchronized Double Auction" environment used in our experiments, replicating the design of the 1990 Santa Fe Tournament as documented by \citet{rust1994}, along with the formal definitions of the performance metrics used to evaluate agent behavior.
+
+\subsection{Market Mechanism}
+
+The market operates as a discrete-time, synchronized double auction. A trading period consists of a fixed number of time steps, $T_{max}$. Each time step is subdivided into two distinct phases: the \textit{Bid/Ask Phase} and the \textit{Buy/Sell Phase}.
+
+\subsubsection{Phase 1: Bid/Ask (Quote Submission)}
+At the beginning of each step $t$, all active agents (those with remaining inventory and valid valuations) simultaneously submit a quote. Buyers may submit a Bid $b_{i,t}$, sellers may submit an Ask $a_{j,t}$, and agents may also choose to ``Pass'' (submit no quote). The market engine collects all quotes. A valid Bid must be strictly greater than the current standing Best Bid ($b_{best}$) to gain priority, or equal to it to join the queue (though for simplification in this study, we often enforce strict improvement to prevent queue spamming). Similarly, a valid Ask must be strictly lower than the current Best Ask ($a_{best}$).
+
+The winning quotes for the step are determined as follows: the new Best Bid $b^*_{t}$ is the maximum of all submitted bids and the previous standing bid, and the new Best Ask $a^*_{t}$ is the minimum of all submitted asks and the previous standing ask. Only the agents holding these Best Quotes are eligible to trade in the next phase. This is known as the AURORA Rule, named after the Chicago Board of Trade's electronic system, which privileges the current market makers.
+
+\subsubsection{Phase 2: Buy/Sell (Transaction Execution)}
+Once the Best Bid $b^*$ and Best Ask $a^*$ are established, the holders of these quotes enter a binding phase. The current Best Bidder decides whether to buy at the current Best Ask $a^*$, and the current Best Asker decides whether to sell at the current Best Bid $b^*$. If the spread crosses (i.e., $b^* \ge a^*$) due to the updates in Phase 1, a transaction occurs automatically at the midpoint price $P = (b^* + a^*) / 2$. If the spread is open ($b^* < a^*$), a transaction occurs only if one agent explicitly accepts the other's quote. 
+
+Upon a transaction, the Buyer receives a profit of $(V_i - P)$, the Seller receives a profit of $(P - C_j)$, and both agents decrement their inventory. If an agent's inventory reaches zero, they become inactive for the remainder of the period. The standing Best Bid and Best Ask are cleared (reset to null), and the market requires new liquidity in step $t+1$.
+
+\subsection{Token Generation}
+To ensure statistical robustness, valuations and costs are generated using the ``SFI'' distribution parameters. For each period, we generate a set of buyer valuations $\{v_1, \dots, v_n\}$ and seller costs $\{c_1, \dots, c_m\}$. Values are not static across periods; a random walk parameter shifts the aggregate demand and supply curves up or down, simulating market shocks. Unless specified otherwise (e.g., for asymmetric stress tests), the supply and demand curves are generated to be roughly symmetric, ensuring a theoretical equilibrium price $P_{eq}$ and quantity $Q_{eq}$ exist.
+
+\subsection{Performance Metrics}
+
+We employ a suite of metrics to dissect agent performance beyond simple profitability. Table \ref{tab:metrics} summarizes the key performance metrics used throughout this study.
+
+\begin{table}[h]
+\centering
+\caption{Performance Metrics Definitions}
+\label{tab:metrics}
+\begin{tabular}{ll}
+\toprule
+Metric & Definition \\
+\midrule
+Allocative Efficiency ($E$) & $\frac{\sum_{i \in \text{Traders}} \text{Realized Profit}_i}{\text{Theoretical Maximum Surplus}} \times 100$ \\
+Profit Share ($\text{Share}_A$) & $\frac{\bar{\pi}_A}{\bar{\pi}_A + \bar{\pi}_B}$ \\
+Implicit Markup (Bid) & $m_{bid} = \frac{V_i - b_{i,t}}{V_i}$ \\
+Implicit Markup (Ask) & $m_{ask} = \frac{a_{j,t} - C_j}{C_j}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Allocative Efficiency}
+The primary measure of market quality is the percentage of the maximum possible surplus that was actually realized by the traders, formally defined in Table \ref{tab:metrics}. The Theoretical Maximum Surplus is the area between the supply and demand curves up to the equilibrium quantity $Q_{eq}$.
+
+\subsubsection{Inefficiency Decomposition}
+Following \citet{cason1996}, we decompose the lost surplus ($100 - E$) into two components to diagnose failure modes. V-Inefficiency (Volume Inefficiency) represents the loss of surplus resulting from beneficial trades that failed to occur. This is calculated as the sum of the potential surplus of all intra-marginal units that remained untraded at the end of the period. High V-Inefficiency indicates a liquidity freeze or coordination failure (e.g., the Kaplan deadlock). EM-Inefficiency (Extra-Marginal Inefficiency) represents the loss of surplus resulting from trades that should not have occurred (e.g., a buyer paying more than equilibrium price to a high-cost seller). This represents misallocation of resources. High EM-Inefficiency is characteristic of Zero-Intelligence behavior.
+
+\subsubsection{Profit Share and Wealth Transfer}
+To measure the relative dominance of an agent type $A$ against opponents $B$, we calculate the normalized profit share as defined in Table \ref{tab:metrics}. In the Intelligence Premium analysis, we also calculate the Wealth Transfer, defined as the difference between the actual profit of the superior agent and the profit they would have achieved in a homogeneous market of their own type.
+
+\subsubsection{Implicit Markup}
+To link behavior to the theory of \citet{zhan2007}, we calculate the implicit markup for every bid and ask submitted by an agent using the formulas in Table \ref{tab:metrics}. We track the average markup $\bar{m}$ over the course of the trading period. A declining markup curve ($m \to 0$ as $t \to T_{max}$) is the signature of a sniping strategy, while a constant positive markup suggests a market power strategy.

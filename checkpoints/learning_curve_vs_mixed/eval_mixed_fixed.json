@@ -1,0 +1,36 @@
+{
+  "timestamp": "2025-11-24T19:39:43.046907",
+  "checkpoint_dir": "./checkpoints/learning_curve_vs_mixed",
+  "opponent_type": "Mixed",
+  "episodes_per_eval": 30,
+  "results": {
+    "ppo_1000k": {
+      "avg_profit": 0.5,
+      "std_profit": 1.1474609652039003,
+      "avg_efficiency": 0.3462593379466932,
+      "avg_trades": 0.6333333333333333,
+      "num_episodes": 30
+    },
+    "ppo_100k": {
+      "avg_profit": 0.36666666666666664,
+      "std_profit": 0.7951240294584374,
+      "avg_efficiency": 0.2786445299041207,
+      "avg_trades": 0.4666666666666667,
+      "num_episodes": 30
+    },
+    "ppo_500k": {
+      "avg_profit": 0.43333333333333335,
+      "std_profit": 1.358512258154322,
+      "avg_efficiency": 0.1816050169732216,
+      "avg_trades": 0.5,
+      "num_episodes": 30
+    },
+    "ppo_final": {
+      "avg_profit": 0.16666666666666666,
+      "std_profit": 0.5821416398857662,
+      "avg_efficiency": 0.25023895859441053,
+      "avg_trades": 0.4,
+      "num_episodes": 30
+    }
+  }
+}

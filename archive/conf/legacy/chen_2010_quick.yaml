@@ -1,0 +1,40 @@
+# @package _global_
+# Chen et al. (2010) Replication - QUICK TEST (10% scale)
+# For validation before running full experiment
+#
+# Run using: python scripts/run_chen_experiment.py --matchups 30 --days 700
+
+experiment:
+  name: "chen_2010_quick"
+  description: "Quick Chen et al. (2010) test at 10% scale"
+
+  # Scaled parameters (10% of full)
+  num_matchups: 30        # 30 match-ups (vs 300)
+  num_days: 700           # 700 trading days (vs 7,000)
+  steps_per_day: 25       # Same as full
+  # Total: 30 × 700 × 25 = 525K time steps (minutes to run)
+
+# Market parameters (same as full)
+market:
+  num_buyers: 4
+  num_sellers: 4
+  num_tokens: 4
+  price_min: 0
+  price_max: 100
+
+# Strategy pool (same as full)
+agents:
+  strategy_pool:
+    - "ZIC"
+    - "Kaplan"
+    - "GD"
+    - "ZIP"
+    - "EL"
+    - "Lin"
+    - "Jacobson"
+    - "Perry"
+
+# Reproducibility
+seeds:
+  matchup_seed: 42
+  auction_seed: 123

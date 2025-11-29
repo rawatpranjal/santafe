@@ -1,0 +1,9 @@
+# @package _global_
+# Pairwise: Kaplan vs GD
+experiment:
+  name: "pairwise_kaplan_vs_gd"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'GD', 'GD', 'GD', 'GD']
+  seller_types: ['Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'GD', 'GD', 'GD', 'GD']

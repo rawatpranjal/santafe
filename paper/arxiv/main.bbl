@@ -1,0 +1,119 @@
+\begin{thebibliography}{18}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Cason and Friedman(1996)]{cason1996}
+Timothy~N Cason and Daniel Friedman.
+\newblock Price formation in double auction markets.
+\newblock \emph{Journal of Economic Dynamics and Control}, 20\penalty0
+  (8):\penalty0 1307--1337, 1996.
+
+\bibitem[Chamberlin(1948)]{chamberlin1948}
+Edward~H Chamberlin.
+\newblock An experimental imperfect market.
+\newblock \emph{Journal of Political Economy}, 56\penalty0 (2):\penalty0
+  95--108, 1948.
+
+\bibitem[Chen and Tai(2010)]{chen2010}
+Shu-Heng Chen and Chung-Ching Tai.
+\newblock The agent-based double auction markets: 15 years on.
+\newblock In \emph{Simulating Interacting Agents and Social Phenomena}, pages
+  119--136. Springer, 2010.
+
+\bibitem[Chen and Yu(2011)]{chen2011}
+Shu-Heng Chen and Tina Yu.
+\newblock Agents learned, but do we? knowledge discovery using the agent-based
+  double auction markets.
+\newblock \emph{Frontiers of Electrical and Electronic Engineering in China},
+  6\penalty0 (1):\penalty0 159--170, 2011.
+
+\bibitem[Cliff and Bruten(1997)]{cliff1997}
+Dave Cliff and Janet Bruten.
+\newblock Zero is not enough: On the lower limit of agent intelligence for
+  continuous double auction markets.
+\newblock Technical Report HPL-97-141, Hewlett-Packard Labs, 1997.
+
+\bibitem[Easley and Ledyard(1993)]{easley1993}
+David Easley and John~O Ledyard.
+\newblock Theories of price formation and exchange in double oral auctions.
+\newblock In \emph{The Double Auction Market: Institutions, Theories, and
+  Evidence}, pages 63--97. Addison-Wesley, 1993.
+
+\bibitem[Friedman(1991)]{friedman1991}
+Daniel Friedman.
+\newblock A simple testable model of double auction markets.
+\newblock \emph{Journal of Economic Behavior \& Organization}, 15\penalty0
+  (1):\penalty0 47--70, 1991.
+
+\bibitem[Gjerstad and Dickhaut(1998)]{gjerstad1998}
+Steven Gjerstad and John Dickhaut.
+\newblock Price formation in double auctions.
+\newblock \emph{Games and Economic Behavior}, 22\penalty0 (1):\penalty0 1--29,
+  1998.
+
+\bibitem[Gode and Sunder(1993)]{gode1993}
+Dhananjay~K Gode and Shyam Sunder.
+\newblock Allocative efficiency of markets with zero-intelligence traders:
+  Market as a partial substitute for individual rationality.
+\newblock \emph{Journal of political economy}, 101\penalty0 (1):\penalty0
+  119--137, 1993.
+
+\bibitem[Hayek(1945)]{hayek1945}
+Friedrich~A Hayek.
+\newblock The use of knowledge in society.
+\newblock \emph{The American economic review}, 35\penalty0 (4):\penalty0
+  519--530, 1945.
+
+\bibitem[Kaplan(1993)]{kaplan1993}
+Todd~R Kaplan.
+\newblock A trading strategy for auction markets.
+\newblock \emph{Santa Fe Institute Double Auction Tournament}, 1993.
+\newblock Winner of the Santa Fe Institute Double Auction Tournament.
+
+\bibitem[Rust et~al.(1993)Rust, Miller, and Palmer]{rust1993}
+John Rust, John~H Miller, and Richard Palmer.
+\newblock Behavior of trading automata in a computerized double auction market.
+\newblock \emph{The Double Auction Market: Institutions, Theories, and
+  Evidence}, pages 155--198, 1993.
+
+\bibitem[Rust et~al.(1994)Rust, Miller, and Palmer]{rust1994}
+John Rust, John~H Miller, and Richard Palmer.
+\newblock Characterizing effective trading strategies: Insights from a
+  computerized double auction tournament.
+\newblock \emph{Journal of Economic Dynamics and Control}, 18\penalty0
+  (1):\penalty0 61--96, 1994.
+
+\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and
+  Klimov]{schulman2017}
+John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov.
+\newblock Proximal policy optimization algorithms.
+\newblock \emph{arXiv preprint arXiv:1707.06347}, 2017.
+
+\bibitem[Smith(1962)]{smith1962}
+Vernon~L Smith.
+\newblock An experimental study of competitive market behavior.
+\newblock \emph{Journal of Political Economy}, 70\penalty0 (2):\penalty0
+  111--137, 1962.
+
+\bibitem[Tesauro and Das(2001)]{tesauro2001}
+Gerald Tesauro and Rajarshi Das.
+\newblock High-performance bidding agents for the continuous double auction.
+\newblock In \emph{Proceedings of the 3rd ACM conference on Electronic
+  Commerce}, pages 206--209, 2001.
+
+\bibitem[Wilson(1987)]{wilson1987}
+Robert Wilson.
+\newblock Equilibrium in bid-ask markets.
+\newblock In \emph{Arrow and the ascent of economic theory: Essays in honor of
+  Kenneth J. Arrow}, pages 375--414. Macmillan London, 1987.
+
+\bibitem[Zhan and Friedman(2007)]{zhan2007}
+Wei Zhan and Daniel Friedman.
+\newblock Inferring traders' intelligence via price time series.
+\newblock \emph{Computational Economics}, 30\penalty0 (2):\penalty0 81--99,
+  2007.
+
+\end{thebibliography}

@@ -1,0 +1,71 @@
+We consider a synchronized double auction market populated by $N$ agents, indexed by $i \in \{1, \dots, N\}$. The market operates in discrete time steps $t = 1, \dots, T$ within a trading period. Each agent is endowed with a set of tokens, where buyers have private redemption values $v_{i,k}$ for the $k$-th unit, and sellers have private costs $c_{j,k}$.
+
+The market state at time $t$ is defined by the limit order book, consisting of a set of outstanding bids $B_t = \{b_1, b_2, \dots\}$ and asks $A_t = \{a_1, a_2, \dots\}$. We denote the best (highest) bid as $b^*_t = \max B_t$ and the best (lowest) ask as $a^*_t = \min A_t$. The bid-ask spread is defined as $s_t = a^*_t - b^*_t$.
+
+Following the specific rules of the Santa Fe Tournament \cite{rust1994}, the market proceeds in a synchronized two-phase step. In the Signaling Phase, all agents simultaneously observe the current book $(b^*_t, a^*_t)$ and may submit a new limit order. A buyer $i$ may submit a bid $b_{i,t} > b^*_t$ (improving the best bid) or $b_{i,t} = b^*_t$ (matching). Similarly, a seller $j$ may submit an ask $a_{j,t} < a^*_t$ or $a_{j,t} = a^*_t$. In the Clearing Phase, if the new orders cross (i.e., $b_{i,t} \ge a_{j,t}$), a transaction occurs immediately. The transaction price $p_t$ is determined by the standing order rule. In the Taking Phase, if no crossing occurs, agents are given a second opportunity to ``take'' the liquidity currently on the book. A buyer may accept $a^*_t$, or a seller may accept $b^*_t$.
+
+\subsection{Experimental Environments}
+
+Each experimental environment is a complete specification of market parameters. The number of buyers and sellers (up to 20 each) determines market structure. Each trader receives up to 4 tokens per period, with private values generated according to a gametype parameter that encodes four uniform random variable ranges using a base-3 coding scheme. The duration parameters specify rounds (up to 20), periods per round (up to 5), and time steps per period (up to 400). All programs receive common knowledge of these settings except gametype, which remains private.
+
+Table~\ref{tab:environments} presents the ten canonical environments from the 1993 Santa Fe Tournament. These configurations systematically vary market structure, time pressure, and token endowments to stress-test trading algorithms across diverse conditions.
+
+\begin{table}[h]
+\centering
+\caption{Santa Fe Tournament Environments}
+\label{tab:environments}
+\begin{tabular}{llll}
+\toprule
+\textbf{Env} & \textbf{Description} & \textbf{Key Variation} & \textbf{gametype} \\
+\midrule
+BASE & Standard & 4B/4S, 4 tokens, 3 periods, 75 steps & 6453 \\
+BBBS & Buyer-dominated & 6 buyers, 2 sellers & 6453 \\
+BSSS & Seller-dominated & 2 buyers, 6 sellers & 6453 \\
+EQL & Equal endowment & Symmetric token values & 0 \\
+RAN & Random & IID uniform draws & 6453 \\
+PER & Single period & 1 period per round & 6453 \\
+SHRT & High pressure & 25 steps per period & 6453 \\
+TOK & Single token & 1 token per trader & 6453 \\
+SML & Small market & 2 buyers, 2 sellers & 0007 \\
+LAD & Low adaptivity & Same as BASE & 6453 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Outcome Metrics}
+
+We construct the demand schedule $D(q)$ by ordering all buyer valuations $v_{ik}$ in descending order, and the supply schedule $S(q)$ by ordering all seller costs $c_{jk}$ in ascending order. The equilibrium quantity is $Q^* = \max\{q : D(q) > S(q)\}$, and the equilibrium price lies in the interval $S(Q^*) \leq P^* \leq D(Q^*)$, typically computed as the midpoint $P^* = (D(Q^*) + S(Q^*))/2$. The maximum theoretical surplus is $TS^* = \sum_{q=1}^{Q^*}(D(q) - S(q))$.
+
+\subsubsection{Market Efficiency}
+
+Allocative efficiency measures the percentage of maximum possible surplus realized:
+\begin{equation}
+E = \frac{\sum_{t=1}^{T}(v_t - c_t)}{TS^*} \times 100
+\end{equation}
+where $v_t$ and $c_t$ are the redemption value and cost of units exchanged at trade $t$. Efficiency loss decomposes into V-inefficiency (intra-marginal loss from untraded profitable units) and EM-inefficiency (extra-marginal loss from trades that should not have occurred):
+\begin{equation}
+IM = \sum_{q \in \text{Untraded Intra-marginal}}(D(q) - S(q)), \quad EM = \sum_{t \in \text{Extra-marginal}}(c_t - v_t)
+\end{equation}
+
+\subsubsection{Price Convergence}
+
+Root mean squared deviation measures distance from equilibrium:
+\begin{equation}
+RMSD = \sqrt{\frac{1}{T}\sum_{t=1}^{T}(p_t - P^*)^2}
+\end{equation}
+Smith's coefficient of convergence normalizes by equilibrium price: $\alpha = 100 \cdot RMSD / P^*$. Price volatility measures dispersion around the mean transaction price:
+\begin{equation}
+\text{Volatility} = \frac{\sigma_p}{\bar{p}} \times 100, \quad \text{where } \sigma_p = \sqrt{\frac{1}{T}\sum_{t=1}^{T}(p_t - \bar{p})^2}
+\end{equation}
+
+\subsubsection{Trader Performance}
+
+Individual profit for buyers is $\pi_i = \sum_{k}(v_{ik} - p_k)$ and for sellers is $\pi_j = \sum_{k}(p_k - c_{jk})$. Equilibrium profit represents the theoretical profit if all trades occurred at $P^*$:
+\begin{equation}
+\pi_i^* = \sum_{k : v_{ik} > P^*}(v_{ik} - P^*) \text{ (buyers)}, \quad \pi_j^* = \sum_{k : c_{jk} < P^*}(P^* - c_{jk}) \text{ (sellers)}
+\end{equation}
+The individual efficiency ratio $E_i = \pi_i / \pi_i^*$ measures whether a trader captures more ($E_i > 1$) or less ($E_i < 1$) than their equilibrium share. Profit dispersion measures cross-agent inequality:
+\begin{equation}
+PD = \sqrt{\frac{1}{N}\sum_{i=1}^{N}(\pi_i - \pi_i^*)^2}
+\end{equation}
+Lower dispersion indicates more equitable surplus allocation.

@@ -1,97 +1,66 @@
-# Project Tracker: Santa Fe v2.0
+# Development Tracker
 
-**Objective:** Revisit the 1993 Santa Fe Tournament with modern AI.
-**Objective:** Revisit the 1993 Santa Fe Tournament with modern AI.
-**Master Plan:** [plan.md](./plan.md)
+## 2025-11-29
 
----
+### Part 4 (LLM) Prompt Engineering Fixes
 
-## 📣 Commander's Intent (Final Guidance)
-1.  **Worker:** Do not over-engineer. Match the Java logic simply and efficiently. Speed matters for RL.
-2.  **Validator:** Zero tolerance for deviation in "Trace Replay". 1 cent difference = FAIL.
-3.  **Protocol:** Update this board immediately after finishing a task. Keep the loop tight.
+Fixed three issues in `traders/llm/prompt_builder.py`:
+1. **Separated system prompts**: bid/ask stage never mentions "accept", buy/sell never mentions "bid"
+2. **Added valid range**: Shows explicit `VALID BID RANGE: X to Y` in prompts
+3. **Added step-by-step reasoning**: "THINK STEP BY STEP before deciding"
 
----
+**Results Comparison (GPT-3.5, 3 episodes):**
+| Version | Ratio vs ZIC | Improvement |
+|---------|-------------|-------------|
+| Original | 0.44x | baseline |
+| v3 (fixes) | 0.59x | +34% |
 
-## 📋 Kanban Board
+Still getting "accept" errors during bid/ask stage - GPT-3.5 limitation.
 
-### 🔴 Blocked / Waiting
-- None
+### Part 4 (LLM) Quick Validation (earlier)
 
-### 🟡 In Progress
-- **Phase 1: The Core Engine**
-    - [ ] Task 1.2: Market Step (AURORA Rules)
+- Ran GPT-3.5-turbo validation: 3 episodes vs mixed opponents (ZIC, Kaplan, GD, Lin)
+- **Results**: Profit 1.00±1.41, Trades 1.67, Efficiency 77.4%, Ratio 0.44x vs ZIC
+- GPT-3.5 struggles with AURORA constraints: invalid bids, wrong action types
+- Infrastructure validated: `scripts/eval_llm_vs_mixed.py` works with `key.txt`
+- Updated `checklists/results.md` with Part 4 validation section
+- **Next**: Test GPT-4o-mini which should follow instructions better
 
-### 🔵 To Do (Next Up)
-- **Phase 1: The Core Engine**
-    - [ ] Task 1.3: Trace Replay Verification (Gate 1)
-- **Phase 2: Legacy Agents**
-    - [ ] Task 2.1: Agent Interface
-    - [ ] Task 2.2: Implement ZIC & Kaplan
-    - [ ] Task 2.3: Validation Experiments (Milestones 1 & 2)
+## 2024-11-28
 
-### 🟢 Done
-- [x] **Phase 0.0: Planning**
-    - [x] Refine Master Plan (`plan.md`)
-    - [x] Create Backup of v1.0
-    - [x] Create v2.0 Branch
-- [x] **Phase 0: The Scaffold** ✅ PASSED VALIDATION (2025-11-21)
-    - [x] Task 0.1: Repo Initialization (uv, folder structure)
-    - [x] Task 0.2: Quality Gates (pre-commit, mypy, pytest)
-    - [x] Task 0.3: Config Schema (Hydra)
-    - [x] **REMEDIATION COMPLETE**:
-        - [x] FIX-0.1a: uv v0.9.11 installed
-        - [x] FIX-0.1b: v1.0 traders archived to `oldcode/v1_traders/`
-        - [x] FIX-0.1c: Dependencies installed (torch, numpy, pytest, etc.)
-        - [x] FIX-0.2: `.pre-commit-config.yaml` created
-        - [x] FIX-0.3: `conf/config.yaml` + experiment configs created
-        - [x] FIX-0.4: Test suite operational (37 passed)
-- [x] **Phase 1: The Core Engine** (IN PROGRESS)
-    - [x] Task 1.1: Order Book Logic & Tests ✅ COMPLETE (2025-11-21 16:30)
+### PPO Agent Fix - Three-Pronged Approach (later)
 
----
+- **Fixed action space**: 9→15 actions with spread-relative and valuation-based strategies
+  - Actions: Pass, Accept, Improve(1/5/10/25%), Midpoint, Shade(2/5/10/20/30%), Truthful, JumpBest, Snipe
+  - Updated `envs/enhanced_double_auction_env.py`: `_map_action_to_price()`, `_get_action_mask()`
+  - Synced `traders/rl/ppo_agent.py` with matching logic
+- **Fixed exploration**: Added `EntropyScheduleCallback` (0.1→0.01 linear decay over training)
+  - Modified `scripts/train_ppo.py` with callback
+  - Updated `conf/rl/ppo.yaml`: ent_coef=0.1 initial
+- **Fixed token generation**: Switched to `UniformTokenGenerator` for proper [0-100] valuations
+  - Previous issue: `TokenGenerator(1111)` produced values 0-8, causing irrational bids
+- **Training results** (200k steps, 32 parallel envs, ~3 min):
+  - PPO profit: 61.50 avg (1.27x baseline)
+  - Trades/episode: 2.0
+  - Action distribution: Shade5% (54%), Shade20% (28%) - diverse, learned strategy
+  - Previously: profit=-1747, stuck on midpoint action
 
-## 📝 Daily Log (Reverse Chronological)
+### Part 3 (PPO) Code Review & Manual Test
 
-### 2025-11-21 (Day 1)
-- **16:30 [WORKER]**: ✅ **TASK 1.1 COMPLETE: Order Book Logic & Tests**
-    - **Created:** `engine/orderbook.py` (450 lines, 1:1 port of PeriodHistory.java)
-    - **Created:** `tests/test_orderbook.py` (417 lines, 24 test cases)
-    - **Test Results:** 24/24 PASS (100% pass rate)
-    - **Type Safety:** mypy strict mode PASS
-    - **Features Implemented:**
-        - Bid/ask validation (AURORA improvement rules)
-        - Winner determination with random tie-breaking
-        - Trade execution (Chicago Rules: both accept → 50/50 random)
-        - Order carryover (standing orders persist if no trade)
-        - DATManual.pdf example test (worked scenario verification)
-    - **Protocol Note:** Task started early without tracker update - lesson learned
-    - **Status:** Ready for Task 1.2 (Market Step)
-- **16:15 [VALIDATOR]**: ℹ️ **RE-VALIDATION REPORT**
-    - Investigated perceived "regression" in Phase 0
-    - **Finding:** FALSE ALARM - No regression occurred
-    - **Root Cause:** Dual venv problem (shell using old `venv/`, uv installed to `.venv/`)
-    - **Resolution:** Dependencies ARE installed (87 packages in `.venv/`)
-    - **Action Taken:** Switched to `.venv/`, installed pre-commit hooks
-    - **Phase 0 Status:** 100% COMPLETE
-- **15:50 [VALIDATOR]**: ✅ **PHASE 0 PASSED VALIDATION**
-    - All 6 remediation tasks completed successfully
-    - `uv` v0.9.11 installed and operational
-    - `.pre-commit-config.yaml` created with ruff, black, mypy (strict mode)
-    - `conf/config.yaml` + Hydra experiment configs created
-    - `traders/` clean, v1.0 code archived to `oldcode/v1_traders/`
-    - Test suite runs: **37 passed, 7 failed (v1.0 API issues), 1 skipped**
-    - **Gate Status:** ✅ OPEN. Worker cleared to begin Phase 1 (Core Engine)
-- **15:15 [VALIDATOR]**: ⛔ **PHASE 0 FAILED VALIDATION**
-    - **uv NOT INSTALLED** on system (critical blocker)
-    - `.pre-commit-config.yaml` MISSING (Task 0.2 = 0% complete)
-    - `conf/` directory MISSING (Task 0.3 = 0% complete)
-    - `engine/` and `envs/` are empty (only `__init__.py`)
-    - `traders/` polluted with 23 v1.0 legacy files (should be clean for v2.0)
-    - Test suite has 3 import errors (cannot run validation)
-    - **Gate Status:** BLOCKED. Created 6 remediation tasks (FIX-0.1a through FIX-0.4)
-    - **Action Required:** Worker must complete ALL fix tasks before Phase 1 can begin
-- **14:20**: Finalized `plan.md` with modern MLOps stack (uv, Hydra, W&B) and granular TDD tasks.
-- **14:05**: Created `v1.0` backup (branch & tag) and switched to `v2.0` for development.
-- **13:25**: Fixed repo health (committed docs, gitignored large files).
-- **13:20**: Initialized v2.0 Refactor Project.
+- Reviewed `traders/rl/ppo_agent.py` (196 lines) - agent bridges SB3 model with tournament engine
+- Reviewed `envs/enhanced_features.py` (373 lines) - 31-dim observation generator
+- Verified 180+ checkpoints exist in `/checkpoints/` directories
+- Confirmed Market injects orderbook correctly (`market.py:119-122`)
+- **Issue found**: Models trained with 24-dim obs, current code produces 31-dim
+- **Issue found**: PPO bids irrationally (action=5 � midpoint price ~500 vs valuations ~20)
+- Manual test: PPO profit=-1747, ZIC profit=+1750 (PPO exploited by rational ZIC)
+- Documented blockers in `checklists/results.md` Part 3 section
+- PPO experiments blocked until observation compatibility and rationality constraints fixed
+
+### Paper LaTeX Updates (earlier)
+
+- Split method section into `04a_market.tex` and `04b_traders.tex`
+- Consolidated all 11 trader descriptions into `04b_traders.tex`
+- Transposed 5 environment tables from 10 columns to 3 columns
+- Fixed table positioning with `[H]` specifier
+- Reduced paper from 55 to 48 pages with better flow

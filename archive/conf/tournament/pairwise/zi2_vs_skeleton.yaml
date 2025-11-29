@@ -1,0 +1,9 @@
+# @package _global_
+# Pairwise: ZI2 vs Skeleton
+experiment:
+  name: "pairwise_zi2_vs_skeleton"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['ZI2', 'ZI2', 'ZI2', 'ZI2', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton']
+  seller_types: ['ZI2', 'ZI2', 'ZI2', 'ZI2', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton']

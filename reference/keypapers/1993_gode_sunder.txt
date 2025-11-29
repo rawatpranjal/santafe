@@ -1,0 +1,1321 @@
+Allocative Efficiency of Markets with Zero-Intelligence Traders: Market as a Partial
+Substitute for Individual Rationality
+Author(s): Dhananjay K. Gode and Shyam Sunder
+Source: Journal of Political Economy , Feb., 1993, Vol. 101, No. 1 (Feb., 1993), pp. 119137
+Published by: The University of Chicago Press
+Stable URL: https://www.jstor.org/stable/2138676
+JSTOR is a not-for-profit service that helps scholars, researchers, and students discover, use, and build upon a wide
+range of content in a trusted digital archive. We use information technology and tools to increase productivity and
+facilitate new forms of scholarship. For more information about JSTOR, please contact support@jstor.org.
+Your use of the JSTOR archive indicates your acceptance of the Terms & Conditions of Use, available at
+https://about.jstor.org/terms
+
+The University of Chicago Press is collaborating with JSTOR to digitize, preserve and extend
+access to Journal of Political Economy
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+Allocative Efficiency of Markets with
+Zero-intelligence Traders: Market as a Partial
+
+Substitute for Individual Rationality
+
+Dhananjay K. Gode and Shyam Sunder
+Carnegie Mellon University
+
+We report market experiments in which human traders are replaced
+by "zero-intelligence" programs that submit random bids and offers.
+Imposing a budget constraint (i.e., not permitting traders to sell
+below their costs or buy above their values) is sufficient to raise the
+allocative efficiency of these auctions close to 100 percent. Allocative
+efficiency of a double auction derives largely from its structure, independent of traders' motivation, intelligence, or learning. Adam
+Smith's invisible hand may be more powerful than some may have
+thought; it can generate aggregate rationality not only from individual rationality but also from individual irrationality.
+
+Becker (1962) proved that several basic features of economics such
+
+as downward-sloping demand functions and upward-sloping supply
+functions can be derived as market-level consequences of agents' random choice behavior subject to a budget constraint. He pointed out
+that "households may be irrational and yet markets quite rational"
+An earlier version of this paper, "Human and Artificially Intelligent Traders in
+Computer Double Auctions," was presented at the meetings of the Economic Science
+Association at Tucson, Arizona, on October 29, 1989. We have benefited from comments received at this meeting and at workshops at Santa Fe Institute, Yale University,
+University of Bonn, Kobe University, Indian Institute of Management at Ahmedabad,
+Universitat Pompeu Fabra, University of Minnesota, and Carnegie Mellon University.
+We also received helpful comments from Colin Camerer, Robyn Dawes, Stacey Jacobs,
+John Ledyard, Ramon Marimon, John Miller, Tom Palfrey, Charles Plott, Jose
+Scheinkman, Manjula Shyam, Vernon Smith, and an anonymous referee. Financial
+support for this research was provided by the Margaret and Richard M. Cyert Family
+Funds, the Deloitte & Touche Foundation, and the National Science Foundation under
+contract SES89-12552.
+[Journal of Political Economy, 1993, vol. 101, no. 1]
+K 1993 by The University of Chicago. All rights reserved. 0022-3808/93/0101-0003$01.50
+
+119
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+120
+
+JOURNAL
+
+OF
+
+POLITICAL
+
+ECONOMY
+
+(p. 8) and that we should not impute all observed irrationalities of
+individuals to markets or impute all rationality of markets to their
+participants.
+
+Smith (1962) presented evidence that Walrasian tatonnement, con-
+
+ducted by a central auctioneer, is not necessary for market outcomes
+to closely approximate economic equilibrium, even with a handful of
+traders. Smith modeled his simple classroom markets after the double
+auction of stock and commodity exchanges. These markets are decentralized systems in which each contract is binding. Such markets allowed the traders-mostly students motivated by money or course
+
+credit-to extract virtually 100 percent of the maximum exploitable
+(i.e., equilibrium) surplus. Equilibrium predictions of economic theory can accurately describe the outcomes of many trading inechanisms, not just Walrasian tatonnement, in a variety of environments
+(see Plott [1982] for a survey).
+Performance of an economy is the joint result of its institutional
+structure, market environment, and agent behavior. Institutional
+
+structure is defined by the rules that govern exchange, market environment by agents' tastes and endowments of information and resources, and agents' behavior by their trading strategy (see Smith
+1982). Standard economic theory is built on two specific assumptions:
+utility-maximizing behavior and the institution of Walrasian tatonnement. Becker showed that the market-level predictions of economic
+theory are consistent with individual behaviors more general than
+utility maximization, whereas Smith showed that such predictions are
+consistent with trading mechanisms more general than Walrasian tatonnement.
+
+This paper is an attempt to synthesize these seminal generalizations
+
+by Becker and Smith. Becker assumed that the supply and demand
+
+functions yield equilibrium results through the traditional tatonnement mechanism; Smith's subjects were motivated to seek trading
+profits. We show that a double auction, a non-Walrasian market
+
+mechanism, can sustain high levels of allocative efficiency even if
+agents do not maximize or seek profits. In its first-order magnitude,
+allocative efficiency seems to be a characteristic of the market structure and the environment; rationality of individual traders accounts
+
+for a relatively small fraction (second- or third-order magnitude) of
+the efficiency.
+It is not possible to control the trading behavior of individuals.
+
+Human traders differ in their expectations, attitudes toward risk,
+preferences for money versus enjoyment of trading as a game, and
+
+many other respects. The problem of separating the joint effects of
+these variations, unobservable to the researcher, can be mitigated by
+studying market outcomes with participants who follow specified
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+ALLOCATIVE
+
+EFFICIENCY
+
+121
+
+rules of behavior. We therefore replaced human traders by computer
+programs.
+
+To isolate the effect of market rules and agent behavior on market
+
+performance, we proceed in three steps. First, in Section I we select
+two types of market participants: profit-motivated human traders and
+
+"zero-intelligence" (ZI) machine traders.' Second, in Section II we
+observe the performance of a double auction with human traders
+
+and with ZI traders. In one set of ZI markets, the traders are subject
+to the budget constraint; in the second set of ZI markets, the budget
+constraint is absent. Third, in Sections III and IV we compare these
+
+observations to isolate the performance characteristics of the markets,
+which can be attributed to their structure. Section V contains a summary and some concluding remarks.
+
+I. Traders
+
+The performance of markets with human traders (graduate students
+
+of business) is compared to the performance of markets with machine
+traders. Each ZI trader generated random bids or offers (depending
+
+on whether it was a buyer or a seller) distributed independently,
+identically, and uniformly over the entire feasible range of trading
+prices from 1 to 200: [probability(bid = i) = 1/200; i = 1, 2, ... .
+
+200] and [probability(offer = j) = 1/200; j = 1, 2, . . , 200]. It
+has no intelligence, does not seek or maximize profits, and does not
+
+observe, remember, or learn. It seems appropriate to label it as a
+zero-intelligence trader.
+While human traders were unique, 12 identical ZI traders partici-
+
+pated in each market. Experiments were conducted at Carnegie Mellon's Laboratory for Market Design using Market-200 1 software,
+which permits both human and machine traders to operate in the
+same environment.
+
+II. Market Mechanism
+
+A double auction is a multilateral process in which buyers as well as
+sellers can freely enter limit orders (bids or asks) and accept asks or
+I These ZI traders are not intended as descriptive models of individual behavior.
+For strategic models of individual behavior, see Garcia (1980), Garcia and Zangwill
+(1981), and Wilson (1987); for nonstrategic models, see Easley and Ledyard (1992)
+and Friedman (1984, 1991); and for double-auction trading algorithms, see Rust,
+Palmer, and Miller (1992). In the sense that Friedman (1991) and Easley and Ledyard
+(1992) moved away from strategic modeling of individual behavior, the ZI model can
+be thought of as extending their idea to an extreme limit. See also Cason and Friedman
+(1992) for an empirical comparison of the predictions of the Wilson (1987) and Friedman (1991) models against the ZI benchmark.
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+122
+
+JOURNAL
+
+OF
+
+POLITICAL
+
+ECONOMY
+
+bids entered by others. We chose this mechanism for two reasons.
+First, major stock, commodity, currency, and many other markets are
+
+organized as double auctions. Second, laboratory double auctions
+with human traders are known to yield data that approximate the
+
+equilibrium predictions of economic theory in a variety of environments.
+
+In a double auction any buyer can enter a bid by stating his or her
+identity, unit price, and quantity. The same buyer or other buyers
+can subsequently raise the bid. Similarly, any seller can enter an ask by
+
+stating quantity and price. If bids and asks match or cross, a binding
+transaction occurs. Any buyer is free to accept the outstanding ask
+and any seller is free to accept the outstanding bid at any time to
+conclude a transaction.
+
+There are several variations of the double auction. We made three
+choices to simplify our implementation of the double auction. Each
+
+bid, ask, and transaction was valid for a single unit. A transaction
+canceled any unaccepted bids and offers. Finally, when a bid and ask
+crossed, the transaction price was equal to the earlier of the two.
+Each double auction consisted of 12 traders, equally divided into
+two groups: buyers and sellers. Smith's (1976) induced value mechanism was used to implement demand and supply in these markets.
+
+Each market was run for six periods of specified duration (4 minutes
+for human traders and 30 seconds for machine traders). We chose
+the duration of each period to allow sufficient time for trading. At
+the beginning of each period, each buyer was endowed with the right
+to buy one or more units of an unspecified commodity. The buyer
+
+was privately informed of the redemption value vi of each unit i, and
+the buyer's profit from buying this unit at price pi was given by vi -
+
+Pi. Redemption values vi, i = 1, 2, . . . , n, defined the individual
+
+buyer's demand function for the commodity. Since redemption values of each buyer were private, the market demand function was
+unknown to the buyers. At the beginning of each period, sellers were
+endowed with the right to sell one or more units of the commodity,
+c- being the cost of the ith unit to the seller. The seller's profit from
+
+selling the ith unit at price pi was Pi- ci. Sellers had no fixed costs
+and incurred costs only for units sold. The market supply function
+was unknown to the sellers. Every trader had to trade the ith unit
+before trading the (i + I)th unit.2 Points earned by human traders
+were included in the grading scheme for a credit course.
+Market rules impose a budget constraint on the participants by
+2 Double-auction markets with a single unit per trader also yield results similar to
+those reported here (see Gode and Sunder 1992b).
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+ALLOCATIVE
+
+EFFICIENCY
+
+123
+
+requiring traders to settle their accounts. As shown by Becker (1962),
+
+merely imposing a budget constraint on random agent behavior induces enough regularity in aggregate market behavior to yield downward-sloping demand and upward-sloping supply functions. To explore the consequences of the budget constraint or market discipline,
+we placed the ZI traders in two versions of the double auction.
+
+In the first version, ZI traders were subject to the budget constraint:
+if they generated a bid (to buy) above their redemption value or an
+
+offer (to sell) below their cost, such actions were considered invalid
+and were ignored by the market. In other words, the market forbade
+traders to buy or sell at a loss because then they would not have been
+able to settle their accounts. Therefore, the support of the distribu-
+
+tion that generated the uniform random bids was restricted between
+one and the redemption value of the bidder. Similarly, uniform distribution of random asks was restricted to the range between the seller's
+
+cost and 200. These markets are labeled "ZI with constraint" (ZI-C).
+In the second version, the ZI traders were freed from the market
+discipline. The budget constraint was removed and random bids and
+
+offers were permitted over the entire range (1-200) without regard
+to the buyers' redemption values and sellers' costs. Buyers and sellers
+were free to engage in money-losing transactions that they could not
+settle. This version of markets is labeled "ZI unconstrained" (ZI-U).
+The difference between the performance of the human markets
+and that of the ZI-C markets is attributable to systematic characteristics of human traders. If ZI-C traders can be considered to have zero
+rationality, this difference in performance would be a measure of the
+contribution of human rationality to market performance. On the
+other hand, the difference between the performance of markets that
+do impose a budget constraint on ZI traders and the performance of
+those that do not is attributable to the market discipline. Traders
+have no intelligence in either the ZI-U or the ZI-C market; the ZI-C
+market prevents the traders from engaging in transactions that they
+cannot settle. Consequently, we can attribute the differences in market outcomes to the discipline imposed by the double auction on
+traders.
+
+III. Market Parameters
+
+The demand and supply schedules are shown on the left side of
+
+figures 1-5, adjacent to the transaction price charts. The subjects
+received the same endowment of redemption values or costs for all
+
+the periods in a market. We chose the five sets of demand and supply
+schedules to yield a broad range of equilibrium prices (from 69 in
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+124 JOURNAL OF POLITICAL ECONOMY
+ZI Traders without Budget Constraint
+
+ZI Traders with Budget Constraint
+
+Human Traders
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+PERIODS
+
+FIG. 1.-Demand and supply functions and transaction price time se
+
+market 2 to 170 in market 4) and volumes (from 6 in market 3 to 24
+
+in market 1).3 In all cases a unique equilibrium price existed. In mar3The human trader sessions had an extra buyer in markets 1 and 2 and an extra
+
+seller in markets 3 and 4. As a result, the demand schedule for the human trader
+
+sessions of markets 1 and 2 and the supply schedules for the human trader sessi
+
+for markets 3 and 4 are slightly different from the supply schedules for the other
+sessions, as can be seen from figs. 1-4.
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+ALLOCATIVE
+
+EFFICIENCY
+
+125
+
+ZI Traders without Budget Constraint
+
+15 I-M 2h~l
+ZI Traders with Budget Constraint
+
+Human Traders
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+PERIODS
+
+FIG. 2.-Demand and supply functions and transaction price time series (market 2)
+
+ket 5, costs and redemption values of all the units of several buyers
+and sellers were placed just beyond the equilibrium point, making it
+difficult to attain 100 percent efficiency in the double auction.4
+4 We are grateful to Charles Plott for suggesting this design to us. Traders whose
+first units lie just beyond the margin are more likely to be able to displace some
+intramarginal units through aggressive trading in a double auction.
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+126 JOURNAL OF POLITICAL ECONOMY
+ZI Traders without Budget Constraint
+
+jI~#KZ0ASLI 1W
+ZI Traders with Budget Constraint
+
+Human Traders
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+PERIODS
+
+FIG. 3.-Demand and supply functions and transaction price time series (market 3)
+
+IV. Results
+Prices
+
+The first panel of figure 1 shows the transaction prices in market 1
+with ZI-U traders (figs. 2-5 provide similar charts for the other four
+markets). Prices in this market exhibit little systematic pattern and no
+tendency to converge toward any specific level. This price series is
+the consequence of random individual behavior in the absence of the
+
+market discipline.
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+ALLOCATIVE
+
+EFFICIENCY
+
+127
+
+ZI Traders without Budget Constraint
+
+ZI Traders with Budget Constraint
+
+X
+
+.1
+
+d
+
+..
+
+Human Traders
+
+I
+
+I
+
+IO.
+
+.
+
+__
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+PERIODS
+
+FIG. 4.-Demand and supply functions and transaction price time series (market 4)
+
+In contrast, the third panel of figure 1 shows the transaction prices
+
+for market 1 with human traders. After some initial adjustments,
+prices in human trader markets settle in the proximity of the equilibrium price (indicated by a solid horizontal line in all panels of fig. 1).
+These markets are characterized by the stability of price and volume.
+Both price and volume are close to the point of intersection of the
+supply and demand functions. This price series is the consequence
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+128
+
+JOURNAL
+
+OF
+
+POLITICAL
+
+ECONOMY
+
+ZI Traders without Budget Constraint
+
+ZI Traders with Budget Constraint
+
+l~~~~~~
+
+1
+
+:
+
+,
+
+'-
+
+*
+
+'
+
+-:
+
+Human Traders
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+PERIODS
+
+FIG. 5.-Demand and supply functions and transaction price time series (market 5)
+
+of subjecting profit-motivated, intelligent human traders to market
+discipline.
+
+The main question addressed in the article is, How much of the
+difference between the market outcomes with ZI-U traders and those
+
+with human traders is attributable to intelligence and profit motiva-
+
+tion, and how much is attributable to the market discipline (see panels
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+ALLOCATIVE
+
+EFFICIENCY
+
+129
+
+1 and 3 of figs. 1-5)? The middle panels of figures 1-5 show the
+time series of prices in markets 1-5 when they were populated by
+the ZI-C traders.
+
+Three features of the ZI-C price series should be noted. First, in
+contrast to the human trader data in panel 3 and as in the ZI-U
+
+trader data in panel 1, this series shows no signs of learning from
+period to period; the series from every period are statistically identical. This is to be expected because the ZI traders cannot remember
+or adapt. Second, the volatility of this price series is greater than the
+volatility of the price series from human markets, but less than the
+volatility of ZI-U markets. Imposing a budget constraint on ZI traders
+is sufficient to shift the market performance toward the human mar-
+
+ket performance. Third, the ZI-C price series, though more volatile
+than the human market price series, converges slowly toward equilibrium within each period. This can be confirmed from figure 6, which
+
+plots the root mean squared deviation of transaction prices from the
+equilibrium price averaged across the six periods of a market. Markets with ZI-U traders do not converge, markets with human traders
+
+converge quickly, and markets with ZI-C traders converge slowly to
+the equilibrium price. Regression of the root mean squared deviation
+on the transaction sequence number yields significantly negative
+
+slopes for the ZI-C markets but not for the ZI-U markets. By the end
+of a period, the price series in ZI-C trader markets converges to the
+
+equilibrium level almost as precisely as the price series from human
+trader markets does. The regression results for Z1-C are shown in
+table 1.
+
+Since the ZI traders have no memory of events within the current
+or the past periods, this convergence cannot be attributed to learning
+from market participation. Instead, the difference between the top
+
+and the middle panels of figures 1-5 is caused solely by the progressive narrowing of the opportunity sets of ZI-C traders. The left end
+of the market demand function represents units with higher redemption values. Expected values of the bids generated for these units by
+ZI-C traders are also higher. Therefore, these units are likely to be
+traded earlier than units further down the market demand function.
+As the higher-value units are traded, the upper end of the support
+of ZI-C bids shifts down. Similarly, as the lower-cost units are sold
+earlier in a period, the lower end of the support of ZI-C offers moves
+up.
+
+This means that the feasible range of transactions prices narrows
+as more units are traded. Though individual units may not be traded
+in the order in which they appear in the market demand and supply
+functions, there is a greater probability that the last transaction repre-
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+Market 1
+
+tO0,
+
+ZI-Unconstrained
+
+"1 ~ ~~~ s * * : l
+%^...%.f%%tZI-Constrained
+C1
+
+5
+
+tlD
+
+1
+
+20
+
+s
+
+-
+
+D
+
+S
+
+Market 2
+tO00
+
+C
+
+T
+
+15
+
+*
+
+S
+
+21)
+
+25
+
+Market 3
+tO00
+
+0-
+
+5
+
+ID
+
+iT
+
+20
+
+2
+
+% / Market 4
+
+C
+
+6
+
+i5
+
+D
+
+if
+
+20
+
+25
+
+D
+
+S
+
+Market 5
+
+tO0
+
+0
+
+6
+
+:X
+
+1iD
+
+FIG.
+
+is
+
+*
+
+20
+
+a
+
+*^
+
+5
+
+6.-Root
+
+36
+
+mean
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+squ
+
+ALLOCATIVE
+
+EFFICIENCY
+
+131
+
+TABLE 1
+REGRESSION RESULTS FOR ZI-C (Fig. 6)
+
+Market Beta (Standard Error) R2
+1
+
+-.64
+
+(.10)
+
+.60
+
+2
+
+-.61
+
+(.08)
+
+.66
+
+3
+
+-
+
+1.23
+
+(.60)
+
+4
+
+-
+
+3.59
+
+(.52)
+
+.41
+
+.79
+
+5
+
+-
+
+.83
+
+(.14)
+
+.65
+
+NOTE.-Root mean squared deviation equals the constant plus beta times the
+transaction sequence number.
+
+sents an exchange between the marginal buyer and the marginal
+
+seller.5 If the surplus associated with the marginal units is smaller,
+then the range of feasible transaction prices is also narrower, increasing the probability that the market prices will converge to the equilibrium price. If the marginal units involve a larger surplus, conver-
+
+gence will be correspondingly less precise. In either case, the
+
+convergence of transaction prices to the proximity of the theoretical
+equilibrium price in ZI-C markets is a consequence of the market
+discipline; traders' attempts to maximize their profits, or even their
+ability to remember or learn about events of the market, are not
+necessary for such convergence.
+
+Efficiency
+
+Following Smith (1962), one can define allocative efficiency of markets as the total profit actually earned by all the traders divided by
+
+the maximum total profit that could have been earned by all the
+traders (i.e., the sum of producer and consumer surplus). Figure 7
+and table 2 show the period-by-period efficiency of the five markets
+under the three modes of operation. The efficiency of markets with
+ZI-U traders is constant across periods (see the dotted line in fig. 7).
+
+Since the budget constraint is absent, the maximum possible number
+
+of units (equal to the lower of the total units sellers are allowed to
+
+sell and the total units the buyers are allowed to buy) is always traded.
+5The Spearman rank correlation between the actual and the efficient order of sur-
+
+plus extracted is, on average, highest for ZI-C traders (.74), lowest for ZL-U traders
+(.42), and in between the two for human traders (.52). The correlation for ZL-U traders
+(arising out of the rule that higher-value/lower-cost units of a given trader must be
+traded first) can be thought of as the baseline correlation for these markets. Higher
+correlations for ZI-C markets suggest that a greater part of their efficiency may be
+attributable to the statistical consequences of market rules. Human traders, acting
+strategically, may be able to extract the same surplus in spite of a lower correlation
+between the actual and the efficient order of trading.
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+132
+
+JOURNAL
+
+OF
+
+POLITICAL
+
+ECONOMY
+
+- ---- ZI-U - z-- ZI-C Human
+Market
+
+1
+
+10
+
+1
+
+1
+
+95
+
+Market
+
+2
+
+105
+
+Market
+
+10
+
+-%
+
+10
+
+95
+
+95
+
+90........
+
+90
+
+3
+
+Market
+
+105
+
+1
+
+........
+
+4
+
+Market
+
+0
+
+10|
+
+95
+
+95
+
+90
+
+90
+
+90
+
+85
+
+85
+
+85
+
+85
+
+85
+
+80
+
+80
+
+80
+
+80
+
+80
+
+751
+
+75
+
+.
+
+.
+
+7
+
+775.
+
+5
+
+105
+
+.75
+
+.
+
+.
+
+FIG. 7.-Periodwise efficiency (percentage of total surplus extracted) of five markets.
+In contrast to human markets, the efficiency of the ZI-U and ZI-C markets in each
+period is an independently and identically distributed random variable with no change
+across periods since these traders do not learn.
+
+Not only is the total positive surplus extracted, but the maximum
+possible negative surplus is also extracted. Negative surplus is extracted because extramarginal units are traded at a loss. Therefore,
+the efficiency of these markets depends on the shape of the demand
+
+and supply functions to the left as well as to the right of the equilibrium point.6 As can be seen in table 2, this baseline efficiency was
+chosen to lie in the range of 48.8 percent (for market 4) to 90 percent
+(for markets 1 and 2). When one allows the demand and supply
+functions to extend far enough to the right of the equilibrium point,
+it is possible to lower this efficiency without limit (including negative
+levels).
+
+The efficiency of human markets is 100 percent in most periods,
+
+with an occasional shortfall of a few percentage points in all markets
+
+except market 5 (see the solid line in fig. 7). In most of these markets,
+6 Gode and Sunder (1992b) present results to explain why and how the shape of the
+demand and supply functions to the right of the equilibrium point affects the expected
+efficiency of double auctions.
+
+TABLE 2
+MEAN EFFICIENCY OF MARKETS IN FIGURE 7
+
+Traders Market 1 Market 2 Market 3 Market 4 Market 5
+ZI-U 90.0 90.0 76.7 48.8 86.0
+ZI-C 99.9 99.2 99.0 98.2 97.1
+Human 99.7 99.1 100.0 99.1 90.2
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+ALLOCATIVE
+
+EFFICIENCY
+
+133
+
+efficiency fell short of 100 percent in the first period and climbed to
+almost 100 percent in the later periods.7 The average efficiency across
+the 29 periods of the human markets 1-5 is 97.9 percent. This level
+of efficiency is consistent with other research into human double auc-
+
+tions. Human traders learn quickly (within one or two trading periods) and then stay virtually 100 percent efficient for the remaining
+
+periods. The efficiency of human markets is not sensitive to the baseline efficiency attained with ZI-U traders because profit-seeking human traders refuse to exchange extramarginal units at a loss.
+Surprisingly, the efficiency of ZI-C markets is hardly distinguishable from the efficiency of human markets (see the dashed line in fig.
+7). The market discipline seems to raise efficiency from the baseline
+
+level to the 96-100 percent range (average efficiency for the five
+
+markets is 98.7 percent). In the absence of these results, one might
+have attributed the high efficiency of the markets with human traders
+
+to their rationality, motivation, memory, or learning. Since our ZI
+traders, bereft of such faculties, exhibit comparable performance, the
+validity of such attribution is doubtful. Note that we do not wish to
+
+argue that the human traders behaved like our ZI traders in the
+market.8 Our point is that imposing market discipline on random,
+unintelligent behavior is sufficient to raise the efficiency from the
+baseline level to almost 100 percent in a double auction. The effect
+of human motivations and cognitive abilities has a second-order magnitude at best.
+
+Distribution of Profits across Individuals
+Figure 8 and table 3 show the cross-sectional root mean squared dif-
+
+ference between the actual profits and the equilibrium profits of individual traders.9 While there are no significant differences in the abilities of human and ZI-C traders to extract the total surplus in these
+double-auction markets, there are significant differences in the way
+this total surplus is distributed across the individual traders. The
+profit dispersion is greatest in the ZI-U markets (see the dotted line
+
+in fig. 8) and lowest in the human markets (see the solid line).'0 Profit
+7 In period 5 of market 2, one trader made an order-of-magnitude keyboard error
+in his bid, causing efficiency-reducing extramarginal units to be traded.
+
+8 They obviously did not. Human markets exhibit a pattern of lower efficiency in
+
+the first period, followed by higher efficiency in the later periods; the performance of
+the ZI traders is, by design, statistically identical across all periods.
+
+9 Let ai and rr be the actual and theoretical equilibrium profits of trader i, i = 1, ... I
+n. Then profit dispersion is given by [n'1 X,(a, - 7i)2i5.
+
+10 An occasional large value of this coefficient in human markets occurred because
+a keyboard error by a trader caused a transaction to take place at a price far removed
+from the equilibrium and adjacent transaction prices.
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+134
+
+JOURNAL
+-----
+
+Market
+
+1
+
+Market
+
+450
+
+45
+
+40
+
+40
+
+OF
+
+POLITICAL
+
+ZI-U
+2
+
+---
+
+Market
+
+450
+4
+
+ZI-C
+3
+
+ECONOMY
+
+Human
+
+Market
+
+450
+
+400
+
+4
+
+Market
+
+5
+
+450
+400
+
+350 350 350 35 ., , 350
+3
+
+30
+
+25
+
+.
+
+200
+15
+
+10
+5
+
+30
+
+250
+
+.
+.
+
+20
+15
+
+10
+50
+
+,
+
+30
+25
+
+200
+15
+
+1
+;'
+
+30
+
+25
+
+200
+15
+
+10(
+50
+
+25
+
+200
+15i
+
+10
+50
+
+FIG. 8.-Periodwise root mean squared difference between actual and equilibrium
+profits.
+
+dispersion in ZI-C markets (see the dashed line) is close to the human
+markets but has a greater magnitude. Profit dispersion decreases in
+later periods in two out of five human markets. Without memory or
+learning, the ZI markets exhibit no such trend. These results suggest
+
+that, in contrast to aggregate efficiency, distributional aspects of market performance may be sensitive to human motivation and learning.
+
+V. Concluding Remarks
+
+The primary cause of the high allocative efficiency of double auctions
+is the market discipline imposed on traders; learning, intelligence, or
+profit motivation is not necessary. The same market discipline also
+
+plays an important role in the convergence of transaction prices to
+equilibrium levels.
+
+We examined the behavior of markets with zero-intelligence traders that submit random bids and offers. In contrast to the evolutionary models of Alchian (1950) and Nelson and Winter (1982), natural
+selection plays no role in arriving at our conclusions; the surplus
+extraction property of double auctions is attained by an unchanging
+
+TABLE 3
+AVERAGE OF THE ROOT MEAN SQUARED DIFFERENCE IN PROFITS IN FIGURE 8
+
+Traders Market 1 Market 2 Market 3 Market 4 Market 5
+ZI-U 225.48 253.12 90.54 363.80 156.28
+ZI-C 28.53 49.81 15.90 60.47 19.07
+Human 18.67 28.74 8.23 15.37 30.69
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+ALLOCATIVE
+
+EFFICIENCY
+
+135
+
+population of ZI traders. The absence of rationality and motivation
+
+in the traders seems to be offset by the structure of the auction market
+through which they trade. The rules of this auction exert a powerful
+constraining force on individual behavior.
+Becker (1962) showed that price changes alter the opportunity set
+
+of consumers in such a way that even if they choose randomly from
+this set, the expected demand function is downward sloping; the assumption of utility maximization is not necessary to generate a downward slope. Our results are analogous to Becker's in the sense that
+the convergence of price to equilibrium and the extraction of almost
+
+all the total surplus seem to be consequences of the double-auction
+rules.
+
+Our findings have several interesting implications. First, the extraction of surplus appears to be a characteristic of this auction and the
+
+environment in which it is conducted; striving by individual participants to maximize their profits is not necessary for the extraction of
+surplus."
+Second, since stronger forms of individual rationality reduce the
+cross-sectional dispersion of the profits of traders, the maximization
+assumption may still be quite relevant to the equity considerations.
+Paradoxically, profit maximization seems to be associated with low-
+
+ering, not raising, profit dispersion across individuals. In addition, a
+lower price variability in markets populated by human traders (who
+attempt to increase their profits) suggests that other aspects of market
+behavior may be sensitive to profit-maximizing behavior.
+Third, in the experimental economics literature, the percentage of
+the maximum possible surplus extracted has often been used as an
+index of learning and rationality and of the control attained in an
+experimental economy. Such inferences may not be appropriate for
+market mechanisms that yield all their surplus to ZI traders.
+Fourth, we already know that when double-auction markets aggregate and disseminate information about the state of the world, human
+traders can significantly improve their ability to extract surplus
+through learning (see Plott and Sunder 1982, 1988). When populated
+by ZI traders, such markets may be less efficient. More work is needed
+to separate the effects of the structure from profit-oriented trader
+behavior on market performance.
+Finally, our results may help reconcile the predictions of neoclassical economic theory with its behavioral critique. Economic models
+assume utility-maximizing agents to derive market equilibria and
+
+11 Gode and Sunder (1992a) examine a broader class of economic institutions (vari
+ous types of sealed-bid and double auctions) and show that even sealed-bid markets
+can be highly efficient with budget-constrained ZI traders.
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+136
+
+JOURNAL
+
+OF
+
+POLITICAL
+
+ECONOMY
+
+their welfare implications. Since such maximization is not always con-
+
+sistent with direct observations of individual behavior, some social
+scientists doubt the validity of the market-level implications of models
+based on the maximization assumption. Our results suggest that such
+
+maximization at the individual level is unnecessary for the extraction
+of surplus in aggregate.' Adam Smith's invisible hand may be more
+
+powerful than some may have thought: when embodied in market
+mechanisms such as a double auction, it may generate aggregate rationality not only from individual rationality but also from individual
+
+irrationality.
+References
+
+Alchian, Armen A. "Uncertainty, Evolution, and Economic Theory." J.P.E.
+58 (June 1950): 211-21.
+Becker, Gary S. "Irrational Behavior and Economic Theory."J.P.E. 70 (February 1962): 1-13.
+
+Cason, Timothy N., and Friedman, Daniel. "An Empirical Analysis of Price
+Formation in Double Auction Markets." In The Double Auction Market: Institutions, Theories, and Evidence, edited by Daniel Friedman and John Rust.
+Santa Fe Inst. Studies in the Sciences of the Complexity. New York: Addison-Wesley, 1992.
+Easley, David, and Ledyard, John. "Theories of Price Formation and Exchange in Double Oral Auctions." In The Double Auction Market: Institutions,
+Theories, and Evidence, edited by Daniel Friedman and John Rust. Santa Fe
+Inst. Studies in the Sciences of the Complexity. New York: AddisonWesley, 1992.
+Friedman Daniel. "On the Efficiency of Experimental Double Auction Markets." A.E.R. 74 (March 1984): 60-72.
+. "A Simple Testable Model of Double Auction Markets."J. Econ. Behavior and Organization 15 (January 1991): 47-70.
+Garcia, Crisostomo B. "On the Dynamics of Prices to Equilibrium in a Double
+Auction Market." Working paper. Chicago: Univ. Chicago, 1980.
+Garcia, Crisostomo B., and Zangwill, Willard I. "Price Convergence in a Dynamic Model of Securities." Working paper. Chicago: Univ. Chicago, 1981.
+Gode, Dhananjay K., and Sunder, Shyam. "A Comparative Analysis of Efficiency of Economic Institutions with Zero Intelligence Traders." Working
+Paper no. 1992-23. Pittsburgh: Carnegie Mellon Univ., 1992. (a)
+."Lower Bounds for Efficiency of Surplus Extraction in Double Auctions." In The Double Auction Market: Institutions, Theories, and Evidence, edited by Daniel Friedman and John Rust. Santa Fe Inst. Studies in the
+Sciences of the Complexity. New York: Addison-Wesley, 1992. (b)
+Nelson, Richard R., and Winter, Sidney G. An Evolutionary Theory of Economic
+Change. Cambridge, Mass.: Harvard Univ. Press, 1982.
+Plott, Charles R. "Industrial Organization Theory and Experimental Ecqnomics." J. Econ. Literature 20 (December 1982): 1485-1527.
+Plott, Charles R., and Sunder, Shyam. "Efficiency of Experimental Security
+
+12 See Simon (1981, chap. 2) for a discussion of individual, market, and economy
+levels of analysis in economics.
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+ALLOCATIVE
+
+EFFICIENCY
+
+137
+
+Markets with Insider Information: An Application of Rational-Expectations Models."J.P.E. 90 (August 1982): 663-98.
+. "Rational Expectations and the Aggregation of Diverse Information in Laboratory Security Markets." Econometrica 56 (September 1988):
+1085-1118.
+
+Rust, John; Palmer, R.; and Miller, John. "Behavior of Trading Automata
+in a Computerized Double Auction Market." In The Double Auction Market:
+Institutions, Theories, and Evidence, edited by Daniel Friedman and John
+Rust. Santa Fe Inst. Studies in the Sciences of the Complexity. New York:
+Addison-Wesley, 1992.
+
+Simon, Herbert A. The Sciences of the Artificial. 2d ed. Cambridge, Mass
+Press, 1981.
+
+Smith, Vernon L. "An Experimental Study of Competitive Market Behavior."
+J.P.E. 70 (April 1962): 111-37.
+. "Experimental Economics: Induced Value Theory." A.E.R. Papers
+and Proc. 66 (May 1976): 274-79.
+. "Macroeconomic Systems as an Experimental Science." A.E.R. 72
+(December 1982): 923-55.
+Wilson, Robert B. "On Equilibria of Bid-Ask Markets." In Arrow and the Ascent
+of Modern Economic Theory, edited by George R. Feiwel. Houndmills: Macmillan, 1987.
+
+This content downloaded from
+98.204.65.53 on Tue, 31 Dec 2024 22:25:27 UTC
+All use subject to https://about.jstor.org/terms
+
+

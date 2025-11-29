@@ -1,0 +1,9 @@
+# @package _global_
+# Pure Kaplan market - homogeneous population
+experiment:
+  name: "pure_kaplan"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'Kaplan']
+  seller_types: ['Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'Kaplan']

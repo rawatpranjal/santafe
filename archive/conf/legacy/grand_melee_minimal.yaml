@@ -1,0 +1,37 @@
+# @package _global_
+# Grand Melee - Minimal Tokens (1 token per trader)
+
+experiment:
+  name: "grand_melee_minimal_tokens"
+  num_rounds: 10
+  log_level: "INFO"
+  rng_seed_auction: 12355
+
+market:
+  num_periods: 5
+  num_steps: 100
+  num_tokens: 1  # One shot!
+  min_price: 0
+  max_price: 1000
+
+agents:
+  buyer_types:
+    - ZIC
+    - ZIP
+    - GD
+    - Kaplan
+    - ZI2
+    - Lin
+    - Perry
+    - Jacobson
+    - Skeleton
+  seller_types:
+    - ZIC
+    - ZIP
+    - GD
+    - Kaplan
+    - ZI2
+    - Lin
+    - Perry
+    - Jacobson
+    - Skeleton

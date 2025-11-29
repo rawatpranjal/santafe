@@ -1,0 +1,44 @@
+{
+  "timestamp": "2025-11-24T19:43:19.310971",
+  "episodes_per_agent": 100,
+  "opponent_pool": [
+    "ZIC",
+    "Kaplan",
+    "GD",
+    "Lin"
+  ],
+  "results": {
+    "ZIC": {
+      "avg_profit": 2.26,
+      "std_profit": 2.6593984282164262,
+      "avg_trades": 2.26,
+      "avg_efficiency": 0.8919332047175514,
+      "num_episodes": 100,
+      "profit_ratio_vs_zic": 1.0
+    },
+    "Kaplan": {
+      "avg_profit": 1.57,
+      "std_profit": 2.1874871428193585,
+      "avg_trades": 0.92,
+      "avg_efficiency": 0.8678851400256165,
+      "num_episodes": 100,
+      "profit_ratio_vs_zic": 0.6946902654867257
+    },
+    "GD": {
+      "avg_profit": 2.03,
+      "std_profit": 2.2867225454785722,
+      "avg_trades": 2.13,
+      "avg_efficiency": 0.8954450691103069,
+      "num_episodes": 100,
+      "profit_ratio_vs_zic": 0.8982300884955752
+    },
+    "Lin": {
+      "avg_profit": 2.46,
+      "std_profit": 2.269008594078039,
+      "avg_trades": 1.51,
+      "avg_efficiency": 0.8913279057475282,
+      "num_episodes": 100,
+      "profit_ratio_vs_zic": 1.088495575221239
+    }
+  }
+}

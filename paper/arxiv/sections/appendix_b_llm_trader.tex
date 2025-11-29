@@ -1,0 +1,78 @@
+\section{The Large Language Model Trader}
+\label{app:llm_trader}
+
+In contrast to the Reinforcement Learning agent, which learns a policy function through iterative gradient updates, the Large Language Model (LLM) trader operates as a zero-shot semantic reasoner. It leverages the vast corpus of economic and social knowledge encoded in its pre-trained weights to interpret market states and generate trading actions without task-specific training. This appendix outlines the prompt engineering framework, the parsing mechanism, and the operational constraints used to integrate a generative text model into the numerical environment of the double auction.
+
+\subsection{Prompt Engineering Framework}
+
+The interaction between the simulation engine and the LLM is mediated by a structured text prompt. At each decision step where the LLM agent is active, the numerical state of the market is serialized into a natural language description. This description forms the ``User Prompt,'' which is appended to a static ``System Prompt'' that defines the agent's persona and objective function.
+
+\subsubsection{System Prompt}
+The system prompt establishes the agent's role and the rules of engagement. It is designed to align the model's behavior with the goal of profit maximization within the specific constraints of the Santa Fe Double Auction rules.
+
+\begin{quote}
+\small
+``You are an automated trading agent participating in a continuous double auction market. Your sole objective is to maximize your total profit for the trading period. You are holding a private inventory of items with specific redemption values (if you are a buyer) or costs (if you are a seller).
+
+The market operates in discrete steps. At each step, you may place a limit order (Bid or Ask) or accept a standing market order. You must adhere to the following rules:
+1. You cannot buy for more than your redemption value.
+2. You cannot sell for less than your cost.
+3. New bids must be higher than the current best bid ('Improve') or equal to it.
+4. New asks must be lower than the current best ask ('Improve') or equal to it.
+
+Do not output reasoning. Output only the JSON object representing your decision.''
+\end{quote}
+
+\subsubsection{Contextual State Representation}
+The numerical state $s_t$ is translated into a concise textual format to fit within the model's context window while providing sufficient situational awareness. The context includes Identity and Endowment (e.g., ``You are a BUYER. You hold 1 unit with a redemption value of 150''), Market Status (e.g., ``Current Time: Step 45 of 100. Current Best Bid: 120 (Volume 1). Current Best Ask: 125 (Volume 2)''), and Recent History consisting of a filtered log of the last $k$ significant events (trades and new best quotes), such as ``T-1: Seller 3 posted Ask 126. T-2: Buyer 1 bought from Seller 4 at 124.'' This textual representation essentially performs a dimensionality reduction, converting the high-frequency noise of the order book into a semantic narrative of price action.
+
+\subsection{Action Parsing and Structured Output}
+
+Generative models output unstructured text, which must be deterministically mapped to valid market actions. To ensure robustness, we enforce a structured output schema using a function-calling or JSON-mode API (e.g., OpenAI's JSON mode). The model is constrained to return a JSON object matching the following schema:
+
+\begin{verbatim}
+{
+  "action": "BID" | "ASK" | "ACCEPT" | "PASS",
+  "price": <integer>
+}
+\end{verbatim}
+
+A middleware layer validates the output against the market rules (e.g., checking if a buy price exceeds the agent's cash endowment). If the model generates an invalid action (hallucination) or a malformed JSON, the middleware intercepts the error and re-prompts the model with an error message (``Your bid of 200 exceeds your valuation of 150. Try again.''), up to a maximum of $n$ retries. If the model fails to produce a valid action after retries, it defaults to a ``Pass'' action to maintain market flow.
+
+\subsection{Operational Constraints and Time Management}
+
+Integrating an LLM into a high-frequency simulation presents a unique time synchronization challenge. The inference latency of a large model (e.g., GPT-4o) is on the order of seconds, whereas heuristic agents execute in milliseconds. In a naive real-time loop, the market would evolve significantly while the LLM computes a single token.
+
+To address this, we implement a \textit{Discrete Event Simulation (DES)} architecture with a ``frozen clock.'' When it is the LLM agent's turn to act, the simulation clock is paused, the state is serialized and sent to the API, the system waits for the response (latency is ignored), and then the action is executed and the clock resumes.
+
+This approach ensures logical fairness: the LLM is not penalized for network latency or inference time, allowing us to evaluate its strategic capabilities in isolation from its computational speed. Furthermore, to manage the financial cost of API calls, we employ a semantic cache. Unique combinations of (Agent State, Market State, History) are hashed; if a state recurs (common in static periods), the cached response is used, significantly reducing the token count over thousands of simulation steps.
+
+\subsection{Case Study: A Single Trading Step}
+
+To illustrate the prompt-response cycle concretely, we present a complete example from Step 12 of a 20-step trading period. The LLM buyer agent has a private valuation of 185 for its next token. The current market state shows a best bid of 142 and a best ask of 168, implying a spread of 26.
+
+The system prompt establishes the agent's role and constraints:
+
+\begin{quote}
+\small
+\texttt{You are a BUYER in a double auction. Your goal is to maximize profit.}
+
+\texttt{BUYERS: You profit when you BUY BELOW your valuation. Your bid must be: LESS THAN your valuation AND HIGHER than current best bid. Example: If valuation=200, current bid=150, you can bid 151-199.}
+
+\texttt{Output JSON only: \{"action": "BID"|"ACCEPT"|"PASS", "price": <int>\}}
+\end{quote}
+
+The user prompt provides the current market state:
+
+\begin{quote}
+\small
+\texttt{Step 12 of 20. Your valuation: 185. Current best bid: 142. Current best ask: 168. Your valid bid range: 143-184. Choose action.}
+\end{quote}
+
+The model (GPT-4o-mini) returned the following JSON response:
+
+\begin{verbatim}
+{"action": "BID", "price": 165}
+\end{verbatim}
+
+The agent chose to place a bid of 165, which satisfies both constraints: it exceeds the current best bid (165 > 142) and remains below the valuation (165 < 185). This bid undercuts the standing ask of 168 by 3, signaling willingness to trade while preserving a potential profit margin of 20 (185 minus 165). On the subsequent step, a ZIC seller with cost 140 accepted this bid, executing a trade at price 165. The buyer earned a profit of 20 (valuation 185 minus price 165), while the seller earned 25 (price 165 minus cost 140). This example demonstrates how the LLM successfully interpreted the constraint structure, identified a profitable bid within the valid range, and executed a trade that benefited both parties.

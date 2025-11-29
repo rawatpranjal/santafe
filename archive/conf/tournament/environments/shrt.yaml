@@ -1,0 +1,30 @@
+# @package _global_
+# SHRT Environment: High time pressure
+# Only 25 time steps per period (vs 75 standard)
+
+experiment:
+  name: "tournament_shrt"
+  description: "High time pressure - 25 steps only"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 25     # ONLY 25 STEPS - high pressure (Santa Fe spec)
+  gametype: 6453  # Same as BASE
+
+agents:
+  num_buyers: 4
+  num_sellers: 4
+  buyer_types: ["Kaplan", "ZIC", "ZIP", "GD", "ZI2", "Lin", "Perry", "Jacobson"]
+  seller_types: ["Kaplan", "ZIC", "ZIP", "GD", "ZI2", "Lin", "Perry", "Jacobson"]
+
+metrics:
+  track_efficiency: true
+  track_price_dynamics: true
+  track_volume_distribution: true
+  track_profit_shares: true
+  calculate_autocorrelation: true
+  track_time_pressure: true  # Special metric for time pressure

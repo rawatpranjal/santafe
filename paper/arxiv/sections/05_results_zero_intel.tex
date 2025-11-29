@@ -1,0 +1,53 @@
+We begin our empirical analysis by replicating the foundational zero-intelligence experiments that established how market structure, not agent intelligence, drives allocative efficiency. Following Gode and Sunder (1993), we demonstrate that a simple budget constraint transforms random noise into near-optimal allocation. Following Cliff and Bruten (1997), we show that adaptive learning further improves efficiency. These results validate our market implementation and establish the baseline hierarchy: ZI $<$ ZIC $<$ ZIP.
+
+\subsection{Selfplay Results}
+
+\subsubsection{Baseline Performance}
+
+Table~\ref{tab:foundational} presents selfplay results across five metrics: allocative efficiency, price volatility, V-inefficiency (missed intra-marginal trades), profit dispersion (cross-agent inequality), and trading activity. Each configuration runs 50 rounds with 10 random seeds for statistical robustness. The results confirm the expected hierarchy: ZIP achieves 99\% efficiency, ZIC achieves 97\%, while unconstrained ZI collapses to 28\%. This dramatic improvement from ZI to ZIC demonstrates Gode and Sunder's central insight: market structure, not agent intelligence, drives efficiency. The budget constraint alone transforms random noise into near-optimal allocation by preventing unprofitable trades.
+
+\input{figures/table_foundational}
+
+\subsubsection{Volatility and Trade-offs}
+
+Price volatility reveals a subtler pattern. ZIC achieves the lowest volatility (8\%) because constrained random pricing converges quickly to equilibrium. ZIP's learning process introduces additional price exploration, resulting in slightly higher volatility (12\%). ZI's unconstrained randomness produces extreme volatility (64\%), with prices scattered across the entire feasible range. This volatility-efficiency trade-off suggests that adaptive learning improves surplus extraction at the cost of price stability.
+
+\subsubsection{V-Inefficiency and Dispersion}
+
+V-inefficiency measures missed profitable trades, that is, tokens that should have traded but did not. Counterintuitively, ZI has zero V-inefficiency because it trades every token (16 trades per period), including unprofitable ones. ZIC and ZIP are selective, executing only 7.5 to 7.9 trades per period, occasionally missing marginal opportunities (V-inefficiency 0.3 to 0.5). This selectivity explains the profit dispersion results: ZI's random trading creates massive inequality (dispersion 713), while ZIC and ZIP's constrained behavior produces more equitable outcomes (dispersion 48 to 65).
+
+\subsection{Results Across Market Environments}
+
+To test robustness, we evaluate all three algorithms across ten distinct market configurations.
+
+\subsubsection{Efficiency}
+
+Table~\ref{tab:efficiency_full} confirms that the hierarchy ZI $<$ ZIC $<$ ZIP holds across nearly all environments. ZIP achieves 99 to 100\% efficiency in standard conditions (BASE, BBBS, BSSS, PER, SHRT, TOK, LAD), while ZIC maintains 96 to 98\%. The symmetric token environment (EQL) represents a trivial case where all agents achieve 100\%: when every token has identical value, any trade is efficient. The random token environment (RAN) proves most challenging: ZI achieves 83\% (its best performance), while ZIP drops to 97\%. Small markets (SML) stress all agents, with even ZIP achieving only 89\%.
+
+\input{figures/table_efficiency_full}
+
+\subsubsection{Volatility}
+
+Table~\ref{tab:volatility_full} reveals environment-dependent volatility patterns. ZI maintains roughly 50 to 65\% volatility regardless of market structure, as its random pricing ignores all contextual signals. ZIC and ZIP achieve near-zero volatility in EQL (trivial equilibrium) but struggle in RAN (34\% and 53\% respectively) where unpredictable token draws prevent stable price formation. Small markets (SML) also elevate volatility for constrained agents (23 to 36\%), as thin order books amplify price swings.
+
+\input{figures/table_volatility_full}
+
+\subsubsection{V-Inefficiency}
+
+Table~\ref{tab:vineff_full} shows that ZI never misses trades, as it accepts everything, profitable or not. The SHRT environment (20 steps, high time pressure) challenges ZIC severely: V-inefficiency jumps to 2.7 missed trades per period, compared to only 0.6 for ZIP. This reveals ZIC's vulnerability to time constraints, since its random pricing often fails to find acceptable counterparties before the period ends. ZIP's adaptive margins allow faster convergence under pressure.
+
+\input{figures/table_vineff_full}
+
+\subsubsection{Profit Dispersion}
+
+Table~\ref{tab:dispersion_full} measures cross-agent inequality. ZI creates extreme dispersion (300 to 2000 RMS) because random pricing generates arbitrary winners and losers. The EQL environment produces perfect equality for ZIC (dispersion 0) since identical tokens mean identical expected profits. RAN causes high dispersion even for constrained agents (252 to 354) as random token draws create inherent profit variation. Small markets (SML) also elevate dispersion due to reduced averaging across trades.
+
+\input{figures/table_dispersion_full}
+
+\subsubsection{Trading Volume}
+
+Table~\ref{tab:trades_full} shows that ZI trades maximally, executing all 16 tokens in BASE and all 8 in asymmetric markets. ZIC and ZIP are selective, executing roughly half the maximum volume. The EQL environment produces an anomaly: ZIC trades only 0.4 times per period (nearly zero) because identical tokens provide no surplus to extract, while ZIP trades all 16 due to its margin-seeking behavior that pushes transactions regardless of equilibrium structure.
+
+\input{figures/table_trades_full}
+
+These foundational results validate our market implementation against established benchmarks. The hierarchy ZI $<$ ZIC $<$ ZIP holds robustly across ten market configurations, providing the baseline against which we evaluate the Santa Fe Tournament algorithms in the following section.

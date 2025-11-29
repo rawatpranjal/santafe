@@ -1,0 +1,17 @@
+# @package _global_
+
+# Grand Tournament: TIME_PRESSURE Environment
+# Reduced steps to create urgency (25 vs 100)
+
+experiment:
+  name: "grand_tournament_pressure"
+  num_rounds: 100
+
+agents:
+  buyer_types: [ZIC, ZIP, Kaplan, GD, ZI2, Skeleton, Lin, Perry, Jacobson, ZI]
+  seller_types: [ZIC, ZIP, Kaplan, GD, ZI2, Skeleton, Lin, Perry, Jacobson, ZI]
+
+market:
+  num_tokens: 4
+  num_periods: 10
+  num_steps: 25  # Time pressure

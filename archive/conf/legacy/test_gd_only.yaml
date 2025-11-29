@@ -1,0 +1,8 @@
+# @package _global_
+experiment:
+  name: "test_gd_only"
+  num_rounds: 10
+
+agents:
+  buyer_types: ["GD", "GD", "GD", "GD", "GD"]
+  seller_types: ["GD", "GD", "GD", "GD", "GD"]

@@ -1,0 +1,33 @@
+# @package _global_
+# BASE Environment: Standard competitive market (1994 Tournament)
+# This is the baseline configuration for the Santa Fe tournament
+
+experiment:
+  name: "tournament_base"
+  description: "Standard competitive market - baseline configuration"
+  num_rounds: 100  # Run many rounds for statistical significance
+
+# Market parameters from 1993 tournament
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4     # Standard 4 tokens per trader
+  num_periods: 3    # 3 periods per round (Santa Fe spec)
+  num_steps: 75     # 75 time steps per period (Santa Fe spec)
+  gametype: 6453    # BASE environment gametype
+
+# Standard 4x4 configuration with mixed strategies
+agents:
+  num_buyers: 4
+  num_sellers: 4
+  # Mix all validated traders for tournament
+  buyer_types: ["Kaplan", "ZIC", "ZIP", "GD", "ZI2", "Lin", "Perry", "Jacobson"]
+  seller_types: ["Kaplan", "ZIC", "ZIP", "GD", "ZI2", "Lin", "Perry", "Jacobson"]
+
+# Metrics to collect
+metrics:
+  track_efficiency: true
+  track_price_dynamics: true
+  track_volume_distribution: true
+  track_profit_shares: true
+  calculate_autocorrelation: true

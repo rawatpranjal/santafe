@@ -1,0 +1,36 @@
+{
+  "timestamp": "2025-11-24T19:39:00.719375",
+  "checkpoint_dir": "./checkpoints/learning_curve_vs_mixed",
+  "opponent_type": "ZIC",
+  "episodes_per_eval": 30,
+  "results": {
+    "ppo_1000k": {
+      "avg_profit": 0.26666666666666666,
+      "std_profit": 0.5734883511361752,
+      "avg_efficiency": 0.2922155333281059,
+      "avg_trades": 0.5333333333333333,
+      "num_episodes": 30
+    },
+    "ppo_100k": {
+      "avg_profit": 0.4666666666666667,
+      "std_profit": 0.9910712498212336,
+      "avg_efficiency": 0.42182205119182375,
+      "avg_trades": 0.6333333333333333,
+      "num_episodes": 30
+    },
+    "ppo_500k": {
+      "avg_profit": 0.3,
+      "std_profit": 0.9,
+      "avg_efficiency": 0.2724882109773002,
+      "avg_trades": 0.6,
+      "num_episodes": 30
+    },
+    "ppo_final": {
+      "avg_profit": 0.26666666666666666,
+      "std_profit": 0.7272474743090477,
+      "avg_efficiency": 0.34246005997090323,
+      "avg_trades": 0.3333333333333333,
+      "num_episodes": 30
+    }
+  }
+}

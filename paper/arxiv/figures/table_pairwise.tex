@@ -1,0 +1,25 @@
+\begin{table}[H]
+\centering
+\caption{Pairwise Competition: Mixed Market Performance (4+4 per side)}
+\label{tab:pairwise}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Metric} & \textbf{ZIP vs ZI} & \textbf{ZIP vs ZIC} & \textbf{ZIC vs ZI} \\
+\midrule
+Efficiency (mean) & 36.0\% & 96.9\% & 44.8\% \\
+Efficiency (std) & 33.2\% & 3.2\% & 38.5\% \\
+Price Volatility & 65.1\% & 10.4\% & --- \\
+EM-Inefficiency & 655.3 & 0.0 & --- \\
+V-Inefficiency & 1.08 & 0.48 & --- \\
+Profit Dispersion & 574.4 & 61.8 & --- \\
+Trades/Period & 21.0 & 16.7 & 24.3 \\
+\midrule
+\multicolumn{4}{l}{\textit{Winner Profit}} \\
+ZIP Profit & +246 & +117 & --- \\
+ZIC Profit & --- & +93 & +247 \\
+ZI Profit & -173 & --- & -144 \\
+\bottomrule
+\multicolumn{4}{l}{\footnotesize Config: 100 rounds, 10 periods each. ZI presence destroys efficiency (36-45\%).} \\
+\multicolumn{4}{l}{\footnotesize EM-Inefficiency = extra-marginal trades (bad trades that shouldn't happen).} \\
+\end{tabular}
+\end{table}

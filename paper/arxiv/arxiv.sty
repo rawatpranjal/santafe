@@ -1,0 +1,30 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{arxiv}[2020/04/15 ArXiv style]
+
+\RequirePackage{geometry}
+\RequirePackage{fancyhdr}
+\RequirePackage{xcolor}
+\RequirePackage{hyperref}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small\thepage}
+\lhead{\small Reinforcement Learning and Agentic Trading in Double Auctions}
+\cfoot{}
+
+\newcommand{\headeright}{A Preprint}
+\newcommand{\undertitle}{}
+\newcommand{\shorttitle}{}
+
+\def\headeright{A Preprint}
+\def\undertitle{}
+\def\shorttitle{}
+
+\newenvironment{keywords}{
+  \vspace{1em}
+  \noindent\textbf{Keywords:}
+}{
+  \vspace{1em}
+}

@@ -1,0 +1,37 @@
+# @package _global_
+# Grand Melee - Time Pressure (50 steps instead of 100)
+
+experiment:
+  name: "grand_melee_time_pressure"
+  num_rounds: 10
+  log_level: "INFO"
+  rng_seed_auction: 12352
+
+market:
+  num_periods: 5
+  num_steps: 50  # Half the normal time creates pressure
+  num_tokens: 10
+  min_price: 0
+  max_price: 1000
+
+agents:
+  buyer_types:
+    - ZIC
+    - ZIP
+    - GD
+    - Kaplan
+    - ZI2
+    - Lin
+    - Perry
+    - Jacobson
+    - Skeleton
+  seller_types:
+    - ZIC
+    - ZIP
+    - GD
+    - Kaplan
+    - ZI2
+    - Lin
+    - Perry
+    - Jacobson
+    - Skeleton

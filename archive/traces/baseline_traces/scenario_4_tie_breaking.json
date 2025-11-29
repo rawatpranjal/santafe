@@ -1,0 +1,70 @@
+{
+  "description": "Scenario 4: Tie-Breaking with Random Selection",
+  "purpose": "Verify random tie-breaking when multiple agents bid/ask the same price",
+  "setup": {
+    "num_buyers": 3,
+    "num_sellers": 2,
+    "num_times": 1,
+    "min_price": 0,
+    "max_price": 200,
+    "seed": 100
+  },
+  "agents": [
+    {
+      "player_id": 1,
+      "is_buyer": true,
+      "num_tokens": 1,
+      "valuations": [100]
+    },
+    {
+      "player_id": 2,
+      "is_buyer": true,
+      "num_tokens": 1,
+      "valuations": [100]
+    },
+    {
+      "player_id": 3,
+      "is_buyer": true,
+      "num_tokens": 1,
+      "valuations": [100]
+    },
+    {
+      "player_id": 1,
+      "is_buyer": false,
+      "num_tokens": 1,
+      "valuations": [70]
+    },
+    {
+      "player_id": 2,
+      "is_buyer": false,
+      "num_tokens": 1,
+      "valuations": [70]
+    }
+  ],
+  "timesteps": [
+    {
+      "time": 1,
+      "actions": {
+        "bids": {
+          "1": 90,
+          "2": 90,
+          "3": 90
+        },
+        "asks": {
+          "1": 80,
+          "2": 80
+        },
+        "buyer_accepts": {},
+        "seller_accepts": {}
+      },
+      "expected_outcomes": {
+        "high_bid": 90,
+        "low_ask": 80,
+        "num_tied_high_bidders": 3,
+        "num_tied_low_askers": 2,
+        "comment": "All 3 buyers bid 90 (tie), both sellers ask 80 (tie). Winner selected randomly with seed 100. Need to check OrderBook determine_winners logic with seed 100."
+      }
+    }
+  ],
+  "note": "This scenario tests tie-breaking. The actual winner IDs depend on the RNG sequence with seed=100. The test will verify that: (1) a winner is chosen, (2) the winner is one of the tied agents, (3) losers get status=4 (tied and lost)"
+}

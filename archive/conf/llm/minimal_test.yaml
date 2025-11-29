@@ -1,0 +1,26 @@
+# @package _global_
+#
+# MINIMAL test - just check if GPT works (very cheap!)
+# Should cost < $0.05
+
+experiment:
+  name: "gpt_minimal_test"
+  num_rounds: 1  # Just 1 round
+  log_level: "INFO"
+  rng_seed_auction: 42
+  rng_seed_values: 123
+
+market:
+  num_periods: 1  # Just 1 period
+  num_steps: 20   # Only 20 steps (not 100)
+  num_tokens: 2   # Only 2 tokens per agent
+  min_price: 0
+  max_price: 1000
+
+agents:
+  buyer_types:
+    - GPT4-mini  # 1 GPT buyer
+    - ZIC        # 1 ZIC buyer
+  seller_types:
+    - GPT4-mini  # 1 GPT seller
+    - ZIC        # 1 ZIC seller

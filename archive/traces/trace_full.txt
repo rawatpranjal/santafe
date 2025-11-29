@@ -1,0 +1,71 @@
+[2025-11-24 05:59:29,190][root][INFO] - Running experiment: tournament_1993_baseline
+[2025-11-24 05:59:29,191][engine.tournament][INFO] - Initialized 10 agents: ['ZIC', 'Kaplan', 'ZIP', 'GD', 'ZIC'] vs ['ZIC', 'Kaplan', 'ZIP', 'GD', 'ZIC']
+[2025-11-24 05:59:29,191][engine.tournament][INFO] - Starting Round 1
+[2025-11-24 05:59:29,191][engine.tournament][INFO] - Starting Period 1
+[2025-11-24 05:59:29,194][kaplan.decision][WARNING] - BUYER P2 ACCEPT (crossed spread) bid=157 ask=143
+[2025-11-24 05:59:29,194][kaplan.decision][WARNING] - SELLER P7 ACCEPT (crossed spread) bid=157 ask=143
+[2025-11-24 05:59:29,194][kaplan.trade][WARNING] - BUY P2 EXECUTED price=143 token[0]=307 profit=164 period_profit_before=0
+[2025-11-24 05:59:29,194][kaplan.trade][WARNING] - BUY P2 period_profit_after=164 num_trades_after=1
+[2025-11-24 05:59:29,194][kaplan.trade][WARNING] - SELL P7 EXECUTED price=143 token[0]=109 profit=34 period_profit_before=0
+[2025-11-24 05:59:29,194][kaplan.trade][WARNING] - SELL P7 period_profit_after=34 num_trades_after=1
+[2025-11-24 05:59:29,195][kaplan.decision][WARNING] - SELLER P7 ACCEPT (crossed spread) bid=139 ask=138
+[2025-11-24 05:59:29,195][kaplan.trade][WARNING] - SELL P7 EXECUTED price=138 token[1]=122 profit=16 period_profit_before=34
+[2025-11-24 05:59:29,196][kaplan.trade][WARNING] - SELL P7 period_profit_after=50 num_trades_after=2
+[2025-11-24 05:59:29,196][kaplan.decision][WARNING] - BUYER P2 ACCEPT (crossed spread) bid=144 ask=143
+[2025-11-24 05:59:29,196][kaplan.trade][WARNING] - BUY P2 EXECUTED price=144 token[1]=150 profit=6 period_profit_before=164
+[2025-11-24 05:59:29,196][kaplan.trade][WARNING] - BUY P2 period_profit_after=170 num_trades_after=2
+[2025-11-24 05:59:29,199][engine.tournament][INFO] - 
+=== DIAGNOSTIC: Round 1 Period 1 ===
+[2025-11-24 05:59:29,199][engine.tournament][INFO] - Trades: 9, Actual Surplus: 997, Max Surplus: 1059
+[2025-11-24 05:59:29,199][engine.tournament][INFO] - buyer_valuations_dict keys: [1, 2, 3, 4, 5]
+[2025-11-24 05:59:29,199][engine.tournament][INFO] - seller_costs_dict keys: [1, 2, 3, 4, 5]
+[2025-11-24 05:59:29,199][engine.tournament][INFO] -   Trade 0: B5[0]=297 + S3[0]=107 @ $286 → surplus=190
+[2025-11-24 05:59:29,199][engine.tournament][INFO] -   Trade 1: B4[0]=292 + S4[0]=107 @ $287 → surplus=185
+[2025-11-24 05:59:29,199][engine.tournament][INFO] -   Trade 2: B3[0]=286 + S4[1]=114 @ $200 → surplus=172
+[2025-11-24 05:59:29,199][engine.tournament][INFO] -   Trade 3: B1[0]=298 + S4[2]=140 @ $276 → surplus=158
+[2025-11-24 05:59:29,199][engine.tournament][INFO] -   Trade 4: B2[0]=307 + S2[0]=109 @ $143 → surplus=198
+[2025-11-24 05:59:29,199][engine.tournament][INFO] - Agent profits: buyers=306, sellers=691, total=997
+[2025-11-24 05:59:29,199][engine.tournament][INFO] - === END DIAGNOSTIC ===
+
+[2025-11-24 05:59:29,199][engine.tournament][INFO] - Round 1 Period 1: Eff 94.15% V-Ineff 1 EM-Ineff 0
+[2025-11-24 05:59:29,199][engine.tournament][INFO] - Starting Period 2
+[2025-11-24 05:59:29,200][kaplan.decision][WARNING] - BUYER P2 ACCEPT (crossed spread) bid=143 ask=143
+[2025-11-24 05:59:29,200][kaplan.trade][WARNING] - BUY P2 EXECUTED price=143 token[0]=307 profit=164 period_profit_before=0
+[2025-11-24 05:59:29,200][kaplan.trade][WARNING] - BUY P2 period_profit_after=164 num_trades_after=1
+[2025-11-24 05:59:29,204][kaplan.decision][WARNING] - BUYER P2 ACCEPT (crossed spread) bid=147 ask=146
+[2025-11-24 05:59:29,204][kaplan.trade][WARNING] - BUY P2 EXECUTED price=147 token[1]=150 profit=3 period_profit_before=164
+[2025-11-24 05:59:29,204][kaplan.trade][WARNING] - BUY P2 period_profit_after=167 num_trades_after=2
+[2025-11-24 05:59:29,205][kaplan.decision][WARNING] - SELLER P7 ACCEPT (crossed spread) bid=132 ask=132
+[2025-11-24 05:59:29,205][kaplan.trade][WARNING] - SELL P7 EXECUTED price=132 token[0]=109 profit=23 period_profit_before=0
+[2025-11-24 05:59:29,205][kaplan.trade][WARNING] - SELL P7 period_profit_after=23 num_trades_after=1
+[2025-11-24 05:59:29,205][kaplan.decision][WARNING] - BUYER P2 ACCEPT (crossed spread) bid=140 ask=140
+[2025-11-24 05:59:29,205][kaplan.decision][WARNING] - SELLER P7 ACCEPT (crossed spread) bid=140 ask=140
+[2025-11-24 05:59:29,205][kaplan.trade][WARNING] - BUY P2 EXECUTED price=140 token[2]=141 profit=1 period_profit_before=167
+[2025-11-24 05:59:29,205][kaplan.trade][WARNING] - BUY P2 period_profit_after=168 num_trades_after=3
+[2025-11-24 05:59:29,205][kaplan.trade][WARNING] - SELL P7 EXECUTED price=140 token[1]=122 profit=18 period_profit_before=23
+[2025-11-24 05:59:29,205][kaplan.trade][WARNING] - SELL P7 period_profit_after=41 num_trades_after=2
+[2025-11-24 05:59:29,207][engine.tournament][INFO] - Round 1 Period 2: Eff 98.39% V-Ineff 0 EM-Ineff 0
+[2025-11-24 05:59:29,207][engine.tournament][INFO] - Starting Period 3
+[2025-11-24 05:59:29,210][kaplan.decision][WARNING] - SELLER P7 ACCEPT (crossed spread) bid=140 ask=139
+[2025-11-24 05:59:29,210][kaplan.trade][WARNING] - SELL P7 EXECUTED price=140 token[0]=109 profit=31 period_profit_before=0
+[2025-11-24 05:59:29,210][kaplan.trade][WARNING] - SELL P7 period_profit_after=31 num_trades_after=1
+[2025-11-24 05:59:29,210][kaplan.decision][WARNING] - SELLER P7 ACCEPT (crossed spread) bid=141 ask=141
+[2025-11-24 05:59:29,210][kaplan.trade][WARNING] - SELL P7 EXECUTED price=141 token[1]=122 profit=19 period_profit_before=31
+[2025-11-24 05:59:29,210][kaplan.trade][WARNING] - SELL P7 period_profit_after=50 num_trades_after=2
+[2025-11-24 05:59:29,210][kaplan.decision][WARNING] - BUYER P2 ACCEPT (crossed spread) bid=140 ask=140
+[2025-11-24 05:59:29,210][kaplan.trade][WARNING] - BUY P2 EXECUTED price=140 token[0]=307 profit=167 period_profit_before=0
+[2025-11-24 05:59:29,210][kaplan.trade][WARNING] - BUY P2 period_profit_after=167 num_trades_after=1
+[2025-11-24 05:59:29,213][kaplan.decision][WARNING] - BUYER P2 ACCEPT (crossed spread) bid=143 ask=143
+[2025-11-24 05:59:29,213][kaplan.trade][WARNING] - BUY P2 EXECUTED price=143 token[1]=150 profit=7 period_profit_before=167
+[2025-11-24 05:59:29,213][kaplan.trade][WARNING] - BUY P2 period_profit_after=174 num_trades_after=2
+[2025-11-24 05:59:29,214][kaplan.decision][WARNING] - BUYER P2 ACCEPT (crossed spread) bid=137 ask=137
+[2025-11-24 05:59:29,214][kaplan.trade][WARNING] - BUY P2 EXECUTED price=137 token[2]=141 profit=4 period_profit_before=174
+[2025-11-24 05:59:29,214][kaplan.trade][WARNING] - BUY P2 period_profit_after=178 num_trades_after=3
+[2025-11-24 05:59:29,215][engine.tournament][INFO] - Round 1 Period 3: Eff 99.06% V-Ineff 0 EM-Ineff 0
+[2025-11-24 05:59:29,217][root][INFO] - Results saved to ./results/tournament_1993_baseline
+[2025-11-24 05:59:29,217][root][INFO] - Average Efficiency by Period:
+period
+1    94.145420
+2    98.394712
+3    99.055713
+Name: efficiency, dtype: float64

@@ -1,0 +1,9 @@
+# @package _global_
+# Pairwise: ZI vs ZIP
+experiment:
+  name: "pairwise_zi_vs_zip"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['ZI', 'ZI', 'ZI', 'ZI', 'ZIP', 'ZIP', 'ZIP', 'ZIP']
+  seller_types: ['ZI', 'ZI', 'ZI', 'ZI', 'ZIP', 'ZIP', 'ZIP', 'ZIP']

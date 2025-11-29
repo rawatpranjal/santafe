@@ -1,0 +1,32 @@
+# @package _global_
+# LAD Environment: Low Adaptivity
+# Same as BASE - tests low adaptivity behavior
+
+experiment:
+  name: "tournament_lad"
+  description: "Low adaptivity - same as BASE configuration"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 1000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 75
+  gametype: 6453  # Same as BASE
+
+# Standard 4x4 configuration (same as BASE per Santa Fe spec)
+agents:
+  num_buyers: 4    # Same as BASE
+  num_sellers: 4   # Same as BASE
+  buyer_types: ["Kaplan", "ZIC", "ZIP", "GD", "ZI2", "Lin", "Perry", "Jacobson"]
+  seller_types: ["Kaplan", "ZIC", "ZIP", "GD", "ZI2", "Lin", "Perry", "Jacobson"]
+
+metrics:
+  track_efficiency: true
+  track_price_dynamics: true
+  track_volume_distribution: true
+  track_profit_shares: true
+  calculate_autocorrelation: true
+  track_market_power: true
+  track_price_pressure: true  # Expect upward price pressure from excess demand

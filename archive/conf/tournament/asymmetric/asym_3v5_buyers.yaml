@@ -1,0 +1,9 @@
+# @package _global_
+# 3 buyers vs 5 sellers - supply imbalance
+experiment:
+  name: "asym_3v5_buyers"
+  num_rounds: 100
+
+agents:
+  buyer_types: ['ZIC', 'ZIC', 'ZIC']
+  seller_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC']
