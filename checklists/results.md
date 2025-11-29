@@ -394,9 +394,52 @@ This document tracks experimental results as experiments complete. Structure mir
 
 ### 3.4 Round Robin (PPO in Mixed Market) — Exp 3.24-3.33
 
+**Experiment 3.24 Results (2025-11-29)**
+
+Round Robin tournament on BASE environment with 6 strategies (PPO, Skeleton, ZIC, ZIP, GD, Kaplan).
+Model: `checkpoints/ppo_v4b_deep/final_model.zip` (1M steps, [256,256,128,64] architecture)
+Config: 50 rounds, 10 periods/round, 100 steps/period
+
+| Strategy | Mean Profit | Std | Rank |
+|----------|-------------|-----|------|
+| Skeleton | 1410.8 | 1419.8 | 1 |
+| GD | 1299.6 | 908.5 | 2 |
+| **PPO** | **1194.0** | 1038.0 | **3** |
+| ZIC | 1057.1 | 831.5 | 4 |
+| Kaplan | 1013.1 | 821.3 | 5 |
+| ZIP | 718.8 | 521.9 | 6 |
+
+**Key Finding (Original):** PPO ranks #3/6, beating ZIC, Kaplan, and ZIP but losing to Skeleton and GD.
+PPO profit is 13% higher than ZIC (1194 vs 1057) but 15% lower than Skeleton (1194 vs 1411).
+
+**BREAKTHROUGH: Buyer-Only Tournament (2025-11-29)**
+
+Root cause identified: PPO trained only as BUYER but ran as both buyer AND seller in tournament. Model never saw `is_buyer=False` during training.
+
+**Buyer-Only Results (PPO v5, 50 rounds, 10 periods):**
+| Strategy | Mean Profit | Rank |
+|----------|-------------|------|
+| **PPO** | **1204.7** | **1** |
+| Skeleton | 1196.5 | 2 |
+| GD | 1173.4 | 3 |
+| ZIP | 1172.8 | 4 |
+| ZIC | 880.3 | 5 |
+| Kaplan | 814.1 | 6 |
+
+**PPO beats Skeleton by 0.7%** when restricted to buyer role only!
+
+**Model Comparison:**
+| Model | Architecture | Training | Mean Profit | Rank |
+|-------|-------------|----------|-------------|------|
+| v5 (buyer-only) | [256,256] | 1M vs Skeleton | 1204.7 | **1/6** |
+| v4b | [256,256,128,64] | 1M steps | 1194.0 | 3/6 |
+| v4a | [256,256] | 5M steps | 1158.1 | 3/6 |
+
+Deeper network (v4b) outperforms longer training (v4a) by 3%.
+
 | Environment | Exp # | PPO Rank | Market Efficiency | PPO Ratio | Status |
 |-------------|-------|----------|-------------------|-----------|--------|
-| BASE | 3.24 | /8 | | | ⬜ |
+| BASE | 3.24 | 3/6 | - | 1.13x vs ZIC | ✅ |
 | BBBS | 3.25 | /8 | | | ⬜ |
 | BSSS | 3.26 | /8 | | | ⬜ |
 | EQL | 3.27 | /8 | | | ⬜ |
@@ -448,6 +491,27 @@ This document tracks experimental results as experiments complete. Structure mir
 - Struggles with AURORA protocol constraints
 
 **Conclusion:** GPT-3.5 underperforms ZIC by 56%. Needs prompt engineering or few-shot examples.
+
+### Deep Context Prompts v7 (2025-11-29)
+
+**Fix Applied:** Deep context prompts with full AURORA rules, order book history, trade history.
+
+**GPT-4o-mini + Deep Context vs ZIC (5 episodes)**
+
+| Metric | GPT-3.5 v6 | GPT-4o-mini v7 | Improvement |
+|--------|------------|----------------|-------------|
+| Invalid Rate | ~10% | **0%** | -100% |
+| Profit Ratio | 0.62x | **0.84x** | +36% |
+| Avg Profit | 1.4 | 27.4 | +1857% |
+| Efficiency | 97% | **100%** | +3pp |
+
+**Key Changes:**
+- Model: GPT-3.5-turbo → GPT-4o-mini
+- System prompt: Full AURORA bidding rules with 3 worked examples
+- User prompt: Order book history (last 5 steps), all trade prices with timestamps
+- Prompt style: `prompt_style="deep"`
+
+**Conclusion:** Zero invalid actions achieved. GPT-4o-mini with deep context achieves 0.84x ratio vs ZIC (competitive with handcrafted strategies).
 
 ### 4.1 Against Control (LLM vs 7 ZIC) — Exp 4.1-4.10
 

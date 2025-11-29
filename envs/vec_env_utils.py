@@ -5,16 +5,19 @@ This module provides helper functions for creating vectorized environments
 using Stable-Baselines3's SubprocVecEnv for parallel training.
 """
 
+from collections.abc import Callable
+from typing import Any
+
 import numpy as np
-from typing import Callable, Optional, Dict, Any, List
-from stable_baselines3.common.vec_env import SubprocVecEnv, VecEnv
 from stable_baselines3.common.utils import set_random_seed
+from stable_baselines3.common.vec_env import SubprocVecEnv, VecEnv
 
 from envs.double_auction_env import DoubleAuctionEnv
 from envs.enhanced_double_auction_env import EnhancedDoubleAuctionEnv
 
 try:
     from sb3_contrib.common.wrappers import ActionMasker
+
     HAS_ACTION_MASKER = True
 except ImportError:
     HAS_ACTION_MASKER = False
@@ -32,7 +35,7 @@ def make_env(
     opponent_type: str = "ZIC",
     seed: int = 0,
     use_enhanced_env: bool = True,
-    pure_profit_mode: bool = False
+    pure_profit_mode: bool = False,
 ) -> Callable[[], DoubleAuctionEnv]:
     """
     Create environment factory for vectorization.
@@ -58,17 +61,23 @@ def make_env(
     Returns:
         Callable that creates and returns a configured environment
     """
+
     def _init() -> DoubleAuctionEnv:
         """Initialize environment with rank-specific seed."""
         # Build config dict for environment
+        # For sellers, PIDs start at (num_buyers + 1)
+        # First buyer is PID 1, first seller is PID (num_buyers + 1)
+        rl_is_buyer = rl_agent_type == "buyer"
+        rl_agent_id = 1 if rl_is_buyer else (num_buyers + 1)
+
         config = {
             "num_agents": num_buyers + num_sellers,
             "num_tokens": num_tokens_per_agent,
             "max_steps": max_timesteps,
             "min_price": price_min,
             "max_price": price_max,
-            "rl_agent_id": 1,
-            "rl_is_buyer": rl_agent_type == "buyer",
+            "rl_agent_id": rl_agent_id,
+            "rl_is_buyer": rl_is_buyer,
             "opponent_type": opponent_type,
             "pure_profit_mode": pure_profit_mode,
         }
@@ -80,9 +89,11 @@ def make_env(
 
         # Wrap with ActionMasker for MaskablePPO support
         if HAS_ACTION_MASKER:
+
             def mask_fn(env) -> np.ndarray:
                 """Extract action mask from environment."""
                 return env._get_action_mask()
+
             env = ActionMasker(env, mask_fn)
 
         # Reset with rank-specific seed for deterministic initialization
@@ -96,9 +107,9 @@ def make_env(
 
 def make_vec_env(
     n_envs: int = 16,
-    start_method: Optional[str] = None,
-    env_kwargs: Optional[Dict[str, Any]] = None,
-    seed: int = 0
+    start_method: str | None = None,
+    env_kwargs: dict[str, Any] | None = None,
+    seed: int = 0,
 ) -> VecEnv:
     """
     Create vectorized environments using SubprocVecEnv.
@@ -134,25 +145,21 @@ def make_vec_env(
         env_kwargs = {}
 
     # Create list of environment factory functions
-    env_fns: List[Callable[[], DoubleAuctionEnv]] = [
-        make_env(rank=i, seed=seed, **env_kwargs)
-        for i in range(n_envs)
+    env_fns: list[Callable[[], DoubleAuctionEnv]] = [
+        make_env(rank=i, seed=seed, **env_kwargs) for i in range(n_envs)
     ]
 
     # Create vectorized environment
-    vec_env = SubprocVecEnv(
-        env_fns,
-        start_method=start_method
-    )
+    vec_env = SubprocVecEnv(env_fns, start_method=start_method)
 
     return vec_env
 
 
 def make_eval_vec_env(
     n_envs: int = 4,
-    start_method: Optional[str] = None,
-    env_kwargs: Optional[Dict[str, Any]] = None,
-    seed: int = 1000
+    start_method: str | None = None,
+    env_kwargs: dict[str, Any] | None = None,
+    seed: int = 1000,
 ) -> VecEnv:
     """
     Create vectorized environments for evaluation.
@@ -169,19 +176,12 @@ def make_eval_vec_env(
     Returns:
         SubprocVecEnv for evaluation
     """
-    return make_vec_env(
-        n_envs=n_envs,
-        start_method=start_method,
-        env_kwargs=env_kwargs,
-        seed=seed
-    )
+    return make_vec_env(n_envs=n_envs, start_method=start_method, env_kwargs=env_kwargs, seed=seed)
 
 
 def get_default_env_kwargs(
-    curriculum_stage: str = "zic",
-    rl_agent_type: str = "buyer",
-    pure_profit_mode: bool = True
-) -> Dict[str, Any]:
+    curriculum_stage: str = "zic", rl_agent_type: str = "buyer", pure_profit_mode: bool = True
+) -> dict[str, Any]:
     """
     Get default environment configuration for curriculum learning.
 

@@ -16,6 +16,20 @@ Expected performance:
 - All-Kaplan markets: Should achieve moderate efficiency (~60-80%)
 - Mixed markets: Effective against passive strategies like ZIC
 - The jump-in logic with protection prevents extreme waiting games
+
+CRITICAL NOTE (Paper vs Java Discrepancy):
+The 1994 Rust et al. paper (line 587) states: "We omitted diagrams of the ask routines
+since they are symmetric to the bid routines."
+
+However, the da2.7.2 Java implementation uses DIFFERENT denominators:
+- Buyer (line 66): (cask-cbid)/(cask+1) < 0.10  [uses ASK]
+- Seller (line 94): (cask-cbid)/(cbid+1) < 0.10  [uses BID]
+
+This asymmetry makes sellers LESS aggressive at jumping in when bid is low.
+
+This module provides two variants:
+- symmetric_spread=False (default): Follow Java da2.7.2 (asymmetric)
+- symmetric_spread=True: Follow paper claim (symmetric, seller uses ASK)
 """
 
 from traders.base import Agent
@@ -24,7 +38,7 @@ from traders.base import Agent
 class Kaplan(Agent):
     """
     Kaplan trading agent (Sniper).
-    
+
     Strategy:
     - Wait for favorable prices.
     - "Jump in" if spread is small, price is better than last period, or time is running out.
@@ -40,13 +54,33 @@ class Kaplan(Agent):
         valuations: list[int],
         price_min: int = 0,
         price_max: int = 100,
-        num_times: int = 100, # Default, should be set correctly
+        num_times: int = 100,  # Default, should be set correctly
         seed: int | None = None,
+        # Tunable parameters (defaults match original Java da2.7.2)
+        symmetric_spread: bool = False,  # Paper spec (True) vs Java spec (False)
+        spread_threshold: float = 0.10,  # Jump in when spread < X%
+        profit_margin: float = 0.02,  # Required profit margin (2%)
+        time_half_frac: float = 0.5,  # Jump in if (t - last_time) >= rem * this
+        time_two_thirds_frac: float = 0.667,  # Jump in if (t - my_last_time) >= rem * this
+        min_trade_gap: int = 5,  # AND (t - last_time) >= this
+        sniper_steps: int = 2,  # Accept any profitable trade in last N steps
+        price_bound_adj: int = 100,  # PMAX/PMIN adjustment for learning
+        aggressive_first: bool = False,  # Use midpoint for first bid instead of min/max
     ) -> None:
         super().__init__(player_id, is_buyer, num_tokens, valuations)
         self.price_min_limit = price_min
         self.price_max_limit = price_max
         self.num_times = num_times
+        # Store tunable parameters
+        self.symmetric_spread = symmetric_spread
+        self.spread_threshold = spread_threshold
+        self.profit_margin = profit_margin
+        self.time_half_frac = time_half_frac
+        self.time_two_thirds_frac = time_two_thirds_frac
+        self.min_trade_gap = min_trade_gap
+        self.sniper_steps = sniper_steps
+        self.price_bound_adj = price_bound_adj
+        self.aggressive_first = aggressive_first
 
         # Kaplan State
         self.minpr: int = 0
@@ -71,7 +105,7 @@ class Kaplan(Agent):
         super().start_period(period_number)
         self.period = period_number
         # Reset period stats
-        self.prices = [0] * (self.num_times + 100) # Buffer
+        self.prices = [0] * (self.num_times + 100)  # Buffer
         self.trade_count = 0
         self.last_time = 0
         self.my_last_time = 0
@@ -85,21 +119,21 @@ class Kaplan(Agent):
         self.maxpr = abs(p1)
 
         if self.is_buyer:
-            self.maxpr += -100
+            self.maxpr += -self.price_bound_adj
         else:
-            self.minpr += 100
+            self.minpr += self.price_bound_adj
 
         for t1 in range(1, self.trade_count + 1):
             p_val = self.prices[t1]
             abs_p = abs(p_val)
 
-            if not self.is_buyer: # Seller
+            if not self.is_buyer:  # Seller
                 if self.maxpr < abs_p:
                     self.maxpr = abs_p
                 if self.minpr > p_val and p_val > 0:
                     self.minpr = abs_p
-            else: # Buyer
-                if self.maxpr < p_val: # Note: Java uses p_val here, not abs_p?
+            else:  # Buyer
+                if self.maxpr < p_val:  # Note: Java uses p_val here, not abs_p?
                     # Java: if (maxpr<prices[t1]) maxpr=abs(prices[t1]);
                     # If prices[t1] is -1, maxpr < -1 is false (if maxpr >= 0).
                     # So it ignores own trades for maxpr update?
@@ -129,10 +163,12 @@ class Kaplan(Agent):
             return self._player_request_ask()
 
     def _player_request_bid(self) -> int:
-        if self.nobidask > 0: return 0
+        if self.nobidask > 0:
+            return 0
 
         # Get current valuation (token[mytrades+1])
-        if self.num_trades >= self.num_tokens: return 0
+        if self.num_trades >= self.num_tokens:
+            return 0
         token_val = self.valuations[self.num_trades]
 
         newbid = 0
@@ -148,7 +184,11 @@ class Kaplan(Agent):
             most = worst_case_val - 1
             if self.current_ask > 0 and self.current_ask < most:
                 most = self.current_ask
-            newbid = self.price_min_limit + 1
+            if self.aggressive_first:
+                # Use midpoint for more competitive first bid, but clamp to profitability
+                newbid = min((self.price_min_limit + self.price_max_limit) // 2, most)
+            else:
+                newbid = self.price_min_limit + 1
         else:
             most = token_val - 1  # Use CURRENT token for subsequent bids
             newbid = self.price_min_limit + 1
@@ -159,13 +199,15 @@ class Kaplan(Agent):
                 return 0
 
             # Jump in logic
-            # 1. Spread < 10%
+            # 1. Spread < threshold
             spread_cond = False
             if self.current_ask > 0:
                 ratio = (self.current_ask - self.current_bid) / (self.current_ask + 1)
-                if ratio < 0.10:
-                    # Check profitability: (token+1)*0.98 - cask > 0
-                    profit_cond = ((token_val + 1) * 0.98 - self.current_ask) > 0
+                if ratio < self.spread_threshold:
+                    # Check profitability: (token+1)*(1-margin) - cask > 0
+                    profit_cond = (
+                        (token_val + 1) * (1 - self.profit_margin) - self.current_ask
+                    ) > 0
                     if profit_cond and (self.period == 1 or self.current_ask <= self.maxpr):
                         newbid = self.current_ask
 
@@ -177,9 +219,11 @@ class Kaplan(Agent):
             time_cond = False
             t = self.current_time
             rem = self.num_times - t
-            if (t - self.last_time) >= rem / 2:
+            if (t - self.last_time) >= rem * self.time_half_frac:
                 time_cond = True
-            if (t - self.my_last_time) >= 2 * rem / 3 and (t - self.last_time) >= 5:
+            if (t - self.my_last_time) >= rem * self.time_two_thirds_frac and (
+                t - self.last_time
+            ) >= self.min_trade_gap:
                 time_cond = True
 
             if time_cond and self.current_ask > 0:
@@ -197,11 +241,14 @@ class Kaplan(Agent):
 
     def _player_request_ask(self) -> int:
         import logging
+
         logger = logging.getLogger("kaplan.ask")
 
-        if self.nobidask > 0: return 0
+        if self.nobidask > 0:
+            return 0
 
-        if self.num_trades >= self.num_tokens: return 0
+        if self.num_trades >= self.num_tokens:
+            return 0
         token_val = self.valuations[self.num_trades]
 
         newoffer = 0
@@ -223,7 +270,11 @@ class Kaplan(Agent):
             least = worst_case_val + 1
             if self.current_bid > least:
                 least = self.current_bid
-            newoffer = self.price_max_limit - 1
+            if self.aggressive_first:
+                # Use midpoint for more competitive first ask, but clamp to profitability
+                newoffer = max((self.price_min_limit + self.price_max_limit) // 2, least)
+            else:
+                newoffer = self.price_max_limit - 1
         else:
             newoffer = self.price_max_limit - 1
             least = token_val + 1  # Use CURRENT token for subsequent asks
@@ -239,32 +290,51 @@ class Kaplan(Agent):
                 return 0
 
             # Jump in logic
-            # 1. Spread < 10%
+            # 1. Spread < threshold
             if self.current_bid > 0:
-                ratio = (self.current_ask - self.current_bid) / (self.current_bid + 1)
-                logger.debug(f"SELLER P{self.player_id} spread ratio={ratio:.3f}")
-                if ratio < 0.10:
-                    profit_cond = ((token_val + 1) * 1.02 - self.current_bid) < 0
+                # CRITICAL: Paper vs Java discrepancy
+                # Java (da2.7.2): seller uses BID denominator (asymmetric)
+                # Paper (1994): says "symmetric", implying seller should use ASK
+                if self.symmetric_spread:
+                    # Paper spec: use ASK denominator (symmetric with buyer)
+                    ratio = (self.current_ask - self.current_bid) / (self.current_ask + 1)
+                else:
+                    # Java spec: use BID denominator (asymmetric)
+                    ratio = (self.current_ask - self.current_bid) / (self.current_bid + 1)
+                logger.debug(
+                    f"SELLER P{self.player_id} spread ratio={ratio:.3f} (symmetric={self.symmetric_spread})"
+                )
+                if ratio < self.spread_threshold:
+                    # Check profitability: (token+1)*(1+margin) - cbid < 0
+                    profit_cond = (
+                        (token_val + 1) * (1 + self.profit_margin) - self.current_bid
+                    ) < 0
                     logger.debug(
                         f"SELLER P{self.player_id} small spread! profit_cond={profit_cond} "
                         f"period={self.period} cbid>= minpr={self.current_bid >= self.minpr}"
                     )
                     if profit_cond and (self.period == 1 or self.current_bid >= self.minpr):
-                        logger.debug(f"SELLER P{self.player_id} JUMP IN (spread) newoffer={self.current_bid}")
+                        logger.debug(
+                            f"SELLER P{self.player_id} JUMP IN (spread) newoffer={self.current_bid}"
+                        )
                         newoffer = self.current_bid
 
             # 2. Price better than last period
             if self.period > 1 and self.current_bid >= self.maxpr:
-                logger.debug(f"SELLER P{self.player_id} JUMP IN (better price) newoffer={self.current_bid}")
+                logger.debug(
+                    f"SELLER P{self.player_id} JUMP IN (better price) newoffer={self.current_bid}"
+                )
                 newoffer = self.current_bid
 
             # 3. Time running out
             t = self.current_time
             rem = self.num_times - t
             time_cond = False
-            if (t - self.last_time) >= rem / 2:
+            if (t - self.last_time) >= rem * self.time_half_frac:
                 time_cond = True
-            if (t - self.my_last_time) >= 2 * rem / 3 and (t - self.last_time) >= 5:
+            if (t - self.my_last_time) >= rem * self.time_two_thirds_frac and (
+                t - self.last_time
+            ) >= self.min_trade_gap:
                 time_cond = True
 
             if time_cond:
@@ -307,11 +377,14 @@ class Kaplan(Agent):
 
     def buy_sell_response(self) -> bool:
         import logging
+
         logger = logging.getLogger("kaplan.decision")
 
         self.has_responded = True
-        if self.nobuysell > 0: return False
-        if self.num_trades >= self.num_tokens: return False
+        if self.nobuysell > 0:
+            return False
+        if self.num_trades >= self.num_tokens:
+            return False
 
         token_val = self.valuations[self.num_trades]
 
@@ -341,7 +414,7 @@ class Kaplan(Agent):
 
             # Sniper: Accept if time is short
             # Safe because guard clause ensures profit
-            if (self.num_times - self.current_time) <= 2:
+            if (self.num_times - self.current_time) <= self.sniper_steps:
                 logger.debug(
                     f"BUYER P{self.player_id} ACCEPT (sniper t={self.current_time}/{self.num_times}) "
                     f"token={token_val} ask={self.current_ask} profit={token_val - self.current_ask}"
@@ -373,7 +446,7 @@ class Kaplan(Agent):
                 )
                 return True
 
-            if (self.num_times - self.current_time) <= 2:
+            if (self.num_times - self.current_time) <= self.sniper_steps:
                 logger.debug(
                     f"SELLER P{self.player_id} ACCEPT (sniper t={self.current_time}/{self.num_times}) "
                     f"token={token_val} bid={self.current_bid} profit={self.current_bid - token_val}"
@@ -395,6 +468,7 @@ class Kaplan(Agent):
         low_asker: int,
     ) -> None:
         import logging
+
         logger = logging.getLogger("kaplan.trade")
 
         # Log before super() call to see token value BEFORE num_trades increments
@@ -407,7 +481,9 @@ class Kaplan(Agent):
                 f"profit={profit} period_profit_before={self.period_profit}"
             )
 
-        super().buy_sell_result(status, trade_price, trade_type, high_bid, high_bidder, low_ask, low_asker)
+        super().buy_sell_result(
+            status, trade_price, trade_type, high_bid, high_bidder, low_ask, low_asker
+        )
 
         if status == 1:
             logger.debug(
@@ -417,7 +493,7 @@ class Kaplan(Agent):
             )
 
         # Update history
-        if trade_type != 0: # Trade occurred
+        if trade_type != 0:  # Trade occurred
             self.trade_count += 1
             self.last_time = self.current_time
 

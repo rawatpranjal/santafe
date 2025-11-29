@@ -7,14 +7,11 @@ Large Language Models to make trading decisions in the AURORA protocol.
 
 import logging
 from abc import abstractmethod
-from typing import Any, Optional
+from typing import Any
+
 from traders.base import Agent
+from traders.llm.action_parser import ActionValidator, BidAskAction, BuySellAction
 from traders.llm.prompt_builder import PromptBuilder
-from traders.llm.action_parser import (
-    BidAskAction,
-    BuySellAction,
-    ActionValidator
-)
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +35,9 @@ class BaseLLMAgent(Agent):
         max_retries: int = 3,
         num_times: int = 100,
         prompt_style: str = "minimal",
-        **kwargs: Any
+        num_buyers: int = 1,
+        num_sellers: int = 1,
+        **kwargs: Any,
     ) -> None:
         """
         Initialize LLM agent.
@@ -52,7 +51,9 @@ class BaseLLMAgent(Agent):
             price_max: Maximum market price (default 1000)
             max_retries: Maximum retry attempts for invalid actions (default 3)
             num_times: Maximum time steps per period (default 100)
-            prompt_style: "minimal" for pure facts, "original" for verbose prompts
+            prompt_style: "minimal", "deep", or "original"
+            num_buyers: Number of buyers in market (for context)
+            num_sellers: Number of sellers in market (for context)
             **kwargs: Additional agent-specific parameters
         """
         super().__init__(player_id, is_buyer, num_tokens, valuations)
@@ -61,6 +62,11 @@ class BaseLLMAgent(Agent):
         self.max_retries = max_retries
         self.max_time = num_times
         self.prompt_style = prompt_style
+
+        # Market structure (for deep context)
+        self.num_buyers = num_buyers
+        self.num_sellers = num_sellers
+        self._current_period = 1
 
         # Prompt builder for converting state to text
         self.prompt_builder = PromptBuilder()
@@ -81,6 +87,12 @@ class BaseLLMAgent(Agent):
         self._recent_trades: list[int] = []
         self._max_history = 10
 
+        # Deep context: order book history (time, bid, ask)
+        self._order_book_history: list[tuple[int, int, int]] = []
+
+        # Deep context: trade history with timestamps (time, price)
+        self._trade_history: list[tuple[int, int]] = []
+
         # Statistics
         self.invalid_action_count = 0
         self.total_decisions = 0
@@ -91,11 +103,7 @@ class BaseLLMAgent(Agent):
 
     @abstractmethod
     def _generate_bid_ask_action(
-        self,
-        prompt: str,
-        valuation: int,
-        best_bid: int,
-        best_ask: int
+        self, prompt: str, valuation: int, best_bid: int, best_ask: int
     ) -> BidAskAction:
         """
         Generate a bid/ask action using the LLM or rule-based logic.
@@ -113,10 +121,7 @@ class BaseLLMAgent(Agent):
 
     @abstractmethod
     def _generate_buy_sell_action(
-        self,
-        prompt: str,
-        valuation: int,
-        trade_price: int
+        self, prompt: str, valuation: int, trade_price: int
     ) -> BuySellAction:
         """
         Generate a buy/sell decision using the LLM or rule-based logic.
@@ -157,7 +162,21 @@ class BaseLLMAgent(Agent):
         valuation = self.valuations[self.num_trades]
 
         # Build prompt based on style
-        if self.prompt_style == "minimal":
+        if self.prompt_style == "deep":
+            prompt = self.prompt_builder.build_deep_context_bid_ask_prompt(
+                is_buyer=self.is_buyer,
+                valuation=valuation,
+                tokens_remaining=self.num_tokens - self.num_trades,
+                tokens_total=self.num_tokens,
+                time_step=self._current_time,
+                max_time=self.max_time,
+                best_bid=self._current_best_bid,
+                best_ask=self._current_best_ask,
+                order_book_history=self._order_book_history,
+                trade_history=self._trade_history,
+                period_profit=self.period_profit,
+            )
+        elif self.prompt_style == "minimal":
             prompt = self.prompt_builder.build_minimal_bid_ask_prompt(
                 is_buyer=self.is_buyer,
                 valuation=valuation,
@@ -166,7 +185,9 @@ class BaseLLMAgent(Agent):
                 time_step=self._current_time,
                 max_time=self.max_time,
                 best_bid=self._current_best_bid,
-                best_ask=self._current_best_ask
+                best_ask=self._current_best_ask,
+                recent_trades=self._recent_trades,
+                period_profit=self.period_profit,
             )
         else:
             # Original verbose prompt
@@ -186,7 +207,7 @@ class BaseLLMAgent(Agent):
                 spread=spread,
                 price_min=self.price_min,
                 price_max=self.price_max,
-                recent_trades=self._recent_trades
+                recent_trades=self._recent_trades,
             )
 
         # Retry loop for invalid actions
@@ -197,7 +218,7 @@ class BaseLLMAgent(Agent):
                     prompt=prompt,
                     valuation=valuation,
                     best_bid=self._current_best_bid,
-                    best_ask=self._current_best_ask
+                    best_ask=self._current_best_ask,
                 )
 
                 # If passing, return immediately
@@ -214,14 +235,14 @@ class BaseLLMAgent(Agent):
                         bid=action.price,
                         valuation=valuation,
                         price_min=self.price_min,
-                        best_bid=self._current_best_bid
+                        best_bid=self._current_best_bid,
                     )
                 else:
                     valid, error = self.validator.validate_ask(
                         ask=action.price,
                         cost=valuation,
                         price_max=self.price_max,
-                        best_ask=self._current_best_ask
+                        best_ask=self._current_best_ask,
                     )
 
                 if not valid:
@@ -268,8 +289,8 @@ class BaseLLMAgent(Agent):
         self._current_time = time
         self._current_high_bid = high_bid
         self._current_low_ask = low_ask
-        self._is_high_bidder = (high_bidder == self.player_id)
-        self._is_low_asker = (low_asker == self.player_id)
+        self._is_high_bidder = high_bidder == self.player_id
+        self._is_low_asker = low_asker == self.player_id
 
     def buy_sell_response(self) -> bool:
         """
@@ -294,12 +315,20 @@ class BaseLLMAgent(Agent):
         trade_price = self._current_low_ask if self.is_buyer else self._current_high_bid
 
         # Build prompt based on style
-        if self.prompt_style == "minimal":
+        if self.prompt_style == "deep":
+            prompt = self.prompt_builder.build_deep_context_buy_sell_prompt(
+                is_buyer=self.is_buyer,
+                valuation=valuation,
+                trade_price=trade_price,
+                can_accept=True,
+                period_profit=self.period_profit,
+            )
+        elif self.prompt_style == "minimal":
             prompt = self.prompt_builder.build_minimal_buy_sell_prompt(
                 is_buyer=self.is_buyer,
                 valuation=valuation,
                 trade_price=trade_price,
-                can_accept=True  # Already checked above
+                can_accept=True,  # Already checked above
             )
         else:
             prompt = self.prompt_builder.build_buy_sell_prompt(
@@ -311,14 +340,12 @@ class BaseLLMAgent(Agent):
                 high_bid=self._current_high_bid,
                 low_ask=self._current_low_ask,
                 is_high_bidder=self._is_high_bidder,
-                is_low_asker=self._is_low_asker
+                is_low_asker=self._is_low_asker,
             )
 
         # Generate action (no retry needed - only accept/pass, always valid)
         action = self._generate_buy_sell_action(
-            prompt=prompt,
-            valuation=valuation,
-            trade_price=trade_price
+            prompt=prompt, valuation=valuation, trade_price=trade_price
         )
 
         return action.action == "accept"
@@ -340,11 +367,15 @@ class BaseLLMAgent(Agent):
     ) -> None:
         """Update state after bid/ask stage."""
         super().bid_ask_result(
-            status, num_trades, new_bids, new_asks,
-            high_bid, high_bidder, low_ask, low_asker
+            status, num_trades, new_bids, new_asks, high_bid, high_bidder, low_ask, low_asker
         )
         self._current_best_bid = high_bid
         self._current_best_ask = low_ask
+
+        # Track order book history for deep context
+        self._order_book_history.append((self._current_time, high_bid, low_ask))
+        if len(self._order_book_history) > 10:
+            self._order_book_history = self._order_book_history[-10:]
 
     def buy_sell_result(
         self,
@@ -358,15 +389,17 @@ class BaseLLMAgent(Agent):
     ) -> None:
         """Update state after buy/sell stage."""
         super().buy_sell_result(
-            status, trade_price, trade_type,
-            high_bid, high_bidder, low_ask, low_asker
+            status, trade_price, trade_type, high_bid, high_bidder, low_ask, low_asker
         )
 
         # Track trades for history
         if trade_price > 0:
             self._recent_trades.append(trade_price)
             if len(self._recent_trades) > self._max_history:
-                self._recent_trades = self._recent_trades[-self._max_history:]
+                self._recent_trades = self._recent_trades[-self._max_history :]
+
+            # Track with timestamp for deep context (no limit)
+            self._trade_history.append((self._current_time, trade_price))
 
         # Update best bid/ask
         self._current_best_bid = high_bid
@@ -375,7 +408,10 @@ class BaseLLMAgent(Agent):
     def start_period(self, period_number: int) -> None:
         """Reset period-specific state."""
         super().start_period(period_number)
+        self._current_period = period_number
         self._recent_trades = []
+        self._order_book_history = []
+        self._trade_history = []
 
     def get_invalid_action_rate(self) -> float:
         """Calculate percentage of invalid actions."""

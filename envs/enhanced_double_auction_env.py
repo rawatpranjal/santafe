@@ -8,23 +8,25 @@ Key improvements:
 4. Curriculum support via difficulty levels
 """
 
-import gymnasium as gym
-from gymnasium import spaces
-import numpy as np
-from typing import Any, Dict, Optional, Tuple, List
 from dataclasses import dataclass
+from typing import Any
 
-from engine.market import Market
-from engine.token_generator import TokenGenerator, UniformTokenGenerator
+import gymnasium as gym
+import numpy as np
+from gymnasium import spaces
+
 from engine.agent_factory import create_agent
-from traders.base import Agent
-from envs.enhanced_features import EnhancedObservationGenerator
+from engine.market import Market
 from engine.metrics import calculate_equilibrium_profit
+from engine.token_generator import UniformTokenGenerator
+from envs.enhanced_features import EnhancedObservationGenerator
+from traders.base import Agent
 
 
 @dataclass
 class RewardComponents:
     """Track different reward components for analysis."""
+
     trade_profit: float = 0.0
     market_making: float = 0.0
     exploration: float = 0.0
@@ -39,6 +41,7 @@ class EnhancedRLAgent(Agent):
     """
     Enhanced puppet agent with better buy/sell logic and tracking.
     """
+
     def __init__(self, player_id: int, is_buyer: bool, num_tokens: int, valuations: list[int]):
         super().__init__(player_id, is_buyer, num_tokens, valuations)
         self.next_bid_ask: int = -99
@@ -54,17 +57,24 @@ class EnhancedRLAgent(Agent):
         self.has_responded = True
         return self.next_bid_ask
 
-    def buy_sell(self, time: int, nobuysell: int, high_bid: int, low_ask: int,
-                 high_bidder: int, low_asker: int) -> None:
+    def buy_sell(
+        self,
+        time: int,
+        nobuysell: int,
+        high_bid: int,
+        low_ask: int,
+        high_bidder: int,
+        low_asker: int,
+    ) -> None:
         self.has_responded = False
 
         # Smart buy/sell decision based on profitability
         if self.is_buyer and low_ask > 0:
             val = self.get_current_valuation()
-            self.next_buy_sell = (val >= low_ask)
+            self.next_buy_sell = val >= low_ask
         elif not self.is_buyer and high_bid > 0:
             val = self.get_current_valuation()
-            self.next_buy_sell = (high_bid >= val)
+            self.next_buy_sell = high_bid >= val
         else:
             self.next_buy_sell = False
 
@@ -87,7 +97,7 @@ class EnhancedDoubleAuctionEnv(gym.Env):
 
     metadata = {"render_modes": ["human"], "render_fps": 4}
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         super().__init__()
         self.config = config
 
@@ -99,8 +109,10 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         self.max_price = config.get("max_price", 1000)
 
         # RL Agent Configuration
-        self.rl_agent_id = config.get("rl_agent_id", 1)
         self.rl_is_buyer = config.get("rl_is_buyer", True)
+        # Auto-adjust rl_agent_id for sellers (seller PIDs start at n_buyers+1)
+        default_rl_id = 1 if self.rl_is_buyer else (self.num_agents // 2) + 1
+        self.rl_agent_id = config.get("rl_agent_id", default_rl_id)
 
         # Opponent Configuration (supports curriculum)
         self.opponent_type = config.get("opponent_type", "ZIC")
@@ -117,7 +129,7 @@ class EnhancedDoubleAuctionEnv(gym.Env):
             "exploration_weight": config.get("exploration_weight", 0.01),
             "invalid_penalty": config.get("invalid_penalty", -0.1),
             "efficiency_bonus_weight": config.get("efficiency_bonus_weight", 0.05),
-            "normalize_rewards": config.get("normalize_rewards", True)
+            "normalize_rewards": config.get("normalize_rewards", True),
         }
 
         # Curriculum Configuration
@@ -139,15 +151,15 @@ class EnhancedDoubleAuctionEnv(gym.Env):
             max_price=self.max_price,
             max_tokens=self.num_tokens,
             max_steps=self.max_steps,
-            num_agents=self.num_agents
+            num_agents=self.num_agents,
         )
         self.observation_space = spaces.Box(
             low=0, high=1, shape=(self.obs_gen.feature_dim,), dtype=np.float32
         )
 
         # Internal State
-        self.market: Optional[Market] = None
-        self.rl_agent: Optional[EnhancedRLAgent] = None
+        self.market: Market | None = None
+        self.rl_agent: EnhancedRLAgent | None = None
         # Use UniformTokenGenerator for proper supply/demand curves in [price_min, price_max]
         n_buyers = self.num_agents // 2
         n_sellers = self.num_agents - n_buyers
@@ -157,7 +169,7 @@ class EnhancedDoubleAuctionEnv(gym.Env):
             price_max=self.max_price,
             seed=42,
             num_buyers=n_buyers,
-            num_sellers=n_sellers
+            num_sellers=n_sellers,
         )
 
         # Metrics Tracking
@@ -167,10 +179,15 @@ class EnhancedDoubleAuctionEnv(gym.Env):
             "profitable_trades": 0,
             "invalid_actions": 0,
             "market_efficiency": 0.0,
-            "reward_components": RewardComponents()
+            "reward_components": RewardComponents(),
         }
 
-    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None) -> Tuple[np.ndarray, Dict]:
+        # Time-based tracking for Skeleton-style features
+        self._steps_since_last_trade = 0
+
+    def reset(
+        self, seed: int | None = None, options: dict | None = None
+    ) -> tuple[np.ndarray, dict]:
         super().reset(seed=seed)
 
         # Update token generator with new seed for variety
@@ -184,7 +201,7 @@ class EnhancedDoubleAuctionEnv(gym.Env):
             "profitable_trades": 0,
             "invalid_actions": 0,
             "market_efficiency": 0.0,
-            "reward_components": RewardComponents()
+            "reward_components": RewardComponents(),
         }
 
         # Generate agents based on difficulty/curriculum
@@ -202,7 +219,7 @@ class EnhancedDoubleAuctionEnv(gym.Env):
             price_max=self.max_price,
             buyers=[a for a in agents if a.is_buyer],
             sellers=[a for a in agents if not a.is_buyer],
-            seed=self.np_random.integers(0, 100000)
+            seed=self.np_random.integers(0, 100000),
         )
 
         # Start agents
@@ -212,18 +229,20 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         # Reset Observation Generator
         self.obs_gen.reset()
 
+        # Reset time-based tracking
+        self._steps_since_last_trade = 0
+
         # Generate Initial Observation
-        obs = self.obs_gen.generate(self.rl_agent, self.market.orderbook, 0)
+        obs = self.obs_gen.generate(
+            self.rl_agent, self.market.orderbook, 0, self._steps_since_last_trade
+        )
 
         # Info includes action mask
-        info = {
-            "action_mask": self._get_action_mask(),
-            "difficulty": self.difficulty
-        }
+        info = {"action_mask": self._get_action_mask(), "difficulty": self.difficulty}
 
         return obs, info
 
-    def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, Dict]:
+    def step(self, action: int) -> tuple[np.ndarray, float, bool, bool, dict]:
         if self.market is None or self.rl_agent is None:
             raise RuntimeError("Call reset() before step()")
 
@@ -255,7 +274,9 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         profit_after = self.rl_agent.period_profit
         trades_after = self.rl_agent.num_trades
 
-        # Update trade tracking
+        # Update trade tracking and time-based features
+        self._steps_since_last_trade += 1  # Increment each step
+
         if trades_after > trades_before:
             self.rl_agent.trades_executed += 1
             self.episode_metrics["trades_executed"] += 1
@@ -269,11 +290,12 @@ class EnhancedDoubleAuctionEnv(gym.Env):
             if trade_price > 0:
                 self.obs_gen.update_trade(trade_price)
 
+            # Reset time-based counter on trade
+            self._steps_since_last_trade = 0
+
         # Calculate Reward
         reward_components = self._calculate_reward(
-            profit_before, profit_after,
-            trades_before, trades_after,
-            action, invalid_action
+            profit_before, profit_after, trades_before, trades_after, action, invalid_action
         )
         reward = reward_components.total
 
@@ -282,16 +304,18 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         self.episode_metrics["reward_components"] = reward_components
 
         # Check Termination
-        terminated = (self.market.current_time >= self.market.num_times) or \
-                    self.market.fail_state or \
-                    (not self.rl_agent.can_trade())
-        
+        terminated = (
+            (self.market.current_time >= self.market.num_times)
+            or self.market.fail_state
+            or (not self.rl_agent.can_trade())
+        )
+
         # Calculate market efficiency at end of episode
         if terminated and self.market is not None:
             # Calculate equilibrium profit
             all_valuations = []
             all_costs = []
-            
+
             # Collect all valuations/costs from all agents
             # We need to access the agents from the market or self._create_agents logic
             # The market object has buyers and sellers lists
@@ -299,16 +323,16 @@ class EnhancedDoubleAuctionEnv(gym.Env):
                 all_valuations.extend(buyer.valuations)
             for seller in self.market.sellers:
                 all_costs.extend(seller.valuations)  # For sellers, valuations are costs
-                
+
             max_profit = calculate_equilibrium_profit(all_valuations, all_costs)
-            
+
             # Calculate actual total profit of all agents
             actual_profit = 0
             for buyer in self.market.buyers:
                 actual_profit += buyer.period_profit
             for seller in self.market.sellers:
                 actual_profit += seller.period_profit
-                
+
             if max_profit > 0:
                 self.episode_metrics["market_efficiency"] = actual_profit / max_profit
             else:
@@ -316,7 +340,12 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         truncated = False
 
         # Generate Next Observation
-        obs = self.obs_gen.generate(self.rl_agent, self.market.orderbook, self.market.current_time)
+        obs = self.obs_gen.generate(
+            self.rl_agent,
+            self.market.orderbook,
+            self.market.current_time,
+            self._steps_since_last_trade,
+        )
 
         # Prepare Info
         info = {
@@ -327,15 +356,15 @@ class EnhancedDoubleAuctionEnv(gym.Env):
                 "market_making": reward_components.market_making,
                 "exploration": reward_components.exploration,
                 "invalid_penalty": reward_components.invalid_penalty,
-                "efficiency_bonus": reward_components.efficiency_bonus
-            }
+                "efficiency_bonus": reward_components.efficiency_bonus,
+            },
         }
 
         return obs, reward, terminated, truncated, info
 
-    def _create_agents(self) -> List[Agent]:
+    def _create_agents(self) -> list[Agent]:
         """Create agents based on difficulty/curriculum settings."""
-        agents: List[Agent] = []
+        agents: list[Agent] = []
 
         n_buyers = self.num_agents // 2
         n_sellers = self.num_agents - n_buyers
@@ -357,11 +386,17 @@ class EnhancedDoubleAuctionEnv(gym.Env):
             else:
                 # Opponent
                 opp_type = opponent_types[i % len(opponent_types)]
-                agent = create_agent(opp_type, pid, True, self.num_tokens, tokens,
-                                   seed=self.np_random.integers(0, 100000),
-                                   num_times=self.max_steps,
-                                   price_min=self.min_price,
-                                   price_max=self.max_price)
+                agent = create_agent(
+                    opp_type,
+                    pid,
+                    True,
+                    self.num_tokens,
+                    tokens,
+                    seed=self.np_random.integers(0, 100000),
+                    num_times=self.max_steps,
+                    price_min=self.min_price,
+                    price_max=self.max_price,
+                )
                 agents.append(agent)
 
         # Create Sellers
@@ -376,16 +411,22 @@ class EnhancedDoubleAuctionEnv(gym.Env):
             else:
                 # Opponent
                 opp_type = opponent_types[i % len(opponent_types)]
-                agent = create_agent(opp_type, pid, False, self.num_tokens, tokens,
-                                   seed=self.np_random.integers(0, 100000),
-                                   num_times=self.max_steps,
-                                   price_min=self.min_price,
-                                   price_max=self.max_price)
+                agent = create_agent(
+                    opp_type,
+                    pid,
+                    False,
+                    self.num_tokens,
+                    tokens,
+                    seed=self.np_random.integers(0, 100000),
+                    num_times=self.max_steps,
+                    price_min=self.min_price,
+                    price_max=self.max_price,
+                )
                 agents.append(agent)
 
         return agents
 
-    def _get_opponent_types(self) -> List[str]:
+    def _get_opponent_types(self) -> list[str]:
         """Get opponent types based on difficulty/curriculum."""
         if self.opponent_mix is not None:
             # Custom mix provided
@@ -406,9 +447,15 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         else:
             return [self.opponent_type]  # Single type specified
 
-    def _calculate_reward(self, profit_before: float, profit_after: float,
-                         trades_before: int, trades_after: int,
-                         action: int, invalid: bool) -> RewardComponents:
+    def _calculate_reward(
+        self,
+        profit_before: float,
+        profit_after: float,
+        trades_before: int,
+        trades_after: int,
+        action: int,
+        invalid: bool,
+    ) -> RewardComponents:
         """Calculate multi-component reward."""
         components = RewardComponents()
 
@@ -443,7 +490,9 @@ class EnhancedDoubleAuctionEnv(gym.Env):
 
                 if new_spread < old_spread and new_spread > 0:
                     improvement = (old_spread - new_spread) / self.max_price
-                    components.market_making = improvement * self.reward_config["market_making_weight"]
+                    components.market_making = (
+                        improvement * self.reward_config["market_making_weight"]
+                    )
 
         # 3. Exploration Bonus (for trying different actions)
         if action != 0 and not invalid:  # Non-pass actions
@@ -472,7 +521,9 @@ class EnhancedDoubleAuctionEnv(gym.Env):
                     efficiency = 0
 
             if efficiency > 0:
-                components.efficiency_bonus = efficiency * self.reward_config["efficiency_bonus_weight"]
+                components.efficiency_bonus = (
+                    efficiency * self.reward_config["efficiency_bonus_weight"]
+                )
 
         # 6. Bid Submission Bonus (NEW: reward for placing competitive orders)
         if action in [1, 2, 3, 4, 5, 6] and not invalid:  # Any non-pass action
@@ -486,17 +537,19 @@ class EnhancedDoubleAuctionEnv(gym.Env):
                 obs = self._get_observation()
                 surplus = obs[13]  # Surplus feature (already normalized to [0,1])
                 if surplus > 0:
-                    components.surplus_capture = surplus * self.reward_config["surplus_capture_weight"]
+                    components.surplus_capture = (
+                        surplus * self.reward_config["surplus_capture_weight"]
+                    )
 
         # Calculate total
         components.total = (
-            components.trade_profit +
-            components.market_making +
-            components.exploration +
-            components.invalid_penalty +
-            components.efficiency_bonus +
-            components.bid_submission +
-            components.surplus_capture
+            components.trade_profit
+            + components.market_making
+            + components.exploration
+            + components.invalid_penalty
+            + components.efficiency_bonus
+            + components.bid_submission
+            + components.surplus_capture
         )
 
         # Normalize if requested
@@ -668,7 +721,7 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         undercut_amts = [2, 5, 10]
 
         if self.rl_is_buyer:
-            if action == 1:    # Accept (Buy at Ask)
+            if action == 1:  # Accept (Buy at Ask)
                 price = best_ask
             elif 2 <= action <= 9:  # Spread improvements
                 pct = improve_pcts[action - 2]
@@ -694,7 +747,7 @@ class EnhancedDoubleAuctionEnv(gym.Env):
                 price = val
 
         else:  # Seller
-            if action == 1:    # Accept (Sell at Bid)
+            if action == 1:  # Accept (Sell at Bid)
                 price = best_bid
             elif 2 <= action <= 9:  # Spread improvements
                 pct = improve_pcts[action - 2]
@@ -744,10 +797,10 @@ class EnhancedDoubleAuctionEnv(gym.Env):
             last_trade = self.market.orderbook.trade_price[current_time] if current_time > 0 else 0
             print(f"Last Trade Price: {last_trade}")
 
-    def update_config(self, config: Dict[str, Any]) -> None:
+    def update_config(self, config: dict[str, Any]) -> None:
         """
         Update environment configuration dynamically.
-        
+
         Args:
             config: New configuration dictionary
         """
@@ -756,7 +809,7 @@ class EnhancedDoubleAuctionEnv(gym.Env):
             self.opponent_type = config["opponent_type"]
         if "opponent_mix" in config:
             self.opponent_mix = config["opponent_mix"]
-            
+
         # Update difficulty
         if "difficulty" in config:
             self.difficulty = config["difficulty"]
@@ -769,7 +822,7 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         for key, value in config.items():
             if key in self.reward_config:
                 self.reward_config[key] = value
-                
+
         # Update specific reward weights if provided directly
         if "profit_weight" in config:
             self.reward_config["profit_weight"] = config["profit_weight"]

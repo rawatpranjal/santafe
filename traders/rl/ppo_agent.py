@@ -1,19 +1,19 @@
-from typing import Any, Optional
 import numpy as np
-from stable_baselines3 import PPO
+from sb3_contrib import MaskablePPO
 
-from traders.base import Agent
-from envs.enhanced_features import EnhancedObservationGenerator
 from engine.orderbook import OrderBook
+from envs.enhanced_features import EnhancedObservationGenerator
+from traders.base import Agent
+
 
 class PPOAgent(Agent):
     """
     RL Agent powered by a trained PPO model.
-    
+
     This agent bridges the gap between the Tournament engine and the Stable-Baselines3 model.
     It generates observations, masks invalid actions, and queries the policy for decisions.
     """
-    
+
     def __init__(
         self,
         player_id: int,
@@ -22,26 +22,25 @@ class PPOAgent(Agent):
         valuations: list[int],
         model_path: str,
         max_price: int = 1000,
-        max_steps: int = 100
+        max_steps: int = 100,
     ) -> None:
         super().__init__(player_id, is_buyer, num_tokens, valuations)
-        
-        # Load Model
-        self.model = PPO.load(model_path)
-        
+
+        # Load Model (MaskablePPO for action masking)
+        self.model = MaskablePPO.load(model_path)
+
         # Feature Generator
         self.obs_gen = EnhancedObservationGenerator(
-            max_price=max_price,
-            max_tokens=num_tokens,
-            max_steps=max_steps
+            max_price=max_price, max_tokens=num_tokens, max_steps=max_steps
         )
-        
+
         # Internal State
         self.current_step = 0
         self.max_price = max_price
         self.min_price = 0
         self.next_buy_sell = False
-        
+        self._steps_since_last_trade = 0  # For Skeleton-style time features
+
         # OrderBook reference (needed for observation)
         # The Market will pass this via bid_ask_result or we need a way to access it.
         # In the Tournament, agents don't hold a reference to the OrderBook directly.
@@ -54,7 +53,7 @@ class PPOAgent(Agent):
         # Reconstructing is hard.
         # Let's assume we can pass the orderbook to the agent.
         # We'll add a method `set_orderbook(ob)` or similar.
-        self.orderbook: Optional[OrderBook] = None
+        self.orderbook: OrderBook | None = None
 
     def set_orderbook(self, orderbook: OrderBook) -> None:
         """Inject orderbook reference for observation generation."""
@@ -63,6 +62,7 @@ class PPOAgent(Agent):
     def start_period(self, period_number: int) -> None:
         super().start_period(period_number)
         self.current_step = 0
+        self._steps_since_last_trade = 0
         self.obs_gen.reset()
 
     def bid_ask(self, time: int, nobidask: int) -> None:
@@ -74,31 +74,44 @@ class PPOAgent(Agent):
             # Fallback if no orderbook (shouldn't happen in proper setup)
             self.has_responded = True
             return -99
-            
+
+        # Track time since last trade (Skeleton-style)
+        self._steps_since_last_trade += 1
+
         # 1. Generate Observation
-        obs = self.obs_gen.generate(self, self.orderbook, self.current_step)
-        
+        obs = self.obs_gen.generate(
+            self, self.orderbook, self.current_step, self._steps_since_last_trade
+        )
+
         # 2. Generate Action Mask
         mask = self._get_action_mask()
-        
+
         # 3. Predict Action
         # Note: Standard PPO doesn't support action masking directly in predict
         # We rely on the environment to handle invalid actions (or punish them)
         # For now, we just return the action index
         action, _ = self.model.predict(obs, deterministic=True)
         action_id = int(action)
-        
+
         # 4. Map Action to Price
         price = self._map_action_to_price(action_id)
-        
+
         # 5. Set Buy/Sell Decision (Auto-Accept if profitable)
         # We'll set this now, to be used in buy_sell_response
-        self.next_buy_sell = True # Default to accept, but we'll check profitability later
-        
+        self.next_buy_sell = True  # Default to accept, but we'll check profitability later
+
         self.has_responded = True
         return price
 
-    def buy_sell(self, time: int, nobuysell: int, high_bid: int, low_ask: int, high_bidder: int, low_asker: int) -> None:
+    def buy_sell(
+        self,
+        time: int,
+        nobuysell: int,
+        high_bid: int,
+        low_ask: int,
+        high_bidder: int,
+        low_asker: int,
+    ) -> None:
         self.has_responded = False
 
     def buy_sell_response(self) -> bool:
@@ -106,7 +119,7 @@ class PPOAgent(Agent):
         # Rationality check: Only accept if profitable
         # The Env logic assumed "Auto-Accept".
         # Here we can be explicit.
-        
+
         if self.is_buyer:
             # Buying at low_ask
             # We need to know low_ask. We can get it from orderbook or args.
@@ -116,6 +129,7 @@ class PPOAgent(Agent):
             low_ask = int(self.orderbook.low_ask[t])
             val = self.get_current_valuation()
             if low_ask > 0 and val >= low_ask:
+                self._steps_since_last_trade = 0  # Reset on trade
                 return True
         else:
             # Selling at high_bid
@@ -123,8 +137,9 @@ class PPOAgent(Agent):
             high_bid = int(self.orderbook.high_bid[t])
             val = self.get_current_valuation()
             if high_bid > 0 and high_bid >= val:
+                self._steps_since_last_trade = 0  # Reset on trade
                 return True
-                
+
         return False
 
     def _get_action_mask(self) -> np.ndarray:
@@ -283,7 +298,7 @@ class PPOAgent(Agent):
         undercut_amts = [2, 5, 10]
 
         if self.is_buyer:
-            if action == 1:    # Accept (Buy at Ask)
+            if action == 1:  # Accept (Buy at Ask)
                 price = best_ask
             elif 2 <= action <= 9:  # Spread improvements
                 pct = improve_pcts[action - 2]
@@ -309,7 +324,7 @@ class PPOAgent(Agent):
                 price = val
 
         else:  # Seller
-            if action == 1:    # Accept (Sell at Bid)
+            if action == 1:  # Accept (Sell at Bid)
                 price = best_bid
             elif 2 <= action <= 9:  # Spread improvements
                 pct = improve_pcts[action - 2]

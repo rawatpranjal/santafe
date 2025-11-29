@@ -8,9 +8,11 @@ This module extends the basic features with:
 - Microstructure signals (order flow, price impact)
 """
 
-import numpy as np
-from typing import Any, Dict, List, Optional, Tuple
 from collections import deque
+from typing import Any
+
+import numpy as np
+
 from engine.orderbook import OrderBook
 
 
@@ -26,20 +28,22 @@ class EnhancedObservationGenerator:
     5. Microstructure (5): bid strength, ask strength, flow toxicity, price impact, efficiency
     """
 
-    def __init__(self,
-                 max_price: int = 1000,
-                 max_tokens: int = 4,
-                 max_steps: int = 100,
-                 history_len: int = 10,
-                 num_agents: int = 8):
+    def __init__(
+        self,
+        max_price: int = 1000,
+        max_tokens: int = 4,
+        max_steps: int = 100,
+        history_len: int = 10,
+        num_agents: int = 8,
+    ):
         self.max_price = max_price
         self.max_tokens = max_tokens
         self.max_steps = max_steps
         self.history_len = history_len
         self.num_agents = num_agents
 
-        # Feature vector size (24 original + 7 episode structure + 9 new = 40)
-        self.feature_dim = 40
+        # Feature vector size (24 original + 7 episode structure + 9 new + 2 time = 42)
+        self.feature_dim = 42
 
         # History buffers
         self.trade_prices: deque = deque(maxlen=history_len)
@@ -76,8 +80,16 @@ class EnhancedObservationGenerator:
 
         # Calculate momentum
         if len(self.trade_prices) >= 2:
-            recent = np.mean(list(self.trade_prices)[-3:]) if len(self.trade_prices) >= 3 else self.trade_prices[-1]
-            older = np.mean(list(self.trade_prices)[:-3]) if len(self.trade_prices) > 3 else self.trade_prices[0]
+            recent = (
+                np.mean(list(self.trade_prices)[-3:])
+                if len(self.trade_prices) >= 3
+                else self.trade_prices[-1]
+            )
+            older = (
+                np.mean(list(self.trade_prices)[:-3])
+                if len(self.trade_prices) > 3
+                else self.trade_prices[0]
+            )
             self.price_momentum = (recent - older) / self.max_price
 
     def update_quotes(self, bid: int, ask: int) -> None:
@@ -87,10 +99,9 @@ class EnhancedObservationGenerator:
         if bid > 0 and ask > 0:
             self.spread_history.append(ask - bid)
 
-    def generate(self,
-                 agent: Any,
-                 orderbook: OrderBook,
-                 current_step: int) -> np.ndarray:
+    def generate(
+        self, agent: Any, orderbook: OrderBook, current_step: int, steps_since_last_trade: int = 0
+    ) -> np.ndarray:
         """
         Generate enhanced observation vector.
 
@@ -277,7 +288,9 @@ class EnhancedObservationGenerator:
             valid_asks = [a for a in self.ask_history if a > 0]
             if valid_asks:
                 avg_ask = np.mean(valid_asks)
-                ask_strength = 1.0 - (avg_ask - mid_price) / self.max_price if mid_price > 0 else 0.5
+                ask_strength = (
+                    1.0 - (avg_ask - mid_price) / self.max_price if mid_price > 0 else 0.5
+                )
             else:
                 ask_strength = 0.5
         else:
@@ -298,7 +311,7 @@ class EnhancedObservationGenerator:
         if len(self.trade_prices) >= 2:
             impacts = []
             for i in range(1, len(self.trade_prices)):
-                impact = abs(self.trade_prices[i] - self.trade_prices[i-1]) / self.max_price
+                impact = abs(self.trade_prices[i] - self.trade_prices[i - 1]) / self.max_price
                 impacts.append(impact)
             avg_impact = np.mean(impacts) if impacts else 0.0
         else:
@@ -310,7 +323,9 @@ class EnhancedObservationGenerator:
         if len(self.trade_prices) >= 5:
             # Check if prices are stabilizing
             recent_std = np.std(list(self.trade_prices)[-5:])
-            older_std = np.std(list(self.trade_prices)[:-5]) if len(self.trade_prices) > 5 else recent_std
+            older_std = (
+                np.std(list(self.trade_prices)[:-5]) if len(self.trade_prices) > 5 else recent_std
+            )
             if older_std > 0:
                 efficiency = 1.0 - (recent_std / older_std)
             else:
@@ -344,11 +359,13 @@ class EnhancedObservationGenerator:
 
         # Best remaining valuation (what's left to trade)
         if tokens_remaining > 0:
-            remaining_valuations = agent.valuations[agent.num_trades:]
+            remaining_valuations = agent.valuations[agent.num_trades :]
             if agent.is_buyer:
                 best_remaining = max(remaining_valuations) if remaining_valuations else 0
             else:
-                best_remaining = min(remaining_valuations) if remaining_valuations else self.max_price
+                best_remaining = (
+                    min(remaining_valuations) if remaining_valuations else self.max_price
+                )
             obs[idx] = best_remaining / self.max_price
         else:
             obs[idx] = 0.0
@@ -356,7 +373,7 @@ class EnhancedObservationGenerator:
 
         # Average remaining valuation (expected value of future trades)
         if tokens_remaining > 0:
-            remaining_valuations = agent.valuations[agent.num_trades:]
+            remaining_valuations = agent.valuations[agent.num_trades :]
             avg_remaining = np.mean(remaining_valuations) if remaining_valuations else 0
             obs[idx] = avg_remaining / self.max_price
         else:
@@ -374,7 +391,7 @@ class EnhancedObservationGenerator:
         trade_list = list(self.trade_prices)
         for i in range(3):
             if i < len(trade_list):
-                obs[idx] = trade_list[-(i+1)] / self.max_price  # Most recent first
+                obs[idx] = trade_list[-(i + 1)] / self.max_price  # Most recent first
             else:
                 obs[idx] = 0.5  # Default to mid-range if no history
             idx += 1
@@ -404,7 +421,11 @@ class EnhancedObservationGenerator:
 
         # Bid improvement potential (how much room to improve) - 1 feature
         if agent.is_buyer and valuation > 0:
-            bid_room = (valuation - best_bid) / self.max_price if best_bid > 0 else valuation / self.max_price
+            bid_room = (
+                (valuation - best_bid) / self.max_price
+                if best_bid > 0
+                else valuation / self.max_price
+            )
         else:
             bid_room = 0.0
         obs[idx] = np.clip(bid_room, 0.0, 1.0)
@@ -412,10 +433,25 @@ class EnhancedObservationGenerator:
 
         # Ask improvement potential - 1 feature
         if not agent.is_buyer and valuation > 0:
-            ask_room = (display_ask - valuation) / self.max_price if display_ask < self.max_price else 0.5
+            ask_room = (
+                (display_ask - valuation) / self.max_price if display_ask < self.max_price else 0.5
+            )
         else:
             ask_room = 0.0
         obs[idx] = np.clip(ask_room, 0.0, 1.0)
+        idx += 1
+
+        # --- 8. Time-Based Features for Skeleton-Style Strategy (2 features) ---
+
+        # Feature 41: Steps since last trade (normalized)
+        # Enables learning time-pressure behavior like Skeleton
+        obs[idx] = steps_since_last_trade / self.max_steps
+        idx += 1
+
+        # Feature 42: Skeleton's alpha formula = 1/(t - lasttime)
+        # This is the key signal Skeleton uses for urgency
+        alpha_urgency = 1.0 / max(1, steps_since_last_trade)
+        obs[idx] = min(1.0, alpha_urgency)
         idx += 1
 
         assert idx == self.feature_dim, f"Feature dimension mismatch: {idx} != {self.feature_dim}"

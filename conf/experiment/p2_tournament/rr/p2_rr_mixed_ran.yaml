@@ -14,5 +14,5 @@ market:
   gametype: 9999
 
 agents:
-  buyer_types: ["Skeleton", "ZIC", "ZIP", "GD"]
+  buyer_types: ["Kaplan", "Skeleton", "ZIC", "ZIP"]
   seller_types: ["Kaplan", "Skeleton", "ZIC", "ZIP"]

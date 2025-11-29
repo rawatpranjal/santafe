@@ -70,12 +70,29 @@ The Kaplan strategy is famous for its "waiting" game. It ignores the bidding war
 *   **[ ] Default Action:**
     *   If none of the above trigger $\rightarrow$ Do nothing (Return 0).
 
-#### 3. Bid-Ask Step (Seller Logic - Symmetric)
+#### 3. Bid-Ask Step (Seller Logic)
+
+> **⚠️ CRITICAL: Paper vs Java Discrepancy**
+>
+> The 1994 Rust et al. paper (line 587) states: *"We omitted diagrams of the ask routines
+> since they are symmetric to the bid routines."*
+>
+> However, the da2.7.2 Java implementation uses DIFFERENT denominators:
+> - **Buyer (line 66):** `(cask-cbid)/(cask+1) < 0.10` → uses **ASK**
+> - **Seller (line 94):** `(cask-cbid)/(cbid+1) < 0.10` → uses **BID**
+>
+> This asymmetry makes sellers LESS aggressive at jumping in when bid is low.
+>
+> **Available Variants:**
+> - `Kaplan` / `KaplanJava`: Follow Java da2.7.2 (asymmetric, seller uses BID)
+> - `KaplanPaper`: Follow paper claim (symmetric, seller uses ASK)
+
 *   **[ ] Check Standing Ask:** If none, Ask = `MaxPrice - 1`.
 *   **[ ] "Snipe" Condition:**
     *   1. Is `CurrentBid` $\ge$ `PMIN`?
     *   2. Is `(CurrentBid - Cost) / Cost` $> 0.02$?
-    *   3. Is `(CurrentAsk - CurrentBid)` $< 0.10 \times CurrentAsk$?
+    *   3. **Java (KaplanJava):** Is `(CurrentAsk - CurrentBid)` $< 0.10 \times (CurrentBid + 1)$?
+    *   3. **Paper (KaplanPaper):** Is `(CurrentAsk - CurrentBid)` $< 0.10 \times (CurrentAsk + 1)$?
     *   **Action:** If ALL True $\rightarrow$ Submit Ask = `CurrentBid`.
 *   **[ ] Default:** Wait in the background.
 

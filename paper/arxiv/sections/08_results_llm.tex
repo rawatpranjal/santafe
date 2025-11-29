@@ -33,7 +33,9 @@ Your bid must be: LESS THAN your valuation AND HIGHER than current best bid. \
 Example: If valuation=200, current bid=150, you can bid 151-199.''}
 \end{quote}
 
-This format achieved 2.19$\times$ ZIC buyer profit and 96.5\% efficiency, outperforming the aggressive-only prompt while eliminating seller confusion that caused negative profits in earlier variations. A complete example of the prompt-response cycle for a single trading step is provided in Appendix~\ref{app:llm_trader}.
+This format achieved 2.19$\times$ ZIC buyer profit and 96.5\% efficiency, outperforming the aggressive-only prompt while eliminating seller confusion that caused negative profits in earlier variations.
+
+We further extended the ultra-clear approach with \textit{deep context prompts} that include the complete order book history (last 5 bid/ask values), trade history with timestamps, and current position (tokens traded, accumulated profit). This deep context variant achieved \textbf{zero invalid actions} across 5 validation episodes with GPT-4o-mini, representing 100\% protocol compliance. The additional context allows the model to identify patterns in market evolution and make more informed decisions about timing and pricing. A complete example of the prompt-response cycle for a single trading step is provided in Appendix~\ref{app:llm_trader}.
 
 \subsection{Zero-Shot Performance vs Legacy Baselines}
 

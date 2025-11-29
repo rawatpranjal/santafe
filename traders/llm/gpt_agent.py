@@ -5,20 +5,22 @@ Uses OpenAI GPT models (GPT-4, GPT-3.5) to make trading decisions
 via natural language reasoning.
 """
 
-import os
 import json
 import logging
+import os
 import time
 from pathlib import Path
-from typing import Any, Optional
-from traders.llm.base_llm_agent import BaseLLMAgent
+from typing import Any
+
 from traders.llm.action_parser import BidAskAction, BuySellAction
+from traders.llm.base_llm_agent import BaseLLMAgent
 from traders.llm.cache_manager import CacheManager
 
 # Import LiteLLM
 try:
-    from litellm import completion
     import litellm
+    from litellm import completion
+
     LITELLM_AVAILABLE = True
 except ImportError:
     LITELLM_AVAILABLE = False
@@ -57,11 +59,11 @@ class GPTAgent(BaseLLMAgent):
         temperature: float = 0.7,
         use_cache: bool = True,
         cache_dir: str = ".cache/llm_responses",
-        output_dir: Optional[str] = None,
-        api_key: Optional[str] = None,
+        output_dir: str | None = None,
+        api_key: str | None = None,
         use_cot: bool = True,
         prompt_style: str = "minimal",
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         """
         Initialize GPT agent.
@@ -87,13 +89,19 @@ class GPTAgent(BaseLLMAgent):
         """
         if not LITELLM_AVAILABLE:
             raise ImportError(
-                "LiteLLM is required for GPT agents. "
-                "Install with: pip install litellm"
+                "LiteLLM is required for GPT agents. " "Install with: pip install litellm"
             )
 
         super().__init__(
-            player_id, is_buyer, num_tokens, valuations,
-            price_min, price_max, max_retries, num_times, **kwargs
+            player_id,
+            is_buyer,
+            num_tokens,
+            valuations,
+            price_min,
+            price_max,
+            max_retries,
+            num_times,
+            **kwargs,
         )
 
         self.model = model
@@ -109,13 +117,9 @@ class GPTAgent(BaseLLMAgent):
         else:
             # Check for appropriate API key
             if "groq/" in model and "GROQ_API_KEY" not in os.environ:
-                logger.warning(
-                    "No Groq API key found. Get free key at: https://console.groq.com"
-                )
+                logger.warning("No Groq API key found. Get free key at: https://console.groq.com")
             elif "groq/" not in model and "OPENAI_API_KEY" not in os.environ:
-                logger.warning(
-                    "No OpenAI API key found. Set OPENAI_API_KEY environment variable."
-                )
+                logger.warning("No OpenAI API key found. Set OPENAI_API_KEY environment variable.")
 
         # Setup caching
         self.use_cache = use_cache
@@ -137,9 +141,30 @@ class GPTAgent(BaseLLMAgent):
         self.prompt_style = prompt_style
 
         # System prompts - separate for each stage to avoid action confusion
-        if prompt_style == "minimal":
-            self.system_prompt_bid_ask = self.prompt_builder.build_minimal_system_prompt(is_buyer)
-            self.system_prompt_buy_sell = self.prompt_builder.build_minimal_system_prompt(is_buyer)
+        if prompt_style == "deep":
+            self.system_prompt_bid_ask = self.prompt_builder.build_deep_context_system_prompt(
+                is_buyer,
+                stage="bid_ask",
+                num_buyers=self.num_buyers,
+                num_sellers=self.num_sellers,
+                num_tokens=num_tokens,
+                max_time=num_times,
+            )
+            self.system_prompt_buy_sell = self.prompt_builder.build_deep_context_system_prompt(
+                is_buyer,
+                stage="buy_sell",
+                num_buyers=self.num_buyers,
+                num_sellers=self.num_sellers,
+                num_tokens=num_tokens,
+                max_time=num_times,
+            )
+        elif prompt_style == "minimal":
+            self.system_prompt_bid_ask = self.prompt_builder.build_minimal_system_prompt(
+                is_buyer, stage="bid_ask"
+            )
+            self.system_prompt_buy_sell = self.prompt_builder.build_minimal_system_prompt(
+                is_buyer, stage="buy_sell"
+            )
         else:
             self.system_prompt_bid_ask = self.prompt_builder.build_system_prompt(
                 is_buyer, use_cot=use_cot, stage="bid_ask"
@@ -170,7 +195,9 @@ class GPTAgent(BaseLLMAgent):
             Exception if API call fails after retries
         """
         # Select appropriate system prompt for stage
-        system_prompt = self.system_prompt_buy_sell if stage == "buy_sell" else self.system_prompt_bid_ask
+        system_prompt = (
+            self.system_prompt_buy_sell if stage == "buy_sell" else self.system_prompt_bid_ask
+        )
         self.system_prompt = system_prompt  # Update for logging
 
         # Check cache first (include stage in key to avoid cross-stage collisions)
@@ -193,12 +220,12 @@ class GPTAgent(BaseLLMAgent):
                     model=self.model,
                     messages=[
                         {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": prompt}
+                        {"role": "user", "content": prompt},
                     ],
                     temperature=self.temperature,
                     response_format={"type": "json_object"},  # JSON mode
                     max_tokens=1500,  # Large buffer for CoT reasoning
-                    timeout=30.0  # 30 second timeout
+                    timeout=30.0,  # 30 second timeout
                 )
 
                 # Check for truncation
@@ -218,7 +245,9 @@ class GPTAgent(BaseLLMAgent):
                     raise ValueError("Empty content in LLM response")
 
                 if not response_text.strip():
-                    logger.error(f"Empty content in LLM response (whitespace only): {repr(response_text)}")
+                    logger.error(
+                        f"Empty content in LLM response (whitespace only): {repr(response_text)}"
+                    )
                     raise ValueError("Empty content in LLM response (whitespace only)")
 
                 # Debug log raw response
@@ -233,16 +262,17 @@ class GPTAgent(BaseLLMAgent):
                     input_tokens = response.usage.prompt_tokens
                     output_tokens = response.usage.completion_tokens
                     self.cache.store_response(
-                        prompt, self.model, response_text,
-                        input_tokens, output_tokens, stage
+                        prompt, self.model, response_text, input_tokens, output_tokens, stage
                     )
 
                 return response_text
 
-            except litellm.RateLimitError as e:
+            except litellm.RateLimitError:
                 # Exponential backoff for rate limits
-                delay = base_delay * (2 ** attempt)
-                logger.warning(f"Rate limit hit, retrying in {delay:.1f}s (attempt {attempt + 1}/{max_retries})")
+                delay = base_delay * (2**attempt)
+                logger.warning(
+                    f"Rate limit hit, retrying in {delay:.1f}s (attempt {attempt + 1}/{max_retries})"
+                )
                 time.sleep(delay)
                 if attempt == max_retries - 1:
                     logger.error(f"Rate limit exceeded after {max_retries} retries")
@@ -273,11 +303,15 @@ class GPTAgent(BaseLLMAgent):
 
         # Save prompt (includes full context)
         prompt_file = self.prompts_dir / f"{filename_base}.txt"
-        full_prompt = f"=== SYSTEM PROMPT ===\n{self.system_prompt}\n\n=== USER PROMPT ===\n{prompt}\n"
+        full_prompt = (
+            f"=== SYSTEM PROMPT ===\n{self.system_prompt}\n\n=== USER PROMPT ===\n{prompt}\n"
+        )
         prompt_file.write_text(full_prompt)
 
         # Parse response to extract reasoning
-        parsed_response = json.loads(response) if response.strip().startswith("{") else {"raw": response}
+        parsed_response = (
+            json.loads(response) if response.strip().startswith("{") else {"raw": response}
+        )
 
         # Save response with metadata
         response_file = self.responses_dir / f"{filename_base}.json"
@@ -291,16 +325,12 @@ class GPTAgent(BaseLLMAgent):
             "reasoning": parsed_response.get("reasoning", None),  # Extract reasoning
             "action": parsed_response.get("action", None),
             "price": parsed_response.get("price", None),
-            "full_response": parsed_response
+            "full_response": parsed_response,
         }
         response_file.write_text(json.dumps(response_data, indent=2))
 
     def _generate_bid_ask_action(
-        self,
-        prompt: str,
-        valuation: int,
-        best_bid: int,
-        best_ask: int
+        self, prompt: str, valuation: int, best_bid: int, best_ask: int
     ) -> BidAskAction:
         """
         Generate bid/ask action using GPT.
@@ -326,7 +356,9 @@ class GPTAgent(BaseLLMAgent):
             response_data = json.loads(response_text)
 
             # Log parsed action
-            logger.debug(f"Parsed bid_ask action: {response_data.get('action')}, price={response_data.get('price')}")
+            logger.debug(
+                f"Parsed bid_ask action: {response_data.get('action')}, price={response_data.get('price')}"
+            )
 
             # Validate and create action
             action = BidAskAction(**response_data)
@@ -343,10 +375,7 @@ class GPTAgent(BaseLLMAgent):
             return BidAskAction(action="pass", reasoning=f"Parse error: {e}")
 
     def _generate_buy_sell_action(
-        self,
-        prompt: str,
-        valuation: int,
-        trade_price: int
+        self, prompt: str, valuation: int, trade_price: int
     ) -> BuySellAction:
         """
         Generate buy/sell decision using GPT.
