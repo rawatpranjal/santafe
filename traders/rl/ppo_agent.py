@@ -1,5 +1,6 @@
 import numpy as np
 from sb3_contrib import MaskablePPO
+from stable_baselines3 import PPO
 
 from engine.orderbook import OrderBook
 from envs.enhanced_features import EnhancedObservationGenerator
@@ -12,6 +13,7 @@ class PPOAgent(Agent):
 
     This agent bridges the gap between the Tournament engine and the Stable-Baselines3 model.
     It generates observations, masks invalid actions, and queries the policy for decisions.
+    Supports both regular PPO and MaskablePPO models.
     """
 
     def __init__(
@@ -21,13 +23,20 @@ class PPOAgent(Agent):
         num_tokens: int,
         valuations: list[int],
         model_path: str,
-        max_price: int = 1000,
+        max_price: int = 2000,
+        min_price: int = 1,
         max_steps: int = 100,
     ) -> None:
         super().__init__(player_id, is_buyer, num_tokens, valuations)
 
-        # Load Model (MaskablePPO for action masking)
-        self.model = MaskablePPO.load(model_path)
+        # Try loading as MaskablePPO first (most common for this project)
+        self.use_action_masking = True
+        try:
+            self.model = MaskablePPO.load(model_path)
+        except (ValueError, TypeError, KeyError):
+            # Fall back to regular PPO if MaskablePPO fails
+            self.model = PPO.load(model_path)
+            self.use_action_masking = False
 
         # Feature Generator
         self.obs_gen = EnhancedObservationGenerator(
@@ -37,7 +46,7 @@ class PPOAgent(Agent):
         # Internal State
         self.current_step = 0
         self.max_price = max_price
-        self.min_price = 0
+        self.min_price = min_price
         self.next_buy_sell = False
         self._steps_since_last_trade = 0  # For Skeleton-style time features
 
@@ -86,11 +95,15 @@ class PPOAgent(Agent):
         # 2. Generate Action Mask
         mask = self._get_action_mask()
 
-        # 3. Predict Action
-        # Note: Standard PPO doesn't support action masking directly in predict
-        # We rely on the environment to handle invalid actions (or punish them)
-        # For now, we just return the action index
-        action, _ = self.model.predict(obs, deterministic=True)
+        # 3. Predict Action (with or without action masking)
+        if self.use_action_masking:
+            # MaskablePPO supports action_masks parameter in predict()
+            action, _ = self.model.predict(
+                obs, deterministic=True, action_masks=mask.reshape(1, -1)
+            )
+        else:
+            # Regular PPO: use mask to filter invalid actions post-prediction
+            action, _ = self.model.predict(obs, deterministic=True)
         action_id = int(action)
 
         # 4. Map Action to Price

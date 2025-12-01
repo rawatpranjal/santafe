@@ -69,12 +69,8 @@ def plot_convergence_tunnel(
     trades = df[df["event_type"] == "trade"].copy()
 
     # Apply round/period filters
-    bid_ask = bid_ask[
-        (bid_ask["round"] == round_filter) & (bid_ask["period"] == period_filter)
-    ]
-    trades = trades[
-        (trades["round"] == round_filter) & (trades["period"] == period_filter)
-    ]
+    bid_ask = bid_ask[(bid_ask["round"] == round_filter) & (bid_ask["period"] == period_filter)]
+    trades = trades[(trades["round"] == round_filter) & (trades["period"] == period_filter)]
 
     if bid_ask.empty:
         print(f"No bid/ask events for round={round_filter}, period={period_filter}")
@@ -84,10 +80,9 @@ def plot_convergence_tunnel(
     bids = bid_ask[bid_ask["is_buyer"] == True]
     asks = bid_ask[bid_ask["is_buyer"] == False]
 
-    # Extract best bids/asks (status="winner" or "standing")
-    # Winner = new best price this step, Standing = holding from previous step
-    best_bids = bids[bids["status"].isin(["winner", "standing"])].copy()
-    best_asks = asks[asks["status"].isin(["winner", "standing"])].copy()
+    # Extract best bids/asks (status="winner" means new best price this step)
+    best_bids = bids[bids["status"] == "winner"].copy()
+    best_asks = asks[asks["status"] == "winner"].copy()
 
     # Sort by step for line plots
     best_bids = best_bids.sort_values("step")
@@ -197,12 +192,11 @@ def print_summary(events: list[dict], round_filter: int, period_filter: int) -> 
     period_starts = df[df["event_type"] == "period_start"]
     if not period_starts.empty:
         match = period_starts[
-            (period_starts["round"] == round_filter)
-            & (period_starts["period"] == period_filter)
+            (period_starts["round"] == round_filter) & (period_starts["period"] == period_filter)
         ]
         if not match.empty:
             row = match.iloc[0]
-            print(f"\n=== Period Info ===")
+            print("\n=== Period Info ===")
             print(f"Equilibrium Price: {row.get('equilibrium_price', 'N/A')}")
             print(f"Max Surplus: {row.get('max_surplus', 'N/A')}")
 
@@ -213,7 +207,7 @@ def print_summary(events: list[dict], round_filter: int, period_filter: int) -> 
         & (df["period"] == period_filter)
     ]
     if not trades.empty:
-        print(f"\n=== Trade Summary ===")
+        print("\n=== Trade Summary ===")
         print(f"Trades: {len(trades)}")
         print(f"Avg price: {trades['price'].mean():.1f}")
         print(f"Price range: {trades['price'].min()} - {trades['price'].max()}")

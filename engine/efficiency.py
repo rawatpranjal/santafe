@@ -14,9 +14,7 @@ from typing import Any
 import numpy as np
 
 
-def calculate_max_surplus(
-    buyer_valuations: list[list[int]], seller_costs: list[list[int]]
-) -> int:
+def calculate_max_surplus(buyer_valuations: list[list[int]], seller_costs: list[list[int]]) -> int:
     """
     Calculate the maximum possible surplus (competitive equilibrium).
 
@@ -92,9 +90,7 @@ def calculate_equilibrium_price(
         4. Return midpoint of marginal pair
     """
     # Flatten and sort
-    all_vals = sorted(
-        [v for vals in buyer_valuations for v in vals], reverse=True
-    )
+    all_vals = sorted([v for vals in buyer_valuations for v in vals], reverse=True)
     all_costs = sorted([c for costs in seller_costs for c in costs])
 
     if not all_vals or not all_costs:
@@ -184,23 +180,51 @@ def calculate_allocative_efficiency(actual_surplus: int, max_surplus: int) -> fl
 
 
 def calculate_v_inefficiency(
-    max_trades: int, actual_trades: int
+    actual_trades: int,
+    buyer_valuations: list[list[int]],
+    seller_costs: list[list[int]],
 ) -> int:
     """
-    Calculate V-Inefficiency (missed trades).
+    Calculate V-Inefficiency (missed surplus from untraded intra-marginal units).
 
-    V-Inefficiency measures how many profitable trades were NOT executed.
+    V-Inefficiency measures the surplus that would have been gained from
+    profitable trades that were NOT executed.
 
     Args:
-        max_trades: Maximum number of profitable trades possible
         actual_trades: Actual number of trades executed
+        buyer_valuations: List of valuation arrays, one per buyer
+        seller_costs: List of cost arrays, one per seller
 
     Returns:
-        Number of missed profitable trades
+        Missed surplus from untraded intra-marginal units (integer)
 
-    Reference: Cason & Friedman (1996)
+    Formula (from metrics.md Section 2.2):
+        IM = Σ(D(q) - S(q)) for untraded intra-marginal units
+
+    Reference: Rust, Palmer, & Miller (1993); Cason & Friedman (1996)
     """
-    return max(0, max_trades - actual_trades)
+    # Flatten and sort buyer valuations (descending) = demand curve D(q)
+    all_vals = sorted([v for vals in buyer_valuations for v in vals], reverse=True)
+
+    # Flatten and sort seller costs (ascending) = supply curve S(q)
+    all_costs = sorted([c for costs in seller_costs for c in costs])
+
+    # Find max possible profitable trades (Q*)
+    max_trades = 0
+    for i in range(min(len(all_vals), len(all_costs))):
+        if all_vals[i] > all_costs[i]:
+            max_trades += 1
+        else:
+            break
+
+    # Sum surplus from untraded intra-marginal units
+    missed_surplus = 0
+    for i in range(actual_trades, max_trades):
+        if i < len(all_vals) and i < len(all_costs):
+            # This is an intra-marginal unit that should have traded
+            missed_surplus += all_vals[i] - all_costs[i]
+
+    return missed_surplus
 
 
 def calculate_em_inefficiency(
@@ -530,7 +554,7 @@ def calculate_smiths_alpha(transaction_prices: list[int], equilibrium_price: int
     Reference: Smith (1962) "An Experimental Study of Competitive Market Behavior"
     """
     if not transaction_prices or equilibrium_price == 0:
-        return float('inf')
+        return float("inf")
 
     k = len(transaction_prices)
     sigma_0_squared = sum((p - equilibrium_price) ** 2 for p in transaction_prices) / k
@@ -576,3 +600,413 @@ def calculate_individual_efficiency_ratio(
         return 1.0 if actual_profit >= 0 else 0.0
 
     return actual_profit / equilibrium_profit
+
+
+# =============================================================================
+# PRICE CONVERGENCE METRICS (Section 3 of metrics.md)
+# =============================================================================
+
+
+def calculate_rmsd(transaction_prices: list[int], equilibrium_price: int) -> float:
+    """
+    Calculate Root Mean Squared Deviation from equilibrium price.
+
+    Formula (metrics.md Section 3.1):
+        RMSD = sqrt((1/T) * Σ(p_t - P*)²)
+
+    Args:
+        transaction_prices: List of transaction prices
+        equilibrium_price: Competitive equilibrium price P*
+
+    Returns:
+        RMSD (float, lower is better)
+
+    Reference: Gode & Sunder (1993)
+    """
+    if not transaction_prices:
+        return 0.0
+
+    squared_diffs = [(p - equilibrium_price) ** 2 for p in transaction_prices]
+    return float((sum(squared_diffs) / len(transaction_prices)) ** 0.5)
+
+
+def calculate_volatility_pct(transaction_prices: list[int]) -> float:
+    """
+    Calculate price volatility as percentage (coefficient of variation).
+
+    Formula (metrics.md Section 3.4):
+        Volatility% = (σ_p / p̄) × 100
+
+    Args:
+        transaction_prices: List of transaction prices
+
+    Returns:
+        Volatility percentage (float)
+        - <5% indicates good convergence
+        - >20% indicates unstable market
+
+    Reference: Santa Fe Tournament
+    """
+    if len(transaction_prices) <= 1:
+        return 0.0
+
+    mean_price = sum(transaction_prices) / len(transaction_prices)
+    if mean_price == 0:
+        return 0.0
+
+    std_dev = float(np.std(transaction_prices))
+    return 100.0 * std_dev / mean_price
+
+
+def calculate_hit_rate(
+    transaction_prices: list[int],
+    equilibrium_price: int,
+    band_pct: float = 0.05,
+) -> float:
+    """
+    Calculate percentage of trades within ±band_pct of equilibrium.
+
+    Formula (metrics.md Section 3.5, 3.10):
+        H_k = (|{t : |p_t - P*| ≤ k% × P*}| / T) × 100
+
+    Args:
+        transaction_prices: List of transaction prices
+        equilibrium_price: Competitive equilibrium price P*
+        band_pct: Band width as fraction (default 0.05 = 5%)
+
+    Returns:
+        Hit rate percentage (0-100)
+
+    Reference: Rust, Palmer, & Miller (1994) Table 4.4
+    """
+    if not transaction_prices or equilibrium_price == 0:
+        return 0.0
+
+    threshold = band_pct * equilibrium_price
+    hits = sum(1 for p in transaction_prices if abs(p - equilibrium_price) <= threshold)
+    return 100.0 * hits / len(transaction_prices)
+
+
+def calculate_mad(transaction_prices: list[int], equilibrium_price: int) -> float:
+    """
+    Calculate Mean Absolute Deviation from equilibrium price.
+
+    Formula (metrics.md Section 3.6):
+        MAD = (1/T) * Σ|p_t - P*|
+
+    Args:
+        transaction_prices: List of transaction prices
+        equilibrium_price: Competitive equilibrium price P*
+
+    Returns:
+        MAD in price units (float)
+
+    Reference: Gjerstad & Dickhaut (1998)
+    """
+    if not transaction_prices:
+        return 0.0
+
+    return sum(abs(p - equilibrium_price) for p in transaction_prices) / len(transaction_prices)
+
+
+def calculate_mapd(transaction_prices: list[int], equilibrium_price: int) -> float:
+    """
+    Calculate Mean Absolute Percentage Deviation from equilibrium.
+
+    Formula (metrics.md Section 3.6):
+        MAPD = (1/T) * Σ(|p_t - P*| / P*) × 100
+
+    Args:
+        transaction_prices: List of transaction prices
+        equilibrium_price: Competitive equilibrium price P*
+
+    Returns:
+        MAPD percentage (float)
+
+    Note: MAPD allows comparison across markets with different price levels.
+
+    Reference: metrics.md Section 3.6
+    """
+    if not transaction_prices or equilibrium_price == 0:
+        return 0.0
+
+    return (
+        100.0
+        * sum(abs(p - equilibrium_price) / equilibrium_price for p in transaction_prices)
+        / len(transaction_prices)
+    )
+
+
+def calculate_dev_max(transaction_prices: list[int], equilibrium_price: int) -> float:
+    """
+    Calculate maximum percentage deviation from equilibrium.
+
+    Formula (metrics.md Section 3.7):
+        DEV_MAX = max_t(|p_t - P*| / P*) × 100
+
+    Args:
+        transaction_prices: List of transaction prices
+        equilibrium_price: Competitive equilibrium price P*
+
+    Returns:
+        Maximum percentage deviation (float)
+
+    Reference: Rust, Palmer, & Miller (1994) Table 4.4
+    """
+    if not transaction_prices or equilibrium_price == 0:
+        return 0.0
+
+    return 100.0 * max(abs(p - equilibrium_price) / equilibrium_price for p in transaction_prices)
+
+
+def calculate_dev_last(transaction_prices: list[int], equilibrium_price: int) -> float:
+    """
+    Calculate percentage deviation of last transaction from equilibrium.
+
+    Formula (metrics.md Section 3.8):
+        DEV_LAST = (|p_T - P*| / P*) × 100
+
+    Args:
+        transaction_prices: List of transaction prices
+        equilibrium_price: Competitive equilibrium price P*
+
+    Returns:
+        Last transaction deviation percentage (float)
+
+    Reference: Rust, Palmer, & Miller (1994) Table 4.4
+    """
+    if not transaction_prices or equilibrium_price == 0:
+        return 0.0
+
+    return 100.0 * abs(transaction_prices[-1] - equilibrium_price) / equilibrium_price
+
+
+def calculate_dev_average(transaction_prices: list[int], equilibrium_price: int) -> float:
+    """
+    Calculate signed average percentage deviation from equilibrium.
+
+    Formula (metrics.md Section 3.9):
+        DEV_AVERAGE = (1/T) * Σ((p_t - P*) / P*) × 100
+
+    Args:
+        transaction_prices: List of transaction prices
+        equilibrium_price: Competitive equilibrium price P*
+
+    Returns:
+        Signed average deviation percentage (float)
+        - Positive = prices systematically above equilibrium
+        - Negative = prices systematically below equilibrium
+
+    Reference: Rust, Palmer, & Miller (1994) Table 4.4
+    """
+    if not transaction_prices or equilibrium_price == 0:
+        return 0.0
+
+    return (
+        100.0
+        * sum((p - equilibrium_price) / equilibrium_price for p in transaction_prices)
+        / len(transaction_prices)
+    )
+
+
+# =============================================================================
+# DYNAMIC METRICS (Section 5 of metrics.md)
+# =============================================================================
+
+
+def calculate_pct2nd(trade_times: list[float], t_max: float) -> float:
+    """
+    Calculate fraction of trades in second half of period.
+
+    Formula (metrics.md Section 5.6):
+        PCT2ND = (|{t : τ_t > T_max/2}| / T) × 100
+
+    Args:
+        trade_times: List of trade timestamps
+        t_max: Maximum time allowed in period
+
+    Returns:
+        Percentage of trades in second half (0-100)
+
+    Interpretation:
+        High PCT2ND indicates deadline bunching / "wait in background"
+        strategies (like Kaplan).
+
+    Reference: Rust, Palmer, & Miller (1994) Table 4.4
+    """
+    if not trade_times or t_max <= 0:
+        return 0.0
+
+    second_half = sum(1 for t in trade_times if t > t_max / 2)
+    return 100.0 * second_half / len(trade_times)
+
+
+def calculate_convergence_time(
+    transaction_prices: list[int],
+    equilibrium_price: int,
+    band_pct: float = 0.05,
+) -> int:
+    """
+    Calculate first trade index where price enters equilibrium band.
+
+    Formula (metrics.md Section 5.3):
+        T* = min{t : |p_t - P*| ≤ 0.05 × P*}
+
+    Args:
+        transaction_prices: List of transaction prices
+        equilibrium_price: Competitive equilibrium price P*
+        band_pct: Band width as fraction (default 0.05 = 5%)
+
+    Returns:
+        1-indexed trade number of first convergence, or -1 if never converged
+
+    Expected values:
+        - GD: <1 period
+        - ZIP: 1-2 periods
+        - ZIC: Never (no learning)
+
+    Reference: metrics.md Section 5.3
+    """
+    if not transaction_prices or equilibrium_price == 0:
+        return -1
+
+    threshold = band_pct * equilibrium_price
+    for i, p in enumerate(transaction_prices):
+        if abs(p - equilibrium_price) <= threshold:
+            return i + 1  # 1-indexed
+
+    return -1  # Never converged
+
+
+def calculate_t_last(trade_times: list[float]) -> float:
+    """
+    Calculate time of last transaction.
+
+    Formula (metrics.md Section 5.4):
+        T_last = max_t(τ_t)
+
+    Args:
+        trade_times: List of trade timestamps
+
+    Returns:
+        Time of last trade (float)
+
+    Interpretation:
+        If T_last ≈ T_max consistently, indicates "wait in background"
+        strategies (like Kaplan) causing deadline congestion.
+
+    Reference: Rust, Palmer, & Miller (1993)
+    """
+    if not trade_times:
+        return 0.0
+
+    return max(trade_times)
+
+
+def calculate_autocorrelation(transaction_prices: list[int], lag: int = 1) -> float:
+    """
+    Calculate lag-k autocorrelation of price changes.
+
+    Formula (metrics.md Section 5.1):
+        ρ = Corr(Δp_t, Δp_{t-1})
+        where Δp_t = p_t - p_{t-1}
+
+    Args:
+        transaction_prices: List of transaction prices
+        lag: Lag for autocorrelation (default 1)
+
+    Returns:
+        Autocorrelation coefficient (-1 to 1)
+        - ρ < 0: Mean-reversion (prices overshoot then correct)
+        - ρ = 0: Random walk (no predictability)
+        - ρ > 0: Momentum/trending
+
+    Expected: ρ ≈ -0.25 (Rust et al. finding)
+
+    Reference: Rust, Palmer, & Miller (1994)
+    """
+    if len(transaction_prices) < lag + 2:
+        return 0.0
+
+    # Calculate price changes
+    changes = [
+        transaction_prices[i] - transaction_prices[i - 1] for i in range(1, len(transaction_prices))
+    ]
+
+    if len(changes) < lag + 1:
+        return 0.0
+
+    # Calculate lagged correlation
+    n = len(changes) - lag
+    if n <= 0:
+        return 0.0
+
+    mean = sum(changes) / len(changes)
+    variance = sum((c - mean) ** 2 for c in changes) / len(changes)
+
+    if variance == 0:
+        return 0.0
+
+    covariance = sum((changes[i] - mean) * (changes[i + lag] - mean) for i in range(n)) / n
+
+    return covariance / variance
+
+
+def calculate_rank_correlation(
+    trades: list[tuple[int, int, int, int]],
+    buyer_valuations: dict[int, list[int]],
+    seller_costs: dict[int, list[int]],
+) -> float:
+    """
+    Calculate Spearman rank correlation of trade order vs efficient order.
+
+    Formula (metrics.md Section 5.5):
+        ρ_s = Spearman(R_actual, R_ideal)
+
+    Theory suggests highest-value buyer should trade with lowest-cost seller first.
+
+    Args:
+        trades: List of (buyer_id, seller_id, price, buyer_unit) tuples
+        buyer_valuations: Dict mapping buyer_id -> list of valuations
+        seller_costs: Dict mapping seller_id -> list of costs
+
+    Returns:
+        Spearman correlation coefficient (-1 to 1)
+        - ρ_s = 1.0: Market perfectly executed most profitable trades first
+        - ρ_s = 0.0: Random order
+        - ρ_s < 0: Anti-efficient order
+
+    Reference: Rust, Palmer, & Miller (1994)
+    """
+    if len(trades) < 2:
+        return 0.0
+
+    # Calculate surplus for each actual trade
+    seller_positions: dict[int, int] = {sid: 0 for sid in seller_costs.keys()}
+    actual_surpluses = []
+
+    for buyer_id, seller_id, price, buyer_unit in trades:
+        buyer_val = buyer_valuations[buyer_id][buyer_unit]
+        seller_unit = seller_positions[seller_id]
+        seller_cost = seller_costs[seller_id][seller_unit]
+        seller_positions[seller_id] += 1
+
+        surplus = buyer_val - seller_cost
+        actual_surpluses.append(surplus)
+
+    # Ideal order: sorted by surplus descending
+    ideal_order = sorted(
+        range(len(actual_surpluses)), key=lambda i: actual_surpluses[i], reverse=True
+    )
+
+    # Actual order is just 0, 1, 2, ...
+    actual_ranks = list(range(len(actual_surpluses)))
+    ideal_ranks = [0] * len(actual_surpluses)
+    for rank, idx in enumerate(ideal_order):
+        ideal_ranks[idx] = rank
+
+    # Spearman correlation: 1 - (6 * Σd²) / (n(n²-1))
+    n = len(actual_surpluses)
+    d_squared_sum = sum((actual_ranks[i] - ideal_ranks[i]) ** 2 for i in range(n))
+
+    return 1 - (6 * d_squared_sum) / (n * (n**2 - 1))

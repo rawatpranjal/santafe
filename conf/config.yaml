@@ -6,12 +6,13 @@ defaults:
   - experiment: ???  # Must be specified on command line
 
 # Market Parameters (AURORA Rules - 1993 Santa Fe Tournament)
+# See checklists/env.md for canonical environment specifications
 market:
   min_price: 1
-  max_price: 1000
+  max_price: 2000        # Santa Fe BASE env (RAN uses 3000)
   num_tokens: 4          # Per trader
-  num_periods: 10        # Periods per round
-  num_steps: 100         # Steps per period
+  num_periods: 3         # Periods per round (Santa Fe BASE env)
+  num_steps: 75          # Steps per period (Santa Fe BASE env)
   gametype: 6453         # SFI game type (seed for value generation)
   clearing_rule: "aurora"  # AURORA matching rule
   deadsteps: 0           # Consecutive no-trade steps before early termination (0 = disabled)

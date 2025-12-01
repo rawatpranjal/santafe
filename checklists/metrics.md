@@ -83,8 +83,17 @@ $$EM = \sum_{t \in \text{Extra-marginal trades}} (c_t - v_t)$$
 
 **Seller Displacement (SS):** Surplus lost when an extra-marginal seller displaces an intra-marginal seller.
 
+**Percentage Components (for decomposition identity):**
+
+$$IM\% = \frac{IM}{TS^*} \times 100$$
+$$EM\% = \frac{EM}{TS^*} \times 100$$
+$$BS\% = \frac{BS}{TS^*} \times 100$$
+$$SS\% = \frac{SS}{TS^*} \times 100$$
+
 **Decomposition Identity:**
-$$100\% - E = IM + EM + BS + SS$$
+$$100\% - E = IM\% + EM\% + BS\% + SS\%$$
+
+**Note:** This identity is dimensionally correct when all terms are expressed as percentages of $TS^*$.
 
 ---
 
@@ -134,11 +143,13 @@ $$\text{Volatility\%} = \frac{\sigma_p}{\bar{p}} \times 100$$
 
 **Interpretation:** <5% indicates good convergence; >20% indicates unstable market.
 
-### 3.5 Hit Rate
+### 3.5 Hit Rate (5% Band)
 
-From Santa Fe Tournament. Percentage of trades within band around equilibrium.
+From Santa Fe Tournament. Percentage of trades within ±5% band around equilibrium.
 
-$$H = \frac{|\{t : |p_t - P^*| \leq 0.05 \cdot P^*\}|}{T}$$
+$$H_5 = \frac{|\{t : |p_t - P^*| \leq 0.05 \cdot P^*\}|}{T} \times 100$$
+
+**Note:** See Section 3.10 for additional band widths (1%, 2%, 10%).
 
 ### 3.6 Mean Absolute Deviation (MAD)
 
@@ -150,6 +161,51 @@ $$MAD = \frac{1}{T} \sum_{t=1}^{T} |p_t - P^*|$$
 |-------------|--------------|
 | ZIP | ~\$0.08 |
 | GD | ~\$0.04 |
+
+**Mean Absolute Percentage Deviation (MAPD):**
+
+For cross-market comparison (normalized by equilibrium price):
+
+$$MAPD = \frac{1}{T} \sum_{t=1}^{T} \frac{|p_t - P^*|}{P^*} \times 100$$
+
+**Interpretation:** MAPD allows comparison across markets with different price levels; MAD is useful when markets share the same price scale.
+
+### 3.7 Maximum Percentage Deviation (DEV_MAX)
+
+From Rust, Palmer, & Miller (1994) Table 4.4.
+
+$$DEV_{MAX} = \max_t \frac{|p_t - P^*|}{P^*} \times 100$$
+
+**Interpretation:** Captures worst-case price excursion from equilibrium.
+
+### 3.8 Last Transaction Deviation (DEV_LAST)
+
+From Rust, Palmer, & Miller (1994) Table 4.4.
+
+$$DEV_{LAST} = \frac{|p_T - P^*|}{P^*} \times 100$$
+
+**Interpretation:** How close the final trade was to equilibrium. Important for deadline dynamics.
+
+### 3.9 Average Percentage Deviation (DEV_AVERAGE)
+
+From Rust, Palmer, & Miller (1994) Table 4.4. Signed average deviation (not absolute).
+
+$$DEV_{AVERAGE} = \frac{1}{T}\sum_{t=1}^{T} \frac{p_t - P^*}{P^*} \times 100$$
+
+**Interpretation:** Positive = prices systematically above equilibrium; negative = below.
+
+### 3.10 Multiple Band Hit Rates
+
+From Rust, Palmer, & Miller (1994) Table 4.4. Fraction of trades within various bands.
+
+$$H_k = \frac{|\{t : |p_t - P^*| \leq k\% \cdot P^*\}|}{T} \times 100$$
+
+| Metric | Band Width |
+|--------|------------|
+| $H_1$ (HitRate1) | ±1% |
+| $H_2$ (HitRate2) | ±2% |
+| $H_5$ (HitRate5) | ±5% |
+| $H_{10}$ (HitRate10) | ±10% |
 
 ---
 
@@ -303,6 +359,14 @@ Let $R_{ideal}$ be rank vector sorted by theoretical surplus.
 $$\rho_s = \text{Spearman}(R_{actual}, R_{ideal})$$
 
 **Interpretation:** $\rho_s = 1.0$ means market perfectly executed most profitable trades first.
+
+### 5.6 Fraction of Trades in Second Half (PCT2ND)
+
+From Rust, Palmer, & Miller (1994) Table 4.4.
+
+$$PCT2ND = \frac{|\{t : \tau_t > T_{max}/2\}|}{T} \times 100$$
+
+**Interpretation:** High PCT2ND indicates deadline bunching / "wait in background" strategies (like Kaplan).
 
 ---
 

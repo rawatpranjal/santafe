@@ -1,0 +1,18 @@
+\begin{table}[H]
+\centering
+\caption{PPO Pairwise Competition: Mixed Market Performance (2 PPO + 2 Opponent per side)}
+\label{tab:ppo_pairwise}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Metric} & \textbf{PPO vs ZIC} & \textbf{PPO vs ZIP} & \textbf{PPO vs Skeleton} & \textbf{PPO vs Kaplan} \\
+\midrule
+Efficiency (mean$\pm$std) & 96.4$\pm$0.9\% & 91.9$\pm$1.9\% & 97.9$\pm$0.2\% & 95.2$\pm$0.4\% \\
+\midrule
+\multicolumn{5}{l}{\textit{Mean Profit per Agent}} \\
+PPO Profit & 1182 & 1278 & 628 & 1838 \\
+Opponent Profit & 1069 & 1016 & 1256 & 823 \\
+PPO/Opponent Ratio & 1.10x & 1.26x & 0.50x & 2.24x \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize 5 seeds, 50 rounds each in BASE environment. Ratio $>$1.0 = PPO outperforms opponent.} \\
+\end{tabular}
+\end{table}

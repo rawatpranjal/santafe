@@ -51,7 +51,7 @@ class BaseLLMAgent(Agent):
             price_max: Maximum market price (default 1000)
             max_retries: Maximum retry attempts for invalid actions (default 3)
             num_times: Maximum time steps per period (default 100)
-            prompt_style: "minimal", "deep", or "original"
+            prompt_style: "minimal", "deep", "dashboard", "constraints", "dense", or "original"
             num_buyers: Number of buyers in market (for context)
             num_sellers: Number of sellers in market (for context)
             **kwargs: Additional agent-specific parameters
@@ -162,7 +162,28 @@ class BaseLLMAgent(Agent):
         valuation = self.valuations[self.num_trades]
 
         # Build prompt based on style
-        if self.prompt_style == "deep":
+        if self.prompt_style == "dashboard":
+            # Remaining values for dashboard context
+            remaining_values = self.valuations[self.num_trades : self.num_tokens]
+            prompt = self.prompt_builder.build_dashboard_bid_ask_prompt(
+                is_buyer=self.is_buyer,
+                valuation=valuation,
+                tokens_remaining=self.num_tokens - self.num_trades,
+                tokens_total=self.num_tokens,
+                time_step=self._current_time,
+                max_time=self.max_time,
+                best_bid=self._current_best_bid,
+                best_ask=self._current_best_ask,
+                order_book_history=self._order_book_history,
+                trade_history=self._trade_history,
+                period_profit=self.period_profit,
+                remaining_values=remaining_values,
+                period=self._current_period,
+                num_periods=10,  # Default
+                num_buyers=self.num_buyers,
+                num_sellers=self.num_sellers,
+            )
+        elif self.prompt_style == "deep":
             prompt = self.prompt_builder.build_deep_context_bid_ask_prompt(
                 is_buyer=self.is_buyer,
                 valuation=valuation,
@@ -188,6 +209,33 @@ class BaseLLMAgent(Agent):
                 best_ask=self._current_best_ask,
                 recent_trades=self._recent_trades,
                 period_profit=self.period_profit,
+            )
+        elif self.prompt_style == "constraints":
+            prompt = self.prompt_builder.build_constraints_bid_ask_prompt(
+                is_buyer=self.is_buyer,
+                valuation=valuation,
+                tokens_remaining=self.num_tokens - self.num_trades,
+                tokens_total=self.num_tokens,
+                time_step=self._current_time,
+                max_time=self.max_time,
+                best_bid=self._current_best_bid,
+                best_ask=self._current_best_ask,
+                period_profit=self.period_profit,
+                period=self._current_period,
+            )
+        elif self.prompt_style == "dense":
+            prompt = self.prompt_builder.build_dense_bid_ask_prompt(
+                is_buyer=self.is_buyer,
+                valuation=valuation,
+                tokens_remaining=self.num_tokens - self.num_trades,
+                tokens_total=self.num_tokens,
+                time_step=self._current_time,
+                max_time=self.max_time,
+                best_bid=self._current_best_bid,
+                best_ask=self._current_best_ask,
+                period=self._current_period,
+                period_profit=self.period_profit,
+                trade_history=self._trade_history,
             )
         else:
             # Original verbose prompt
@@ -315,7 +363,15 @@ class BaseLLMAgent(Agent):
         trade_price = self._current_low_ask if self.is_buyer else self._current_high_bid
 
         # Build prompt based on style
-        if self.prompt_style == "deep":
+        if self.prompt_style == "dashboard":
+            prompt = self.prompt_builder.build_dashboard_buy_sell_prompt(
+                is_buyer=self.is_buyer,
+                valuation=valuation,
+                trade_price=trade_price,
+                can_accept=True,
+                period_profit=self.period_profit,
+            )
+        elif self.prompt_style == "deep":
             prompt = self.prompt_builder.build_deep_context_buy_sell_prompt(
                 is_buyer=self.is_buyer,
                 valuation=valuation,
@@ -329,6 +385,27 @@ class BaseLLMAgent(Agent):
                 valuation=valuation,
                 trade_price=trade_price,
                 can_accept=True,  # Already checked above
+            )
+        elif self.prompt_style == "constraints":
+            prompt = self.prompt_builder.build_constraints_buy_sell_prompt(
+                is_buyer=self.is_buyer,
+                valuation=valuation,
+                trade_price=trade_price,
+                can_accept=True,  # Already checked above
+                period_profit=self.period_profit,
+            )
+        elif self.prompt_style == "dense":
+            # For buyer: my_standing_price = CurrentBid (what I'd pay if seller accepts)
+            # For seller: my_standing_price = CurrentAsk (what I'd receive if buyer accepts)
+            my_standing_price = self._current_high_bid if self.is_buyer else self._current_low_ask
+            prompt = self.prompt_builder.build_dense_buy_sell_prompt(
+                is_buyer=self.is_buyer,
+                valuation=valuation,
+                trade_price=trade_price,
+                my_standing_price=my_standing_price,
+                can_accept=True,  # Already checked above
+                is_current_holder=True,
+                period_profit=self.period_profit,
             )
         else:
             prompt = self.prompt_builder.build_buy_sell_prompt(

@@ -2,15 +2,14 @@
 \centering
 \caption{Individual Profit Analysis: ZIP vs ZIC Mixed Market}
 \label{tab:profit_analysis}
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrr}
 \toprule
-\textbf{Type} & \textbf{Avg Profit} & \textbf{Eq Profit} & \textbf{Deviation} & \textbf{Dev \%} \\
+\textbf{Type} & \textbf{Total Profit (mean$\pm$std)} & \textbf{Profit Ratio} \\
 \midrule
-ZIP & 59,214 & 53,321 & +5,894 & \textbf{+11.1\%} \\
-ZIC & 45,071 & 54,390 & -9,318 & \textbf{-17.1\%} \\
+ZIP & 247,905 $\pm$ 15,508 & \textbf{1.30x} \\
+ZIC & 190,496 $\pm$ 12,676 & 1.00x \\
 \bottomrule
-\multicolumn{5}{l}{\footnotesize Config: 4 ZIP + 4 ZIC per side, 50 rounds, 10 periods.} \\
-\multicolumn{5}{l}{\footnotesize Eq Profit = fair share under competitive equilibrium.} \\
-\multicolumn{5}{l}{\footnotesize ZIP extracts +11\% surplus; ZIC loses -17\% to competitors.} \\
+\multicolumn{3}{l}{\footnotesize 10 seeds, 50 rounds each. Config: 4 ZIP + 4 ZIC per side.} \\
+\multicolumn{3}{l}{\footnotesize ZIP earns 30\% more than ZIC through adaptive learning.} \\
 \end{tabular}
 \end{table}

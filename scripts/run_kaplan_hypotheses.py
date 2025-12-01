@@ -115,10 +115,13 @@ def run_experiment(
     num_periods: int = 10,
     price_min: int = 1,
     price_max: int = 1000,
-    seed: int = 42,
+    seed: int = 123,  # Match tournament's rng_seed_values
 ) -> pd.DataFrame:
-    """Run a single hypothesis experiment."""
+    """Run a single hypothesis experiment.
 
+    NOTE: Uses single TokenGenerator with sequential new_round() calls
+    to match tournament.py behavior exactly.
+    """
     env = ENV_PARAMS[exp["env"]]
     num_tokens = exp.get("tokens_override", env["num_tokens"])
     num_steps = env["num_steps"]
@@ -130,45 +133,48 @@ def run_experiment(
 
     all_results = []
 
+    # FIXED: Single TokenGenerator, reused across rounds (matches tournament.py)
+    gametype = env["gametype"]
+    token_gen = TokenGenerator(gametype, num_tokens, seed)
+    rng_seed_auction = 42  # Match tournament's rng_seed_auction
+
     for r in range(num_rounds):
-        round_seed = seed + r * 1000
+        # Advance round state (matches tournament.py line 128)
+        token_gen.new_round()
 
-        # Use Santa Fe TokenGenerator with gametype (same as official tournament)
-        gametype = env["gametype"]
-        token_gen = TokenGenerator(gametype, num_tokens, round_seed)
-        token_gen.new_round()  # Initialize round-specific params A, B1, B2, C
-
-        # Create agents
+        # Create agents with consistent seeds (matches tournament.py)
         buyers = []
         for i, agent_type in enumerate(buyer_types):
+            player_id = i + 1
             vals = token_gen.generate_tokens(is_buyer=True)
             agent = create_agent(
                 agent_type,
-                player_id=i + 1,
+                player_id=player_id,
                 is_buyer=True,
                 num_tokens=num_tokens,
                 valuations=vals,
                 price_min=price_min,
                 price_max=price_max,
                 num_times=num_steps,
-                seed=round_seed + i,
+                seed=rng_seed_auction + player_id,
             )
             agent.start_round(vals)
             buyers.append(agent)
 
         sellers = []
         for i, agent_type in enumerate(seller_types):
+            player_id = num_buyers + i + 1
             costs = token_gen.generate_tokens(is_buyer=False)
             agent = create_agent(
                 agent_type,
-                player_id=num_buyers + i + 1,
+                player_id=player_id,
                 is_buyer=False,
                 num_tokens=num_tokens,
                 valuations=costs,
                 price_min=price_min,
                 price_max=price_max,
                 num_times=num_steps,
-                seed=round_seed + num_buyers + i,
+                seed=rng_seed_auction + player_id,
             )
             agent.start_round(costs)
             sellers.append(agent)

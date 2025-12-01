@@ -31,11 +31,20 @@ References: Smith (1962), Gode & Sunder (1993), Cliff & Bruten (1997)
 - Trading volume distribution
 - Profit dispersion
 
-### Outputs
-- [ ] **Table 1.1:** Efficiency matrix (trader × environment)
-- [ ] **Figure 1.1:** Efficiency by environment (grouped bar chart)
-- [ ] **Figure 1.2:** Price convergence comparison
-- [ ] **Figure 1.3:** Efficiency distribution (box plots by trader type)
+### Outputs (In Paper)
+- [x] **table_foundational.tex:** Foundational ZI results ✅
+- [x] **table_efficiency_full.tex:** Full efficiency matrix ✅
+- [x] **table_volatility_full.tex:** Price volatility matrix ✅
+- [x] **table_vineff_full.tex:** V-inefficiency matrix ✅
+- [x] **table_dispersion_full.tex:** Profit dispersion matrix ✅
+- [x] **table_trades_full.tex:** Trades per period matrix ✅
+- [x] **learning_curves.pdf:** ZIP learning convergence ✅
+- [x] **case_study_zi.pdf:** ZI vs ZIC case study ✅
+
+### Additional Generated (Not in Paper)
+- [x] efficiency_by_environment.pdf (grouped bar chart) ✅
+- [x] price_convergence.pdf ✅
+- [x] efficiency_boxplots.pdf ✅
 
 ---
 
@@ -82,14 +91,23 @@ Reference: Rust et al. (1994)
 - Bid-ask spread evolution
 - Profit rankings
 
-### Outputs
-- [ ] **Table 2.1:** Against Control results (strategy vs 7 ZIC × environment)
-- [ ] **Table 2.2:** Self-play efficiency matrix (5 strategies × 10 environments)
-- [ ] **Table 2.3:** Round Robin tournament results
-- [ ] **Figure 2.1:** Kaplan efficiency: mixed vs pure markets
-- [ ] **Figure 2.2:** Price autocorrelation by trader type
-- [ ] **Figure 2.3:** Trading volume by period percentage (closing panic)
-- [ ] **Figure 2.4:** Trader hierarchy chart
+### Outputs (In Paper)
+- [x] **table_control.tex:** Against Control results ✅
+- [x] **table_control_volatility.tex:** Control price volatility ✅
+- [x] **table_invasibility.tex:** Invasibility ratios ✅
+- [x] **table_selfplay.tex:** Self-play efficiency ✅
+- [x] **table_selfplay_volatility.tex:** Self-play volatility ✅
+- [x] **table_selfplay_vineff.tex:** Self-play V-inefficiency ✅
+- [x] **table_pairwise.tex:** Pairwise matchups ✅
+- [x] **table_zip_tuning.tex:** ZIP hyperparameter sensitivity ✅
+- [x] **table_profit_analysis.tex:** ZIP vs ZIC profit analysis ✅
+- [x] **table_roundrobin.tex:** Round Robin full results ✅
+- [x] **table_roundrobin_summary.tex:** Round Robin summary ✅
+- [x] **kaplan_mixed_vs_pure.pdf:** Kaplan mixed vs pure markets ✅
+- [x] **price_autocorrelation.pdf:** Price autocorrelation by trader ✅
+- [x] **case_study_mixed.pdf:** Mixed market case study ✅
+- [x] **trading_volume_timing.pdf:** Trading volume by period ✅
+- [x] **trader_hierarchy.pdf:** Trader strategy hierarchy ✅
 
 ---
 
@@ -129,18 +147,48 @@ Reference: Chen et al. (2010)
 - PPO profit rank
 - Training curves
 
-### Outputs
-- [ ] **Table 3.1:** Against Control results (PPO vs 7 ZIC × environment)
-- [ ] **Table 3.2:** Self-play results (PPO × environment)
-- [ ] **Table 3.3:** Round Robin results (PPO in Mixed × environment)
-- [ ] **Figure 3.1:** PPO training curves
-- [ ] **Figure 3.2:** PPO vs legacy trader comparison
+### Outputs (In Paper)
+- [x] **table_ppo_control.tex:** PPO vs 7 ZIC control results ✅
+- [x] **table_ppo_control_volatility.tex:** PPO control volatility ✅
+- [x] **table_ppo_invasibility.tex:** PPO invasibility ratios ✅
+- [x] **table_ppo_pairwise.tex:** PPO pairwise tournament results ✅
+- [x] **ppo_zi_combined.pdf:** PPO vs ZI/ZIC/ZIP metrics ✅
+- [x] **ppo_tournament_bar.pdf:** PPO tournament ranking bar ✅
+- [x] **ppo_learning_curve.pdf:** PPO training learning curve ✅
+
+### Additional Generated (Not in Paper)
+- [x] ppo_training_curves.pdf ✅
+- [x] ppo_vs_legacy.pdf ✅
 
 ---
 
 ## Part 4: LLM Agents
 
 LLM treated as another AI agent type (zero-shot, no training).
+
+### 4.0 Model Baseline Comparison — 35 runs (7 models × 5 seeds)
+
+**Goal**: Establish baseline benchmark across model tiers. Pick 3 models (one per tier) for subsequent experiments.
+
+**Model Tiers**:
+- **TOP**: o4-mini-low, o4-mini-high (reasoning models)
+- **MID**: GPT-4.1, GPT-4.1-mini, GPT-4o (production-grade)
+- **LOW**: GPT-4o-mini, GPT-3.5-turbo (cheap baseline)
+
+**Configuration**:
+- Environment: BASE (4B/4S, 4 tokens)
+- Market: 1 round × 1 period × 100 steps
+- Seeds: 42, 123, 456, 789, 1000
+- Prompt: Dense (full market mechanics, no strategy hints)
+- Temperature: Default
+
+**Outputs**:
+- [x] **Table 4.0**: Model Comparison (7 models × 5 seeds → mean±std ratio) ✅
+- [x] **Notes 4.0**: Qualitative "persona" for each model's reasoning style ✅
+
+**Post-Experiment Selection**: Pick 1 model from each tier for Part 4.1-4.3.
+
+---
 
 ### Competitor Set 1: Against Control (LLM vs 7 ZIC) — 10 configs
 
@@ -169,47 +217,37 @@ LLM treated as another AI agent type (zero-shot, no training).
 - API cost per decision
 - Latency per decision
 
-### Outputs
-- [ ] **Table 4.1:** Against Control results (LLM vs 7 ZIC × environment)
-- [ ] **Table 4.2:** Self-play results (LLM × environment)
-- [ ] **Table 4.3:** Round Robin results (LLM in Mixed × environment)
-- [ ] **Table 4.4:** Cost-benefit summary
-- [ ] **Figure 4.1:** LLM vs legacy trader comparison
-- [ ] **Figure 4.2:** Cost vs performance scatter
+### Outputs (In Paper)
+- [x] **table_llm_performance.tex:** LLM model comparison ✅
+
+### Planned (Not Yet Completed - High API Cost)
+- [ ] Table 4.1: LLM Against Control (LLM vs 7 ZIC × environment)
+- [ ] Table 4.2: LLM Self-play results
+- [ ] Table 4.3: LLM Round Robin results
+- [ ] Figure 4.1: LLM vs legacy trader comparison
+- [ ] Figure 4.2: Cost vs performance scatter
 
 ---
 
-## Output Artifacts Summary
+## Output Artifacts Summary (Aligned with Actual Paper)
 
-### Tables
-- [ ] 1.1: Part 1 efficiency matrix (ZI/ZIC/ZIP × 10 environments)
-- [ ] 2.1: Against Control (strategy vs 7 ZIC × environment)
-- [ ] 2.2: Self-play efficiency (5 strategies × 10 environments)
-- [ ] 2.3: Round Robin tournament results
-- [ ] 3.1: PPO Against Control (PPO vs 7 ZIC × environment)
-- [ ] 3.2: PPO Self-play results
-- [ ] 3.3: PPO Round Robin results
-- [ ] 4.1: LLM Against Control (LLM vs 7 ZIC × environment)
-- [ ] 4.2: LLM Self-play results
-- [ ] 4.3: LLM Round Robin results
-- [ ] 4.4: LLM cost-benefit summary
+### Section 5: Zero-Intelligence (Part 1) - COMPLETE
+**Tables:** table_foundational, table_efficiency_full, table_volatility_full, table_vineff_full, table_dispersion_full, table_trades_full ✅
+**Figures:** learning_curves.pdf, case_study_zi.pdf ✅
 
-### Figures
-- [ ] 1.1: Efficiency by environment (grouped bar)
-- [ ] 1.2: Price convergence comparison
-- [ ] 1.3: Efficiency distribution (box plots)
-- [ ] 2.1: Kaplan mixed vs pure efficiency
-- [ ] 2.2: Price autocorrelation
-- [ ] 2.3: Trading volume (closing panic)
-- [ ] 2.4: Trader hierarchy chart
-- [ ] 3.1: PPO training curves
-- [ ] 3.2: PPO vs legacy comparison
-- [ ] 4.1: LLM vs legacy comparison
-- [ ] 4.2: Cost vs performance scatter
+### Section 6: Santa Fe Tournament (Part 2) - COMPLETE
+**Tables:** table_control, table_control_volatility, table_invasibility, table_selfplay, table_selfplay_volatility, table_selfplay_vineff, table_pairwise, table_zip_tuning, table_profit_analysis, table_roundrobin, table_roundrobin_summary ✅
+**Figures:** kaplan_mixed_vs_pure.pdf, price_autocorrelation.pdf, case_study_mixed.pdf, trading_volume_timing.pdf, trader_hierarchy.pdf ✅
 
-### Statistical Tests
-- [ ] Efficiency differences across trader types (ANOVA)
-- [ ] Price autocorrelation significance
-- [ ] AI vs legacy comparisons
-- [ ] Confidence intervals
+### Section 7: PPO RL (Part 3) - COMPLETE
+**Tables:** table_ppo_control, table_ppo_control_volatility, table_ppo_invasibility, table_ppo_pairwise ✅
+**Figures:** ppo_zi_combined.pdf, ppo_tournament_bar.pdf, ppo_learning_curve.pdf ✅
 
+### Section 8: LLM (Part 4) - MINIMAL
+**Tables:** table_llm_performance ✅
+**Figures:** None
+
+### What's Left (Optional/Expensive)
+- [ ] LLM Control/Self-play/Round-Robin experiments (high API cost)
+- [ ] LLM figures (4.1, 4.2)
+- [ ] Statistical tests (ANOVA, confidence intervals)

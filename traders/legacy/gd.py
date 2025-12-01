@@ -9,10 +9,12 @@ The GD agent forms beliefs about acceptance probabilities based on historical
 bid/ask data and chooses prices to maximize expected surplus.
 """
 
-from typing import Any, Optional
+import logging
+from typing import Any
+
 import numpy as np
 from scipy.interpolate import PchipInterpolator
-import logging
+
 from traders.base import Agent
 
 logger = logging.getLogger(__name__)
@@ -58,7 +60,7 @@ class GD(Agent):
     - ✅ Buy/sell decision logic (certain vs expected surplus)
     - ⚠️  Timing mechanism not implemented (optional)
     """
-    
+
     def __init__(
         self,
         player_id: int,
@@ -67,13 +69,13 @@ class GD(Agent):
         valuations: list[int],
         price_min: int = 0,
         price_max: int = 100,
-        memory_length: int = 100,
-        seed: Optional[int] = None,
-        **kwargs: Any
+        memory_length: int = 20,  # Reduced from 100 for performance (paper uses L=5)
+        seed: int | None = None,
+        **kwargs: Any,
     ) -> None:
         """
         Initialize GD agent.
-        
+
         Args:
             player_id: Agent ID
             is_buyer: True for buyer, False for seller
@@ -90,7 +92,7 @@ class GD(Agent):
         self.price_max = price_max
         self.memory_length = memory_length
         self.rng = np.random.default_rng(seed)
-        
+
         # History tracking
         # Format: list of (price, is_bid, accepted)
         self.history: list[tuple[int, bool, bool]] = []
@@ -113,7 +115,13 @@ class GD(Agent):
         # History seeding removed - not mentioned in GD paper
         # Starting with empty history -> uniform priors (p=0.5, q=0.5)
         # This matches the paper's approach (Definition 10-11, page 13)
-        
+
+        # Belief curve caching for performance
+        self._belief_cache_valid = False
+        self._cached_prices: list[int] = []
+        self._cached_probs: list[float] = []
+        self._cached_is_buyer: bool = True
+
     def reset(self):
         super().reset()
         self.history = []
@@ -125,17 +133,17 @@ class GD(Agent):
     def start_period(self, period_number: int) -> None:
         """
         Called at the start of a trading period.
-        
+
         Per Santa Fe rules:
         - Equilibrium (valuations/costs) changes between ROUNDS.
         - Equilibrium stays constant across PERIODS within a round.
-        
+
         Therefore:
         - If period_number == 1: New Round -> RESET MEMORY.
         - If period_number > 1: Same Round -> KEEP MEMORY.
         """
         super().start_period(period_number)
-        
+
         if period_number == 1:
             # New round, new equilibrium. Reset beliefs.
             self.history = []
@@ -144,7 +152,7 @@ class GD(Agent):
             self.current_low_ask = self.price_max
             self.current_quote = 0
             # Note: We do NOT reset self.rng or other persistent states
-            
+
     def _truncate_history(self) -> None:
         """
         Keep only the last L observations (bids/asks) in history.
@@ -157,7 +165,7 @@ class GD(Agent):
         if len(self.history) > max_history_size:
             # Keep only the most recent observations
             self.history = self.history[-max_history_size:]
-            
+
     def _build_belief_curve(self, is_buyer: bool) -> tuple[list[int], list[float]]:
         """
         Build belief curve using correct GD directional logic.
@@ -170,6 +178,10 @@ class GD(Agent):
         - B(>=a) = TB(>=a) + RB(>=a) = all bids at prices >= a
         - A(<=b) = TA(<=b) + RA(<=b) = all asks at prices <= b
         """
+        # Check cache first
+        if self._belief_cache_valid and self._cached_is_buyer == is_buyer:
+            return self._cached_prices, self._cached_probs
+
         # 1. Collect all relevant prices
         prices = set()
         prices.add(self.price_min)
@@ -177,24 +189,28 @@ class GD(Agent):
         for p, _, _ in self.history:
             prices.add(p)
         sorted_prices = sorted(list(prices))
-        
+
         # 2. Count occurrences at each price
         # Maps price -> count
         count_TA = {p: 0 for p in sorted_prices}
         count_RA = {p: 0 for p in sorted_prices}
         count_TB = {p: 0 for p in sorted_prices}
         count_RB = {p: 0 for p in sorted_prices}
-        
+
         for p, is_bid, accepted in self.history:
             # Find nearest price in sorted_prices (exact match likely)
             if p in count_TA:
                 if is_bid:
-                    if accepted: count_TB[p] += 1
-                    else: count_RB[p] += 1
+                    if accepted:
+                        count_TB[p] += 1
+                    else:
+                        count_RB[p] += 1
                 else:
-                    if accepted: count_TA[p] += 1
-                    else: count_RA[p] += 1
-                    
+                    if accepted:
+                        count_TA[p] += 1
+                    else:
+                        count_RA[p] += 1
+
         # 3. Compute Cumulative Counts
         # Arrays corresponding to sorted_prices
         n = len(sorted_prices)
@@ -202,9 +218,9 @@ class GD(Agent):
         arr_RA = [count_RA[p] for p in sorted_prices]
         arr_TB = [count_TB[p] for p in sorted_prices]
         arr_RB = [count_RB[p] for p in sorted_prices]
-        
+
         probs = []
-        
+
         if not is_buyer:
             # Seller: Calculate p(a)
             # Paper formula: p(a) = [TA(>=a) + B(>=a)] / [TA(>=a) + B(>=a) + RA(<=a)]
@@ -213,10 +229,10 @@ class GD(Agent):
             total_TA = sum(arr_TA)
             total_TB = sum(arr_TB)
             total_RB = sum(arr_RB)
-            
+
             # Prefix sums for RA (RA <= a)
             current_RA_le = 0
-            
+
             # Prefix sums for TA, TB, RB (to calculate >= a)
             current_TA_lt = 0
             current_TB_lt = 0
@@ -225,18 +241,18 @@ class GD(Agent):
             for i in range(n):
                 # Update prefix sums (inclusive for RA, exclusive for others)
                 current_RA_le += arr_RA[i]
-                
+
                 # Calculate suffix sums (>= a)
                 TA_ge = total_TA - current_TA_lt
                 TB_ge = total_TB - current_TB_lt
                 RB_ge = total_RB - current_RB_lt
                 B_ge = TB_ge + RB_ge  # All bids >= a
-                
+
                 numerator = TA_ge + B_ge
                 denominator = numerator + current_RA_le
-                
+
                 if denominator == 0:
-                    probs.append(0.5) # Fallback
+                    probs.append(0.5)  # Fallback
                 else:
                     probs.append(numerator / denominator)
 
@@ -245,7 +261,6 @@ class GD(Agent):
                 current_TB_lt += arr_TB[i]
                 current_RB_lt += arr_RB[i]
 
-                
             # Enforce boundary beliefs (Paper p. 13)
             # Sellers believe p(price_min) = 1 (always accepted at min price)
             # Sellers believe p(price_max) = 0 (never accepted at max price)
@@ -255,19 +270,19 @@ class GD(Agent):
                     probs[0] = 1.0
                 if sorted_prices[-1] == self.price_max:
                     probs[-1] = 0.0
-                
+
         else:
             # Buyer: Calculate q(b)
             # Paper formula: q(b) = [TB(<=b) + A(<=b)] / [TB(<=b) + A(<=b) + RB(>b)]
             # Where A(<=b) = TA(<=b) + RA(<=b) = all asks <= b
 
             total_RB = sum(arr_RB)
-            
+
             # Prefix sums for TB, TA, RA (to calculate <= b)
             current_TB_le = 0
             current_TA_le = 0
             current_RA_le = 0
-            
+
             # Prefix sum for RB (to calculate > b)
             current_RB_le = 0
 
@@ -282,18 +297,18 @@ class GD(Agent):
                 TA_le = current_TA_le
                 RA_le = current_RA_le
                 A_le = TA_le + RA_le  # All asks <= b
-                
+
                 # Calculate suffix sum (> b)
                 RB_gt = total_RB - current_RB_le
 
                 numerator = TB_le + A_le
                 denominator = numerator + RB_gt
-                
+
                 if denominator == 0:
                     probs.append(0.5)
                 else:
                     probs.append(numerator / denominator)
-                    
+
             # Enforce boundary beliefs (Paper p. 13)
             # Buyers believe q(price_min) = 0 (never accepted at min price)
             # Buyers believe q(price_max) = 1 (always accepted at max price)
@@ -305,7 +320,15 @@ class GD(Agent):
                     probs[-1] = 1.0
 
         if logger.isEnabledFor(logging.DEBUG) and len(self.history) > 0:
-             logger.debug(f"GD P{self.player_id} BELIEFS ({'Buyer' if is_buyer else 'Seller'}): prices={sorted_prices} probs={[round(p, 2) for p in probs]}")
+            logger.debug(
+                f"GD P{self.player_id} BELIEFS ({'Buyer' if is_buyer else 'Seller'}): prices={sorted_prices} probs={[round(p, 2) for p in probs]}"
+            )
+
+        # Cache the result
+        self._cached_prices = sorted_prices
+        self._cached_probs = probs
+        self._cached_is_buyer = is_buyer
+        self._belief_cache_valid = True
 
         return sorted_prices, probs
 
@@ -358,33 +381,37 @@ class GD(Agent):
         """
         if self.num_trades >= self.num_tokens:
             return 0
-            
+
         valuation = self.valuations[self.num_trades]
-        
+
         # Search range
         if self.is_buyer:
             # Buyer: Bid between [price_min, valuation]
             # Must be > high_bid to be valid (unless high_bid is 0)
             min_p = max(self.price_min, self.current_high_bid + 1)
-            max_p = valuation # No point bidding > valuation
+            max_p = valuation  # No point bidding > valuation
             if min_p > max_p:
-                return 0 # Cannot improve
+                return 0  # Cannot improve
             search_prices = np.arange(min_p, max_p + 1)
         else:
             # Seller: Ask between [cost, price_max]
             # Must be < low_ask to be valid
-            min_p = valuation # Cost
-            max_p = min(self.price_max, self.current_low_ask - 1) if self.current_low_ask > 0 else self.price_max
+            min_p = valuation  # Cost
+            max_p = (
+                min(self.price_max, self.current_low_ask - 1)
+                if self.current_low_ask > 0
+                else self.price_max
+            )
             if min_p > max_p:
                 return 0
             search_prices = np.arange(min_p, max_p + 1)
-            
+
         if len(search_prices) == 0:
             return 0
-            
+
         # Build belief curve
         obs_prices, obs_probs = self._build_belief_curve(self.is_buyer)
-        
+
         # Interpolate using PCHIP (Monotonic Cubic Spline)
         # This avoids oscillations and preserves monotonicity of beliefs
         if len(obs_prices) > 1:
@@ -400,47 +427,32 @@ class GD(Agent):
                 interp_probs = np.interp(search_prices, obs_prices, obs_probs)
         else:
             # Not enough points, fallback to constant
-            interp_probs = np.full_like(search_prices, obs_probs[0] if obs_prices else 0.5, dtype=float)
-        
-        best_expected_surplus = -float('inf')
-        best_price = 0
-        best_prob = 0.0
-        
-        # Limit price for surplus calc
-        limit_price = valuation
-        
-        for i, price in enumerate(search_prices):
-            prob = interp_probs[i]
-            
-            if self.is_buyer:
-                surplus = limit_price - price
-            else:
-                surplus = price - limit_price
-                
-            expected = prob * surplus
-            
-            if expected > best_expected_surplus:
-                best_expected_surplus = expected
-                best_price = price
-                best_prob = prob
-                
-        # Fallback
-        if best_expected_surplus <= 0:
-             # If no positive surplus expected, might quote limit or pass
-             # GD usually quotes limit if prob is low?
-             # Let's stick to best found.
-             pass
-             
+            interp_probs = np.full_like(
+                search_prices, obs_probs[0] if obs_prices else 0.5, dtype=float
+            )
+
+        # Vectorized expected surplus calculation
+        if self.is_buyer:
+            surpluses = valuation - search_prices
+        else:
+            surpluses = search_prices - valuation
+
+        expected = interp_probs * surpluses
+        best_idx = int(np.argmax(expected))
+        best_price = int(search_prices[best_idx])
+        best_prob = float(interp_probs[best_idx])
+        best_expected_surplus = float(expected[best_idx])
+
         self.current_quote_prob = best_prob
-        
+
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(
                 f"GD P{self.player_id} OPTIMIZE: val={valuation} best_price={best_price} "
                 f"prob={best_prob:.2f} exp_surplus={best_expected_surplus:.2f}"
             )
-            
+
         return int(best_price)
-        
+
     def bid_ask(self, time: int, nobidask: int) -> None:
         """
         Notification: Time to submit a bid/ask.
@@ -451,12 +463,12 @@ class GD(Agent):
     def bid_ask_response(self) -> int:
         """Return bid or ask."""
         self.has_responded = True
-        
+
         # Calculate optimal quote using current belief and market state
         quote = self._calculate_quote()
         self.current_quote = quote
         return quote
-        
+
     def bid_ask_result(
         self,
         status: int,
@@ -470,13 +482,14 @@ class GD(Agent):
     ) -> None:
         """
         Process bid/ask stage results.
-        
+
         Record ALL new bids/asks in history (not yet accepted/rejected).
         This is critical for GD belief formation (needs full market history).
         """
-        super().bid_ask_result(status, num_trades, new_bids, new_asks,
-                               high_bid, high_bidder, low_ask, low_asker)
-        
+        super().bid_ask_result(
+            status, num_trades, new_bids, new_asks, high_bid, high_bidder, low_ask, low_asker
+        )
+
         # Store market state
         self.current_high_bid = high_bid
         self.current_low_ask = low_ask
@@ -486,12 +499,14 @@ class GD(Agent):
             if bid > 0:
                 # (price, is_bid=True, accepted=False)
                 self.history.append((bid, True, False))
+                self._belief_cache_valid = False  # Invalidate cache
 
         # Record ALL new asks from the market
         for ask in new_asks:
             if ask > 0:
                 # (price, is_bid=False, accepted=False)
                 self.history.append((ask, False, False))
+                self._belief_cache_valid = False  # Invalidate cache
 
         # Record OWN bid/ask submission if not already in new_bids/new_asks
         # (e.g., if we were the only bidder/asker, it might be in new_bids, but let's be safe)
@@ -500,7 +515,7 @@ class GD(Agent):
         # However, if our quote was invalid (e.g. not improving), it won't be in new_bids.
         # GD paper implies observing *market* data. Invalid quotes might not be observed.
         # We'll stick to observing new_bids/new_asks as the "public" history.
-        
+
     def buy_sell(
         self,
         time: int,
@@ -514,7 +529,7 @@ class GD(Agent):
         self.has_responded = False
         self.current_high_bid = high_bid
         self.current_low_ask = low_ask
-        
+
     def buy_sell_response(self) -> bool:
         """
         Decide whether to accept current market price using GD expected surplus.
@@ -579,7 +594,7 @@ class GD(Agent):
 
             # Accept if certain surplus from accepting now >= expected surplus from waiting
             return bool(certain_surplus >= expected_surplus_wait)
-        
+
     def buy_sell_result(
         self,
         status: int,
@@ -595,8 +610,9 @@ class GD(Agent):
 
         Record accepted/rejected bids and asks based on market outcomes.
         """
-        super().buy_sell_result(status, trade_price, trade_type, high_bid,
-                                high_bidder, low_ask, low_asker)
+        super().buy_sell_result(
+            status, trade_price, trade_type, high_bid, high_bidder, low_ask, low_asker
+        )
 
         if trade_type != 0:
             # Trade occurred
@@ -604,13 +620,18 @@ class GD(Agent):
             self.history_trade_count += 1
 
             # Update our pending submission from bid_ask_result
-            if self.history and self.history[-1][0] == self.current_quote and not self.history[-1][2]:
+            if (
+                self.history
+                and self.history[-1][0] == self.current_quote
+                and not self.history[-1][2]
+            ):
                 self.history.pop()
 
             # Record the successful trade
-            self.history.append((trade_price, True, True))   # Bid accepted
+            self.history.append((trade_price, True, True))  # Bid accepted
             self.history.append((trade_price, False, True))  # Ask accepted
-            
+            self._belief_cache_valid = False  # Invalidate cache
+
             # Prune history if we have too many trades
             self._truncate_history()
 
@@ -620,24 +641,24 @@ class GD(Agent):
         # Update current market state for next iteration
         self.current_high_bid = high_bid
         self.current_low_ask = low_ask
-        
+
     def _truncate_history(self):
         """
         Truncate history to keep only the last `memory_length` trades.
-        
-        The paper (Definition 7) defines history H_n(L) as the messages 
+
+        The paper (Definition 7) defines history H_n(L) as the messages
         leading up to the last L transactions.
-        
+
         We iterate from the end of history backwards, counting trades.
         Once we find L trades, we discard everything before that point.
         """
         if self.history_trade_count <= self.memory_length:
             return
-            
+
         # Count trades from the end
         trades_found = 0
         cutoff_index = 0
-        
+
         # history is list of (price, is_bid, accepted)
         # A "trade" in our history is represented by a pair of accepted bid/ask
         # or just the fact that we added them in buy_sell_result.
@@ -645,7 +666,7 @@ class GD(Agent):
         # Since we add 2 entries per trade, we look for 2*L accepted entries?
         # Or simpler: we tracked self.history_trade_count.
         # But to find the *index* to cut, we need to scan.
-        
+
         # Scan backwards
         for i in range(len(self.history) - 1, -1, -1):
             _, _, accepted = self.history[i]
@@ -659,14 +680,14 @@ class GD(Agent):
                 if trades_found >= self.memory_length * 2:
                     cutoff_index = i
                     break
-        
+
         # Keep from cutoff_index onwards
         # But wait, we want the messages *leading up to* these trades too?
         # The paper says: "messages leading up to the last L transactions".
         # So we should keep the rejected bids/asks that happened *between* trade L and L+1?
         # No, "leading up to the last L".
         # So everything AFTER the (L+1)-th trade from the end.
-        
+
         if cutoff_index > 0:
             self.history = self.history[cutoff_index:]
             # Recalculate trade count

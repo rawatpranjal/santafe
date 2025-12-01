@@ -31,5 +31,6 @@ env:
   price_max: 100
   rl_agent_type: "buyer"  # "buyer" or "seller"
   opponent_type: "ZIC"  # "ZIC", "Kaplan", "Mixed"
+  gametype: null  # Token generation: null = UniformTokenGenerator, int (e.g., 6453) = tournament gametype formula
   use_enhanced_env: true  # Use EnhancedDoubleAuctionEnv with richer features
   pure_profit_mode: true  # Use raw profit as reward (Chen et al. style)

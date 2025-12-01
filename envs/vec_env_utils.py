@@ -33,6 +33,7 @@ def make_env(
     price_max: int = 100,
     rl_agent_type: str = "buyer",
     opponent_type: str = "ZIC",
+    gametype: int | None = None,
     seed: int = 0,
     use_enhanced_env: bool = True,
     pure_profit_mode: bool = False,
@@ -79,6 +80,7 @@ def make_env(
             "rl_agent_id": rl_agent_id,
             "rl_is_buyer": rl_is_buyer,
             "opponent_type": opponent_type,
+            "gametype": gametype,
             "pure_profit_mode": pure_profit_mode,
         }
 

@@ -63,6 +63,7 @@ class GPTAgent(BaseLLMAgent):
         api_key: str | None = None,
         use_cot: bool = True,
         prompt_style: str = "minimal",
+        reasoning_effort: str | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -85,6 +86,7 @@ class GPTAgent(BaseLLMAgent):
             api_key: OpenAI API key (or set OPENAI_API_KEY env var)
             use_cot: Enable chain-of-thought reasoning (default True)
             prompt_style: "minimal" for pure facts, "original" for verbose prompts
+            reasoning_effort: "low", "medium", or "high" for o-series reasoning models
             **kwargs: Additional parameters
         """
         if not LITELLM_AVAILABLE:
@@ -106,6 +108,7 @@ class GPTAgent(BaseLLMAgent):
 
         self.model = model
         self.temperature = temperature
+        self.reasoning_effort = reasoning_effort
 
         # Setup API key
         if api_key:
@@ -141,7 +144,24 @@ class GPTAgent(BaseLLMAgent):
         self.prompt_style = prompt_style
 
         # System prompts - separate for each stage to avoid action confusion
-        if prompt_style == "deep":
+        if prompt_style == "dashboard":
+            self.system_prompt_bid_ask = self.prompt_builder.build_dashboard_system_prompt(
+                is_buyer,
+                stage="bid_ask",
+                num_buyers=self.num_buyers,
+                num_sellers=self.num_sellers,
+                num_tokens=num_tokens,
+                max_time=num_times,
+            )
+            self.system_prompt_buy_sell = self.prompt_builder.build_dashboard_system_prompt(
+                is_buyer,
+                stage="buy_sell",
+                num_buyers=self.num_buyers,
+                num_sellers=self.num_sellers,
+                num_tokens=num_tokens,
+                max_time=num_times,
+            )
+        elif prompt_style == "deep":
             self.system_prompt_bid_ask = self.prompt_builder.build_deep_context_system_prompt(
                 is_buyer,
                 stage="bid_ask",
@@ -163,6 +183,20 @@ class GPTAgent(BaseLLMAgent):
                 is_buyer, stage="bid_ask"
             )
             self.system_prompt_buy_sell = self.prompt_builder.build_minimal_system_prompt(
+                is_buyer, stage="buy_sell"
+            )
+        elif prompt_style == "constraints":
+            self.system_prompt_bid_ask = self.prompt_builder.build_constraints_system_prompt(
+                is_buyer, stage="bid_ask"
+            )
+            self.system_prompt_buy_sell = self.prompt_builder.build_constraints_system_prompt(
+                is_buyer, stage="buy_sell"
+            )
+        elif prompt_style == "dense":
+            self.system_prompt_bid_ask = self.prompt_builder.build_dense_system_prompt(
+                is_buyer, stage="bid_ask"
+            )
+            self.system_prompt_buy_sell = self.prompt_builder.build_dense_system_prompt(
                 is_buyer, stage="buy_sell"
             )
         else:
@@ -216,17 +250,34 @@ class GPTAgent(BaseLLMAgent):
 
         for attempt in range(max_retries):
             try:
-                response = completion(
-                    model=self.model,
-                    messages=[
+                # Check model type for special handling
+                is_gpt5 = "gpt-5" in self.model
+                is_o_series = self.model.startswith("o")
+
+                # Build completion kwargs
+                completion_kwargs: dict[str, Any] = {
+                    "model": self.model,
+                    "messages": [
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": prompt},
                     ],
-                    temperature=self.temperature,
-                    response_format={"type": "json_object"},  # JSON mode
-                    max_tokens=1500,  # Large buffer for CoT reasoning
-                    timeout=30.0,  # 30 second timeout
-                )
+                    "timeout": 60.0 if is_o_series else 30.0,  # o-series needs more time
+                }
+
+                # o-series models don't use temperature, use reasoning_effort instead
+                if is_o_series:
+                    completion_kwargs["max_completion_tokens"] = 16000  # o-series uses this
+                    if self.reasoning_effort:
+                        completion_kwargs["reasoning_effort"] = self.reasoning_effort
+                else:
+                    # Standard models
+                    effective_temp = 1.0 if is_gpt5 else self.temperature
+                    effective_max_tokens = 4000 if is_gpt5 else 1500
+                    completion_kwargs["temperature"] = effective_temp
+                    completion_kwargs["response_format"] = {"type": "json_object"}
+                    completion_kwargs["max_tokens"] = effective_max_tokens
+
+                response = completion(**completion_kwargs)
 
                 # Check for truncation
                 finish_reason = response.choices[0].finish_reason

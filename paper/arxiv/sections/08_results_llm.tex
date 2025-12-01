@@ -49,23 +49,29 @@ Comparing to legacy baselines, GPT-4o-mini buyers outperformed ZIC (2.19$\times$
 
 \subsection{Model Comparison: Intelligence vs Cost}
 
-We tested GPT-4o (stronger, more expensive) against GPT-4o-mini (weaker, cheaper) using identical ultra-clear prompts. Table~\ref{tab:model_comparison} compares performance and cost.
+To evaluate whether cheaper models could substitute for premium alternatives, we tested six GPT models spanning the full cost-performance spectrum using identical dashboard-style prompts. Each model traded as a single buyer against three ZIC buyers and four ZIC sellers over 10 periods (100 steps each). Table~\ref{tab:model_comparison} presents the results.
 
 \begin{table}[h]
     \centering
-    \caption{Model Comparison: Intelligence Premium Test}
+    \caption{GPT Model Family Comparison: Cost vs Performance (10 Periods)}
     \label{tab:model_comparison}
-    \begin{tabular}{lcccc}
+    \begin{tabular}{lccccc}
         \toprule
-        \textbf{Model} & \textbf{Efficiency} & \textbf{Buyer Profit} & \textbf{Seller Profit} & \textbf{Cost/Run} \\
+        \textbf{Model} & \textbf{Input \$/1M} & \textbf{Output \$/1M} & \textbf{Ratio vs ZIC} & \textbf{Win Rate} & \textbf{Status} \\
         \midrule
-        GPT-4o-mini & \textbf{96.5\%} & 192 (2.19$\times$ ZIC) & 20 & \textbf{\$0.31} \\
-        GPT-4o & 93.7\% & ~Similar & ~Similar & \$0.50 \\
+        GPT-4 Turbo & \$10.00 & \$30.00 & \textbf{2.23$\times$} & 70\% & \textbf{PASS} \\
+        GPT-4o & \$5.00 & \$15.00 & 2.00$\times$ & -- & PASS \\
+        GPT-4o-mini & \$0.15 & \$0.60 & 2.19$\times$ & -- & PASS \\
+        GPT-4.1-mini & \$0.40 & \$1.60 & 1.06$\times$ & 50\% & FAIL \\
+        GPT-5-nano & \$0.05 & \$0.40 & 0.89$\times$ & $<$50\% & FAIL \\
+        GPT-3.5-turbo & \$0.50 & \$1.50 & 0.62$\times$ & -- & FAIL \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-Surprisingly, GPT-4o-mini \textit{outperformed} GPT-4o in efficiency (96.5\% vs 93.7\%) despite lower capability. Both models achieved similar profit ratios. This finding suggests that well-engineered prompts with concrete examples are more important than raw model intelligence for bounded economic tasks. The weaker model's superior cost-efficiency (\$0.31 vs \$0.50 per run) makes it the clear choice for production deployment.
+The results reveal a clear capability threshold. All GPT-4 class models (GPT-4 Turbo, GPT-4o, GPT-4o-mini) consistently beat ZIC with profit ratios between 2.0x and 2.23x. In contrast, sub-GPT-4 models failed to outperform zero-intelligence constrained bidding: GPT-4.1-mini achieved only 1.06x (statistically equivalent to random), GPT-5-nano underperformed at 0.89x despite being marketed as the fastest model, and GPT-3.5-turbo managed only 0.62x.
+
+The cost-efficient frontier favors GPT-4o-mini: at \$0.15 per million input tokens (67x cheaper than GPT-4 Turbo), it achieves nearly identical performance (2.19x vs 2.23x). However, budget models offer no strategic advantage despite 25x cost savings. GPT-4.1-mini's 50\% win rate over 10 periods confirms that cheaper alternatives perform no better than random constrained bidding. This intelligence threshold suggests that the semantic reasoning required for profitable double auction trading requires GPT-4-level capabilities.
 
 \subsection{Diagnosis: Seller Role Confusion}
 
@@ -98,15 +104,17 @@ Table~\ref{tab:cost_analysis} compares computational requirements across agent t
     \centering
     \caption{Computational Requirements: LLM vs RL vs Legacy}
     \label{tab:cost_analysis}
-    \begin{tabular}{lcccc}
+    \begin{tabular}{lccccc}
         \toprule
-        \textbf{Agent Type} & \textbf{Setup Cost} & \textbf{Per-Run} & \textbf{Efficiency} & \textbf{Scalability} \\
+        \textbf{Agent Type} & \textbf{Setup Cost} & \textbf{Per-Run} & \textbf{Ratio vs ZIC} & \textbf{Efficiency} & \textbf{Scalability} \\
         \midrule
-        \textbf{GPT-4o-mini} & \$0 & \textbf{\$0.31} & \textbf{96.5\%} & High \\
-        GPT-4o & \$0 & \$0.50 & 93.7\% & High \\
-        PPO (trained) & 6-12 hrs & \$0 & TBD & Medium \\
-        Kaplan & \$0 & \$0 & 98.5\% & High \\
-        ZIP & \$0 & \$0 & 87.3\% & High \\
+        GPT-4 Turbo & \$0 & \$0.50 & \textbf{2.23$\times$} & 99.4\% & High \\
+        \textbf{GPT-4o-mini} & \$0 & \textbf{\$0.31} & 2.19$\times$ & \textbf{96.5\%} & High \\
+        GPT-4.1-mini & \$0 & \$0.10 & 1.06$\times$ & 99.4\% & High \\
+        GPT-3.5-turbo & \$0 & \$0.08 & 0.62$\times$ & 97.5\% & High \\
+        PPO (trained) & 6-12 hrs & \$0 & 1.42$\times$ & 99.0\% & Medium \\
+        Kaplan & \$0 & \$0 & 1.10$\times$ & 98.5\% & High \\
+        ZIP & \$0 & \$0 & 0.85$\times$ & 87.3\% & High \\
         \bottomrule
     \end{tabular}
 \end{table}

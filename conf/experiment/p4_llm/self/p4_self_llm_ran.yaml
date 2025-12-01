@@ -7,11 +7,11 @@ experiment:
 
 market:
   min_price: 1
-  max_price: 1000
+  max_price: 3000
   num_tokens: 4
-  num_periods: 10
-  num_steps: 100
-  gametype: 9999
+  num_periods: 3
+  num_steps: 50
+  gametype: 7
 
 agents:
   buyer_types: ["LLM", "LLM", "LLM", "LLM"]

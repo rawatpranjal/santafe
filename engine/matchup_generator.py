@@ -13,7 +13,6 @@ Key features:
 - Reproducible with fixed seeds
 """
 
-from typing import Tuple, List
 import numpy as np
 
 
@@ -29,7 +28,7 @@ class MatchupGenerator:
 
     def __init__(
         self,
-        strategy_pool: List[str],
+        strategy_pool: list[str],
         num_matchups: int = 300,
         num_buyers: int = 4,
         num_sellers: int = 4,
@@ -40,7 +39,7 @@ class MatchupGenerator:
 
         Args:
             strategy_pool: List of strategy names to sample from
-                          (e.g., ['ZIC', 'Kaplan', 'GD', 'ZIP', 'EL', 'Lin', 'Jacobson', 'Perry'])
+                          (e.g., ['ZIC', 'Kaplan', 'GD', 'ZIP', 'Ledyard', 'Lin', 'Jacobson', 'Perry'])
             num_matchups: Number of match-ups to generate (default: 300)
             num_buyers: Number of buyers per match-up (default: 4)
             num_sellers: Number of sellers per match-up (default: 4)
@@ -62,7 +61,7 @@ class MatchupGenerator:
         self.num_sellers = num_sellers
         self.rng = np.random.default_rng(seed)
 
-    def generate_matchups(self) -> List[Tuple[List[str], List[str]]]:
+    def generate_matchups(self) -> list[tuple[list[str], list[str]]]:
         """
         Generate all match-ups.
 
@@ -72,8 +71,8 @@ class MatchupGenerator:
 
         Example:
             [
-                (['ZIC', 'Kaplan', 'GD', 'ZIP'], ['EL', 'Lin', 'Jacobson', 'Perry']),
-                (['Kaplan', 'GD', 'EL', 'Lin'], ['ZIC', 'ZIP', 'Jacobson', 'Perry']),
+                (['ZIC', 'Kaplan', 'GD', 'ZIP'], ['Ledyard', 'Lin', 'Jacobson', 'Perry']),
+                (['Kaplan', 'GD', 'Ledyard', 'Lin'], ['ZIC', 'ZIP', 'Jacobson', 'Perry']),
                 ...
             ]
         """
@@ -82,21 +81,17 @@ class MatchupGenerator:
 
         for _ in range(self.num_matchups):
             # Sample strategies WITHOUT replacement
-            selected = self.rng.choice(
-                self.strategy_pool,
-                size=total_agents,
-                replace=False
-            )
+            selected = self.rng.choice(self.strategy_pool, size=total_agents, replace=False)
 
             # First half are buyers, second half are sellers
-            buyers = list(selected[:self.num_buyers])
-            sellers = list(selected[self.num_buyers:])
+            buyers = list(selected[: self.num_buyers])
+            sellers = list(selected[self.num_buyers :])
 
             matchups.append((buyers, sellers))
 
         return matchups
 
-    def generate_single_matchup(self) -> Tuple[List[str], List[str]]:
+    def generate_single_matchup(self) -> tuple[list[str], list[str]]:
         """
         Generate a single random match-up.
 
@@ -106,17 +101,13 @@ class MatchupGenerator:
             (buyer_types, seller_types) tuple
         """
         total_agents = self.num_buyers + self.num_sellers
-        selected = self.rng.choice(
-            self.strategy_pool,
-            size=total_agents,
-            replace=False
-        )
-        buyers = list(selected[:self.num_buyers])
-        sellers = list(selected[self.num_buyers:])
+        selected = self.rng.choice(self.strategy_pool, size=total_agents, replace=False)
+        buyers = list(selected[: self.num_buyers])
+        sellers = list(selected[self.num_buyers :])
         return buyers, sellers
 
 
-def get_default_strategy_pool() -> List[str]:
+def get_default_strategy_pool() -> list[str]:
     """
     Get the default strategy pool matching Chen et al. (2010).
 
@@ -129,21 +120,21 @@ def get_default_strategy_pool() -> List[str]:
         Use ZI2 for accurate replication.
     """
     return [
-        "ZIC",       # Zero-Intelligence Constrained (Gode & Sunder 1993)
-        "Kaplan",    # Sniper strategy (1993 winner)
-        "GD",        # Gjerstad-Dickhaut belief-based
-        "ZIP",       # Zero-Intelligence Plus (Cliff 1997)
-        "EL",        # Easley-Ledyard reservation price
+        "ZIC",  # Zero-Intelligence Constrained (Gode & Sunder 1993)
+        "Kaplan",  # Sniper strategy (1993 winner)
+        "GD",  # Gjerstad-Dickhaut belief-based
+        "ZIP",  # Zero-Intelligence Plus (Cliff 1997)
+        "Ledyard",  # Ledyard reservation price
         "TruthTeller",  # Truth Teller - bids/asks at reservation price
         "Skeleton",  # Reference strategy from SFDA
-        "ZI2",       # Ringuette's actual submission (market-aware random, NOT sniper!)
-        "Markup",    # Fixed markup strategy
+        "ZI2",  # Ringuette's actual submission (market-aware random, NOT sniper!)
+        "Markup",  # Fixed markup strategy
         "ReservationPrice",  # Simplified BGAN
         "HistogramLearner",  # Simplified Empirical Bayesian
     ]
 
 
-def get_chen_2010_strategy_pool() -> List[str]:
+def get_chen_2010_strategy_pool() -> list[str]:
     """
     Get the exact 11-strategy pool from Chen & Tai (2010) Section 3.2.
 
@@ -160,19 +151,19 @@ def get_chen_2010_strategy_pool() -> List[str]:
         Markup -> Markup
         GD -> GD
         BGAN -> ReservationPrice
-        EL -> EL
+        Ledyard -> Ledyard
         Empirical -> HistogramLearner
     """
     return [
-        "TruthTeller",       # Truth Teller - bids/asks at reservation price
-        "Skeleton",          # SFDA reference
-        "Kaplan",            # SFDA winner
-        "ZI2",               # Ringuette (Java SRobotZI2.java)
-        "ZIC",               # Zero-Intelligence Constrained
-        "ZIP",               # Zero-Intelligence Plus
-        "Markup",            # Fixed markup
-        "GD",                # Gjerstad-Dickhaut
+        "TruthTeller",  # Truth Teller - bids/asks at reservation price
+        "Skeleton",  # SFDA reference
+        "Kaplan",  # SFDA winner
+        "ZI2",  # Ringuette (Java SRobotZI2.java)
+        "ZIC",  # Zero-Intelligence Constrained
+        "ZIP",  # Zero-Intelligence Plus
+        "Markup",  # Fixed markup
+        "GD",  # Gjerstad-Dickhaut
         "ReservationPrice",  # BGAN
-        "EL",                # Easley-Ledyard
+        "Ledyard",  # Ledyard
         "HistogramLearner",  # Empirical Bayesian
     ]

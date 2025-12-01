@@ -25,30 +25,31 @@ Usage:
 import argparse
 import json
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Any
-import time
+from typing import Any
 
 import numpy as np
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from engine.matchup_generator import MatchupGenerator, get_default_strategy_pool
-from engine.market import Market
 from engine.agent_factory import create_agent
-from engine.token_generator import TokenGenerator
 from engine.efficiency import (
-    calculate_max_surplus,
     calculate_equilibrium_profits,
+    calculate_max_surplus,
 )
+from engine.market import Market
+from engine.matchup_generator import MatchupGenerator, get_default_strategy_pool
+from engine.token_generator import TokenGenerator
 from traders.base import Agent
 
 
 @dataclass
 class AgentResult:
     """Results for a single agent across a match-up."""
+
     agent_id: int
     agent_type: str
     is_buyer: bool
@@ -67,17 +68,18 @@ class AgentResult:
 @dataclass
 class MatchupResult:
     """Results for a single match-up."""
+
     matchup_id: int
-    buyer_types: List[str]
-    seller_types: List[str]
+    buyer_types: list[str]
+    seller_types: list[str]
     num_days: int
     steps_per_day: int
-    agent_results: Dict[int, AgentResult] = field(default_factory=dict)
+    agent_results: dict[int, AgentResult] = field(default_factory=dict)
     total_trades: int = 0
     market_efficiency: float = 0.0
     elapsed_time: float = 0.0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to JSON-serializable dict."""
         return {
             "matchup_id": self.matchup_id,
@@ -99,19 +101,19 @@ class MatchupResult:
                     "efficiency_ratio": r.efficiency_ratio,
                 }
                 for aid, r in self.agent_results.items()
-            }
+            },
         }
 
 
 def create_agents_for_matchup(
-    buyer_types: List[str],
-    seller_types: List[str],
+    buyer_types: list[str],
+    seller_types: list[str],
     num_tokens: int,
     price_min: int,
     price_max: int,
     num_times: int,
     seed: int,
-) -> tuple[List[Agent], List[Agent]]:
+) -> tuple[list[Agent], list[Agent]]:
     """
     Create agents for a match-up.
 
@@ -172,8 +174,8 @@ def create_agents_for_matchup(
 
 def run_single_matchup(
     matchup_id: int,
-    buyer_types: List[str],
-    seller_types: List[str],
+    buyer_types: list[str],
+    seller_types: list[str],
     num_days: int,
     steps_per_day: int,
     num_tokens: int,
@@ -333,8 +335,8 @@ def run_single_matchup(
 
 
 def calculate_equilibrium_price(
-    buyer_valuations: List[List[int]],
-    seller_costs: List[List[int]],
+    buyer_valuations: list[list[int]],
+    seller_costs: list[list[int]],
 ) -> int:
     """
     Calculate competitive equilibrium price.
@@ -354,11 +356,11 @@ def calculate_equilibrium_price(
             if i == 0:
                 return (all_buyer_vals[0] + all_seller_costs[0]) // 2
             else:
-                return (all_buyer_vals[i-1] + all_seller_costs[i-1]) // 2
+                return (all_buyer_vals[i - 1] + all_seller_costs[i - 1]) // 2
 
     # All trades are profitable, use midpoint of last profitable pair
     if num_trades > 0:
-        return (all_buyer_vals[num_trades-1] + all_seller_costs[num_trades-1]) // 2
+        return (all_buyer_vals[num_trades - 1] + all_seller_costs[num_trades - 1]) // 2
 
     return 50  # Default midpoint
 
@@ -373,12 +375,12 @@ def run_chen_experiment(
     price_min: int = 0,
     price_max: int = 100,
     game_type: int = 1111,
-    strategy_pool: Optional[List[str]] = None,
+    strategy_pool: list[str] | None = None,
     matchup_seed: int = 42,
     auction_seed: int = 123,
-    output_path: Optional[str] = None,
+    output_path: str | None = None,
     verbose: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Run the full Chen et al. (2010) experiment.
 
@@ -415,8 +417,8 @@ def run_chen_experiment(
     matchups = generator.generate_matchups()
 
     if verbose:
-        print(f"Chen et al. (2010) Replication Experiment")
-        print(f"=" * 50)
+        print("Chen et al. (2010) Replication Experiment")
+        print("=" * 50)
         print(f"Match-ups: {num_matchups}")
         print(f"Days per match-up: {num_days}")
         print(f"Steps per day: {steps_per_day}")
@@ -424,10 +426,10 @@ def run_chen_experiment(
         print(f"Tokens: {num_tokens}")
         print(f"Strategy pool: {strategy_pool}")
         print(f"Total time steps: {num_matchups * num_days * steps_per_day:,}")
-        print(f"=" * 50)
+        print("=" * 50)
 
     # Run all match-ups
-    all_results: List[MatchupResult] = []
+    all_results: list[MatchupResult] = []
 
     start_time = time.time()
 
@@ -459,7 +461,7 @@ def run_chen_experiment(
     total_time = time.time() - start_time
 
     # Aggregate results by strategy
-    strategy_stats: Dict[str, Dict[str, Any]] = {}
+    strategy_stats: dict[str, dict[str, Any]] = {}
 
     for result in all_results:
         for agent_result in result.agent_results.values():
@@ -487,16 +489,15 @@ def run_chen_experiment(
         stats["std_efficiency_ratio"] = np.std(ratios) if ratios else 0.0
         stats["overall_efficiency_ratio"] = (
             stats["total_profit"] / stats["equilibrium_profit"]
-            if stats["equilibrium_profit"] > 0 else 0.0
+            if stats["equilibrium_profit"] > 0
+            else 0.0
         )
         # Remove raw ratios for cleaner output
         del stats["efficiency_ratios"]
 
     # Sort by mean efficiency ratio
     sorted_strategies = sorted(
-        strategy_stats.items(),
-        key=lambda x: x[1]["mean_efficiency_ratio"],
-        reverse=True
+        strategy_stats.items(), key=lambda x: x[1]["mean_efficiency_ratio"], reverse=True
     )
 
     # Build final results
@@ -517,11 +518,7 @@ def run_chen_experiment(
             "total_trades": sum(r.total_trades for r in all_results),
         },
         "strategy_rankings": [
-            {
-                "rank": i + 1,
-                "strategy": agent_type,
-                **stats
-            }
+            {"rank": i + 1, "strategy": agent_type, **stats}
             for i, (agent_type, stats) in enumerate(sorted_strategies)
         ],
         "matchup_results": [r.to_dict() for r in all_results],
@@ -530,11 +527,11 @@ def run_chen_experiment(
     # Print summary
     if verbose:
         print(f"\n{'=' * 50}")
-        print(f"EXPERIMENT COMPLETE")
+        print("EXPERIMENT COMPLETE")
         print(f"{'=' * 50}")
         print(f"Total time: {total_time:.1f}s")
         print(f"Avg market efficiency: {final_results['summary']['avg_market_efficiency']:.1f}%")
-        print(f"\nStrategy Rankings (by mean efficiency ratio):")
+        print("\nStrategy Rankings (by mean efficiency ratio):")
         print("-" * 50)
         for item in final_results["strategy_rankings"]:
             print(
@@ -558,40 +555,29 @@ def run_chen_experiment(
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Run Chen et al. (2010) replication experiment"
+    parser = argparse.ArgumentParser(description="Run Chen et al. (2010) replication experiment")
+    parser.add_argument(
+        "--matchups", type=int, default=300, help="Number of random match-ups (default: 300)"
     )
     parser.add_argument(
-        "--matchups", type=int, default=300,
-        help="Number of random match-ups (default: 300)"
+        "--days", type=int, default=7000, help="Trading days per match-up (default: 7000)"
     )
+    parser.add_argument("--steps", type=int, default=25, help="Time steps per day (default: 25)")
+    parser.add_argument("--tokens", type=int, default=4, help="Tokens per agent (default: 4)")
     parser.add_argument(
-        "--days", type=int, default=7000,
-        help="Trading days per match-up (default: 7000)"
+        "--output",
+        type=str,
+        default=None,
+        help="Output JSON path (default: results/chen_2010_<timestamp>.json)",
     )
+    parser.add_argument("--seed", type=int, default=42, help="Random seed (default: 42)")
+    parser.add_argument("--quiet", action="store_true", help="Suppress progress output")
     parser.add_argument(
-        "--steps", type=int, default=25,
-        help="Time steps per day (default: 25)"
-    )
-    parser.add_argument(
-        "--tokens", type=int, default=4,
-        help="Tokens per agent (default: 4)"
-    )
-    parser.add_argument(
-        "--output", type=str, default=None,
-        help="Output JSON path (default: results/chen_2010_<timestamp>.json)"
-    )
-    parser.add_argument(
-        "--seed", type=int, default=42,
-        help="Random seed (default: 42)"
-    )
-    parser.add_argument(
-        "--quiet", action="store_true",
-        help="Suppress progress output"
-    )
-    parser.add_argument(
-        "--strategies", type=str, nargs="+", default=None,
-        help="Strategy pool (default: ZIC Kaplan GD ZIP EL Lin Jacobson Perry)"
+        "--strategies",
+        type=str,
+        nargs="+",
+        default=None,
+        help="Strategy pool (default: ZIC Kaplan GD ZIP Ledyard Lin Jacobson Perry)",
     )
 
     args = parser.parse_args()

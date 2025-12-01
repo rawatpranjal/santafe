@@ -14,15 +14,10 @@ Usage:
 """
 
 import argparse
-import csv
 import logging
-import os
-import subprocess
 import sys
-import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -31,17 +26,8 @@ import pandas as pd
 sys.path.append(str(Path(__file__).parent.parent))
 
 from engine.market import Market
-from engine.metrics import calculate_allocative_efficiency
-from engine.tournament import TournamentRunner
-from traders.legacy import (
-    GDTrader, JacobsonTrader, KaplanTrader, LinTrader,
-    PerryTrader, SkeletonTrader, ZI2Trader, ZICTrader, ZIPTrader
-)
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -57,10 +43,32 @@ class FullTournamentRunner:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Define all trader types
+        # Define all trader types (all available legacy traders)
         self.trader_types = [
-            "ZIC", "Kaplan", "ZIP", "GD", "ZI2",
-            "Lin", "Perry", "Jacobson", "Skeleton"
+            # Zero-Intelligence family
+            "ZI",
+            "ZIC",
+            "ZIP",
+            "ZI2",
+            # Santa Fe Tournament winners/notables
+            "Kaplan",
+            "Ringuette",
+            "Skeleton",
+            # Adaptive traders
+            "GD",
+            "Ledyard",
+            # Other legacy traders
+            "Lin",
+            "Perry",
+            "Jacobson",
+            "Markup",
+            "TruthTeller",
+            "Gamer",
+            "Breton",
+            "Gradual",
+            "ReservationPrice",
+            "HistogramLearner",
+            "RuleTrader",
         ]
 
         # Define all environments from the 1994 tournament
@@ -68,13 +76,20 @@ class FullTournamentRunner:
             "BASE": {"buyers": 4, "sellers": 4, "tokens": 4, "periods": 10, "steps": 100},
             "BBBS": {"buyers": 2, "sellers": 4, "tokens": 4, "periods": 10, "steps": 100},
             "BSSS": {"buyers": 4, "sellers": 2, "tokens": 4, "periods": 10, "steps": 100},
-            "EQL": {"buyers": 4, "sellers": 4, "tokens": 4, "periods": 10, "steps": 100, "symmetric": True},
+            "EQL": {
+                "buyers": 4,
+                "sellers": 4,
+                "tokens": 4,
+                "periods": 10,
+                "steps": 100,
+                "symmetric": True,
+            },
             "RAN": {"buyers": 4, "sellers": 4, "tokens": 4, "periods": 10, "steps": 100},
             "PER": {"buyers": 4, "sellers": 4, "tokens": 4, "periods": 1, "steps": 100},
             "SHRT": {"buyers": 4, "sellers": 4, "tokens": 4, "periods": 10, "steps": 20},
             "TOK": {"buyers": 4, "sellers": 4, "tokens": 1, "periods": 10, "steps": 100},
             "SML": {"buyers": 2, "sellers": 2, "tokens": 4, "periods": 10, "steps": 100},
-            "LAD": {"buyers": 6, "sellers": 2, "tokens": 4, "periods": 10, "steps": 100}
+            "LAD": {"buyers": 6, "sellers": 2, "tokens": 4, "periods": 10, "steps": 100},
         }
 
     def run_phase_1_baseline(self):
@@ -98,7 +113,7 @@ class FullTournamentRunner:
                     num_periods=10,
                     num_steps=100,
                     min_price=1,
-                    max_price=1000
+                    max_price=1000,
                 )
 
                 # Create homogeneous market
@@ -118,12 +133,14 @@ class FullTournamentRunner:
 
             logger.info(f"{trader_type}: {mean_eff:.1f}% ± {std_eff:.1f}%")
 
-            results.append({
-                "trader": trader_type,
-                "efficiency_mean": mean_eff,
-                "efficiency_std": std_eff,
-                "num_rounds": 10
-            })
+            results.append(
+                {
+                    "trader": trader_type,
+                    "efficiency_mean": mean_eff,
+                    "efficiency_std": std_eff,
+                    "num_rounds": 10,
+                }
+            )
 
         # Save results
         df = pd.DataFrame(results)
@@ -143,7 +160,7 @@ class FullTournamentRunner:
 
         # Test all pairwise combinations
         for i, trader1 in enumerate(self.trader_types):
-            for trader2 in self.trader_types[i+1:]:
+            for trader2 in self.trader_types[i + 1 :]:
                 logger.info(f"\nTesting {trader1} vs {trader2}...")
 
                 efficiency_values = []
@@ -157,7 +174,7 @@ class FullTournamentRunner:
                         num_periods=10,
                         num_steps=100,
                         min_price=1,
-                        max_price=1000
+                        max_price=1000,
                     )
 
                     # Create mixed market
@@ -187,19 +204,25 @@ class FullTournamentRunner:
                 mean_eff = np.mean(efficiency_values)
                 std_eff = np.std(efficiency_values)
 
-                winner = trader1 if np.mean(profit_shares[trader1]) > np.mean(profit_shares[trader2]) else trader2
+                winner = (
+                    trader1
+                    if np.mean(profit_shares[trader1]) > np.mean(profit_shares[trader2])
+                    else trader2
+                )
                 winner_share = max(np.mean(profit_shares[trader1]), np.mean(profit_shares[trader2]))
 
                 logger.info(f"Efficiency: {mean_eff:.1f}% ± {std_eff:.1f}%")
                 logger.info(f"Winner: {winner} ({winner_share:.1f}% profit share)")
 
-                results.append({
-                    "matchup": f"{trader1}_vs_{trader2}",
-                    "efficiency_mean": mean_eff,
-                    "efficiency_std": std_eff,
-                    "winner": winner,
-                    "winner_share": winner_share
-                })
+                results.append(
+                    {
+                        "matchup": f"{trader1}_vs_{trader2}",
+                        "efficiency_mean": mean_eff,
+                        "efficiency_std": std_eff,
+                        "winner": winner,
+                        "winner_share": winner_share,
+                    }
+                )
 
         # Save results
         df = pd.DataFrame(results)
@@ -232,7 +255,7 @@ class FullTournamentRunner:
                     num_periods=env_config.get("periods", 10),
                     num_steps=env_config.get("steps", 100),
                     min_price=1,
-                    max_price=1000
+                    max_price=1000,
                 )
 
                 # Create mixed market with all trader types
@@ -272,7 +295,10 @@ class FullTournamentRunner:
                 "efficiency_mean": mean_eff,
                 "efficiency_std": std_eff,
                 "top_trader": top_trader,
-                "kaplan_rank": list(sorted(mean_profits, key=mean_profits.get, reverse=True)).index("Kaplan") + 1
+                "kaplan_rank": sorted(mean_profits, key=mean_profits.get, reverse=True).index(
+                    "Kaplan"
+                )
+                + 1,
             }
 
             all_results.append(result)
@@ -289,7 +315,7 @@ class FullTournamentRunner:
         logger.info("TOURNAMENT SUMMARY")
         logger.info("=" * 60)
         logger.info(f"Overall Tournament Efficiency: {overall_efficiency:.1f}%")
-        logger.info(f"Target (1994 paper): 89.7% ± 5%")
+        logger.info("Target (1994 paper): 89.7% ± 5%")
 
         if 84.7 <= overall_efficiency <= 94.7:
             logger.info("✅ SUCCESS: Efficiency within target range!")
@@ -317,11 +343,7 @@ class FullTournamentRunner:
         logger.info("=" * 60)
         logger.info(f"All results saved to: {self.output_dir}")
 
-        return {
-            "phase1": phase1_results,
-            "phase2": phase2_results,
-            "phase3": phase3_results
-        }
+        return {"phase1": phase1_results, "phase2": phase2_results, "phase3": phase3_results}
 
 
 def main():
@@ -332,14 +354,9 @@ def main():
         type=str,
         default="all",
         choices=["1", "2", "3", "all"],
-        help="Which phase to run (1=baseline, 2=pairwise, 3=full, all=all phases)"
+        help="Which phase to run (1=baseline, 2=pairwise, 3=full, all=all phases)",
     )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default=None,
-        help="Output directory for results"
-    )
+    parser.add_argument("--output", type=str, default=None, help="Output directory for results")
 
     args = parser.parse_args()
 

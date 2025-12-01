@@ -1,6 +1,171 @@
 # Development Tracker
 
+## 2025-12-01
+
+### Ledyard V3 Pure Reservation Trader - Minimal Tournament
+
+**Goal:** Fix Ledyard to rank below Kaplan/Ringuette as in 1993 Santa Fe (Ledyard-Olson scored 367, below Kaplan 408 and Ringuette 394).
+
+**V3 Changes Applied:**
+- Stripped `_request_bid` and `_request_ask` to pure reservation posting
+- Removed all micro-optimization: sniping, anchoring, spread-playing
+- Ledyard now only posts its time-progressive reservation price if it improves the book
+
+**Results Across Versions:**
+| Version | Ledyard | Kaplan | Ringuette |
+|---------|---------|--------|-----------|
+| V1 (original) | 120.4 (#1) | 95.2 (#3) | 119.0 (#2) |
+| V2 (removed POWER_FACTOR) | 121.9 (#1) | 96.3 (#3) | 118.4 (#2) |
+| V3 (pure reservation) | 122.9 (#1) | 96.6 (#3) | 116.5 (#2) |
+
+**Conclusion:** Simplifying Ledyard made it BETTER, not worse. Each simplification increased Ledyard's profit. This confirms the plan hypothesis: "the issue is the trader mix/environment, not the implementation." Our 9-trader minimal setup differs from 1993's 14-trader field.
+
+**Files:**
+- `traders/legacy/ledyard.py` - V3 simplified implementation
+- `results/santafe_minimal_v3/` - tournament results
+
+---
+
+## 2025-11-30
+
+### Skeleton Bug Fix - CRITICAL BUG IDENTIFIED AND FIXED
+
+- **Discovered:** Python Skeleton implementation had a bug preventing initiation
+- **Root cause:** Lines 101-102, 114-115, 152-153, 164-165 in `skeleton.py` incorrectly added `if coffer/cbid == 0: return 0` checks that don't exist in original Java SRobotExample
+- **Impact:** Skeleton self-play produced 0% efficiency instead of ~100%
+- **Fix:** Removed 4 erroneous checks (8 lines total)
+- **Verification:** All 55 regression tests pass after fix
+- **Remaining discrepancy:** results.md claims Skeleton SHRT = 80±2%, but fixed implementation produces 99.7%
+
+**Files modified:**
+- `traders/legacy/skeleton.py` - removed initiation-blocking checks
+- `tests/regression/test_part2_selfplay.py` - un-skipped Skeleton tests, updated thresholds
+
+---
+
+### Exp 4.0 LLM Model Comparison - COMPLETE
+
+- Ran 7 models × 5 seeds (42, 123, 456, 789, 1000) with dense prompt
+- Manual inspection of JSON response files for qualitative analysis
+- **Winner: GPT-4.1-mini (1.35x mean, 0.27 std)** - only model consistently profitable vs ZIC
+- **Key finding: Reasoning models (o4-mini) UNDERPERFORM production models**
+  - o4-mini passes on first moves, misses trading opportunities by being too cautious
+  - GPT-3.5-turbo hallucinates values (bid $513 when value was $333 on s456)
+- No structural JSON errors - Unicode chars in o4-mini handled by fallback parsing
+- Updated `checklists/results.md` with Table 4.0 and behavioral personas
+- Updated plan file with detailed qualitative findings
+
+**Files:** `llm_outputs/model_comparison/`, `checklists/results.md` (lines 651-720)
+
+---
+
+## 2025-11-29 (Evening Session)
+
+### PPO v10 Extended Training (IN PROGRESS)
+
+**Goal:** Train PPO for 10M steps to beat Ringuette (#1 in round-robin tournament).
+
+**Configuration:**
+- MaskablePPO with [256,256] network, entropy decay 0.15→0.01
+- Training vs Mixed opponents, gametype=6453
+- Checkpoints at 4M, 8M, 10M steps
+
+**4M Checkpoint Results:**
+| Strategy | Mean Profit | Rank |
+|----------|-------------|------|
+| Ringuette | 1360.7 | 1 |
+| **PPO** | **1317.8** | **2** |
+| EL | 1295.9 | 3 |
+
+**Gap Analysis:** PPO trails Ringuette by only 43 points (3.2%) at 4M steps.
+
+**Current Status:** Training at 5.2M/10M steps (52%)
+
+**Files Updated:**
+- `checklists/results.md` - Section 3.6: PPO v10 Extended Training
+- `paper/arxiv/sections/07_results_rl.tex` - New subsection "Extended Tournament"
+- Paper compiled successfully (57 pages)
+- Fixed `traders/rl/ppo_agent.py` - MaskablePPO loading order
+
+---
+
 ## 2025-11-29
+
+### LLM Cost-Efficient Model Comparison (Exp 4.32) - COMPLETE
+
+**Goal:** Test cheaper models as alternatives to GPT-4 Turbo for double auction trading.
+
+**Results:**
+| Model | 10-Period Ratio | Win Rate | Verdict |
+|-------|-----------------|----------|---------|
+| GPT-4 Turbo | ~2.23x | ~70% | ✅ Baseline |
+| GPT-5 nano | 0.89x | <50% | ❌ Too slow AND loses |
+| GPT-4.1 mini | 1.06x | 50% | ❌ ZIC-equivalent |
+
+**Key Finding:** Initial 1-period GPT-4.1 mini result (3.04x) was lucky outlier. Over 10 periods, ratio drops to 1.06x with 50% win rate = statistically equivalent to random ZIC. GPT-4 Turbo remains necessary for strategic advantage.
+
+**Files:** `checklists/results.md` Section 4.5, `results/stress_test_llm_dashboard_10periods.json`
+
+---
+
+### 8-Strategy Tournament - Paper Update (COMPLETE)
+
+**Goal:** Expand tournament from 4 strategies to 8 strategies with diverse trading approaches.
+
+**8 Strategies Selected:**
+| Strategy | Type | Origin |
+|----------|------|--------|
+| ZIC | Baseline | Gode & Sunder 1993 |
+| ZIP | Adaptive learning | Cliff 1997 |
+| GD | Belief-based | Gjerstad-Dickhaut 1998 |
+| Kaplan | Sniper | Santa Fe 1st place |
+| Ringuette | Sniper | Santa Fe 2nd place |
+| Skeleton | Heuristic | Research baseline |
+| EL | Theory-driven | Easley-Ledyard |
+| Markup | Fixed heuristic | Simple markup strategy |
+
+**Configuration:** 10 envs × 5 seeds × 50 rounds × 10 periods. 16 agents (8 buyers + 8 sellers, 1 per strategy per side).
+
+**Final Rankings (avg rank across 10 environments):**
+| Rank | Strategy | Avg Rank | Env Wins |
+|------|----------|----------|----------|
+| 1 | **ZIP** | **1.92** | **7** |
+| 2 | Ringuette | 2.74 | 1 |
+| 3 | Kaplan | 3.98 | 1 |
+| 4 | Skeleton | 4.40 | 0 |
+| 5 | GD | 4.54 | 1 |
+| 6 | EL | 4.80 | 0 |
+| 7 | Markup | 5.88 | 0 |
+| 8 | ZIC | 7.74 | 0 |
+
+**Key Finding:** ZIP dominates the 8-strategy tournament with 7 environment wins. The Santa Fe winners (Kaplan 1st, Ringuette 2nd) perform well but ZIP's adaptive margin mechanism proves more robust across diverse market conditions. GD wins only in RAN environment where belief-based learning adapts to random token distributions.
+
+**Paper Files Updated:**
+- `paper/arxiv/figures/table_roundrobin.tex` - 8-strategy rank table by environment
+- `paper/arxiv/figures/table_roundrobin_summary.tex` - 8-strategy rankings summary
+- `paper/arxiv/sections/06_results_santafe.tex` - Round Robin Tournament and Summary sections
+
+**LaTeX compiled successfully:** `paper/arxiv/main.pdf` (49 pages)
+
+---
+
+### Multi-Seed Round Robin Tournament (10 seeds × 10 envs × 50 rounds)
+
+**Goal:** Quantify variance in tournament results by running 10 seeds across all environments.
+
+**Final Rankings (mean ± std):**
+| Strategy | Avg Rank | Notes |
+|----------|----------|-------|
+| **Skeleton** | **1.91** | Best overall, wins BBBS (1.0) |
+| **Kaplan** | **2.05** | Wins BSSS (1.0), TOK (1.0) |
+| **ZIP** | 2.54 | Wins SHRT (1.0) |
+| **ZIC** | 3.50 | Consistently last (4.0 in 7/10 envs) |
+
+**Key Finding:** Rankings exhibit high variance across seeds. Kaplan's rank in BASE ranges 1-3 depending on seed (mean 2.6±0.7). This explains previously observed discrepancies between single-seed runs.
+
+**Files:** Updated `checklists/results.md` Section 2.6 with mean±std tables.
+
+---
 
 ### Kaplan Win/Loss Hypothesis Testing - KEY FINDINGS
 

@@ -12,7 +12,8 @@ All agent interactions are synchronized - the market waits for all responses
 before proceeding to the next stage.
 """
 
-from typing import Any, Sequence, TYPE_CHECKING
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -75,13 +76,11 @@ class Market:
         """
         if len(buyers) != num_buyers:
             raise ValueError(
-                f"buyers list length ({len(buyers)}) must equal "
-                f"num_buyers ({num_buyers})"
+                f"buyers list length ({len(buyers)}) must equal " f"num_buyers ({num_buyers})"
             )
         if len(sellers) != num_sellers:
             raise ValueError(
-                f"sellers list length ({len(sellers)}) must equal "
-                f"num_sellers ({num_sellers})"
+                f"sellers list length ({len(sellers)}) must equal " f"num_sellers ({num_sellers})"
             )
 
         self.num_buyers = num_buyers
@@ -307,16 +306,16 @@ class Market:
         high_bidder_local = int(self.orderbook.high_bidder[t])
         low_ask = int(self.orderbook.low_ask[t])
         low_asker_local = int(self.orderbook.low_asker[t])
-        
+
         # Use saved mapping from bid_ask_response (before agents were removed)
         high_bidder_global = 0
-        if high_bidder_local > 0 and hasattr(self, '_buyer_local_to_global'):
+        if high_bidder_local > 0 and hasattr(self, "_buyer_local_to_global"):
             high_bidder_global = self._buyer_local_to_global.get(high_bidder_local, 0)
         elif high_bidder_local > 0 and high_bidder_local <= len(self.buyers):
             high_bidder_global = self.buyers[high_bidder_local - 1].player_id
 
         low_asker_global = 0
-        if low_asker_local > 0 and hasattr(self, '_seller_local_to_global'):
+        if low_asker_local > 0 and hasattr(self, "_seller_local_to_global"):
             low_asker_global = self._seller_local_to_global.get(low_asker_local, 0)
         elif low_asker_local > 0 and low_asker_local <= len(self.sellers):
             low_asker_global = self.sellers[low_asker_local - 1].player_id
@@ -399,17 +398,17 @@ class Market:
         # (Java uses local variables currentBid/currentAsk for this purpose)
         self._saved_high_bid = high_bid
         self._saved_low_ask = low_ask
-        
+
         # Map to global IDs
         # Use saved mapping from bid_ask_response (before agents were removed)
         high_bidder_global = 0
-        if high_bidder_local > 0 and hasattr(self, '_buyer_local_to_global'):
+        if high_bidder_local > 0 and hasattr(self, "_buyer_local_to_global"):
             high_bidder_global = self._buyer_local_to_global.get(high_bidder_local, 0)
         elif high_bidder_local > 0 and high_bidder_local <= len(self.buyers):
             high_bidder_global = self.buyers[high_bidder_local - 1].player_id
 
         low_asker_global = 0
-        if low_asker_local > 0 and hasattr(self, '_seller_local_to_global'):
+        if low_asker_local > 0 and hasattr(self, "_seller_local_to_global"):
             low_asker_global = self._seller_local_to_global.get(low_asker_local, 0)
         elif low_asker_local > 0 and low_asker_local <= len(self.sellers):
             low_asker_global = self.sellers[low_asker_local - 1].player_id
@@ -505,17 +504,17 @@ class Market:
         low_ask = int(self.orderbook.low_ask[t])
         high_bidder_local = int(self.orderbook.high_bidder[t])
         low_asker_local = int(self.orderbook.low_asker[t])
-        
+
         # Map to global IDs for agent notification
         # Use saved mapping from bid_ask_response (before agents were removed)
         high_bidder_global = 0
-        if high_bidder_local > 0 and hasattr(self, '_buyer_local_to_global'):
+        if high_bidder_local > 0 and hasattr(self, "_buyer_local_to_global"):
             high_bidder_global = self._buyer_local_to_global.get(high_bidder_local, 0)
         elif high_bidder_local > 0 and high_bidder_local <= len(self.buyers):
             high_bidder_global = self.buyers[high_bidder_local - 1].player_id
 
         low_asker_global = 0
-        if low_asker_local > 0 and hasattr(self, '_seller_local_to_global'):
+        if low_asker_local > 0 and hasattr(self, "_seller_local_to_global"):
             low_asker_global = self._seller_local_to_global.get(low_asker_local, 0)
         elif low_asker_local > 0 and low_asker_local <= len(self.sellers):
             low_asker_global = self.sellers[low_asker_local - 1].player_id
@@ -542,7 +541,7 @@ class Market:
                     break
         else:
             # Case 2: No current bidder - ANY buyer can accept (Rule 14)
-            potential_buyers = [] # List of (global_id, local_id)
+            potential_buyers = []  # List of (global_id, local_id)
             for idx in buyer_indices:
                 buyer = self.buyers[idx]
                 local_id = idx + 1  # OrderBook uses 1-indexed positions
@@ -579,7 +578,7 @@ class Market:
                     break
         else:
             # Case 2: No current offerer - ANY seller can accept (Rule 15)
-            potential_sellers = [] # List of (global_id, local_id)
+            potential_sellers = []  # List of (global_id, local_id)
             for idx in seller_indices:
                 seller = self.sellers[idx]
                 local_id = idx + 1  # OrderBook uses 1-indexed positions
@@ -601,10 +600,10 @@ class Market:
         # Pass explicit IDs if we found them (needed for Case 2)
         # If IDs are 0, OrderBook defaults to high_bidder/low_asker (Case 1)
         self.orderbook.execute_trade(
-            buyer_accepts=buyer_accepts, 
+            buyer_accepts=buyer_accepts,
             seller_accepts=seller_accepts,
             buyer_id=accepted_buyer_local_id if accepted_buyer_local_id > 0 else None,
-            seller_id=accepted_seller_local_id if accepted_seller_local_id > 0 else None
+            seller_id=accepted_seller_local_id if accepted_seller_local_id > 0 else None,
         )
 
     def buy_sell_result(self) -> None:
@@ -652,17 +651,17 @@ class Market:
         high_bidder_local = int(self.orderbook.high_bidder[t])
         low_ask = int(self.orderbook.low_ask[t])
         low_asker_local = int(self.orderbook.low_asker[t])
-        
+
         # Map to global IDs
         # Use saved mapping from bid_ask_response (before agents were removed)
         high_bidder_global = 0
-        if high_bidder_local > 0 and hasattr(self, '_buyer_local_to_global'):
+        if high_bidder_local > 0 and hasattr(self, "_buyer_local_to_global"):
             high_bidder_global = self._buyer_local_to_global.get(high_bidder_local, 0)
         elif high_bidder_local > 0 and high_bidder_local <= len(self.buyers):
             high_bidder_global = self.buyers[high_bidder_local - 1].player_id
 
         low_asker_global = 0
-        if low_asker_local > 0 and hasattr(self, '_seller_local_to_global'):
+        if low_asker_local > 0 and hasattr(self, "_seller_local_to_global"):
             low_asker_global = self._seller_local_to_global.get(low_asker_local, 0)
         elif low_asker_local > 0 and low_asker_local <= len(self.sellers):
             low_asker_global = self.sellers[low_asker_local - 1].player_id
@@ -684,9 +683,7 @@ class Market:
             for i, seller in enumerate(self.sellers):
                 local_id = i + 1
                 if t > 0:
-                    prev_sells = int(
-                        self.orderbook.num_sells[local_id, t - 1]
-                    )
+                    prev_sells = int(self.orderbook.num_sells[local_id, t - 1])
                     curr_sells = int(self.orderbook.num_sells[local_id, t])
                     if curr_sells > prev_sells:
                         seller_traded_id = seller.player_id
@@ -748,6 +745,16 @@ class Market:
         """Check if market is in fail state."""
         return self.fail_state
 
+    def all_traders_exhausted(self) -> bool:
+        """Check if all buyers AND all sellers are out of tokens.
+
+        Per AURORA protocol (rules.md Section 6): If no buyer and no seller
+        has remaining tokens, the Period ends immediately.
+        """
+        all_buyers_done = all(not b.can_trade() for b in self.buyers)
+        all_sellers_done = all(not s.can_trade() for s in self.sellers)
+        return all_buyers_done and all_sellers_done
+
     def get_orderbook(self) -> OrderBook:
         """Get the orderbook instance for inspection/testing."""
         return self.orderbook
@@ -766,10 +773,10 @@ class Market:
 
         # Map bid_status codes to readable names
         status_names = {
-            0: "pass",      # No bid submitted
+            0: "pass",  # No bid submitted
             1: "standing",  # Currently holding best price
-            2: "winner",    # New best price this step
-            3: "beaten",    # Submitted but beaten
+            2: "winner",  # New best price this step
+            3: "beaten",  # Submitted but beaten
             4: "tie_lost",  # Tied but lost random draw
         }
 

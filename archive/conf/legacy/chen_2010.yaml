@@ -42,7 +42,7 @@ agents:
     - "Markup"            # Fixed markup rate 0.1 (Zhan & Friedman 2007)
     - "GD"                # Gjerstad-Dickhaut (1998)
     - "ReservationPrice"  # BGAN - Bayesian Game Against Nature (Friedman 1991)
-    - "EL"                # Easley-Ledyard (1993)
+    - "Ledyard"                # Easley-Ledyard (1993)
     - "HistogramLearner"  # Empirical Bayesian (Chan et al. 1999)
 
 # Reproducibility

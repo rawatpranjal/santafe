@@ -1,11 +1,13 @@
 """
 Truth Teller Strategy.
 
-Chen & Tai (2010) Section 3.2:
-"Truth-telling traders simply bid/ask with their reservation prices."
+From the 1993 Santa Fe Tournament (control program).
+"A 'truthteller' program which always places bids and asks equal to its true token valuations."
 
-This is the simplest possible strategy - just reveal your true valuation.
-No strategic markup, no market observation, no learning.
+Level-1, nonadaptive, deterministic strategy:
+- Bids/asks at exactly the true valuation (no markup/markdown)
+- Accepts only strictly profitable trades (no breakeven)
+- No learning, no prediction, no randomization
 """
 
 from traders.base import Agent
@@ -18,8 +20,8 @@ class TruthTeller(Agent):
     Buyers bid their valuation, sellers ask their cost.
     This is the theoretical baseline of zero strategic behavior.
 
-    From Chen & Tai (2010): "Truth-telling traders simply bid/ask
-    with their reservation prices."
+    Accepts only STRICTLY profitable trades (no breakeven).
+    Must be holding the current bid/ask to accept.
     """
 
     def __init__(
@@ -31,7 +33,7 @@ class TruthTeller(Agent):
         price_min: int = 0,
         price_max: int = 100,
         seed: int | None = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         super().__init__(player_id, is_buyer, num_tokens, valuations)
         self.price_min = price_min
@@ -43,9 +45,11 @@ class TruthTeller(Agent):
         self.current_bidder = 0
         self.current_asker = 0
         self.last_nobuysell = 0
+        self.nobidask = 0
 
     def bid_ask(self, time: int, nobidask: int) -> None:
-        """Prepare for bid/ask. Simple reset."""
+        """Prepare for bid/ask phase."""
+        self.nobidask = nobidask
         self.has_responded = False
 
     def bid_ask_response(self) -> int:
@@ -59,6 +63,10 @@ class TruthTeller(Agent):
             The reservation price, or 0 if no tokens left
         """
         self.has_responded = True
+
+        # Check nobidask flag
+        if self.nobidask > 0:
+            return 0
 
         if self.num_trades >= self.num_tokens:
             return 0
@@ -88,10 +96,10 @@ class TruthTeller(Agent):
 
     def buy_sell_response(self) -> bool:
         """
-        Accept trade if profitable.
+        Accept trade only if STRICTLY profitable.
 
-        Truth Teller accepts any non-negative profit trade
-        (since it already revealed its true valuation).
+        Truth Teller accepts only trades where profit > 0 (no breakeven).
+        Must be holding the current bid/ask to accept.
         """
         self.has_responded = True
 
@@ -106,26 +114,22 @@ class TruthTeller(Agent):
         valuation = self.valuations[self.num_trades]
 
         if self.is_buyer:
-            # Accept if we're the high bidder and ask <= valuation
+            # Accept if we're the high bidder and ask < valuation (STRICTLY profitable)
             if self.player_id == self.current_bidder:
-                if self.current_ask > 0 and self.current_ask <= valuation:
+                if self.current_ask > 0 and self.current_ask < valuation:
                     if self.current_bid >= self.current_ask:
                         return True
         else:
-            # Accept if we're the low asker and bid >= cost
+            # Accept if we're the low asker and bid > cost (STRICTLY profitable)
             if self.player_id == self.current_asker:
-                if self.current_bid > 0 and self.current_bid >= valuation:
+                if self.current_bid > 0 and self.current_bid > valuation:
                     if self.current_ask <= self.current_bid:
                         return True
 
         return False
 
     def auction_history(
-        self,
-        best_bid: int,
-        best_ask: int,
-        trade_occurred: bool,
-        trade_price: int
+        self, best_bid: int, best_ask: int, trade_occurred: bool, trade_price: int
     ) -> None:
         """Truth Teller doesn't learn from history - it always tells the truth."""
         pass

@@ -8,6 +8,15 @@ Table~\ref{tab:foundational} presents selfplay results across five metrics: allo
 
 \input{figures/table_foundational}
 
+Figure~\ref{fig:learning_curves} shows how these performance differences emerge over time. Panel (a) displays efficiency trajectories across 50 rounds. ZI maintains a flat trajectory near 28\%, demonstrating that unconstrained random trading cannot improve through experience. ZIC achieves 97\% efficiency from round one, since the budget constraint provides immediate benefit without requiring learning. ZIP starts at approximately 85\% and converges to 99\% within 15 rounds as its adaptive margins discover optimal pricing. Panel (b) shows the corresponding price convergence: ZIP's prices steadily approach equilibrium while ZI prices remain scattered. This learning dynamic explains why ZIP consistently outperforms ZIC despite both being budget-constrained.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/learning_curves.pdf}
+\caption{Learning curves for zero-intelligence traders. (a) Efficiency over rounds: ZI is flat at 28\%, ZIC achieves 97\% immediately via constraint, ZIP converges from 85\% to 99\% through margin adjustment. (b) Price deviation from equilibrium: ZIP learns to price at P* while ZI prices remain scattered.}
+\label{fig:learning_curves}
+\end{figure}
+
 \subsubsection{Volatility and Trade-offs}
 
 Price volatility reveals a subtler pattern. ZIC achieves the lowest volatility (8\%) because constrained random pricing converges quickly to equilibrium. ZIP's learning process introduces additional price exploration, resulting in slightly higher volatility (12\%). ZI's unconstrained randomness produces extreme volatility (64\%), with prices scattered across the entire feasible range. This volatility-efficiency trade-off suggests that adaptive learning improves surplus extraction at the cost of price stability.
@@ -49,5 +58,18 @@ Table~\ref{tab:dispersion_full} measures cross-agent inequality. ZI creates extr
 Table~\ref{tab:trades_full} shows that ZI trades maximally, executing all 16 tokens in BASE and all 8 in asymmetric markets. ZIC and ZIP are selective, executing roughly half the maximum volume. The EQL environment produces an anomaly: ZIC trades only 0.4 times per period (nearly zero) because identical tokens provide no surplus to extract, while ZIP trades all 16 due to its margin-seeking behavior that pushes transactions regardless of equilibrium structure.
 
 \input{figures/table_trades_full}
+
+\subsubsection{Case Study: Zero Intelligence Dynamics}
+
+Figure~\ref{fig:case_study_zi} illustrates a representative trading period with all three strategy types competing, revealing how the budget constraint and adaptive learning transform market behavior.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figures/case_study_zi.pdf}
+\caption{Zero intelligence case study showing ZI (red), ZIC (gray), and ZIP (blue) competing in a mixed market. Panel A displays the price tunnel with trade markers colored by strategy, zoomed to the active trading window; ZI trades scatter across the price range while ZIC and ZIP cluster near equilibrium. Panel B shows cumulative quote activity (bids and asks submitted), revealing that ZIP quotes more aggressively early in the period while ZI maintains steady random activity. Panel C tracks cumulative profit, demonstrating the hierarchy: ZIP (+1163), ZIC (+569), ZI (-387). The unconstrained ZI agents trade at prices far from equilibrium (e.g., \$575 and \$787), destroying value and accumulating losses, while ZIP's adaptive margins capture systematic profit advantages.}
+\label{fig:case_study_zi}
+\end{figure}
+
+Panel A reveals the characteristic chaos of unconstrained trading: ZI agents accept prices ranging from \$52 to \$787, with many trades far outside the competitive equilibrium band. The budget constraint eliminates this pathology, as ZIC agents trade only when profitable. ZIP builds on this foundation by actively adjusting margins, capturing advantageous early trades before prices stabilize. Panel B shows the quoting behavior underlying these outcomes: ZIP submits quotes aggressively in early timesteps to capture favorable prices, while ZI maintains steady random activity throughout the period. Panel C quantifies the consequences: ZIP ends the period with +1163 profit, ZIC with +569, while ZI accumulates -387 in losses. This single period visualizes the aggregate statistics from the tables above, showing how market structure, combined with adaptive learning, transforms random noise into profitable trading.
 
 These foundational results validate our market implementation against established benchmarks. The hierarchy ZI $<$ ZIC $<$ ZIP holds robustly across ten market configurations, providing the baseline against which we evaluate the Santa Fe Tournament algorithms in the following section.

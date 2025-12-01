@@ -18,7 +18,7 @@ from gymnasium import spaces
 from engine.agent_factory import create_agent
 from engine.market import Market
 from engine.metrics import calculate_equilibrium_profit
-from engine.token_generator import UniformTokenGenerator
+from engine.token_generator import TokenGenerator, UniformTokenGenerator
 from envs.enhanced_features import EnhancedObservationGenerator
 from traders.base import Agent
 
@@ -118,6 +118,10 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         self.opponent_type = config.get("opponent_type", "ZIC")
         self.opponent_mix = config.get("opponent_mix", None)  # For mixed populations
 
+        # Token Generation Configuration
+        # gametype: None = UniformTokenGenerator, int = TokenGenerator with gametype formula
+        self.gametype = config.get("gametype", None)
+
         # Reward Configuration
         # Pure profit mode: Only use raw profit as reward (can be negative)
         # This is the simplest and most direct signal for learning
@@ -160,17 +164,26 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         # Internal State
         self.market: Market | None = None
         self.rl_agent: EnhancedRLAgent | None = None
-        # Use UniformTokenGenerator for proper supply/demand curves in [price_min, price_max]
+        # Token generator: gametype-based (tournament) or uniform (default)
         n_buyers = self.num_agents // 2
         n_sellers = self.num_agents - n_buyers
-        self.token_gen = UniformTokenGenerator(
-            num_tokens=self.num_tokens,
-            price_min=self.min_price,
-            price_max=self.max_price,
-            seed=42,
-            num_buyers=n_buyers,
-            num_sellers=n_sellers,
-        )
+        self._n_buyers = n_buyers
+        self._n_sellers = n_sellers
+        if self.gametype:
+            # Use gametype formula for tournament-matching token distribution
+            self.token_gen: TokenGenerator | UniformTokenGenerator = TokenGenerator(
+                self.gametype, self.num_tokens, seed=42
+            )
+        else:
+            # Default: uniform random valuations
+            self.token_gen = UniformTokenGenerator(
+                num_tokens=self.num_tokens,
+                price_min=self.min_price,
+                price_max=self.max_price,
+                seed=42,
+                num_buyers=n_buyers,
+                num_sellers=n_sellers,
+            )
 
         # Metrics Tracking
         self.episode_metrics = {
@@ -192,7 +205,13 @@ class EnhancedDoubleAuctionEnv(gym.Env):
 
         # Update token generator with new seed for variety
         new_seed = self.np_random.integers(0, 2**31)
-        self.token_gen.rng = np.random.default_rng(new_seed)
+        if self.gametype:
+            # TokenGenerator: create new instance with new seed and call new_round
+            self.token_gen = TokenGenerator(self.gametype, self.num_tokens, seed=new_seed)
+            self.token_gen.new_round()
+        else:
+            # UniformTokenGenerator: just update rng
+            self.token_gen.rng = np.random.default_rng(new_seed)
 
         # Reset metrics
         self.episode_metrics = {
@@ -441,9 +460,8 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         elif self.difficulty == "expert":
             return ["ZIP", "GD", "Kaplan"]  # Sophisticated opponents
         elif self.opponent_type == "Mixed":
-            # Chen et al. style mixed: strategies that perform >= ZIC baseline
-            # Removed ZIP (0.83x) and ZI2 (0.88x) as they underperform ZIC
-            return ["ZIC", "Kaplan", "GD", "Lin"]
+            # ALL tournament strategies - including top performers Ringuette (#1) and Ledyard (#2)
+            return ["ZIC", "ZIP", "Skeleton", "GD", "Kaplan", "Ringuette", "Ledyard", "Markup"]
         else:
             return [self.opponent_type]  # Single type specified
 

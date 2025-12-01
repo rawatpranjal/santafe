@@ -3,16 +3,16 @@
 
 experiment:
   name: "p2_self_skel_eql"
-  num_rounds: 100
+  num_rounds: 2
 
 market:
   min_price: 1
-  max_price: 1000
+  max_price: 2000
   num_tokens: 4
-  num_periods: 10
-  num_steps: 100
-  gametype: 5555
+  num_periods: 3
+  num_steps: 75
+  gametype: 0
 
 agents:
-  buyer_types: ["Skeleton", "Skeleton", "Skeleton", "Skeleton"]
-  seller_types: ["Skeleton", "Skeleton", "Skeleton", "Skeleton"]
+  buyer_types: ['Skeleton', 'Skeleton', 'Skeleton', 'Skeleton']
+  seller_types: ['Skeleton', 'Skeleton', 'Skeleton', 'Skeleton']

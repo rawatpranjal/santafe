@@ -30,9 +30,23 @@ This asymmetry makes sellers LESS aggressive at jumping in when bid is low.
 This module provides two variants:
 - symmetric_spread=False (default): Follow Java da2.7.2 (asymmetric)
 - symmetric_spread=True: Follow paper claim (symmetric, seller uses ASK)
+
+TWO CLASS VARIANTS:
+- Kaplan: Semantically corrected version (default). Fixes the minpr/maxpr bug where
+  own trades (stored as -1) pollute the price history computation.
+- KaplanJava: Bug-for-bug compatible with original Java implementation. Use this
+  for exact reproducibility studies.
+
+The original Java has a bug in end_period(): when Kaplan trades first, prices[1]=-1,
+and abs(-1)=1 becomes minpr, making the "price better than last period" condition
+nearly useless. The Kaplan class fixes this by excluding own trades from minpr/maxpr.
 """
 
+import logging
+
 from traders.base import Agent
+
+logger = logging.getLogger(__name__)
 
 
 class Kaplan(Agent):
@@ -86,6 +100,9 @@ class Kaplan(Agent):
         self.minpr: int = 0
         self.maxpr: int = 0
         self.avepr: int = 0
+        self.has_price_history: bool = (
+            False  # True if we have valid price history from other traders
+        )
         self.prices: list[int] = [0] * (num_times + 100)  # 1-indexed list of prices (with buffer)
         self.trade_count: int = 0
         self.last_time: int = 0
@@ -111,40 +128,32 @@ class Kaplan(Agent):
         self.my_last_time = 0
 
     def end_period(self) -> None:
-        # Logic from SRobotKaplan.java playerPeriodEnd
-        p1 = self.prices[1] if self.trade_count > 0 else 0
+        # FIXED: Compute minpr/maxpr from OTHER traders' prices only.
+        # Own trades are stored as -1 in prices[], which would pollute the computation.
+        # The original Java has this bug; we fix it for semantic correctness.
 
-        self.avepr = 0
-        self.minpr = abs(p1)
-        self.maxpr = abs(p1)
+        # Collect non-own trade prices (prices[i] > 0 means not our trade)
+        other_prices = [
+            self.prices[t] for t in range(1, self.trade_count + 1) if self.prices[t] > 0
+        ]
 
-        if self.is_buyer:
-            self.maxpr += -self.price_bound_adj
+        self.has_price_history = len(other_prices) > 0
+
+        if self.has_price_history:
+            self.minpr = min(other_prices)
+            self.maxpr = max(other_prices)
+            self.avepr = sum(other_prices) // len(other_prices)
+
+            # Apply bounds adjustment (same as Java)
+            if self.is_buyer:
+                self.maxpr -= self.price_bound_adj
+            else:
+                self.minpr += self.price_bound_adj
         else:
-            self.minpr += self.price_bound_adj
-
-        for t1 in range(1, self.trade_count + 1):
-            p_val = self.prices[t1]
-            abs_p = abs(p_val)
-
-            if not self.is_buyer:  # Seller
-                if self.maxpr < abs_p:
-                    self.maxpr = abs_p
-                if self.minpr > p_val and p_val > 0:
-                    self.minpr = abs_p
-            else:  # Buyer
-                if self.maxpr < p_val:  # Note: Java uses p_val here, not abs_p?
-                    # Java: if (maxpr<prices[t1]) maxpr=abs(prices[t1]);
-                    # If prices[t1] is -1, maxpr < -1 is false (if maxpr >= 0).
-                    # So it ignores own trades for maxpr update?
-                    self.maxpr = abs_p
-                if self.minpr > abs_p:
-                    self.minpr = abs_p
-
-            self.avepr += abs_p
-
-        if self.trade_count > 0:
-            self.avepr = self.avepr // self.trade_count
+            # No price history from other traders
+            self.minpr = 0
+            self.maxpr = 0
+            self.avepr = 0
 
         # Call parent to accumulate period profit into total profit
         super().end_period()
@@ -211,8 +220,13 @@ class Kaplan(Agent):
                     if profit_cond and (self.period == 1 or self.current_ask <= self.maxpr):
                         newbid = self.current_ask
 
-            # 2. Price better than last period
-            if self.period > 1 and self.current_ask > 0 and self.current_ask <= self.minpr:
+            # 2. Price better than last period (only if we have valid price history)
+            if (
+                self.period > 1
+                and self.has_price_history
+                and self.current_ask > 0
+                and self.current_ask <= self.minpr
+            ):
                 newbid = self.current_ask
 
             # 3. Time running out or been a while
@@ -240,10 +254,6 @@ class Kaplan(Agent):
         return newbid
 
     def _player_request_ask(self) -> int:
-        import logging
-
-        logger = logging.getLogger("kaplan.ask")
-
         if self.nobidask > 0:
             return 0
 
@@ -319,8 +329,8 @@ class Kaplan(Agent):
                         )
                         newoffer = self.current_bid
 
-            # 2. Price better than last period
-            if self.period > 1 and self.current_bid >= self.maxpr:
+            # 2. Price better than last period (only if we have valid price history)
+            if self.period > 1 and self.has_price_history and self.current_bid >= self.maxpr:
                 logger.debug(
                     f"SELLER P{self.player_id} JUMP IN (better price) newoffer={self.current_bid}"
                 )
@@ -376,10 +386,6 @@ class Kaplan(Agent):
         self.has_responded = False
 
     def buy_sell_response(self) -> bool:
-        import logging
-
-        logger = logging.getLogger("kaplan.decision")
-
         self.has_responded = True
         if self.nobuysell > 0:
             return False
@@ -467,10 +473,6 @@ class Kaplan(Agent):
         low_ask: int,
         low_asker: int,
     ) -> None:
-        import logging
-
-        logger = logging.getLogger("kaplan.trade")
-
         # Log before super() call to see token value BEFORE num_trades increments
         if status == 1:  # I traded
             token_val = self.valuations[self.num_trades]  # Current token (before increment)
@@ -512,3 +514,64 @@ class Kaplan(Agent):
         self.current_ask = low_ask
         self.current_bidder = high_bidder
         self.current_asker = low_asker
+
+
+class KaplanJava(Kaplan):
+    """
+    Bug-for-bug compatible Kaplan implementation matching original Java da2.7.2.
+
+    KNOWN BUG: The end_period() method initializes minpr from abs(prices[1]).
+    When Kaplan trades first, prices[1]=-1, so minpr=abs(-1)=1. This makes
+    the "price better than last period" condition (cask <= minpr) nearly useless
+    since almost any ask > 1.
+
+    Use this class for exact reproducibility studies comparing to the original
+    1993 Santa Fe tournament results. For semantically correct behavior, use
+    the base Kaplan class instead.
+    """
+
+    def end_period(self) -> None:
+        # EXACT Java logic from SRobotKaplan.java playerPeriodEnd (lines 29-44)
+        # This has the bug where abs(prices[1])=1 when prices[1]=-1 (own trade)
+
+        p1 = self.prices[1] if self.trade_count > 0 else 0
+
+        self.avepr = 0
+        self.minpr = abs(p1)
+        self.maxpr = abs(p1)
+
+        if self.is_buyer:
+            self.maxpr += -self.price_bound_adj
+        else:
+            self.minpr += self.price_bound_adj
+
+        for t1 in range(1, self.trade_count + 1):
+            p_val = self.prices[t1]
+            abs_p = abs(p_val)
+
+            if not self.is_buyer:  # Seller (role==2 in Java)
+                # Java: if (maxpr<abs(prices[t1])) maxpr=abs(prices[t1]);
+                if self.maxpr < abs_p:
+                    self.maxpr = abs_p
+                # Java: if (minpr>(prices[t1]) && prices[t1]>0) minpr=abs(prices[t1]);
+                if self.minpr > p_val and p_val > 0:
+                    self.minpr = abs_p
+            else:  # Buyer (role==1 in Java)
+                # Java: if (maxpr<prices[t1]) maxpr=abs(prices[t1]);
+                if self.maxpr < p_val:
+                    self.maxpr = abs_p
+                # Java: if (minpr>abs(prices[t1])) minpr=abs(prices[t1]);
+                if self.minpr > abs_p:
+                    self.minpr = abs_p
+
+            self.avepr += abs_p
+
+        if self.trade_count > 0:
+            self.avepr = self.avepr // self.trade_count
+
+        # has_price_history is always True for Java compat (no edge case handling)
+        self.has_price_history = self.trade_count > 0
+
+        # Call grandparent to accumulate period profit into total profit
+        # Skip Kaplan.end_period() since we're replacing it entirely
+        Agent.end_period(self)

@@ -8,6 +8,15 @@ Following the specific rules of the Santa Fe Tournament \cite{rust1994}, the mar
 
 Each experimental environment is a complete specification of market parameters. The number of buyers and sellers (up to 20 each) determines market structure. Each trader receives up to 4 tokens per period, with private values generated according to a gametype parameter that encodes four uniform random variable ranges using a base-3 coding scheme. The duration parameters specify rounds (up to 20), periods per round (up to 5), and time steps per period (up to 400). All programs receive common knowledge of these settings except gametype, which remains private.
 
+Figure~\ref{fig:token_distribution} illustrates the token assignment structure. Buyer valuations decrease for successive units (reflecting diminishing marginal utility), while seller costs increase (reflecting increasing marginal cost). This structure generates downward-sloping demand and upward-sloping supply curves that intersect to determine the competitive equilibrium. Critically, these private values impose a budget constraint on rational agents: a buyer should never bid above their valuation, and a seller should never ask below their cost. As we demonstrate in subsequent sections, this constraint alone explains much of market efficiency, since it prevents trades that would destroy value.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/market_token_distribution.pdf}
+\caption{Token distribution showing private values. (a) Buyer redemption values decrease within each buyer. (b) Seller production costs increase within each seller. These private values impose budget constraints that prevent value-destroying trades.}
+\label{fig:token_distribution}
+\end{figure}
+
 Table~\ref{tab:environments} presents the ten canonical environments from the 1993 Santa Fe Tournament. These configurations systematically vary market structure, time pressure, and token endowments to stress-test trading algorithms across diverse conditions.
 
 \begin{table}[h]
@@ -36,6 +45,15 @@ LAD & Low adaptivity & Same as BASE & 6453 \\
 
 We construct the demand schedule $D(q)$ by ordering all buyer valuations $v_{ik}$ in descending order, and the supply schedule $S(q)$ by ordering all seller costs $c_{jk}$ in ascending order. The equilibrium quantity is $Q^* = \max\{q : D(q) > S(q)\}$, and the equilibrium price lies in the interval $S(Q^*) \leq P^* \leq D(Q^*)$, typically computed as the midpoint $P^* = (D(Q^*) + S(Q^*))/2$. The maximum theoretical surplus is $TS^* = \sum_{q=1}^{Q^*}(D(q) - S(q))$.
 
+Figure~\ref{fig:supply_demand} visualizes this construction. The demand curve steps down as quantity increases (each successive unit has lower value), while the supply curve steps up (each successive unit has higher cost). The competitive equilibrium occurs at the intersection, defining both the efficient quantity $Q^*$ and the benchmark price $P^*$ against which we measure price convergence. The shaded area represents total surplus $TS^*$, which serves as the denominator in our efficiency calculations: a market achieving 100\% efficiency captures this entire area through optimal matching of buyers and sellers.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/market_supply_demand.pdf}
+\caption{Supply and demand curves with competitive equilibrium. The shaded area represents maximum surplus $TS^*$, the denominator for efficiency calculations. The equilibrium price $P^*$ provides the benchmark for measuring price convergence.}
+\label{fig:supply_demand}
+\end{figure}
+
 \subsubsection{Market Efficiency}
 
 Allocative efficiency measures the percentage of maximum possible surplus realized:
@@ -46,6 +64,24 @@ where $v_t$ and $c_t$ are the redemption value and cost of units exchanged at tr
 \begin{equation}
 IM = \sum_{q \in \text{Untraded Intra-marginal}}(D(q) - S(q)), \quad EM = \sum_{t \in \text{Extra-marginal}}(c_t - v_t)
 \end{equation}
+
+Figure~\ref{fig:efficiency_decomposition} illustrates these concepts. Panel (a) shows maximum possible surplus when all profitable trades execute. Panel (b) shows an inefficient outcome: the green area represents realized surplus, the orange hatched area represents V-inefficiency from missed profitable trades, and the red hatched area represents EM-inefficiency from an extra-marginal trade that destroyed value. This decomposition explains the performance hierarchy we observe in subsequent experiments. Unconstrained random traders (ZI) suffer severe EM-inefficiency by accepting value-destroying trades. Budget-constrained traders (ZIC) eliminate EM-inefficiency but may still miss profitable opportunities under time pressure, creating V-inefficiency. Adaptive traders (ZIP) reduce both sources of loss through learned price targeting.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/market_efficiency_decomposition.pdf}
+\caption{Market efficiency decomposition. (a) Maximum surplus with 100\% efficiency. (b) Inefficient outcome showing V-inefficiency (missed trades) and EM-inefficiency (bad trades). Constrained traders eliminate EM-inefficiency; adaptive traders reduce both.}
+\label{fig:efficiency_decomposition}
+\end{figure}
+
+Figure~\ref{fig:trader_hierarchy} visualizes this hierarchy using the same market. Panel (a) shows unconstrained ZI traders: prices scatter across the full range, with several trades occurring in the red extra-marginal zone where buyer value is less than seller cost. These value-destroying trades produce severe EM-inefficiency. Panel (b) shows ZIC traders: the budget constraint eliminates all extra-marginal trades, but random pricing within the feasible region causes some missed opportunities (the orange hatched areas). Panel (c) shows ZIP traders: adaptive margin adjustment concentrates trades near equilibrium, capturing nearly all available surplus with minimal inefficiency of either type.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/market_trader_hierarchy.pdf}
+\caption{The budget constraint and adaptive learning hierarchy. All three panels show the same market structure. (a) ZI trades anywhere, including value-destroying extra-marginal trades. (b) ZIC trades only when profitable, eliminating EM-inefficiency but missing some opportunities. (c) ZIP learns to trade near equilibrium, minimizing both V-inefficiency and EM-inefficiency.}
+\label{fig:trader_hierarchy}
+\end{figure}
 
 \subsubsection{Price Convergence}
 
@@ -69,3 +105,5 @@ The individual efficiency ratio $E_i = \pi_i / \pi_i^*$ measures whether a trade
 PD = \sqrt{\frac{1}{N}\sum_{i=1}^{N}(\pi_i - \pi_i^*)^2}
 \end{equation}
 Lower dispersion indicates more equitable surplus allocation.
+
+In subsequent sections, we report these metrics across all ten environments using three experimental designs. In self-play experiments, all agents use identical strategies, testing whether a population of homogeneous traders can coordinate efficiently. In mixed-market experiments, heterogeneous strategies compete, revealing which algorithms can exploit others or maintain performance when surrounded by different behaviors. In tournament experiments, we rank strategies by average profit across all environments, identifying which approaches succeed robustly rather than in specific conditions.

@@ -10,24 +10,22 @@ Usage:
     python train_ppo.py vectorization.n_envs=8       # Use 8 parallel envs
 """
 
-import os
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any
 
 import hydra
-from omegaconf import DictConfig, OmegaConf
 import numpy as np
 import torch
-
+from omegaconf import DictConfig, OmegaConf
 from sb3_contrib import MaskablePPO
-from stable_baselines3.common.vec_env import VecEnv
 from stable_baselines3.common.callbacks import (
     BaseCallback,
+    CallbackList,
     CheckpointCallback,
     EvalCallback,
-    CallbackList
+    StopTrainingOnNoModelImprovement,
 )
-from stable_baselines3.common.logger import configure
+from stable_baselines3.common.vec_env import VecEnv
 
 
 class EntropyScheduleCallback(BaseCallback):
@@ -42,7 +40,7 @@ class EntropyScheduleCallback(BaseCallback):
         start_ent_coef: float = 0.1,
         end_ent_coef: float = 0.01,
         total_timesteps: int = 200_000,
-        verbose: int = 0
+        verbose: int = 0,
     ):
         super().__init__(verbose)
         self.start_ent_coef = start_ent_coef
@@ -63,19 +61,21 @@ class EntropyScheduleCallback(BaseCallback):
 
         return True
 
+
 # W&B integration
 try:
     import wandb
     from wandb.integration.sb3 import WandbCallback
+
     WANDB_AVAILABLE = True
 except ImportError:
     WANDB_AVAILABLE = False
     print("Warning: wandb not available. Install with: pip install wandb")
 
-from envs.vec_env_utils import make_vec_env, make_eval_vec_env
+from envs.vec_env_utils import make_eval_vec_env, make_vec_env
 
 
-def setup_wandb(cfg: DictConfig) -> Optional[Any]:
+def setup_wandb(cfg: DictConfig) -> Any | None:
     """
     Initialize Weights & Biases logging.
 
@@ -99,7 +99,7 @@ def setup_wandb(cfg: DictConfig) -> Optional[Any]:
         config=OmegaConf.to_container(cfg, resolve=True),
         sync_tensorboard=True,  # Sync SB3 tensorboard logs
         monitor_gym=True,  # Log environment stats
-        save_code=True
+        save_code=True,
     )
 
     print(f"W&B run initialized: {run.name}")
@@ -125,6 +125,7 @@ def create_training_env(cfg: DictConfig) -> VecEnv:
         "price_max": cfg.rl.env.price_max,
         "rl_agent_type": cfg.rl.env.rl_agent_type,
         "opponent_type": cfg.rl.env.opponent_type,
+        "gametype": cfg.rl.env.get("gametype", None),
         "use_enhanced_env": cfg.rl.env.get("use_enhanced_env", True),
         "pure_profit_mode": cfg.rl.env.get("pure_profit_mode", True),
     }
@@ -133,7 +134,7 @@ def create_training_env(cfg: DictConfig) -> VecEnv:
         n_envs=cfg.rl.n_envs,
         start_method=cfg.rl.start_method,
         env_kwargs=env_kwargs,
-        seed=cfg.rl.seed
+        seed=cfg.rl.seed,
     )
 
     print(f"Created {cfg.rl.n_envs} parallel training environments")
@@ -159,6 +160,7 @@ def create_eval_env(cfg: DictConfig) -> VecEnv:
         "price_max": cfg.rl.env.price_max,
         "rl_agent_type": cfg.rl.env.rl_agent_type,
         "opponent_type": cfg.rl.env.opponent_type,
+        "gametype": cfg.rl.env.get("gametype", None),
         "use_enhanced_env": cfg.rl.env.get("use_enhanced_env", True),
         "pure_profit_mode": cfg.rl.env.get("pure_profit_mode", True),
     }
@@ -167,7 +169,7 @@ def create_eval_env(cfg: DictConfig) -> VecEnv:
         n_envs=cfg.rl.eval.n_envs,
         start_method=cfg.rl.start_method,
         env_kwargs=env_kwargs,
-        seed=cfg.rl.eval.seed
+        seed=cfg.rl.eval.seed,
     )
 
     print(f"Created {cfg.rl.eval.n_envs} parallel evaluation environments")
@@ -192,7 +194,7 @@ def create_callbacks(cfg: DictConfig, eval_env: VecEnv) -> CallbackList:
         start_ent_coef=cfg.rl.ent_coef,  # Initial value from config (0.15)
         end_ent_coef=0.005,  # Final value for sharp exploitation
         total_timesteps=cfg.rl.total_timesteps,
-        verbose=1
+        verbose=1,
     )
     callbacks.append(entropy_callback)
 
@@ -205,11 +207,19 @@ def create_callbacks(cfg: DictConfig, eval_env: VecEnv) -> CallbackList:
         save_path=str(checkpoint_dir),
         name_prefix="ppo_double_auction",
         save_replay_buffer=cfg.rl.save_replay_buffer,
-        save_vecnormalize=True
+        save_vecnormalize=True,
     )
     callbacks.append(checkpoint_callback)
 
-    # Evaluation callback - periodic evaluation on held-out envs
+    # Early stopping callback - stop if no improvement for N evaluations
+    early_stopping_patience = cfg.rl.get("early_stopping_patience", 5)  # Default: 5 evals
+    stop_training_callback = StopTrainingOnNoModelImprovement(
+        max_no_improvement_evals=early_stopping_patience,
+        min_evals=3,  # Require at least 3 evals before stopping
+        verbose=1,
+    )
+
+    # Evaluation callback - periodic evaluation on held-out envs with early stopping
     eval_callback = EvalCallback(
         eval_env,
         best_model_save_path=str(checkpoint_dir / "best_model"),
@@ -217,16 +227,18 @@ def create_callbacks(cfg: DictConfig, eval_env: VecEnv) -> CallbackList:
         eval_freq=cfg.rl.eval_freq,
         n_eval_episodes=cfg.rl.eval_episodes,
         deterministic=cfg.rl.eval_deterministic,
-        render=False
+        render=False,
+        callback_after_eval=stop_training_callback,  # Add early stopping
     )
     callbacks.append(eval_callback)
+    print(
+        f"  Early stopping: patience={early_stopping_patience} evals (no improvement for {early_stopping_patience * cfg.rl.eval_freq:,} steps → stop)"
+    )
 
     # W&B callback - log to Weights & Biases
     if WANDB_AVAILABLE and cfg.rl.wandb.enabled:
         wandb_callback = WandbCallback(
-            gradient_save_freq=1000,
-            model_save_path=str(checkpoint_dir / "wandb_model"),
-            verbose=2
+            gradient_save_freq=1000, model_save_path=str(checkpoint_dir / "wandb_model"), verbose=2
         )
         callbacks.append(wandb_callback)
 
@@ -286,7 +298,7 @@ def create_ppo_model(cfg: DictConfig, env: VecEnv) -> MaskablePPO:
     print(f"  Learning rate: {cfg.rl.learning_rate}")
     print(f"  Batch size: {cfg.rl.batch_size}")
     print(f"  N steps: {cfg.rl.n_steps}")
-    print(f"  Action masking: ENABLED (reads from info['action_mask'])")
+    print("  Action masking: ENABLED (reads from info['action_mask'])")
 
     return model
 
@@ -340,7 +352,7 @@ def main(cfg: DictConfig) -> None:
             total_timesteps=cfg.rl.total_timesteps,
             callback=callbacks,
             log_interval=cfg.rl.log_interval,
-            progress_bar=True
+            progress_bar=True,
         )
     except KeyboardInterrupt:
         print("\n\nTraining interrupted by user")

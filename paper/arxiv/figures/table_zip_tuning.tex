@@ -1,17 +1,17 @@
 \begin{table}[H]
 \centering
-\caption{ZIP Hyperparameter Tuning Results (8$\times$8 Selfplay, 100 rounds)}
+\caption{ZIP Hyperparameter Tuning Results (8$\times$8 Selfplay)}
 \label{tab:zip_tuning}
-\begin{tabular}{llrrrrrrr}
+\begin{tabular}{llrrrr}
 \toprule
-\textbf{Config} & $\beta$ & $\gamma$ & \textbf{Eff\%} & \textbf{Std} & \textbf{V-Ineff} & \textbf{Vol\%} & \textbf{Disp} & \textbf{Profit} \\
+\textbf{Config} & $\beta$ & $\gamma$ & \textbf{Efficiency} & \textbf{Volatility} \\
 \midrule
-A\_high\_eff & 0.05 & 0.02 & 93.8 & 8.7 & 1.62 & \textbf{11.1} & \textbf{73.8} & 105.2 \\
-\textbf{B\_low\_vol} & 0.005 & 0.10 & \textbf{99.6} & \textbf{1.1} & \textbf{0.41} & 13.4 & 78.1 & \textbf{112.1} \\
-C\_balanced & 0.02 & 0.03 & 97.9 & 3.9 & 0.99 & 12.4 & 74.8 & 109.7 \\
-D\_baseline & 0.01 & 0.008 & 99.0 & 2.4 & 0.69 & 12.9 & 76.3 & 111.3 \\
+A\_high\_eff & 0.05 & 0.02 & 98.9$\pm$0.2\% & 39.7\% \\
+B\_low\_vol & 0.005 & 0.10 & 98.9$\pm$0.3\% & 39.6\% \\
+C\_balanced & 0.02 & 0.03 & 98.9$\pm$0.2\% & 39.7\% \\
+D\_baseline & 0.01 & 0.008 & 98.9$\pm$0.2\% & 39.6\% \\
 \bottomrule
-\multicolumn{9}{l}{\footnotesize $\beta$ = learning rate, $\gamma$ = momentum. Bold = best in column.} \\
-\multicolumn{9}{l}{\footnotesize B\_low\_vol achieves lowest V-inefficiency (0.41), beating ZIC (0.73).} \\
+\multicolumn{5}{l}{\footnotesize 10 seeds, 50 rounds each. $\beta$ = learning rate, $\gamma$ = momentum.} \\
+\multicolumn{5}{l}{\footnotesize All configurations produce identical 98.9\% efficiency: ZIP is robust to hyperparameters.} \\
 \end{tabular}
 \end{table}

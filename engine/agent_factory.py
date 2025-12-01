@@ -5,11 +5,15 @@ Agent Factory.
 from typing import Any
 
 from traders.base import Agent
-from traders.legacy.el import EL
+from traders.legacy.bgan import BGAN
+from traders.legacy.breton import Breton
+from traders.legacy.gamer import Gamer
 from traders.legacy.gd import GD
+from traders.legacy.gradual import GradualBidder
 from traders.legacy.histogram_learner import HistogramLearner
 from traders.legacy.jacobson import Jacobson
-from traders.legacy.kaplan import Kaplan
+from traders.legacy.kaplan import Kaplan, KaplanJava
+from traders.legacy.ledyard import Ledyard
 from traders.legacy.lin import Lin
 from traders.legacy.markup import Markup
 from traders.legacy.perry import Perry
@@ -17,6 +21,7 @@ from traders.legacy.reservation_price import ReservationPrice
 from traders.legacy.ringuette import Ringuette
 from traders.legacy.rule_trader import RuleTrader
 from traders.legacy.skeleton import Skeleton
+from traders.legacy.staecker import Staecker
 from traders.legacy.truth_teller import TruthTeller
 from traders.legacy.zi import ZI
 from traders.legacy.zi2 import ZI2
@@ -37,8 +42,8 @@ def create_agent(
     num_times: int = 100,
     num_buyers: int = 1,
     num_sellers: int = 1,
-    price_min: int = 0,
-    price_max: int = 1000,
+    price_min: int = 1,
+    price_max: int = 2000,
     **kwargs: Any,
 ) -> Agent:
     """
@@ -82,9 +87,9 @@ def create_agent(
             symmetric_spread=False,
             **legacy_kwargs,
         )
-    elif agent_type == "KaplanJava":
-        # Explicit Java variant: seller uses BID denominator (asymmetric)
-        return Kaplan(
+    elif agent_type == "KaplanJavaBuggy":
+        # Bug-for-bug compatible with original Java (including minpr bug)
+        return KaplanJava(
             player_id,
             is_buyer,
             num_tokens,
@@ -214,8 +219,8 @@ def create_agent(
             seed=seed,
             **legacy_kwargs,
         )
-    elif agent_type == "EL":
-        return EL(
+    elif agent_type == "Ledyard":
+        return Ledyard(
             player_id,
             is_buyer,
             num_tokens,
@@ -223,6 +228,8 @@ def create_agent(
             price_min=price_min,
             price_max=price_max,
             num_times=num_times,
+            num_buyers=num_buyers,
+            num_sellers=num_sellers,
             seed=seed,
             **legacy_kwargs,
         )
@@ -293,6 +300,65 @@ def create_agent(
             seed=seed,
             **legacy_kwargs,
         )
+    elif agent_type == "Gamer":
+        return Gamer(
+            player_id,
+            is_buyer,
+            num_tokens,
+            valuations,
+            price_min=price_min,
+            price_max=price_max,
+            seed=seed,
+            **legacy_kwargs,
+        )
+    elif agent_type == "Breton":
+        return Breton(
+            player_id,
+            is_buyer,
+            num_tokens,
+            valuations,
+            price_min=price_min,
+            price_max=price_max,
+            num_times=num_times,
+            seed=seed,
+            **legacy_kwargs,
+        )
+    elif agent_type == "Gradual":
+        return GradualBidder(
+            player_id,
+            is_buyer,
+            num_tokens,
+            valuations,
+            price_min=price_min,
+            price_max=price_max,
+            num_times=num_times,
+            seed=seed,
+            **legacy_kwargs,
+        )
+    elif agent_type == "BGAN":
+        return BGAN(
+            player_id,
+            is_buyer,
+            num_tokens,
+            valuations,
+            price_min=price_min,
+            price_max=price_max,
+            num_times=num_times,
+            seed=seed,
+            **legacy_kwargs,
+        )
+    elif agent_type == "Staecker":
+        return Staecker(
+            player_id,
+            is_buyer,
+            num_tokens,
+            valuations,
+            price_min=price_min,
+            price_max=price_max,
+            num_times=num_times,
+            seed=seed,
+            **legacy_kwargs,
+        )
     elif agent_type == "PPO":
         model_path = kwargs.get("model_path")
         if not model_path:
@@ -304,6 +370,7 @@ def create_agent(
             valuations,
             model_path=model_path,
             max_price=price_max,
+            min_price=price_min,
             max_steps=num_times,
         )
     elif agent_type == "PlaceholderLLM":
@@ -317,12 +384,30 @@ def create_agent(
             seed=seed,
             **kwargs,
         )
-    elif agent_type in ["GPT4", "GPT3.5", "GPT4-mini", "Groq-Llama", "Groq-Llama-70b"]:
+    elif agent_type in [
+        "GPT4",
+        "GPT3.5",
+        "GPT4-mini",
+        "GPT4-turbo",
+        "GPT5-nano",
+        "GPT4.1",
+        "GPT4.1-mini",
+        "GPT4.1-nano",
+        "O4-mini",
+        "Groq-Llama",
+        "Groq-Llama-70b",
+    ]:
         # Map agent type to model name
         model_map = {
             "GPT4": "gpt-4o",
             "GPT4-mini": "gpt-4o-mini",
+            "GPT4-turbo": "gpt-4-turbo",
+            "GPT5-nano": "gpt-5-nano",
+            "GPT4.1": "gpt-4.1",
+            "GPT4.1-mini": "gpt-4.1-mini",
+            "GPT4.1-nano": "gpt-4.1-nano",
             "GPT3.5": "gpt-3.5-turbo",
+            "O4-mini": "o4-mini",
             "Groq-Llama": "groq/llama-3.3-70b-versatile",
             "Groq-Llama-70b": "groq/llama-3.3-70b-versatile",
         }

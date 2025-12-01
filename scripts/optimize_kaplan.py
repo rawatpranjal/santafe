@@ -1,151 +1,187 @@
+#!/usr/bin/env python3
 """
-Kaplan Parameter Optimization via Grid Search.
+Grid search optimization for Kaplan parameters in MIXED MARKETS.
 
-Systematically tests different Kaplan parameter combinations against ZIC
-to find optimal settings.
+Unlike the previous version (optimized against ZIC only), this searches
+for the best Kaplan parameters when competing against ZIP, Skeleton, and ZIC
+simultaneously - the actual tournament conditions.
+
+Uses correct TokenGenerator (Santa Fe gametype) instead of UniformTokenGenerator.
 
 Usage:
-    python scripts/optimize_kaplan.py --opponent ZIC --num_rounds 5
+    uv run python scripts/optimize_kaplan.py --num_rounds 20
+    uv run python scripts/optimize_kaplan.py --envs BASE,SHRT,TOK --num_rounds 10
 """
+
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent.parent))
 
 import argparse
 import itertools
-import logging
-from dataclasses import dataclass
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 from engine.agent_factory import create_agent
-from engine.efficiency import (
-    calculate_actual_surplus,
-    calculate_max_surplus,
-    extract_trades_from_orderbook,
-)
 from engine.market import Market
-from engine.token_generator import UniformTokenGenerator
+from engine.token_generator import TokenGenerator
 from traders.legacy.kaplan import Kaplan
 
-logging.basicConfig(level=logging.WARNING)
-logger = logging.getLogger(__name__)
+# Parameter grid - focused on most impactful parameters
+PARAM_GRID = {
+    "spread_threshold": [0.05, 0.10, 0.15, 0.20],
+    "profit_margin": [0.01, 0.02, 0.05],
+    "sniper_steps": [2, 5, 10],
+    "aggressive_first": [False, True],
+    "time_half_frac": [0.3, 0.5],
+}
+
+# Environment configurations (matching Part 2 tournament)
+ENVIRONMENTS = {
+    "BASE": {"num_tokens": 4, "num_steps": 100, "gametype": 6453},
+    "SHRT": {"num_tokens": 4, "num_steps": 20, "gametype": 6453},
+    "TOK": {"num_tokens": 1, "num_steps": 100, "gametype": 6453},
+    "SML": {"num_tokens": 4, "num_steps": 100, "gametype": 1111},
+    "EQL": {"num_tokens": 4, "num_steps": 100, "gametype": 2222},
+    "RAN": {"num_tokens": 4, "num_steps": 100, "gametype": 9999},
+    "LAD": {"num_tokens": 4, "num_steps": 100, "gametype": 3333},
+    "PER": {"num_tokens": 4, "num_steps": 100, "gametype": 1234},
+    "BBBS": {"num_tokens": 4, "num_steps": 100, "gametype": 6453, "buyers": 6, "sellers": 2},
+    "BSSS": {"num_tokens": 4, "num_steps": 100, "gametype": 6453, "buyers": 2, "sellers": 6},
+}
 
 
-@dataclass
-class ExperimentResult:
-    """Results from a single parameter combination."""
+def generate_param_configs() -> list[dict[str, Any]]:
+    """Generate all parameter combinations."""
+    keys = list(PARAM_GRID.keys())
+    values = list(PARAM_GRID.values())
 
-    params: dict[str, Any]
-    kaplan_profit: float
-    opponent_profit: float
-    efficiency: float
-    num_trades: int
-    kaplan_win_rate: float  # % of rounds where Kaplan earned more
+    configs = []
+    for combo in itertools.product(*values):
+        config = dict(zip(keys, combo))
+        configs.append(config)
 
-
-def create_kaplan_agent(
-    player_id: int,
-    is_buyer: bool,
-    num_tokens: int,
-    valuations: list[int],
-    price_min: int,
-    price_max: int,
-    num_times: int,
-    params: dict[str, Any],
-) -> Kaplan:
-    """Create a Kaplan agent with custom parameters."""
-    return Kaplan(
-        player_id=player_id,
-        is_buyer=is_buyer,
-        num_tokens=num_tokens,
-        valuations=valuations,
-        price_min=price_min,
-        price_max=price_max,
-        num_times=num_times,
-        symmetric_spread=params.get("symmetric_spread", True),
-        spread_threshold=params.get("spread_threshold", 0.10),
-        profit_margin=params.get("profit_margin", 0.02),
-        time_half_frac=params.get("time_half_frac", 0.5),
-        time_two_thirds_frac=params.get("time_two_thirds_frac", 0.667),
-        min_trade_gap=params.get("min_trade_gap", 5),
-        sniper_steps=params.get("sniper_steps", 2),
-        price_bound_adj=params.get("price_bound_adj", 100),
-        aggressive_first=params.get("aggressive_first", False),
-    )
+    return configs
 
 
-def run_single_experiment(
+def run_one_seed(
     kaplan_params: dict[str, Any],
-    opponent_type: str,
-    num_rounds: int = 5,
-    num_periods: int = 5,
-    num_tokens: int = 4,
-    num_steps: int = 100,
-    price_min: int = 0,
-    price_max: int = 200,
-    seed: int = 42,
-) -> ExperimentResult:
-    """Run experiment with given Kaplan parameters vs opponent."""
+    env_name: str,
+    num_rounds: int = 20,
+    num_periods: int = 10,
+    price_min: int = 1,
+    price_max: int = 1000,
+    seed: int = 123,
+) -> dict[str, float]:
+    """Run a single Kaplan config in one environment with one seed.
 
-    kaplan_profits = []
-    opponent_profits = []
-    efficiencies = []
-    total_trades = 0
-    kaplan_wins = 0
+    NOTE: Uses single TokenGenerator with sequential new_round() calls
+    to match tournament.py behavior exactly.
+    """
+    env = ENVIRONMENTS[env_name]
+    num_tokens = env["num_tokens"]
+    num_steps = env["num_steps"]
+    gametype = env["gametype"]
+
+    # Standard 4v4 mixed market unless specified
+    num_buyers = env.get("buyers", 4)
+    num_sellers = env.get("sellers", 4)
+
+    # Agent types: Kaplan, Skeleton, ZIC, ZIP (or adjusted for asymmetric)
+    if num_buyers == 4 and num_sellers == 4:
+        buyer_types = ["Kaplan", "Skeleton", "ZIC", "ZIP"]
+        seller_types = ["Kaplan", "Skeleton", "ZIC", "ZIP"]
+    elif num_buyers == 6:
+        buyer_types = ["Kaplan", "Kaplan", "Skeleton", "ZIC", "ZIP", "ZIP"]
+        seller_types = ["Skeleton", "ZIC"]
+    else:  # num_sellers == 6
+        buyer_types = ["Kaplan", "ZIC"]
+        seller_types = ["Skeleton", "Skeleton", "ZIC", "ZIP", "ZIP", "ZIP"]
+
+    # Track profits by type
+    total_profits: dict[str, float] = {"Kaplan": 0, "Skeleton": 0, "ZIC": 0, "ZIP": 0}
+    type_counts: dict[str, int] = {"Kaplan": 0, "Skeleton": 0, "ZIC": 0, "ZIP": 0}
+
+    # FIXED: Single TokenGenerator, reused across rounds (matches tournament.py)
+    token_gen = TokenGenerator(gametype, num_tokens, seed)
 
     for r in range(num_rounds):
-        # Fresh token generator per round with varied seed
-        token_gen = UniformTokenGenerator(
-            num_tokens, price_min, price_max, seed + r * 1000, num_buyers=2, num_sellers=2
-        )
+        # Advance round state (matches tournament.py line 128)
+        token_gen.new_round()
 
-        # Create agents: 2 Kaplan buyers vs 2 opponent sellers
-        # (symmetric: could also test 2 Kaplan sellers vs 2 opponent buyers)
-        agents = []
+        # Create agents
+        # FIXED: Use consistent agent seeds matching tournament (rng_seed_auction + player_id)
+        rng_seed_auction = 42  # Match tournament's rng_seed_auction
+        buyers = []
+        for i, agent_type in enumerate(buyer_types):
+            player_id = i + 1
+            vals = token_gen.generate_tokens(is_buyer=True)
+            if agent_type == "Kaplan":
+                agent = Kaplan(
+                    player_id=player_id,
+                    is_buyer=True,
+                    num_tokens=num_tokens,
+                    valuations=vals,
+                    price_min=price_min,
+                    price_max=price_max,
+                    num_times=num_steps,
+                    seed=rng_seed_auction + player_id,
+                    **kaplan_params,
+                )
+            else:
+                agent = create_agent(
+                    agent_type,
+                    player_id=player_id,
+                    is_buyer=True,
+                    num_tokens=num_tokens,
+                    valuations=vals,
+                    price_min=price_min,
+                    price_max=price_max,
+                    num_times=num_steps,
+                    seed=rng_seed_auction + player_id,
+                )
+            agent.start_round(vals)
+            buyers.append(agent)
 
-        # Kaplan buyers
-        for i in range(2):
-            buyer_vals = token_gen.generate_tokens(is_buyer=True)
-            agent = create_kaplan_agent(
-                player_id=i + 1,
-                is_buyer=True,
-                num_tokens=num_tokens,
-                valuations=buyer_vals,
-                price_min=price_min,
-                price_max=price_max,
-                num_times=num_steps,
-                params=kaplan_params,
-            )
-            agent.start_round(buyer_vals)
-            agents.append(agent)
-
-        # Opponent sellers
-        for i in range(2):
-            seller_costs = token_gen.generate_tokens(is_buyer=False)
-            agent = create_agent(
-                opponent_type,
-                player_id=i + 3,
-                is_buyer=False,
-                num_tokens=num_tokens,
-                valuations=seller_costs,
-                price_min=price_min,
-                price_max=price_max,
-                num_times=num_steps,
-                seed=seed + r * 10 + i,
-            )
-            agent.start_round(seller_costs)
-            agents.append(agent)
+        sellers = []
+        for i, agent_type in enumerate(seller_types):
+            player_id = num_buyers + i + 1
+            costs = token_gen.generate_tokens(is_buyer=False)
+            if agent_type == "Kaplan":
+                agent = Kaplan(
+                    player_id=player_id,
+                    is_buyer=False,
+                    num_tokens=num_tokens,
+                    valuations=costs,
+                    price_min=price_min,
+                    price_max=price_max,
+                    num_times=num_steps,
+                    seed=rng_seed_auction + player_id,
+                    **kaplan_params,
+                )
+            else:
+                agent = create_agent(
+                    agent_type,
+                    player_id=player_id,
+                    is_buyer=False,
+                    num_tokens=num_tokens,
+                    valuations=costs,
+                    price_min=price_min,
+                    price_max=price_max,
+                    num_times=num_steps,
+                    seed=rng_seed_auction + player_id,
+                )
+            agent.start_round(costs)
+            sellers.append(agent)
 
         # Run periods
-        round_kaplan_profit = 0
-        round_opponent_profit = 0
-
-        buyers = [a for a in agents if a.is_buyer]
-        sellers = [a for a in agents if not a.is_buyer]
-
         for p in range(num_periods):
             market = Market(
-                num_buyers=len(buyers),
-                num_sellers=len(sellers),
+                num_buyers=num_buyers,
+                num_sellers=num_sellers,
                 num_times=num_steps,
                 price_min=price_min,
                 price_max=price_max,
@@ -154,257 +190,242 @@ def run_single_experiment(
             )
             market.set_period(r + 1, p + 1)
 
-            # Notify agents of period start
-            for agent in agents:
+            for agent in buyers + sellers:
                 agent.start_period(p + 1)
 
-            # Run market time steps
             while market.current_time < market.num_times:
                 market.run_time_step()
 
-            # Collect profits
-            for agent in agents:
-                if isinstance(agent, Kaplan):
-                    round_kaplan_profit += agent.period_profit
-                else:
-                    round_opponent_profit += agent.period_profit
+            # Accumulate profits
+            for agent in buyers + sellers:
+                agent_type = agent.__class__.__name__
+                total_profits[agent_type] += agent.period_profit
+                type_counts[agent_type] += 1
 
-            # Calculate efficiency
-            buyer_vals_list = [a.valuations for a in buyers]
-            seller_costs_list = [a.valuations for a in sellers]
-            trades = extract_trades_from_orderbook(market.orderbook, num_steps)
-            actual = calculate_actual_surplus(
-                trades,
-                {a.player_id: a.valuations for a in buyers},
-                {a.player_id - 2: a.valuations for a in sellers},
-            )
-            max_surplus = calculate_max_surplus(buyer_vals_list, seller_costs_list)
-            if max_surplus > 0:
-                efficiencies.append(actual / max_surplus)
-
-            total_trades += len(trades)
-
-            # End period for agents
-            for agent in agents:
+            for agent in buyers + sellers:
                 agent.end_period()
 
-        kaplan_profits.append(round_kaplan_profit)
-        opponent_profits.append(round_opponent_profit)
-        if round_kaplan_profit > round_opponent_profit:
-            kaplan_wins += 1
+    # Calculate per-agent profits (total / number of agent-periods)
+    per_agent_profits = {}
+    for t in ["Kaplan", "Skeleton", "ZIC", "ZIP"]:
+        if type_counts[t] > 0:
+            per_agent_profits[t] = total_profits[t] / type_counts[t]
+        else:
+            per_agent_profits[t] = 0
 
-    avg_kaplan = sum(kaplan_profits) / len(kaplan_profits) if kaplan_profits else 0
-    avg_opponent = sum(opponent_profits) / len(opponent_profits) if opponent_profits else 0
-    avg_efficiency = sum(efficiencies) / len(efficiencies) if efficiencies else 0
-    win_rate = kaplan_wins / num_rounds if num_rounds > 0 else 0
+    # Determine rank
+    sorted_types = sorted(per_agent_profits.items(), key=lambda x: -x[1])
+    kaplan_rank = next(i + 1 for i, (t, _) in enumerate(sorted_types) if t == "Kaplan")
 
-    return ExperimentResult(
-        params=kaplan_params,
-        kaplan_profit=avg_kaplan,
-        opponent_profit=avg_opponent,
-        efficiency=avg_efficiency,
-        num_trades=total_trades,
-        kaplan_win_rate=win_rate,
-    )
-
-
-def grid_search(
-    opponent_type: str,
-    num_rounds: int = 5,
-    seed: int = 42,
-) -> pd.DataFrame:
-    """Run grid search over Kaplan parameters."""
-
-    # Parameter grid
-    param_grid = {
-        "spread_threshold": [0.05, 0.10, 0.15, 0.20],
-        "profit_margin": [0.005, 0.01, 0.02, 0.03],
-        "sniper_steps": [2, 3, 5, 10],
-        "aggressive_first": [False, True],
-        "symmetric_spread": [False, True],
+    return {
+        "kaplan_profit": per_agent_profits["Kaplan"],
+        "zip_profit": per_agent_profits["ZIP"],
+        "skeleton_profit": per_agent_profits["Skeleton"],
+        "zic_profit": per_agent_profits["ZIC"],
+        "kaplan_rank": kaplan_rank,
+        "beats_zip": per_agent_profits["Kaplan"] > per_agent_profits["ZIP"],
     }
 
-    # Fixed parameters (reduce search space)
-    fixed_params = {
-        "time_half_frac": 0.5,
-        "time_two_thirds_frac": 0.667,
-        "min_trade_gap": 5,
-        "price_bound_adj": 100,
-    }
 
-    # Generate all combinations
-    keys = list(param_grid.keys())
-    values = list(param_grid.values())
-    combinations = list(itertools.product(*values))
+# Default seeds for multi-seed evaluation
+DEFAULT_SEEDS = [42, 100, 200, 300, 400]
 
-    results = []
-    total = len(combinations)
 
-    print(f"Running grid search: {total} combinations vs {opponent_type}")
-    print("-" * 60)
+def run_multi_seed_config(
+    kaplan_params: dict[str, Any],
+    env_name: str,
+    num_rounds: int = 20,
+    seeds: list[int] | None = None,
+) -> dict[str, Any]:
+    """Run config with multiple seeds for robust evaluation.
 
-    for i, combo in enumerate(combinations):
-        params = dict(zip(keys, combo))
-        params.update(fixed_params)
+    Returns mean, std, and individual results across all seeds.
+    """
+    if seeds is None:
+        seeds = DEFAULT_SEEDS
 
-        result = run_single_experiment(
-            kaplan_params=params,
-            opponent_type=opponent_type,
+    ranks: list[int] = []
+    beats_zip_count = 0
+
+    for seed in seeds:
+        result = run_one_seed(
+            kaplan_params=kaplan_params,
+            env_name=env_name,
             num_rounds=num_rounds,
             seed=seed,
         )
+        ranks.append(result["kaplan_rank"])
+        if result["beats_zip"]:
+            beats_zip_count += 1
 
-        results.append(
-            {
-                **params,
-                "kaplan_profit": result.kaplan_profit,
-                "opponent_profit": result.opponent_profit,
-                "profit_diff": result.kaplan_profit - result.opponent_profit,
-                "efficiency": result.efficiency,
-                "num_trades": result.num_trades,
-                "win_rate": result.kaplan_win_rate,
-            }
-        )
-
-        if (i + 1) % 10 == 0 or i == 0:
-            print(
-                f"  [{i+1}/{total}] Best so far: profit_diff={max(r['profit_diff'] for r in results):.1f}"
-            )
-
-    df = pd.DataFrame(results)
-    return df.sort_values("profit_diff", ascending=False)
-
-
-def ablation_study(
-    opponent_type: str,
-    num_rounds: int = 10,
-    seed: int = 42,
-) -> pd.DataFrame:
-    """Run ablation study: change one parameter at a time from baseline."""
-
-    # Baseline (original Java da2.7.2)
-    baseline = {
-        "spread_threshold": 0.10,
-        "profit_margin": 0.02,
-        "time_half_frac": 0.5,
-        "time_two_thirds_frac": 0.667,
-        "min_trade_gap": 5,
-        "sniper_steps": 2,
-        "price_bound_adj": 100,
-        "aggressive_first": False,
-        "symmetric_spread": False,
+    return {
+        "mean_rank": float(np.mean(ranks)),
+        "std_rank": float(np.std(ranks)),
+        "min_rank": min(ranks),
+        "max_rank": max(ranks),
+        "ranks": ranks,
+        "beats_zip_count": beats_zip_count,
+        "num_seeds": len(seeds),
+        "envs_won": sum(1 for r in ranks if r == 1),
     }
 
-    # Ablations: what happens when we change each parameter?
-    ablations = [
-        ("baseline", baseline),
-        ("symmetric_spread=True", {**baseline, "symmetric_spread": True}),
-        ("spread_threshold=0.15", {**baseline, "spread_threshold": 0.15}),
-        ("spread_threshold=0.20", {**baseline, "spread_threshold": 0.20}),
-        ("profit_margin=0.01", {**baseline, "profit_margin": 0.01}),
-        ("profit_margin=0.005", {**baseline, "profit_margin": 0.005}),
-        ("sniper_steps=5", {**baseline, "sniper_steps": 5}),
-        ("sniper_steps=10", {**baseline, "sniper_steps": 10}),
-        ("aggressive_first=True", {**baseline, "aggressive_first": True}),
-        ("time_half_frac=0.4", {**baseline, "time_half_frac": 0.4}),
-        ("min_trade_gap=3", {**baseline, "min_trade_gap": 3}),
-        # Combined optimizations
-        (
-            "V2_bad_aggressive",
-            {
-                **baseline,
-                "symmetric_spread": True,
-                "spread_threshold": 0.15,
-                "profit_margin": 0.01,
-                "sniper_steps": 5,
-                "aggressive_first": True,
-            },
-        ),
-        # Optimized V2 based on ablation findings
-        (
-            "V2_optimized",
-            {
-                **baseline,
-                "symmetric_spread": True,
-                "profit_margin": 0.01,
-                "time_half_frac": 0.4,
-                "sniper_steps": 10,
-                "aggressive_first": False,  # Crucial: keep False!
-            },
-        ),
-    ]
 
-    results = []
-    print(f"Running ablation study vs {opponent_type}")
-    print("-" * 60)
-
-    for name, params in ablations:
-        result = run_single_experiment(
-            kaplan_params=params,
-            opponent_type=opponent_type,
-            num_rounds=num_rounds,
-            seed=seed,
-        )
-
-        profit_diff = result.kaplan_profit - result.opponent_profit
-        print(
-            f"  {name:30s}: profit_diff={profit_diff:+7.1f}, win_rate={result.kaplan_win_rate:.0%}"
-        )
-
-        results.append(
-            {
-                "variant": name,
-                "kaplan_profit": result.kaplan_profit,
-                "opponent_profit": result.opponent_profit,
-                "profit_diff": profit_diff,
-                "efficiency": result.efficiency,
-                "win_rate": result.kaplan_win_rate,
-            }
-        )
-
-    return pd.DataFrame(results)
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Optimize Kaplan parameters")
-    parser.add_argument("--opponent", type=str, default="ZIC", help="Opponent type")
-    parser.add_argument("--num_rounds", type=int, default=10, help="Rounds per experiment")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Kaplan Grid Search Optimization (Multi-Seed)")
+    parser.add_argument("--num_rounds", type=int, default=20, help="Rounds per config")
     parser.add_argument(
-        "--mode", type=str, default="ablation", choices=["ablation", "grid"], help="Search mode"
+        "--seeds", type=int, default=5, help="Number of seeds for robust evaluation (default: 5)"
     )
-    parser.add_argument("--output", type=str, default=None, help="Output CSV path")
-
+    parser.add_argument(
+        "--envs", type=str, default="all", help="Environments (comma-separated or 'all')"
+    )
     args = parser.parse_args()
 
-    if args.mode == "ablation":
-        df = ablation_study(args.opponent, args.num_rounds, args.seed)
+    # Select environments
+    if args.envs == "all":
+        env_list = list(ENVIRONMENTS.keys())
     else:
-        df = grid_search(args.opponent, args.num_rounds, args.seed)
+        env_list = [e.strip().upper() for e in args.envs.split(",")]
 
-    print("\n" + "=" * 60)
-    print("RESULTS")
-    print("=" * 60)
-    print(df.to_string(index=False))
+    # Select seeds
+    all_seeds = [42, 100, 200, 300, 400, 500, 600, 700, 800, 900]
+    seeds = all_seeds[: args.seeds]
 
-    if args.output:
-        df.to_csv(args.output, index=False)
-        print(f"\nSaved to {args.output}")
+    # Generate configs
+    configs = generate_param_configs()
 
-    # Show best parameters
-    if args.mode == "grid":
-        best = df.iloc[0]
-        print("\nBEST PARAMETERS:")
-        for col in df.columns:
-            if col not in [
-                "kaplan_profit",
-                "opponent_profit",
-                "profit_diff",
-                "efficiency",
-                "num_trades",
-                "win_rate",
-            ]:
-                print(f"  {col}: {best[col]}")
+    print("=" * 70)
+    print("KAPLAN GRID SEARCH OPTIMIZATION (Multi-Seed)")
+    print("=" * 70)
+    print(f"Parameter combinations: {len(configs)}")
+    print(f"Environments: {len(env_list)} - {env_list}")
+    print(f"Seeds: {len(seeds)} - {seeds}")
+    print(f"Total runs: {len(configs) * len(env_list) * len(seeds)}")
+    print(f"Rounds per run: {args.num_rounds}")
+    print()
+
+    # Output directory
+    output_dir = Path("results/kaplan_optimization")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Run grid search with multi-seed
+    all_results = []
+
+    for i, config in enumerate(configs):
+        config_results: dict[str, Any] = {"config_id": i, **config}
+
+        total_mean_rank = 0.0
+        total_std_rank = 0.0
+        total_wins_vs_zip = 0
+        total_envs_won = 0
+
+        for env_name in env_list:
+            print(f"[{i+1}/{len(configs)}] Config {i} in {env_name}...", end=" ", flush=True)
+
+            result = run_multi_seed_config(
+                kaplan_params=config,
+                env_name=env_name,
+                num_rounds=args.num_rounds,
+                seeds=seeds,
+            )
+
+            config_results[f"{env_name}_mean_rank"] = result["mean_rank"]
+            config_results[f"{env_name}_std_rank"] = result["std_rank"]
+            config_results[f"{env_name}_ranks"] = ",".join(map(str, result["ranks"]))
+            config_results[f"{env_name}_beats_zip"] = result["beats_zip_count"]
+            config_results[f"{env_name}_envs_won"] = result["envs_won"]
+
+            total_mean_rank += result["mean_rank"]
+            total_std_rank += result["std_rank"] ** 2  # Sum of variances
+            total_wins_vs_zip += result["beats_zip_count"]
+            total_envs_won += result["envs_won"]
+
+            print(
+                f"rank={result['mean_rank']:.2f}±{result['std_rank']:.2f}, "
+                f"beats_zip={result['beats_zip_count']}/{len(seeds)}"
+            )
+
+        # Aggregate across environments
+        config_results["avg_rank"] = total_mean_rank / len(env_list)
+        config_results["avg_std"] = (total_std_rank / len(env_list)) ** 0.5
+        config_results["total_wins_vs_zip"] = total_wins_vs_zip
+        config_results["max_wins_vs_zip"] = len(env_list) * len(seeds)
+        config_results["total_envs_won"] = total_envs_won
+        config_results["max_envs_won"] = len(env_list) * len(seeds)
+
+        all_results.append(config_results)
+
+        # Save intermediate results
+        df = pd.DataFrame(all_results)
+        df.to_csv(output_dir / "grid_search_multiseed.csv", index=False)
+
+    # Final analysis
+    df = pd.DataFrame(all_results)
+
+    # Sort by avg_rank (lower is better), then by avg_std (lower is better)
+    df_sorted = df.sort_values(["avg_rank", "avg_std"])
+
+    print("\n" + "=" * 70)
+    print("TOP 10 CONFIGURATIONS (by average rank ± std)")
+    print("=" * 70)
+
+    top10 = df_sorted.head(10)
+    for _, row in top10.iterrows():
+        print(
+            f"\nConfig {int(row['config_id'])}: rank={row['avg_rank']:.2f}±{row['avg_std']:.2f}, "
+            f"beats_zip={int(row['total_wins_vs_zip'])}/{int(row['max_wins_vs_zip'])}, "
+            f"envs_won={int(row['total_envs_won'])}/{int(row['max_envs_won'])}"
+        )
+        print(
+            f"  spread_threshold={row['spread_threshold']}, "
+            f"profit_margin={row['profit_margin']}, "
+            f"sniper_steps={int(row['sniper_steps'])}"
+        )
+        print(
+            f"  aggressive_first={row['aggressive_first']}, "
+            f"time_half_frac={row['time_half_frac']}"
+        )
+
+    # Best config
+    best = df_sorted.iloc[0]
+    print("\n" + "=" * 70)
+    print("BEST CONFIGURATION")
+    print("=" * 70)
+    print(f"Average rank: {best['avg_rank']:.2f} ± {best['avg_std']:.2f}")
+    print(
+        f"Environments won: {int(best['total_envs_won'])}/{int(best['max_envs_won'])} "
+        f"({100*best['total_envs_won']/best['max_envs_won']:.0f}%)"
+    )
+    print(
+        f"Beats ZIP: {int(best['total_wins_vs_zip'])}/{int(best['max_wins_vs_zip'])} "
+        f"({100*best['total_wins_vs_zip']/best['max_wins_vs_zip']:.0f}%)"
+    )
+    print()
+    print("Parameters for agent_factory.py:")
+    print(f"  spread_threshold = {best['spread_threshold']}")
+    print(f"  profit_margin = {best['profit_margin']}")
+    print(f"  sniper_steps = {int(best['sniper_steps'])}")
+    print(f"  aggressive_first = {best['aggressive_first']}")
+    print(f"  time_half_frac = {best['time_half_frac']}")
+
+    # Per-environment breakdown
+    print("\n" + "=" * 70)
+    print("PER-ENVIRONMENT BREAKDOWN (Best Config)")
+    print("=" * 70)
+    for env in env_list:
+        mean_rank = best[f"{env}_mean_rank"]
+        std_rank = best[f"{env}_std_rank"]
+        ranks_str = best[f"{env}_ranks"]
+        beats = best[f"{env}_beats_zip"]
+        print(f"  {env}: rank={mean_rank:.2f}±{std_rank:.2f}, beats_zip={beats}/{len(seeds)}")
+        print(f"         seeds: [{ranks_str}]")
+
+    # Save final results
+    df_sorted.to_csv(output_dir / "grid_search_multiseed_sorted.csv", index=False)
+
+    print("\n" + "=" * 70)
+    print(f"Results saved to: {output_dir}/")
+    print("=" * 70)
 
 
 if __name__ == "__main__":

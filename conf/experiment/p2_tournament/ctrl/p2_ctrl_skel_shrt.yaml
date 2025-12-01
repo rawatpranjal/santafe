@@ -3,16 +3,16 @@
 
 experiment:
   name: "p2_ctrl_skel_shrt"
-  num_rounds: 100
+  num_rounds: 2
 
 market:
   min_price: 1
-  max_price: 1000
+  max_price: 2000
   num_tokens: 4
-  num_periods: 10
-  num_steps: 20
+  num_periods: 3
+  num_steps: 25
   gametype: 6453
 
 agents:
-  buyer_types: ["Skeleton", "ZIC", "ZIC", "ZIC"]
-  seller_types: ["ZIC", "ZIC", "ZIC", "ZIC"]
+  buyer_types: ['Skeleton', 'ZIC', 'ZIC', 'ZIC']
+  seller_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC']

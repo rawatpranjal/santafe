@@ -1,17 +1,21 @@
 \begin{table}[H]
 \centering
-\caption{Tournament Win Summary: Strategy Rankings Across 10 Environments}
+\caption{Tournament Rankings (mean rank): 1=best, 8=worst}
 \label{tab:roundrobin_summary}
-\begin{tabular}{lrrrrrr}
+\begin{tabular}{lrrrrrrrrrr}
 \toprule
-Strategy & 1st & 2nd & 3rd & 4th & 5th & Avg Rank \\
+Strategy & BASE & BBBS & BSSS & EQL & RAN & PER & SHRT & TOK & SML & LAD \\
 \midrule
-\textbf{ZIP} & 6 & 0 & 3 & 1 & 0 & 1.9 \\
-\textbf{Skeleton} & 3 & 6 & 1 & 0 & 0 & 1.8 \\
-ZIC & 0 & 4 & 5 & 0 & 1 & 2.8 \\
-Kaplan & 0 & 0 & 0 & 7 & 2 & 4.2* \\
-GD & 1 & 0 & 1 & 2 & 6 & 4.2 \\
+ZIP & 1.0 & 1.0 & 1.6 & 1.6 & 4.2 & 1.4 & 1.2 & 2.2 & 1.6 & 4.0 \\
+Ringuette & 2.0 & 2.0 & 2.4 & 1.4 & 4.0 & 2.4 & 6.0 & 2.6 & 1.6 & 3.0 \\
+Kaplan & 3.8 & 4.0 & 5.0 & 7.0 & 6.0 & 4.4 & 4.6 & 4.6 & 5.4 & 3.0 \\
+Skeleton & 3.6 & 3.4 & 4.2 & 4.8 & 7.0 & 4.6 & 7.8 & 4.4 & 4.6 & 4.8 \\
+GD & 5.2 & 5.0 & 6.6 & 4.2 & 1.0 & 6.6 & 3.2 & 6.2 & 6.4 & 5.0 \\
+EL & 5.4 & 5.6 & 6.2 & 3.4 & 3.8 & 6.4 & 2.2 & 6.2 & 4.2 & 6.0 \\
+Markup & 7.2 & 7.2 & 2.0 & 5.6 & 2.0 & 2.2 & 3.8 & 1.8 & 4.2 & 2.2 \\
+ZIC & 7.8 & 7.8 & 8.0 & 8.0 & 8.0 & 8.0 & 7.2 & 8.0 & 8.0 & 8.0 \\
 \bottomrule
-\multicolumn{7}{l}{\footnotesize *Kaplan absent from SML (only 4 strategies), average computed over 9 environments.} \\
+\multicolumn{11}{l}{\footnotesize Avg rank: ZIP 1.92, Ringuette 2.74, Kaplan 3.98, Skeleton 4.40, GD 4.54, EL 4.80, Markup 5.88, ZIC 7.74.} \\
+\multicolumn{11}{l}{\footnotesize Environment wins: ZIP 5, Markup 2, GD 1, Ringuette 1 (ZIP/Ringuette tie in SML). Config: 5 seeds, 50 rounds, 10 periods each.} \\
 \end{tabular}
 \end{table}
