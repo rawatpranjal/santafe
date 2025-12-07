@@ -1,9 +1,0 @@
-# @package _global_
-# Pure ZI market - homogeneous population
-experiment:
-  name: "pure_zi"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['ZI', 'ZI', 'ZI', 'ZI', 'ZI', 'ZI', 'ZI', 'ZI']
-  seller_types: ['ZI', 'ZI', 'ZI', 'ZI', 'ZI', 'ZI', 'ZI', 'ZI']

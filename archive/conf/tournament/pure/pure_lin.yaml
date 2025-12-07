@@ -1,9 +1,0 @@
-# @package _global_
-# Pure Lin market - homogeneous population
-experiment:
-  name: "pure_lin"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['Lin', 'Lin', 'Lin', 'Lin', 'Lin', 'Lin', 'Lin', 'Lin']
-  seller_types: ['Lin', 'Lin', 'Lin', 'Lin', 'Lin', 'Lin', 'Lin', 'Lin']

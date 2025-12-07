@@ -1,9 +1,0 @@
-# @package _global_
-# One ZI2 vs 7 mixed traders (competitive test)
-experiment:
-  name: "zi2_1v7_mixed"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['ZI2', 'ZIC', 'ZIC', 'ZIC', 'ZIP', 'ZIP', 'GD', 'GD']
-  seller_types: ['ZI2', 'ZIC', 'ZIC', 'ZIC', 'ZIP', 'ZIP', 'GD', 'GD']

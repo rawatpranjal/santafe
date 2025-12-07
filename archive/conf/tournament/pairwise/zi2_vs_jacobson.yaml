@@ -1,9 +1,0 @@
-# @package _global_
-# Pairwise: ZI2 vs Jacobson
-experiment:
-  name: "pairwise_zi2_vs_jacobson"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['ZI2', 'ZI2', 'ZI2', 'ZI2', 'Jacobson', 'Jacobson', 'Jacobson', 'Jacobson']
-  seller_types: ['ZI2', 'ZI2', 'ZI2', 'ZI2', 'Jacobson', 'Jacobson', 'Jacobson', 'Jacobson']

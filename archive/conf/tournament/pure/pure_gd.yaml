@@ -1,9 +1,0 @@
-# @package _global_
-# Pure GD market - homogeneous population
-experiment:
-  name: "pure_gd"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['GD', 'GD', 'GD', 'GD', 'GD', 'GD', 'GD', 'GD']
-  seller_types: ['GD', 'GD', 'GD', 'GD', 'GD', 'GD', 'GD', 'GD']

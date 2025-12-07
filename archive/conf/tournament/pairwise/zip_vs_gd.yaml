@@ -1,9 +1,0 @@
-# @package _global_
-# Pairwise: ZIP vs GD
-experiment:
-  name: "pairwise_zip_vs_gd"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['ZIP', 'ZIP', 'ZIP', 'ZIP', 'GD', 'GD', 'GD', 'GD']
-  seller_types: ['ZIP', 'ZIP', 'ZIP', 'ZIP', 'GD', 'GD', 'GD', 'GD']

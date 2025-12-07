@@ -1,9 +1,0 @@
-# @package _global_
-# Pairwise: ZIC vs Jacobson
-experiment:
-  name: "pairwise_zic_vs_jacobson"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC', 'Jacobson', 'Jacobson', 'Jacobson', 'Jacobson']
-  seller_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC', 'Jacobson', 'Jacobson', 'Jacobson', 'Jacobson']

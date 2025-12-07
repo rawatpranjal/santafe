@@ -1,9 +1,0 @@
-# @package _global_
-# Pairwise: ZIP vs Lin
-experiment:
-  name: "pairwise_zip_vs_lin"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['ZIP', 'ZIP', 'ZIP', 'ZIP', 'Lin', 'Lin', 'Lin', 'Lin']
-  seller_types: ['ZIP', 'ZIP', 'ZIP', 'ZIP', 'Lin', 'Lin', 'Lin', 'Lin']

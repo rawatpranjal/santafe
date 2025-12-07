@@ -1,9 +1,0 @@
-# @package _global_
-# Pairwise: Kaplan vs Jacobson
-experiment:
-  name: "pairwise_kaplan_vs_jacobson"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'Jacobson', 'Jacobson', 'Jacobson', 'Jacobson']
-  seller_types: ['Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'Jacobson', 'Jacobson', 'Jacobson', 'Jacobson']

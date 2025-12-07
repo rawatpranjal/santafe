@@ -1,9 +1,0 @@
-# @package _global_
-# Mixed population: equal_mix_10all
-experiment:
-  name: "equal_mix_10all"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['ZI', 'ZIC', 'Kaplan', 'ZIP', 'GD', 'ZI2', 'Skeleton', 'Lin']
-  seller_types: ['ZI', 'ZIC', 'Kaplan', 'ZIP', 'GD', 'ZI2', 'Jacobson', 'Perry']

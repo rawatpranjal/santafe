@@ -1,9 +1,0 @@
-# @package _global_
-# Pure Perry market - homogeneous population
-experiment:
-  name: "pure_perry"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['Perry', 'Perry', 'Perry', 'Perry', 'Perry', 'Perry', 'Perry', 'Perry']
-  seller_types: ['Perry', 'Perry', 'Perry', 'Perry', 'Perry', 'Perry', 'Perry', 'Perry']

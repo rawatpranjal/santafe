@@ -1,9 +1,0 @@
-# @package _global_
-# Mixed population: kaplan_background_00pct
-experiment:
-  name: "kaplan_background_00pct"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['ZIC', 'ZIP', 'GD', 'ZI2', 'ZIC', 'ZIP', 'GD', 'ZI2']
-  seller_types: ['ZIC', 'ZIP', 'GD', 'ZI2', 'ZIC', 'ZIP', 'GD', 'ZI2']

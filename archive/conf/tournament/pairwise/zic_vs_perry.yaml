@@ -1,9 +1,0 @@
-# @package _global_
-# Pairwise: ZIC vs Perry
-experiment:
-  name: "pairwise_zic_vs_perry"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC', 'Perry', 'Perry', 'Perry', 'Perry']
-  seller_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC', 'Perry', 'Perry', 'Perry', 'Perry']

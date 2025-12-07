@@ -1,8 +1,0 @@
-# @package _global_
-experiment:
-  name: "validation_kaplan_vs_zic"
-  num_rounds: 100
-
-agents:
-  buyer_types: ["Kaplan", "Kaplan", "Kaplan", "ZIC", "ZIC"]
-  seller_types: ["Kaplan", "Kaplan", "Kaplan", "ZIC", "ZIC"]

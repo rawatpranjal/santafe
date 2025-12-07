@@ -1,9 +1,0 @@
-# @package _global_
-# Pairwise: Skeleton vs Jacobson
-experiment:
-  name: "pairwise_skeleton_vs_jacobson"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['Skeleton', 'Skeleton', 'Skeleton', 'Skeleton', 'Jacobson', 'Jacobson', 'Jacobson', 'Jacobson']
-  seller_types: ['Skeleton', 'Skeleton', 'Skeleton', 'Skeleton', 'Jacobson', 'Jacobson', 'Jacobson', 'Jacobson']

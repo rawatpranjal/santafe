@@ -1,9 +1,0 @@
-# @package _global_
-# Pairwise: Skeleton vs Lin
-experiment:
-  name: "pairwise_skeleton_vs_lin"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['Skeleton', 'Skeleton', 'Skeleton', 'Skeleton', 'Lin', 'Lin', 'Lin', 'Lin']
-  seller_types: ['Skeleton', 'Skeleton', 'Skeleton', 'Skeleton', 'Lin', 'Lin', 'Lin', 'Lin']

@@ -1,8 +1,0 @@
-# @package _global_
-experiment:
-  name: "validation_skeleton"
-  num_rounds: 50
-
-agents:
-  buyer_types: ["Skeleton", "Skeleton", "Skeleton", "Skeleton", "Skeleton"]
-  seller_types: ["Skeleton", "Skeleton", "Skeleton", "Skeleton", "Skeleton"]

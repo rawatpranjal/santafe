@@ -1,9 +1,0 @@
-# @package _global_
-# Pairwise: ZI2 vs Lin
-experiment:
-  name: "pairwise_zi2_vs_lin"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['ZI2', 'ZI2', 'ZI2', 'ZI2', 'Lin', 'Lin', 'Lin', 'Lin']
-  seller_types: ['ZI2', 'ZI2', 'ZI2', 'ZI2', 'Lin', 'Lin', 'Lin', 'Lin']

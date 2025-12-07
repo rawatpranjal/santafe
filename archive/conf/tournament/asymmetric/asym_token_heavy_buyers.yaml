@@ -1,9 +1,0 @@
-# @package _global_
-# Equal count but token imbalance (needs engine support)
-experiment:
-  name: "asym_token_heavy_buyers"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC']
-  seller_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC']

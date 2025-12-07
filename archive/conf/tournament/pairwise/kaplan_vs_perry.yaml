@@ -1,9 +1,0 @@
-# @package _global_
-# Pairwise: Kaplan vs Perry
-experiment:
-  name: "pairwise_kaplan_vs_perry"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'Perry', 'Perry', 'Perry', 'Perry']
-  seller_types: ['Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'Perry', 'Perry', 'Perry', 'Perry']

@@ -1,8 +1,0 @@
-# @package _global_
-experiment:
-  name: "validation_zic"
-  num_rounds: 50
-
-agents:
-  buyer_types: ["ZIC", "ZIC", "ZIC", "ZIC", "ZIC"]
-  seller_types: ["ZIC", "ZIC", "ZIC", "ZIC", "ZIC"]

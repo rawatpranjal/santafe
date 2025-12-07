@@ -1,9 +1,0 @@
-# @package _global_
-# Pairwise: GD vs Skeleton
-experiment:
-  name: "pairwise_gd_vs_skeleton"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['GD', 'GD', 'GD', 'GD', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton']
-  seller_types: ['GD', 'GD', 'GD', 'GD', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton']

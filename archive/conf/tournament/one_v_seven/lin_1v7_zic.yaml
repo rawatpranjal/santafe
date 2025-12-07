@@ -1,9 +1,0 @@
-# @package _global_
-# One Lin vs 7 ZIC (parasitic test)
-experiment:
-  name: "lin_1v7_zic"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['Lin', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC']
-  seller_types: ['Lin', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC']

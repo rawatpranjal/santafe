@@ -1,8 +1,0 @@
-# @package _global_
-experiment:
-  name: "validation_kaplan"
-  num_rounds: 50
-
-agents:
-  buyer_types: ["Kaplan", "Kaplan", "Kaplan", "Kaplan", "Kaplan"]
-  seller_types: ["Kaplan", "Kaplan", "Kaplan", "Kaplan", "Kaplan"]

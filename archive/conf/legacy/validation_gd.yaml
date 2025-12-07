@@ -1,8 +1,0 @@
-# @package _global_
-experiment:
-  name: "validation_gd"
-  num_rounds: 50
-
-agents:
-  buyer_types: ["GD", "GD", "GD", "GD", "GD"]
-  seller_types: ["GD", "GD", "GD", "GD", "GD"]

@@ -1,9 +1,0 @@
-# @package _global_
-# One Perry vs 7 ZIC (parasitic test)
-experiment:
-  name: "perry_1v7_zic"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['Perry', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC']
-  seller_types: ['Perry', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC', 'ZIC']

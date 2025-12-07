@@ -1,9 +1,0 @@
-# @package _global_
-# Pairwise: ZIC vs Skeleton
-experiment:
-  name: "pairwise_zic_vs_skeleton"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton']
-  seller_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC', 'Skeleton', 'Skeleton', 'Skeleton', 'Skeleton']

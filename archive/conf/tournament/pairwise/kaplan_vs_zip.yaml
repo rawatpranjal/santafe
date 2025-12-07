@@ -1,9 +1,0 @@
-# @package _global_
-# Pairwise: Kaplan vs ZIP
-experiment:
-  name: "pairwise_kaplan_vs_zip"
-  num_rounds: 100
-
-agents:
-  buyer_types: ['Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'ZIP', 'ZIP', 'ZIP', 'ZIP']
-  seller_types: ['Kaplan', 'Kaplan', 'Kaplan', 'Kaplan', 'ZIP', 'ZIP', 'ZIP', 'ZIP']
