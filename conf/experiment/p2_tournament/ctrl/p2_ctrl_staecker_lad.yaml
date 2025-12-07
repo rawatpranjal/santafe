@@ -1,0 +1,18 @@
+# @package _global_
+# Part 2: Staecker vs 7 ZIC, LAD environment
+
+experiment:
+  name: "p2_ctrl_staecker_lad"
+  num_rounds: 2
+
+market:
+  min_price: 1
+  max_price: 2000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 75
+  gametype: 0
+
+agents:
+  buyer_types: ['Staecker', 'ZIC', 'ZIC', 'ZIC']
+  seller_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC']

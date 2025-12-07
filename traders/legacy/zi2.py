@@ -1,23 +1,31 @@
 """
-Zero Intelligence 2 (Ringuette) agent for the Santa Fe double auction.
+Zero Intelligence Constrained 2 (ZIC2) agent for the Santa Fe double auction.
 
 Based on SRobotZI2.java from the 1993 Santa Fe tournament.
-Improves on ZIC by considering current market bid/ask when submitting orders.
+Improves on ZIC1 by considering current market bid/ask when submitting orders.
+
+Hierarchy: ZI → ZIC1 (budget) → ZIC2 (budget + market) → ZIP1 → ZIP2
+
+Also known as: ZI2, Ringuette (from the original author)
 """
 
+from typing import Any
+
 import numpy as np
-from typing import Any, Optional
+
 from traders.base import Agent
 
 
-class ZI2(Agent):
+class ZIC2(Agent):
     """
-    Zero Intelligence 2 agent - market-aware random bidding.
+    Zero Intelligence Constrained 2 (ZIC2) agent - market-aware random bidding.
 
-    Key differences from ZIC:
+    Key differences from ZIC1:
     - Considers current bid (cbid) when making new bids
     - Considers current ask (cask) when making new asks
     - Still zero intelligence (no learning or strategy)
+
+    Hierarchy: ZI → ZIC1 (budget) → ZIC2 (budget + market) → ZIP1 → ZIP2
 
     Java source: SRobotZI2.java
     """
@@ -30,8 +38,8 @@ class ZI2(Agent):
         valuations: list[int],
         price_min: int = 0,
         price_max: int = 100,
-        seed: Optional[int] = None,
-        **kwargs: Any
+        seed: int | None = None,
+        **kwargs: Any,
     ) -> None:
         """
         Initialize ZI2 agent.
@@ -224,3 +232,7 @@ class ZI2(Agent):
             return 1
 
         return 0
+
+
+# Backwards compatibility alias
+ZI2 = ZIC2

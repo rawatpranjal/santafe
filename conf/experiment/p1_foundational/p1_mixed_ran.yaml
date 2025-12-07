@@ -1,0 +1,19 @@
+# @package _global_
+# Part 1: Mixed-play heterogeneous competition, RAN environment
+# All strategy types compete on both sides
+
+experiment:
+  name: "p1_mixed_ran"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 3000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 50
+  gametype: 7
+
+agents:
+  buyer_types: ["ZIC1", "ZIC2", "ZIP1", "ZIP2"]
+  seller_types: ["ZIC1", "ZIC2", "ZIP1", "ZIP2"]

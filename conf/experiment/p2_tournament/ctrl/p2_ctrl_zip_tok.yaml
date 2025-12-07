@@ -1,5 +1,5 @@
 # @package _global_
-# Part 2: ZIP vs 7 ZIC, TOK environment
+# Part 2: ZIP vs ZIC control, TOK environment
 
 experiment:
   name: "p2_ctrl_zip_tok"
@@ -8,11 +8,11 @@ experiment:
 market:
   min_price: 1
   max_price: 2000
-  num_tokens: 1
+  num_tokens: 4
   num_periods: 3
-  num_steps: 25
+  num_steps: 75
   gametype: 6453
 
 agents:
   buyer_types: ['ZIP', 'ZIC', 'ZIC', 'ZIC']
-  seller_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC']
+  seller_types: ['ZIP', 'ZIC', 'ZIC', 'ZIC']

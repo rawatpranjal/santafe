@@ -2,10 +2,12 @@
 Enhanced Double Auction Environment with sophisticated rewards and features.
 
 Key improvements:
-1. Rich observation space (24 features) with market microstructure
+1. Rich observation space (48 features) with market microstructure and env context
 2. Sophisticated reward shaping (profit + market making + exploration)
 3. Proper action masking with rationality constraints
 4. Curriculum support via difficulty levels
+5. Environment sampling from 10 Santa Fe configurations
+6. Opponent sampling from {ZIC1, ZIC2, ZIP1, ZIP2}
 """
 
 from dataclasses import dataclass
@@ -21,6 +23,94 @@ from engine.metrics import calculate_equilibrium_profit
 from engine.token_generator import TokenGenerator, UniformTokenGenerator
 from envs.enhanced_features import EnhancedObservationGenerator
 from traders.base import Agent
+
+# Santa Fe Tournament Environments
+# Reference: checklists/env.md
+SANTA_FE_ENVIRONMENTS = {
+    "BASE": {
+        "gametype": 6453,
+        "max_price": 2000,
+        "num_buyers": 4,
+        "num_sellers": 4,
+        "num_tokens": 4,
+        "max_steps": 75,
+    },
+    "BBBS": {
+        "gametype": 6453,
+        "max_price": 2000,
+        "num_buyers": 6,
+        "num_sellers": 2,
+        "num_tokens": 4,
+        "max_steps": 50,
+    },
+    "BSSS": {
+        "gametype": 6453,
+        "max_price": 2000,
+        "num_buyers": 2,
+        "num_sellers": 6,
+        "num_tokens": 4,
+        "max_steps": 50,
+    },
+    "EQL": {
+        "gametype": 0,
+        "max_price": 2000,
+        "num_buyers": 4,
+        "num_sellers": 4,
+        "num_tokens": 4,
+        "max_steps": 75,
+    },
+    "LAD": {
+        "gametype": 0,
+        "max_price": 2000,
+        "num_buyers": 4,
+        "num_sellers": 4,
+        "num_tokens": 4,
+        "max_steps": 75,
+    },
+    "PER": {
+        "gametype": 6453,
+        "max_price": 2000,
+        "num_buyers": 4,
+        "num_sellers": 4,
+        "num_tokens": 4,
+        "max_steps": 75,
+    },
+    "SHRT": {
+        "gametype": 6453,
+        "max_price": 2000,
+        "num_buyers": 4,
+        "num_sellers": 4,
+        "num_tokens": 4,
+        "max_steps": 25,
+    },
+    "SML": {
+        "gametype": 6453,
+        "max_price": 2000,
+        "num_buyers": 2,
+        "num_sellers": 2,
+        "num_tokens": 4,
+        "max_steps": 50,
+    },
+    "RAN": {
+        "gametype": 7,
+        "max_price": 3000,
+        "num_buyers": 4,
+        "num_sellers": 4,
+        "num_tokens": 4,
+        "max_steps": 50,
+    },
+    "TOK": {
+        "gametype": 6453,
+        "max_price": 2000,
+        "num_buyers": 4,
+        "num_sellers": 4,
+        "num_tokens": 1,
+        "max_steps": 25,
+    },
+}
+
+# Opponent pool for mixed training
+OPPONENT_POOL = ["ZIC", "ZIC2", "ZIP", "ZIP2"]
 
 
 @dataclass
@@ -101,7 +191,17 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         super().__init__()
         self.config = config
 
-        # Market Configuration
+        # Universal PPO Training Mode
+        # When enabled, samples environment and opponents each episode
+        self.sample_env = config.get("sample_env", False)
+        self.sample_opponents = config.get("sample_opponents", False)
+        self.env_list = config.get("env_list", list(SANTA_FE_ENVIRONMENTS.keys()))
+        self.opponent_pool = config.get("opponent_pool", OPPONENT_POOL)
+
+        # Current environment name (for logging)
+        self.current_env_name = config.get("env_name", "BASE")
+
+        # Market Configuration (defaults, may be overridden by sampled env)
         self.num_agents = config.get("num_agents", 8)
         self.num_tokens = config.get("num_tokens", 4)
         self.max_steps = config.get("max_steps", 100)
@@ -148,7 +248,7 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         # 19: Jump Best (improve by 1)
         # 20: Snipe (accept only if spread < 5%)
         # 21-23: UnderCut by 2, 5, 10 (beat best price by fixed amount)
-        self.action_space = spaces.Discrete(24)
+        self.action_space = spaces.Discrete(50)  # Expanded for more granularity
 
         # Observation Space: 24 features
         self.obs_gen = EnhancedObservationGenerator(
@@ -203,6 +303,39 @@ class EnhancedDoubleAuctionEnv(gym.Env):
     ) -> tuple[np.ndarray, dict]:
         super().reset(seed=seed)
 
+        # Sample environment if enabled
+        if self.sample_env:
+            self.current_env_name = self.np_random.choice(self.env_list)
+            env_config = SANTA_FE_ENVIRONMENTS[self.current_env_name]
+
+            # Apply environment configuration
+            self.gametype = env_config["gametype"]
+            self.max_price = env_config["max_price"]
+            self.num_tokens = env_config["num_tokens"]
+            self.max_steps = env_config["max_steps"]
+            self._n_buyers = env_config["num_buyers"]
+            self._n_sellers = env_config["num_sellers"]
+            self.num_agents = self._n_buyers + self._n_sellers
+
+            # Update observation space dimensions (stays at 48)
+            self.obs_gen = EnhancedObservationGenerator(
+                max_price=self.max_price,
+                max_tokens=self.num_tokens,
+                max_steps=self.max_steps,
+                num_agents=self.num_agents,
+                num_buyers=self._n_buyers,
+                num_sellers=self._n_sellers,
+                gametype=self.gametype,
+            )
+
+        # Sample opponents if enabled
+        if self.sample_opponents:
+            # Sample opponent types for all non-RL agents
+            num_opponents = self.num_agents - 1
+            self.opponent_mix = [
+                self.np_random.choice(self.opponent_pool) for _ in range(num_opponents)
+            ]
+
         # Update token generator with new seed for variety
         new_seed = self.np_random.integers(0, 2**31)
         if self.gametype:
@@ -211,7 +344,18 @@ class EnhancedDoubleAuctionEnv(gym.Env):
             self.token_gen.new_round()
         else:
             # UniformTokenGenerator: just update rng
-            self.token_gen.rng = np.random.default_rng(new_seed)
+            n_buyers = self._n_buyers if hasattr(self, "_n_buyers") else self.num_agents // 2
+            n_sellers = (
+                self._n_sellers if hasattr(self, "_n_sellers") else self.num_agents - n_buyers
+            )
+            self.token_gen = UniformTokenGenerator(
+                num_tokens=self.num_tokens,
+                price_min=self.min_price,
+                price_max=self.max_price,
+                seed=new_seed,
+                num_buyers=n_buyers,
+                num_sellers=n_sellers,
+            )
 
         # Reset metrics
         self.episode_metrics = {
@@ -227,8 +371,8 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         agents = self._create_agents()
 
         # Initialize Market
-        n_buyers = self.num_agents // 2
-        n_sellers = self.num_agents - n_buyers
+        n_buyers = self._n_buyers if hasattr(self, "_n_buyers") else self.num_agents // 2
+        n_sellers = self._n_sellers if hasattr(self, "_n_sellers") else self.num_agents - n_buyers
 
         self.market = Market(
             num_buyers=n_buyers,
@@ -245,8 +389,15 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         for a in agents:
             a.start_period(1)
 
-        # Reset Observation Generator
+        # Reset Observation Generator and set env context
         self.obs_gen.reset()
+        self.obs_gen.set_env_context(
+            num_buyers=n_buyers,
+            num_sellers=n_sellers,
+            num_tokens=self.num_tokens,
+            max_steps=self.max_steps,
+            gametype=self.gametype if self.gametype else 6453,
+        )
 
         # Reset time-based tracking
         self._steps_since_last_trade = 0
@@ -256,8 +407,13 @@ class EnhancedDoubleAuctionEnv(gym.Env):
             self.rl_agent, self.market.orderbook, 0, self._steps_since_last_trade
         )
 
-        # Info includes action mask
-        info = {"action_mask": self._get_action_mask(), "difficulty": self.difficulty}
+        # Info includes action mask and current env
+        info = {
+            "action_mask": self._get_action_mask(),
+            "difficulty": self.difficulty,
+            "env_name": self.current_env_name,
+            "opponent_mix": self.opponent_mix,
+        }
 
         return obs, info
 
@@ -385,13 +541,14 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         """Create agents based on difficulty/curriculum settings."""
         agents: list[Agent] = []
 
-        n_buyers = self.num_agents // 2
-        n_sellers = self.num_agents - n_buyers
+        n_buyers = self._n_buyers if hasattr(self, "_n_buyers") else self.num_agents // 2
+        n_sellers = self._n_sellers if hasattr(self, "_n_sellers") else self.num_agents - n_buyers
 
         self.token_gen.new_round()
 
-        # Determine opponent types based on difficulty
+        # Determine opponent types based on difficulty or sampled mix
         opponent_types = self._get_opponent_types()
+        opponent_idx = 0  # Index into opponent_types list
 
         # Create Buyers
         for i in range(n_buyers):
@@ -403,8 +560,9 @@ class EnhancedDoubleAuctionEnv(gym.Env):
                 self.rl_agent = EnhancedRLAgent(pid, True, self.num_tokens, tokens)
                 agents.append(self.rl_agent)
             else:
-                # Opponent
-                opp_type = opponent_types[i % len(opponent_types)]
+                # Opponent - use next type from list
+                opp_type = opponent_types[opponent_idx % len(opponent_types)]
+                opponent_idx += 1
                 agent = create_agent(
                     opp_type,
                     pid,
@@ -428,8 +586,9 @@ class EnhancedDoubleAuctionEnv(gym.Env):
                 self.rl_agent = EnhancedRLAgent(pid, False, self.num_tokens, tokens)
                 agents.append(self.rl_agent)
             else:
-                # Opponent
-                opp_type = opponent_types[i % len(opponent_types)]
+                # Opponent - use next type from list
+                opp_type = opponent_types[opponent_idx % len(opponent_types)]
+                opponent_idx += 1
                 agent = create_agent(
                     opp_type,
                     pid,
@@ -581,19 +740,21 @@ class EnhancedDoubleAuctionEnv(gym.Env):
 
     def _get_action_mask(self) -> np.ndarray:
         """
-        Get valid actions with rationality constraints for 24-action space.
+        Get valid actions with rationality constraints for 50-action space.
 
         Actions:
             0: Pass (always valid)
             1: Accept (profitable only)
-            2-9: Improve by 0.5%, 1%, 2%, 5%, 10%, 15%, 25%, 40% of spread
-            10-17: Shade 1%, 3%, 5%, 10%, 15%, 20%, 30%, 40% of valuation
-            18: Truthful (always valid if can_trade)
-            19: Jump Best (must stay profitable)
-            20: Snipe (spread must be < 5%)
-            21-23: UnderCut by 2, 5, 10
+            2-17: Improve by spread percentages (16 levels)
+            18-33: Shade valuation (16 levels)
+            34: Truthful (always valid if can_trade)
+            35: Jump Best (must stay profitable)
+            36: Snipe (spread must be < 5%)
+            37-42: UnderCut by 1, 2, 3, 5, 10, 20
+            43-46: Aggressive accept at wider spreads
+            47-49: Mid-spread bids/asks
         """
-        mask = np.ones(24, dtype=bool)
+        mask = np.ones(50, dtype=bool)
 
         if self.rl_agent is None or self.market is None:
             return mask
@@ -618,98 +779,165 @@ class EnhancedDoubleAuctionEnv(gym.Env):
 
         val = self.rl_agent.get_current_valuation()
 
-        # Spread improvement percentages
-        improve_pcts = [0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.25, 0.40]
-        # Shade percentages
-        shade_pcts = [0.01, 0.03, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40]
-        # UnderCut amounts
-        undercut_amts = [2, 5, 10]
+        # More granular spread improvement percentages (16 levels)
+        improve_pcts = [
+            0.0025,
+            0.005,
+            0.0075,
+            0.01,
+            0.015,
+            0.02,
+            0.03,
+            0.05,
+            0.07,
+            0.10,
+            0.12,
+            0.15,
+            0.20,
+            0.30,
+            0.45,
+            0.60,
+        ]
+        # More granular shade percentages (16 levels)
+        shade_pcts = [
+            0.005,
+            0.01,
+            0.02,
+            0.03,
+            0.04,
+            0.05,
+            0.07,
+            0.10,
+            0.12,
+            0.15,
+            0.18,
+            0.20,
+            0.25,
+            0.30,
+            0.40,
+            0.50,
+        ]
+        # More undercut amounts (6 levels)
+        undercut_amts = [1, 2, 3, 5, 10, 20]
+        # Aggressive thresholds
+        aggressive_thresholds = [0.10, 0.15, 0.20, 0.30]
 
         if self.rl_is_buyer:
             # Accept: Requires standing Ask AND profitable
             if best_ask == 0 or best_ask > val:
                 mask[1] = False
 
-            # Spread improvements (2-9): Need positive spread and result < valuation
+            # Spread improvements (2-17): Need positive spread and result < valuation
             if spread <= 0:
-                mask[2:10] = False
+                mask[2:18] = False
             else:
                 for i, pct in enumerate(improve_pcts):
                     new_price = effective_bid + max(1, int(pct * spread))
                     if new_price > val:
                         mask[2 + i] = False
 
-            # Shading actions (10-17): Always valid if price >= min_price
+            # Shading actions (18-33): Always valid if price >= min_price
             for i, shade in enumerate(shade_pcts):
                 if int(val * (1 - shade)) < self.min_price:
-                    mask[10 + i] = False
+                    mask[18 + i] = False
 
-            # Truthful (18): Always valid if can_trade
+            # Truthful (34): Always valid if can_trade
 
-            # Jump Best (19): Need existing bid and result <= valuation
+            # Jump Best (35): Need existing bid and result <= valuation
             if best_bid == 0 or best_bid + 1 > val:
-                mask[19] = False
+                mask[35] = False
 
-            # Snipe (20): Only valid if spread < 5% AND ask is profitable
+            # Snipe (36): Only valid if spread < 5% AND ask is profitable
             if spread <= 0 or spread / effective_ask >= 0.05 or best_ask > val:
-                mask[20] = False
+                mask[36] = False
 
-            # UnderCut (21-23): Beat best bid by fixed amount
+            # UnderCut (37-42): Beat best bid by fixed amount
             for i, amt in enumerate(undercut_amts):
                 new_price = best_bid + amt
                 if best_bid == 0 or new_price > val:
-                    mask[21 + i] = False
+                    mask[37 + i] = False
+
+            # Aggressive accepts (43-46): Accept if spread < threshold AND profitable
+            for i, thresh in enumerate(aggressive_thresholds):
+                if spread <= 0 or spread / effective_ask >= thresh or best_ask > val:
+                    mask[43 + i] = False
+
+            # Mid-spread bids (47-49)
+            if spread <= 0:
+                mask[47:50] = False
+            else:
+                mid_pcts = [0.40, 0.50, 0.60]
+                for i, pct in enumerate(mid_pcts):
+                    new_price = effective_bid + int(pct * spread)
+                    if new_price > val:
+                        mask[47 + i] = False
 
         else:  # Seller
             # Accept: Requires standing Bid AND profitable
             if best_bid == 0 or best_bid < val:
                 mask[1] = False
 
-            # Spread improvements (2-9): Need positive spread and result > valuation
+            # Spread improvements (2-17): Need positive spread and result > valuation
             if spread <= 0:
-                mask[2:10] = False
+                mask[2:18] = False
             else:
                 for i, pct in enumerate(improve_pcts):
                     new_price = effective_ask - max(1, int(pct * spread))
                     if new_price < val:
                         mask[2 + i] = False
 
-            # Shading actions (10-17): Always valid if price <= max_price
+            # Shading actions (18-33): Always valid if price <= max_price
             for i, shade in enumerate(shade_pcts):
                 if int(val * (1 + shade)) > self.max_price:
-                    mask[10 + i] = False
+                    mask[18 + i] = False
 
-            # Truthful (18): Always valid if can_trade
+            # Truthful (34): Always valid if can_trade
 
-            # Jump Best (19): Need existing ask and result >= valuation
+            # Jump Best (35): Need existing ask and result >= valuation
             if best_ask == 0 or best_ask - 1 < val:
-                mask[19] = False
+                mask[35] = False
 
-            # Snipe (20): Only valid if spread < 5% AND bid is profitable
+            # Snipe (36): Only valid if spread < 5% AND bid is profitable
             if spread <= 0 or spread / effective_ask >= 0.05 or best_bid < val:
-                mask[20] = False
+                mask[36] = False
 
-            # UnderCut (21-23): Beat best ask by fixed amount (lower ask)
+            # UnderCut (37-42): Beat best ask by fixed amount (lower ask)
             for i, amt in enumerate(undercut_amts):
                 new_price = best_ask - amt
                 if best_ask == 0 or new_price < val:
-                    mask[21 + i] = False
+                    mask[37 + i] = False
+
+            # Aggressive accepts (43-46): Accept if spread < threshold AND profitable
+            for i, thresh in enumerate(aggressive_thresholds):
+                if spread <= 0 or spread / effective_ask >= thresh or best_bid < val:
+                    mask[43 + i] = False
+
+            # Mid-spread asks (47-49)
+            if spread <= 0:
+                mask[47:50] = False
+            else:
+                mid_pcts = [0.40, 0.50, 0.60]
+                for i, pct in enumerate(mid_pcts):
+                    new_price = effective_ask - int(pct * spread)
+                    if new_price < val:
+                        mask[47 + i] = False
 
         return mask
 
     def _map_action_to_price(self, action: int) -> int:
         """
-        Map 24 discrete actions to prices using spread-relative and valuation-based strategies.
+        Map 50 discrete actions to prices using spread-relative and valuation-based strategies.
 
         Actions:
             0: Pass
             1: Accept (buy at ask / sell at bid)
-            2-9: Improve by 0.5%, 1%, 2%, 5%, 10%, 15%, 25%, 40% of spread
-            10-17: Shade 1%, 3%, 5%, 10%, 15%, 20%, 30%, 40% of valuation
-            18: Truthful (bid/ask at valuation)
-            19: Jump Best (improve by 1)
-            20: Snipe (accept only if spread < 5%)
-            21-23: UnderCut by 2, 5, 10
+            2-17: Improve by spread percentages (16 levels: 0.25% to 60%)
+            18-33: Shade valuation (16 levels: 0.5% to 50%)
+            34: Truthful (bid/ask at valuation)
+            35: Jump Best (improve by 1)
+            36: Snipe (accept only if spread < 5%)
+            37-42: UnderCut by 1, 2, 3, 5, 10, 20
+            43-49: Reserved / aggressive actions
         """
         if action == 0:
             return -99  # Pass
@@ -731,34 +959,79 @@ class EnhancedDoubleAuctionEnv(gym.Env):
 
         price = -99
 
-        # Spread improvement percentages
-        improve_pcts = [0.005, 0.01, 0.02, 0.05, 0.10, 0.15, 0.25, 0.40]
-        # Shade percentages
-        shade_pcts = [0.01, 0.03, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40]
-        # UnderCut amounts
-        undercut_amts = [2, 5, 10]
+        # More granular spread improvement percentages (16 levels)
+        improve_pcts = [
+            0.0025,
+            0.005,
+            0.0075,
+            0.01,
+            0.015,
+            0.02,
+            0.03,
+            0.05,
+            0.07,
+            0.10,
+            0.12,
+            0.15,
+            0.20,
+            0.30,
+            0.45,
+            0.60,
+        ]
+        # More granular shade percentages (16 levels)
+        shade_pcts = [
+            0.005,
+            0.01,
+            0.02,
+            0.03,
+            0.04,
+            0.05,
+            0.07,
+            0.10,
+            0.12,
+            0.15,
+            0.18,
+            0.20,
+            0.25,
+            0.30,
+            0.40,
+            0.50,
+        ]
+        # More undercut amounts (6 levels)
+        undercut_amts = [1, 2, 3, 5, 10, 20]
 
         if self.rl_is_buyer:
             if action == 1:  # Accept (Buy at Ask)
                 price = best_ask
-            elif 2 <= action <= 9:  # Spread improvements
+            elif 2 <= action <= 17:  # Spread improvements (16 levels)
                 pct = improve_pcts[action - 2]
                 price = best_bid + max(1, int(pct * spread))
-            elif 10 <= action <= 17:  # Shade valuation
-                shade = shade_pcts[action - 10]
+            elif 18 <= action <= 33:  # Shade valuation (16 levels)
+                shade = shade_pcts[action - 18]
                 price = int(val * (1 - shade))
-            elif action == 18:  # Truthful
+            elif action == 34:  # Truthful
                 price = val
-            elif action == 19:  # Jump Best (improve by 1)
+            elif action == 35:  # Jump Best (improve by 1)
                 price = best_bid + 1
-            elif action == 20:  # Snipe (accept only if spread < 5%)
+            elif action == 36:  # Snipe (accept only if spread < 5%)
                 if spread > 0 and spread / best_ask < 0.05:
                     price = best_ask
                 else:
                     return -99  # Pass if spread too wide
-            elif 21 <= action <= 23:  # UnderCut
-                amt = undercut_amts[action - 21]
+            elif 37 <= action <= 42:  # UnderCut (6 levels)
+                amt = undercut_amts[action - 37]
                 price = best_bid + amt
+            elif 43 <= action <= 46:  # Aggressive: accept if spread < 10/15/20/30%
+                thresholds = [0.10, 0.15, 0.20, 0.30]
+                thresh = thresholds[action - 43]
+                if spread > 0 and spread / best_ask < thresh:
+                    price = best_ask
+                else:
+                    return -99
+            elif 47 <= action <= 49:  # Mid-spread bids
+                mid_pcts = [0.40, 0.50, 0.60]  # bid at 40/50/60% of spread
+                pct = mid_pcts[action - 47]
+                price = best_bid + int(pct * spread)
 
             # Cap at valuation (never bid above what it's worth)
             if price > val:
@@ -767,24 +1040,35 @@ class EnhancedDoubleAuctionEnv(gym.Env):
         else:  # Seller
             if action == 1:  # Accept (Sell at Bid)
                 price = best_bid
-            elif 2 <= action <= 9:  # Spread improvements
+            elif 2 <= action <= 17:  # Spread improvements (16 levels)
                 pct = improve_pcts[action - 2]
                 price = best_ask - max(1, int(pct * spread))
-            elif 10 <= action <= 17:  # Shade valuation
-                shade = shade_pcts[action - 10]
+            elif 18 <= action <= 33:  # Shade valuation (16 levels)
+                shade = shade_pcts[action - 18]
                 price = int(val * (1 + shade))
-            elif action == 18:  # Truthful
+            elif action == 34:  # Truthful
                 price = val
-            elif action == 19:  # Jump Best (improve by 1)
+            elif action == 35:  # Jump Best (improve by 1)
                 price = best_ask - 1
-            elif action == 20:  # Snipe (accept only if spread < 5%)
+            elif action == 36:  # Snipe (accept only if spread < 5%)
                 if spread > 0 and spread / best_ask < 0.05:
                     price = best_bid
                 else:
                     return -99  # Pass if spread too wide
-            elif 21 <= action <= 23:  # UnderCut
-                amt = undercut_amts[action - 21]
+            elif 37 <= action <= 42:  # UnderCut (6 levels)
+                amt = undercut_amts[action - 37]
                 price = best_ask - amt
+            elif 43 <= action <= 46:  # Aggressive: accept if spread < 10/15/20/30%
+                thresholds = [0.10, 0.15, 0.20, 0.30]
+                thresh = thresholds[action - 43]
+                if spread > 0 and spread / best_ask < thresh:
+                    price = best_bid
+                else:
+                    return -99
+            elif 47 <= action <= 49:  # Mid-spread asks
+                mid_pcts = [0.40, 0.50, 0.60]  # ask at 40/50/60% of spread
+                pct = mid_pcts[action - 47]
+                price = best_ask - int(pct * spread)
 
             # Floor at valuation (never ask below cost)
             if price < val:

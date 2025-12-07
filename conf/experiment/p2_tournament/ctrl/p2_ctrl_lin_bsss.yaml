@@ -1,0 +1,18 @@
+# @package _global_
+# Part 2: Lin vs 7 ZIC, BSSS environment
+
+experiment:
+  name: "p2_ctrl_lin_bsss"
+  num_rounds: 2
+
+market:
+  min_price: 1
+  max_price: 2000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 75
+  gametype: 6453
+
+agents:
+  buyer_types: ['Lin', 'ZIC', 'ZIC', 'ZIC']
+  seller_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC']

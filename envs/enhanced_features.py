@@ -20,12 +20,16 @@ class EnhancedObservationGenerator:
     """
     Generates rich, normalized observation vectors for RL agents.
 
-    Feature Groups (Total 24 features):
+    Feature Groups (Total 48 features):
     1. Private State (4): valuation, inventory, time, urgency
     2. Market State (5): bid, ask, spread, mid, depth
     3. Strategic Context (5): surplus, competition, position, momentum, pressure
     4. Market Dynamics (5): trend, volatility, volume, imbalance, liquidity
     5. Microstructure (5): bid strength, ask strength, flow toxicity, price impact, efficiency
+    6. Episode Structure (7): steps remaining, tokens remaining, profit, avg profit, best/avg remaining, new period
+    7. Enhanced (9): last 3 prices, eq distance, phase (3), bid/ask room
+    8. Time-Based (2): steps since trade, alpha urgency
+    9. Environment Context (6): num_buyers, num_sellers, num_tokens, ntimes, buyer_ratio, token_variance
     """
 
     def __init__(
@@ -35,6 +39,10 @@ class EnhancedObservationGenerator:
         max_steps: int = 100,
         history_len: int = 10,
         num_agents: int = 8,
+        # New: environment context params
+        num_buyers: int = 4,
+        num_sellers: int = 4,
+        gametype: int = 6453,
     ):
         self.max_price = max_price
         self.max_tokens = max_tokens
@@ -42,8 +50,19 @@ class EnhancedObservationGenerator:
         self.history_len = history_len
         self.num_agents = num_agents
 
-        # Feature vector size (24 original + 7 episode structure + 9 new + 2 time = 42)
-        self.feature_dim = 42
+        # Environment context (for universal PPO)
+        self.num_buyers = num_buyers
+        self.num_sellers = num_sellers
+        self.gametype = gametype
+
+        # Decode gametype to token variance indicator
+        # gametype=0: equal endowment (low variance)
+        # gametype=7: very low variance
+        # gametype=6453: standard variance
+        self.token_variance = self._decode_gametype_variance(gametype)
+
+        # Feature vector size (42 original + 6 env context = 48)
+        self.feature_dim = 48
 
         # History buffers
         self.trade_prices: deque = deque(maxlen=history_len)
@@ -56,6 +75,50 @@ class EnhancedObservationGenerator:
         self.total_volume = 0
         self.avg_trade_price = 0.0
         self.price_momentum = 0.0
+
+    def _decode_gametype_variance(self, gametype: int) -> float:
+        """
+        Decode gametype to a normalized token variance indicator.
+
+        gametype=0: Equal endowment (all traders get same tokens) -> 0.0
+        gametype=7: Very low variance (small weights) -> 0.1
+        gametype=6453: Standard variance -> 1.0
+
+        The gametype is a 4-digit number where each digit d determines
+        weight w = 3^d - 1. Higher weights = more variance in tokens.
+        """
+        if gametype == 0:
+            return 0.0  # Equal endowment
+        elif gametype < 100:
+            return 0.1  # Low variance (small gametypes like 7)
+
+        # Decode 4-digit gametype to weights and compute normalized variance
+        total_weight = 0
+        temp = gametype
+        for _ in range(4):
+            digit = temp % 10
+            temp //= 10
+            total_weight += 3**digit - 1
+
+        # Max possible weight is 4 * (3^9 - 1) ≈ 78728
+        # For 6453: w = (3^3-1) + (3^5-1) + (3^4-1) + (3^6-1) = 26+242+80+728 = 1076
+        # Normalize to [0, 1] using log scale
+        import math
+
+        normalized = min(1.0, math.log1p(total_weight) / math.log1p(2000))
+        return normalized
+
+    def set_env_context(
+        self, num_buyers: int, num_sellers: int, num_tokens: int, max_steps: int, gametype: int
+    ) -> None:
+        """Update environment context for a new episode."""
+        self.num_buyers = num_buyers
+        self.num_sellers = num_sellers
+        self.max_tokens = num_tokens
+        self.max_steps = max_steps
+        self.gametype = gametype
+        self.token_variance = self._decode_gametype_variance(gametype)
+        self.num_agents = num_buyers + num_sellers
 
     def reset(self) -> None:
         """Reset all history buffers and statistics."""
@@ -452,6 +515,36 @@ class EnhancedObservationGenerator:
         # This is the key signal Skeleton uses for urgency
         alpha_urgency = 1.0 / max(1, steps_since_last_trade)
         obs[idx] = min(1.0, alpha_urgency)
+        idx += 1
+
+        # --- 9. Environment Context Features (6 features) ---
+        # These enable PPO to adapt to different Santa Fe environments
+
+        # Feature 43: Number of buyers (normalized to max 8)
+        obs[idx] = self.num_buyers / 8.0
+        idx += 1
+
+        # Feature 44: Number of sellers (normalized to max 8)
+        obs[idx] = self.num_sellers / 8.0
+        idx += 1
+
+        # Feature 45: Number of tokens per trader (normalized to max 8)
+        obs[idx] = self.max_tokens / 8.0
+        idx += 1
+
+        # Feature 46: Period length / time steps (normalized to max 100)
+        obs[idx] = self.max_steps / 100.0
+        idx += 1
+
+        # Feature 47: Buyer/seller ratio (0.5 = balanced, <0.5 = seller dominated)
+        total_traders = self.num_buyers + self.num_sellers
+        buyer_ratio = self.num_buyers / total_traders if total_traders > 0 else 0.5
+        obs[idx] = buyer_ratio
+        idx += 1
+
+        # Feature 48: Token variance indicator (from gametype)
+        # 0.0 = equal endowment, 1.0 = high variance
+        obs[idx] = self.token_variance
         idx += 1
 
         assert idx == self.feature_dim, f"Feature dimension mismatch: {idx} != {self.feature_dim}"

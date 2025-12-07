@@ -10,9 +10,9 @@ market:
   max_price: 2000
   num_tokens: 4
   num_periods: 3
-  num_steps: 50
-  gametype: 6453
+  num_steps: 75
+  gametype: 1111
 
 agents:
-  buyer_types: ['ZIP', 'ZIP']
-  seller_types: ['ZIP', 'ZIP', 'ZIP', 'ZIP', 'ZIP', 'ZIP']
+  buyer_types: ['ZIP', 'ZIP', 'ZIP', 'ZIP']
+  seller_types: ['ZIP', 'ZIP', 'ZIP', 'ZIP']

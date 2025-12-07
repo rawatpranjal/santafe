@@ -1,0 +1,19 @@
+# @package _global_
+# Part 2: Round Robin mixed market WITH ZIP, BASE environment
+# 13 traders: 7 buyers x 6 sellers (Santa Fe 1991 + ZIP)
+
+experiment:
+  name: "p2_rr_mixed_zip_base"
+  num_rounds: 2
+
+market:
+  min_price: 1
+  max_price: 2000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 75
+  gametype: 6453
+
+agents:
+  buyer_types: ['ZIC', 'Skeleton', 'Kaplan', 'Ringuette', 'Gamer', 'Perry', 'ZIP']
+  seller_types: ['Ledyard', 'BGAN', 'Staecker', 'Jacobson', 'Lin', 'Breton']

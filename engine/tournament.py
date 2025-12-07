@@ -14,10 +14,15 @@ from engine.agent_factory import create_agent
 from engine.efficiency import (
     calculate_actual_surplus,
     calculate_allocative_efficiency,
+    calculate_autocorrelation,
     calculate_em_inefficiency,
     calculate_equilibrium_profits,
+    calculate_hit_rate,
     calculate_max_surplus,
     calculate_price_std_dev,
+    calculate_profit_dispersion,
+    calculate_rmsd,
+    calculate_smiths_alpha,
     calculate_v_inefficiency,
     extract_trades_from_orderbook,
     get_transaction_prices,
@@ -330,6 +335,34 @@ class Tournament:
                 )
                 price_volatility_pct = (price_std_dev / price_mean * 100) if price_mean > 0 else 0.0
 
+                # Calculate NEW extended metrics (from metrics.md)
+                # 1. Profit Dispersion - THE key discriminator (ZIC: 0.35-0.60 vs ZIP: 0.05)
+                profit_dispersion = calculate_profit_dispersion(
+                    trades,
+                    buyer_valuations_dict,
+                    seller_costs_dict,
+                    buyer_vals_list,
+                    seller_costs_list,
+                    equilibrium_price,
+                )
+
+                # 2. Smith's Alpha - Price convergence coefficient (lower = better)
+                smiths_alpha = calculate_smiths_alpha(transaction_prices, equilibrium_price)
+
+                # 3. RMSD - Root mean squared deviation from equilibrium
+                rmsd = calculate_rmsd(transaction_prices, equilibrium_price)
+
+                # 4. Hit Rates - % trades within ±X% of equilibrium
+                hit_rate_5pct = calculate_hit_rate(
+                    transaction_prices, equilibrium_price, band_pct=0.05
+                )
+                hit_rate_10pct = calculate_hit_rate(
+                    transaction_prices, equilibrium_price, band_pct=0.10
+                )
+
+                # 5. Price Autocorrelation - Mean-reversion vs momentum
+                price_autocorrelation = calculate_autocorrelation(transaction_prices, lag=1)
+
                 buyer_eq_profits, seller_eq_profits = calculate_equilibrium_profits(
                     buyer_vals_list, seller_costs_list, equilibrium_price
                 )
@@ -363,13 +396,23 @@ class Tournament:
                             "period_profit": agent.period_profit,
                             "agent_eq_profit": agent_eq_profit,
                             "profit_deviation": profit_deviation,
+                            # Core efficiency metrics
                             "efficiency": efficiency,
                             "eq_profit": eq_profit,
                             "v_inefficiency": v_inefficiency,
                             "em_inefficiency": em_inefficiency,
+                            # Price metrics
                             "price_std_dev": price_std_dev,
                             "price_mean": price_mean,
                             "price_volatility_pct": price_volatility_pct,
+                            "equilibrium_price": equilibrium_price,
+                            # NEW extended metrics
+                            "profit_dispersion": profit_dispersion,
+                            "smiths_alpha": smiths_alpha,
+                            "rmsd": rmsd,
+                            "hit_rate_5pct": hit_rate_5pct,
+                            "hit_rate_10pct": hit_rate_10pct,
+                            "price_autocorrelation": price_autocorrelation,
                         }
                     )
 

@@ -1,0 +1,18 @@
+# @package _global_
+# Part 2: Gamer self-play, TOK environment
+
+experiment:
+  name: "p2_self_gamer_tok"
+  num_rounds: 2
+
+market:
+  min_price: 1
+  max_price: 2000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 75
+  gametype: 6453
+
+agents:
+  buyer_types: ['Gamer', 'Gamer', 'Gamer', 'Gamer']
+  seller_types: ['Gamer', 'Gamer', 'Gamer', 'Gamer']

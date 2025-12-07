@@ -1,0 +1,19 @@
+# @package _global_
+# Part 1: Mixed-play heterogeneous competition, SML environment
+# All strategy types compete on both sides (2 buyers, 2 sellers)
+
+experiment:
+  name: "p1_mixed_sml"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 2000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 50
+  gametype: 6453
+
+agents:
+  buyer_types: ["ZIP1", "ZIP2"]
+  seller_types: ["ZIC1", "ZIC2"]

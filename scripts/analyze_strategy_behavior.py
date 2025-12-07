@@ -25,11 +25,17 @@ from engine.agent_factory import create_agent
 from engine.market import Market
 from engine.token_generator import TokenGenerator
 
-SUPPORTED_STRATEGIES = ["ZI", "ZIC", "ZIP", "GD", "Kaplan", "Skeleton", "BGAN", "Staecker"]
+SUPPORTED_STRATEGIES = ["ZI", "ZI2", "ZIC", "ZIP", "GD", "Kaplan", "Skeleton", "BGAN", "Staecker"]
 
 
-def run_traced_market(strategy: str, seed: int = 42, num_periods: int = 3, verbose: bool = True):
-    """Run a market with focal strategy and trace all decisions."""
+def run_traced_market(
+    strategy: str, seed: int = 42, num_periods: int = 3, verbose: bool = True, mode: str = "zero"
+):
+    """Run a market with focal strategy and trace all decisions.
+
+    Args:
+        mode: "zero" = 1 focal buyer vs ZIC, "self" = all agents same strategy
+    """
 
     np.random.seed(seed)
 
@@ -48,48 +54,44 @@ def run_traced_market(strategy: str, seed: int = 42, num_periods: int = 3, verbo
     total_profit = 0
     total_trades = 0
 
+    # Strategic metrics tracking
+    spread_bid_pairs = []  # (spread, did_bid) for spread responsiveness
+    improving_bids = 0
+    total_bids = 0
+    first_trade_times = []  # Time of first trade in each period
+    eq_profit_total = 0  # Equilibrium profit for SCR
+
     for period in range(1, num_periods + 1):
         token_gen.new_round()
 
-        # Create agents - focal strategy as buyer #1, rest ZIC
+        # Create agents based on mode
         buyers = []
         for i in range(num_buyers):
             tokens = token_gen.generate_tokens(True)
-            if i == 0:  # Focal strategy buyer
-                agent = create_agent(
-                    strategy,
-                    i + 1,
-                    True,
-                    num_tokens,
-                    tokens,
-                    seed=seed,
-                    num_times=num_steps,
-                    num_buyers=num_buyers,
-                    num_sellers=num_sellers,
-                    price_min=0,
-                    price_max=1000,
-                )
-            else:  # ZIC buyers
-                agent = create_agent(
-                    "ZIC",
-                    i + 1,
-                    True,
-                    num_tokens,
-                    tokens,
-                    seed=seed + i * 100,
-                    num_times=num_steps,
-                    num_buyers=num_buyers,
-                    num_sellers=num_sellers,
-                    price_min=0,
-                    price_max=1000,
-                )
+            # In self mode, all agents use same strategy; in zero mode, only first buyer
+            use_strategy = strategy if (mode == "self" or i == 0) else "ZIC"
+            agent = create_agent(
+                use_strategy,
+                i + 1,
+                True,
+                num_tokens,
+                tokens,
+                seed=seed + i * 100,
+                num_times=num_steps,
+                num_buyers=num_buyers,
+                num_sellers=num_sellers,
+                price_min=0,
+                price_max=1000,
+            )
             buyers.append(agent)
 
         sellers = []
         for i in range(num_sellers):
             tokens = token_gen.generate_tokens(False)
+            # In self mode, sellers also use same strategy
+            use_strategy = strategy if mode == "self" else "ZIC"
             agent = create_agent(
-                "ZIC",
+                use_strategy,
                 num_buyers + i + 1,
                 False,
                 num_tokens,
@@ -203,6 +205,20 @@ def run_traced_market(strategy: str, seed: int = 42, num_periods: int = 3, verbo
             else:
                 action_counts["OTHER"] += 1
 
+            # Track strategic metrics
+            # 1. Spread Responsiveness: track (spread, did_bid) pairs
+            if spread > 0:  # Only when spread is defined
+                did_bid = 1 if focal_price > 0 else 0
+                spread_bid_pairs.append((spread, did_bid))
+
+            # 2. Price Improvement Rate: did this bid improve the best?
+            if focal_price > 0:
+                total_bids += 1
+                if focal_price > high_bid:
+                    improving_bids += 1
+
+            # 3. First trade time tracking (handled at period level below)
+
             trace = {
                 "step": step,
                 "high_bid": high_bid,
@@ -231,27 +247,66 @@ def run_traced_market(strategy: str, seed: int = 42, num_periods: int = 3, verbo
 
         all_traces.append(period_traces)
 
+        # Track first trade time for this period
+        period_trade_times = [t["step"] for t in period_traces if t["traded"]]
+        if period_trade_times:
+            first_trade_times.append(min(period_trade_times))
+
         if verbose:
             print(
                 f"\nPeriod {period} Summary: {strategy} profit={focal_agent.period_profit}, trades={focal_agent.num_trades}"
             )
 
-    return all_traces, action_counts, trade_timing, shade_values, total_profit, total_trades
+    # Build strategic metrics dict
+    strategic_metrics = {
+        "spread_bid_pairs": spread_bid_pairs,
+        "improving_bids": improving_bids,
+        "total_bids": total_bids,
+        "first_trade_times": first_trade_times,
+    }
+
+    return (
+        all_traces,
+        action_counts,
+        trade_timing,
+        shade_values,
+        total_profit,
+        total_trades,
+        strategic_metrics,
+    )
 
 
 def run_multi_seed_analysis(
-    strategy: str, seeds: list, num_periods: int = 5, verbose: bool = False
+    strategy: str, seeds: list, num_periods: int = 5, verbose: bool = False, mode: str = "zero"
 ):
-    """Run analysis across multiple seeds."""
+    """Run analysis across multiple seeds.
+
+    Args:
+        mode: "zero" = 1 focal buyer vs ZIC, "self" = all agents same strategy
+    """
     all_action_counts = defaultdict(int)
     all_trade_timing = []
     all_shade_values = []
     total_profit = 0
     total_trades = 0
 
+    # Aggregate strategic metrics
+    all_spread_bid_pairs = []
+    all_improving_bids = 0
+    all_total_bids = 0
+    all_first_trade_times = []
+
     for seed in seeds:
-        traces, action_counts, trade_timing, shade_values, profit, trades = run_traced_market(
-            strategy=strategy, seed=seed, num_periods=num_periods, verbose=verbose
+        (
+            traces,
+            action_counts,
+            trade_timing,
+            shade_values,
+            profit,
+            trades,
+            strategic_metrics,
+        ) = run_traced_market(
+            strategy=strategy, seed=seed, num_periods=num_periods, verbose=verbose, mode=mode
         )
 
         for k, v in action_counts.items():
@@ -261,10 +316,32 @@ def run_multi_seed_analysis(
         total_profit += profit
         total_trades += trades
 
-    return all_action_counts, all_trade_timing, all_shade_values, total_profit, total_trades
+        # Aggregate strategic metrics
+        all_spread_bid_pairs.extend(strategic_metrics["spread_bid_pairs"])
+        all_improving_bids += strategic_metrics["improving_bids"]
+        all_total_bids += strategic_metrics["total_bids"]
+        all_first_trade_times.extend(strategic_metrics["first_trade_times"])
+
+    aggregated_strategic = {
+        "spread_bid_pairs": all_spread_bid_pairs,
+        "improving_bids": all_improving_bids,
+        "total_bids": all_total_bids,
+        "first_trade_times": all_first_trade_times,
+    }
+
+    return (
+        all_action_counts,
+        all_trade_timing,
+        all_shade_values,
+        total_profit,
+        total_trades,
+        aggregated_strategic,
+    )
 
 
-def compute_metrics(action_counts, trade_timing, shade_values, total_profit, total_trades):
+def compute_metrics(
+    action_counts, trade_timing, shade_values, total_profit, total_trades, strategic_metrics=None
+):
     """Compute standardized metrics dict."""
     total_actions = sum(action_counts.values())
 
@@ -299,6 +376,41 @@ def compute_metrics(action_counts, trade_timing, shade_values, total_profit, tot
     dominant_action = max(action_dist.items(), key=lambda x: x[1])[0] if action_dist else "NONE"
     dominant_pct = max(action_dist.values()) if action_dist else 0
 
+    # Strategic metrics
+    spread_responsiveness = 0.0
+    time_pressure_response = 0.0
+    price_improvement_rate = 0.0
+    patience_score = 0.0
+    pass_rate = action_dist.get("PASS", 0.0)
+
+    if strategic_metrics:
+        # Spread Responsiveness: Corr(spread, bid_activity)
+        # Negative = bids when spread is narrow (strategic)
+        spread_bid_pairs = strategic_metrics.get("spread_bid_pairs", [])
+        if len(spread_bid_pairs) >= 10:
+            spreads = [p[0] for p in spread_bid_pairs]
+            bids = [p[1] for p in spread_bid_pairs]
+            if np.std(spreads) > 0 and np.std(bids) > 0:
+                spread_responsiveness = round(np.corrcoef(spreads, bids)[0, 1], 2)
+
+        # Time Pressure Response: trades_late / trades_early
+        # TPR > 1 = sniper, TPR < 1 = eager, TPR ~1 = uniform
+        if trade_timing:
+            trades_early = sum(1 for t in trade_timing if t < 20) + 0.1  # Avoid div/0
+            trades_late = sum(1 for t in trade_timing if t >= 80)
+            time_pressure_response = round(trades_late / trades_early, 2)
+
+        # Price Improvement Rate: improving_bids / total_bids
+        total_bids = strategic_metrics.get("total_bids", 0)
+        improving_bids = strategic_metrics.get("improving_bids", 0)
+        if total_bids > 0:
+            price_improvement_rate = round(improving_bids / total_bids * 100, 1)
+
+        # Patience Score: mean time to first trade
+        first_trade_times = strategic_metrics.get("first_trade_times", [])
+        if first_trade_times:
+            patience_score = round(np.mean(first_trade_times), 1)
+
     return {
         "action_distribution": action_dist,
         "dominant_action": f"{dominant_action} ({dominant_pct}%)",
@@ -312,6 +424,12 @@ def compute_metrics(action_counts, trade_timing, shade_values, total_profit, tot
         "total_profit": total_profit,
         "total_trades": total_trades,
         "profit_per_trade": profit_per_trade,
+        # Strategic metrics
+        "spread_responsiveness": spread_responsiveness,
+        "time_pressure_response": time_pressure_response,
+        "price_improvement_rate": price_improvement_rate,
+        "patience_score": patience_score,
+        "pass_rate": pass_rate,
     }
 
 
@@ -342,6 +460,35 @@ def print_analysis_results(strategy: str, metrics: dict):
     print(f"  Total profit: {metrics['total_profit']}")
     print(f"  Profit per trade: {metrics['profit_per_trade']}")
 
+    print("\nSTRATEGIC METRICS:")
+    print(f"  Spread Responsiveness (SR): {metrics.get('spread_responsiveness', 0)}")
+    print(f"  Time Pressure Response (TPR): {metrics.get('time_pressure_response', 0)}")
+    print(f"  Price Improvement Rate (PIR): {metrics.get('price_improvement_rate', 0)}%")
+    print(f"  Patience Score (PS): {metrics.get('patience_score', 0)}")
+    print(f"  PASS Rate: {metrics.get('pass_rate', 0)}%")
+
+    # Interpretation
+    sr = metrics.get("spread_responsiveness", 0)
+    tpr = metrics.get("time_pressure_response", 0)
+    pir = metrics.get("price_improvement_rate", 0)
+    print("\nINTERPRETATION:")
+    if sr < -0.3:
+        print("  - SR < -0.3: Strategic (bids when spread narrows)")
+    elif sr > 0.3:
+        print("  - SR > 0.3: Counter-strategic (bids when spread widens)")
+    else:
+        print("  - SR ~0: State-independent (random/mechanical)")
+    if tpr > 2:
+        print("  - TPR > 2: Sniper (trades late)")
+    elif tpr < 0.5:
+        print("  - TPR < 0.5: Eager (trades early)")
+    else:
+        print("  - TPR ~1: Uniform timing")
+    if pir > 70:
+        print("  - PIR > 70%: Efficient bidder (most bids improve)")
+    elif pir < 30:
+        print("  - PIR < 30%: Inefficient bidder (wasted bids)")
+
     # Print table row format for behavior.md
     print(f"\n{'='*70}")
     print("TABLE ROW (for behavior.md):")
@@ -368,6 +515,13 @@ def main():
     parser.add_argument(
         "--output", type=str, help="Save JSON to file (e.g., results/behavior_ZIC.json)"
     )
+    parser.add_argument(
+        "--mode",
+        type=str,
+        default="zero",
+        choices=["zero", "self"],
+        help="Mode: zero = 1 focal vs ZIC, self = all agents same strategy",
+    )
     args = parser.parse_args()
 
     seeds = [42, 123, 456, 789, 1000][: args.seeds]
@@ -379,15 +533,32 @@ def main():
         f"\nConfig: {len(seeds)} seeds x {args.periods} periods = {len(seeds)*args.periods} periods total"
     )
     print(f"Seeds: {seeds}")
-    print(f"Market: 1 {args.strategy} buyer + 3 ZIC buyers vs 4 ZIC sellers")
+    if args.mode == "self":
+        print(f"Market: 4 {args.strategy} buyers vs 4 {args.strategy} sellers (self-play)")
+    else:
+        print(f"Market: 1 {args.strategy} buyer + 3 ZIC buyers vs 4 ZIC sellers (zero-play)")
 
-    action_counts, trade_timing, shade_values, total_profit, total_trades = run_multi_seed_analysis(
-        strategy=args.strategy, seeds=seeds, num_periods=args.periods, verbose=args.verbose
+    (
+        action_counts,
+        trade_timing,
+        shade_values,
+        total_profit,
+        total_trades,
+        strategic_metrics,
+    ) = run_multi_seed_analysis(
+        strategy=args.strategy,
+        seeds=seeds,
+        num_periods=args.periods,
+        verbose=args.verbose,
+        mode=args.mode,
     )
 
-    metrics = compute_metrics(action_counts, trade_timing, shade_values, total_profit, total_trades)
+    metrics = compute_metrics(
+        action_counts, trade_timing, shade_values, total_profit, total_trades, strategic_metrics
+    )
     metrics["strategy"] = args.strategy
-    metrics["config"] = {"seeds": seeds, "periods": args.periods}
+    metrics["mode"] = args.mode
+    metrics["config"] = {"seeds": seeds, "periods": args.periods, "mode": args.mode}
 
     if args.output:
         # Save to file

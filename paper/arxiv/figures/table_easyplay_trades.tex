@@ -1,0 +1,17 @@
+\begin{table}[h]
+\centering
+\caption{Easy-play trades per period across all market environments. ZI executes 16 trades in BASE (double the constrained strategies) because it accepts loss-making trades. Budget-constrained strategies (ZIC1, ZIC2, ZIP1, ZIP2) all execute approximately 8 trades in BASE, which equals the number of profitable trading opportunities. Environment variations (BBBS, BSSS, TOK, SML) reduce the theoretical maximum, and all constrained strategies track this ceiling closely.}
+\label{tab:easyplay_trades}
+\small
+\begin{tabular}{lcccccccccc}
+\toprule
+Strategy & BASE & BBBS & BSSS & EQL & RAN & PER & SHRT & TOK & SML & LAD \\
+\midrule
+ZI   & 16.0 & 8.0  & 8.0  & 16.0 & 16.0 & 16.0 & 16.0 & 4.0 & 8.0 & 16.0 \\
+ZIC1 & 8.2  & 6.0  & 5.6  & 7.6  & 7.8  & 8.2  & 7.3  & 1.6 & 3.8 & 7.6 \\
+ZIC2 & 8.3  & 6.0  & 5.9  & 7.7  & 7.7  & 8.3  & 8.3  & 1.9 & 4.0 & 7.7 \\
+ZIP1 & 8.0  & 5.8  & 5.9  & 7.5  & 7.5  & 8.1  & 8.1  & 1.9 & 4.0 & 7.5 \\
+ZIP2 & 8.2  & 5.9  & 5.9  & 7.7  & 7.6  & 8.2  & 8.2  & 1.9 & 4.0 & 7.7 \\
+\bottomrule
+\end{tabular}
+\end{table}

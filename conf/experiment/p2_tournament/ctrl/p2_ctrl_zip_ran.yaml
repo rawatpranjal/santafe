@@ -1,5 +1,5 @@
 # @package _global_
-# Part 2: ZIP vs 7 ZIC, RAN environment
+# Part 2: ZIP vs ZIC control, RAN environment
 
 experiment:
   name: "p2_ctrl_zip_ran"
@@ -7,12 +7,12 @@ experiment:
 
 market:
   min_price: 1
-  max_price: 3000
+  max_price: 2000
   num_tokens: 4
   num_periods: 3
-  num_steps: 50
-  gametype: 7
+  num_steps: 75
+  gametype: 0
 
 agents:
   buyer_types: ['ZIP', 'ZIC', 'ZIC', 'ZIC']
-  seller_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC']
+  seller_types: ['ZIP', 'ZIC', 'ZIC', 'ZIC']

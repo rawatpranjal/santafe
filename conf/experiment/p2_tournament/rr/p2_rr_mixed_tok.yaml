@@ -1,5 +1,6 @@
 # @package _global_
 # Part 2: Round Robin mixed market, TOK environment
+# Santa Fe 1991 traders only (12 traders: 6 buyers x 6 sellers)
 
 experiment:
   name: "p2_rr_mixed_tok"
@@ -10,9 +11,9 @@ market:
   max_price: 2000
   num_tokens: 1
   num_periods: 3
-  num_steps: 25
+  num_steps: 75
   gametype: 6453
 
 agents:
-  buyer_types: ['Kaplan', 'Skeleton', 'ZIC', 'ZIP']
-  seller_types: ['Kaplan', 'Skeleton', 'ZIC', 'ZIP']
+  buyer_types: ['ZIC', 'Skeleton', 'Kaplan', 'Ringuette', 'Gamer', 'Perry']
+  seller_types: ['Ledyard', 'BGAN', 'Staecker', 'Jacobson', 'Lin', 'Breton']

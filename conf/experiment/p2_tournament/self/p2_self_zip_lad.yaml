@@ -11,7 +11,7 @@ market:
   num_tokens: 4
   num_periods: 3
   num_steps: 75
-  gametype: 0
+  gametype: 6453
 
 agents:
   buyer_types: ['ZIP', 'ZIP', 'ZIP', 'ZIP']

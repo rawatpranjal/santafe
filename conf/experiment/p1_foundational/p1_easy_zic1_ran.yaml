@@ -1,0 +1,18 @@
+# @package _global_
+# Part 1: ZIC1 easy-play (vs TruthTeller sellers), RAN environment
+
+experiment:
+  name: "p1_easy_zic1_ran"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 3000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 50
+  gametype: 7
+
+agents:
+  buyer_types: ["ZIC1", "ZIC1", "ZIC1", "ZIC1"]
+  seller_types: ["TruthTeller", "TruthTeller", "TruthTeller", "TruthTeller"]

@@ -1,5 +1,6 @@
 # @package _global_
 # Part 2: Round Robin mixed market, SML environment
+# Santa Fe 1991 traders only (12 traders: 6 buyers x 6 sellers)
 
 experiment:
   name: "p2_rr_mixed_sml"
@@ -7,12 +8,12 @@ experiment:
 
 market:
   min_price: 1
-  max_price: 2000
+  max_price: 200
   num_tokens: 4
   num_periods: 3
-  num_steps: 50
+  num_steps: 75
   gametype: 6453
 
 agents:
-  buyer_types: ['Kaplan', 'Skeleton', 'ZIC', 'ZIP']
-  seller_types: ['Kaplan', 'Skeleton', 'ZIC', 'ZIP']
+  buyer_types: ['ZIC', 'Skeleton', 'Kaplan', 'Ringuette', 'Gamer', 'Perry']
+  seller_types: ['Ledyard', 'BGAN', 'Staecker', 'Jacobson', 'Lin', 'Breton']

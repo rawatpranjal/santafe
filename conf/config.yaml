@@ -26,6 +26,11 @@ experiment:
   output_dir: "./results/${experiment.name}"
   log_level: "INFO"
 
+# Event Logging (for detailed trade-by-trade analysis)
+log_events: false
+log_dir: "logs/p1_foundational"
+experiment_id: "${experiment.name}"
+
 # Agent Configuration (Example - will be overridden by experiment configs)
 agents:
   num_buyers: 5

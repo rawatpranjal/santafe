@@ -1,0 +1,113 @@
+We evaluate market and agent performance using three categories of metrics: allocative efficiency, price convergence, and individual trader performance. These metrics allow us to assess whether a market achieves its theoretical potential (efficiency), whether prices converge to equilibrium (price quality), and whether profits are distributed fairly across participants (trader performance).
+
+We construct the demand schedule $D(q)$ by ordering all buyer valuations $v_{ik}$ in descending order, and the supply schedule $S(q)$ by ordering all seller costs $c_{jk}$ in ascending order. The equilibrium quantity is $Q^* = \max\{q : D(q) > S(q)\}$, and the equilibrium price lies in the interval $S(Q^*) \leq P^* \leq D(Q^*)$, typically computed as the midpoint $P^* = (D(Q^*) + S(Q^*))/2$. The maximum theoretical surplus is $TS^* = \sum_{q=1}^{Q^*}(D(q) - S(q))$.
+
+Figure~\ref{fig:supply_demand} visualizes this construction. The demand curve steps down as quantity increases (each successive unit has lower value), while the supply curve steps up (each successive unit has higher cost). The competitive equilibrium occurs at the intersection, defining both the efficient quantity $Q^*$ and the benchmark price $P^*$ against which we measure price convergence. The shaded area represents total surplus $TS^*$, which serves as the denominator in our efficiency calculations: a market achieving 100\% efficiency captures this entire area through optimal matching of buyers and sellers.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/market_supply_demand.pdf}
+\caption{Supply and demand curves with competitive equilibrium. The shaded area represents maximum surplus $TS^*$, the denominator for efficiency calculations. The equilibrium price $P^*$ provides the benchmark for measuring price convergence.}
+\label{fig:supply_demand}
+\end{figure}
+
+\subsection{Market Efficiency}
+
+Allocative efficiency measures the percentage of maximum possible surplus realized:
+\begin{equation}
+E = \frac{\sum_{t=1}^{T}(v_t - c_t)}{TS^*} \times 100
+\end{equation}
+where $v_t$ and $c_t$ are the redemption value and cost of units exchanged at trade $t$. Efficiency loss decomposes into V-inefficiency (intra-marginal loss from untraded profitable units) and EM-inefficiency (extra-marginal loss from trades that should not have occurred):
+\begin{equation}
+IM = \sum_{q \in \text{Untraded Intra-marginal}}(D(q) - S(q)), \quad EM = \sum_{t \in \text{Extra-marginal}}(c_t - v_t)
+\end{equation}
+
+Figure~\ref{fig:efficiency_decomposition} illustrates these concepts. Panel (a) shows maximum possible surplus when all profitable trades execute. Panel (b) shows an inefficient outcome: the green area represents realized surplus, the orange hatched area represents V-inefficiency from missed profitable trades, and the red hatched area represents EM-inefficiency from an extra-marginal trade that destroyed value. This decomposition explains the performance hierarchy we observe in subsequent experiments. Unconstrained random traders (ZI) suffer severe EM-inefficiency by accepting value-destroying trades. Budget-constrained traders (ZIC) eliminate EM-inefficiency but may still miss profitable opportunities under time pressure, creating V-inefficiency. Adaptive traders (ZIP) reduce both sources of loss through learned price targeting.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/market_efficiency_decomposition.pdf}
+\caption{Market efficiency decomposition. (a) Maximum surplus with 100\% efficiency. (b) Inefficient outcome showing V-inefficiency (missed trades) and EM-inefficiency (bad trades). Constrained traders eliminate EM-inefficiency; adaptive traders reduce both.}
+\label{fig:efficiency_decomposition}
+\end{figure}
+
+\subsection{Price Convergence}
+
+Root mean squared deviation measures distance from equilibrium:
+\begin{equation}
+RMSD = \sqrt{\frac{1}{T}\sum_{t=1}^{T}(p_t - P^*)^2}
+\end{equation}
+Smith's coefficient of convergence normalizes by equilibrium price: $\alpha = 100 \cdot RMSD / P^*$. Price volatility measures dispersion around the mean transaction price:
+\begin{equation}
+\text{Volatility} = \frac{\sigma_p}{\bar{p}} \times 100, \quad \text{where } \sigma_p = \sqrt{\frac{1}{T}\sum_{t=1}^{T}(p_t - \bar{p})^2}
+\end{equation}
+
+\subsection{Trader Performance}
+
+Individual profit for buyers is $\pi_i = \sum_{k}(v_{ik} - p_k)$ and for sellers is $\pi_j = \sum_{k}(p_k - c_{jk})$. Equilibrium profit represents the theoretical profit if all trades occurred at $P^*$:
+\begin{equation}
+\pi_i^* = \sum_{k : v_{ik} > P^*}(v_{ik} - P^*) \text{ (buyers)}, \quad \pi_j^* = \sum_{k : c_{jk} < P^*}(P^* - c_{jk}) \text{ (sellers)}
+\end{equation}
+The individual efficiency ratio $E_i = \pi_i / \pi_i^*$ measures whether a trader captures more ($E_i > 1$) or less ($E_i < 1$) than their equilibrium share. Profit dispersion measures cross-agent inequality:
+\begin{equation}
+PD = \sqrt{\frac{1}{N}\sum_{i=1}^{N}(\pi_i - \pi_i^*)^2}
+\end{equation}
+Lower dispersion indicates more equitable surplus allocation.
+
+\subsection{Behavioral Metrics}
+
+Beyond outcome metrics, we characterize each strategy's trading behavior using action-level statistics computed from market event logs.
+
+The \textbf{dominant action} identifies the most frequent action type: PASS (no action), Shade (improve best quote by small margin), JUMP (aggressive price improvement), SNIPE (accept standing quote when spread narrows), or ACCEPT (immediate market order). We report the percentage of decision opportunities where each action was chosen.
+
+\textbf{Trade timing} captures when trades occur within a period. Let $\tau_t$ denote the time step of trade $t$ within a period of length $T_{max}$:
+\begin{equation}
+\bar{\tau} = \frac{1}{|T|}\sum_{t \in T} \tau_t, \quad \text{Early\%} = \frac{|\{t : \tau_t < 0.4 \cdot T_{max}\}|}{|T|} \times 100
+\end{equation}
+High Early\% indicates aggressive early trading; low values suggest patient waiting strategies.
+
+\textbf{Spread responsiveness} (SR) measures how quote aggressiveness correlates with the bid-ask spread $s_t = a^*_t - b^*_t$:
+\begin{equation}
+SR = \text{Corr}(\text{shade}_t, s_t)
+\end{equation}
+where $\text{shade}_t$ is the margin between the submitted quote and the agent's limit price. Positive SR indicates more aggressive pricing when spreads are wide; negative SR indicates caution.
+
+\textbf{Price improvement rate} (PIR) measures how often an agent's quote crosses the spread to enable immediate trade:
+\begin{equation}
+PIR = \frac{|\{t : q_t \geq a^*_t \text{ (buyer)} \text{ or } q_t \leq b^*_t \text{ (seller)}\}|}{|\text{quotes}|} \times 100
+\end{equation}
+
+The \textbf{pass rate} is the percentage of decision opportunities where the agent submits no quote:
+\begin{equation}
+\text{PASS\%} = \frac{|\{t : a_t = \text{PASS}\}|}{|\text{decisions}|} \times 100
+\end{equation}
+High PASS\% indicates a waiting or sniping strategy.
+
+\subsection{Tournament Metrics}
+
+When strategies compete against each other, we use ranking-based metrics to assess relative performance.
+
+\textbf{Mean rank} orders strategies by profit within each market session, with rank 1 being highest:
+\begin{equation}
+\bar{R}_i = \frac{1}{|S|}\sum_{s \in S} R_{i,s}
+\end{equation}
+where $R_{i,s}$ is strategy $i$'s rank in session $s$. Lower is better.
+
+\textbf{Win rate} measures the fraction of sessions where a strategy achieves rank 1:
+\begin{equation}
+W_i = \frac{|\{s : R_{i,s} = 1\}|}{|S|} \times 100
+\end{equation}
+
+\textbf{Trades per period} measures market activity:
+\begin{equation}
+\text{Trades/Period} = \frac{1}{|P|}\sum_{p \in P} T_p
+\end{equation}
+where $T_p$ is the number of completed transactions in period $p$.
+
+\textbf{Invasibility ratio} tests whether a focal strategy can exploit a baseline market of ZIC traders:
+\begin{equation}
+\text{Invasibility} = \frac{\bar{\pi}_{\text{focal}}}{\bar{\pi}_{\text{ZIC}}}
+\end{equation}
+Values above 1 indicate the focal strategy extracts more surplus than ZIC in mixed competition.
+
+In subsequent sections, we report these metrics across all ten environments using three experimental designs. In self-play experiments, all agents use identical strategies, testing whether a population of homogeneous traders can coordinate efficiently. In mixed-market experiments, heterogeneous strategies compete, revealing which algorithms can exploit others or maintain performance when surrounded by different behaviors. In tournament experiments, we rank strategies by average profit across all environments, identifying which approaches succeed robustly rather than in specific conditions.

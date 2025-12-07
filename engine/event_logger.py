@@ -6,7 +6,7 @@ of trader timing behavior and market dynamics.
 """
 
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import TextIO
 
@@ -14,6 +14,7 @@ from typing import TextIO
 @dataclass
 class BidAskEvent:
     """A single bid or ask event."""
+
     round: int
     period: int
     step: int
@@ -26,18 +27,26 @@ class BidAskEvent:
 
 @dataclass
 class TradeEvent:
-    """A trade execution event."""
+    """A trade execution event with profit information."""
+
     round: int
     period: int
     step: int
     buyer_id: int
     seller_id: int
     price: int
+    buyer_value: int  # Token value for buyer
+    seller_cost: int  # Token cost for seller
+    buyer_profit: int  # value - price
+    seller_profit: int  # price - cost
+    buyer_type: str  # Agent class name
+    seller_type: str  # Agent class name
 
 
 @dataclass
 class PeriodStartEvent:
     """Period start event with equilibrium info."""
+
     round: int
     period: int
     equilibrium_price: int
@@ -69,7 +78,7 @@ class EventLogger:
 
     def _open(self) -> None:
         """Open the output file for writing."""
-        self._file = open(self.output_path, 'w')
+        self._file = open(self.output_path, "w")
 
     def log_bid(
         self,
@@ -125,8 +134,14 @@ class EventLogger:
         buyer_id: int,
         seller_id: int,
         price: int,
+        buyer_value: int,
+        seller_cost: int,
+        buyer_profit: int,
+        seller_profit: int,
+        buyer_type: str,
+        seller_type: str,
     ) -> None:
-        """Log a trade execution event."""
+        """Log a trade execution event with profit information."""
         event = TradeEvent(
             round=round,
             period=period,
@@ -134,6 +149,12 @@ class EventLogger:
             buyer_id=buyer_id,
             seller_id=seller_id,
             price=price,
+            buyer_value=buyer_value,
+            seller_cost=seller_cost,
+            buyer_profit=buyer_profit,
+            seller_profit=seller_profit,
+            buyer_type=buyer_type,
+            seller_type=seller_type,
         )
         self._write_event(event)
 
@@ -196,7 +217,7 @@ def load_events(log_path: Path) -> list[dict[str, object]]:
         List of event dictionaries
     """
     events = []
-    with open(log_path, 'r') as f:
+    with open(log_path) as f:
         for line in f:
             if line.strip():
                 events.append(json.loads(line))

@@ -24,9 +24,10 @@ from traders.legacy.skeleton import Skeleton
 from traders.legacy.staecker import Staecker
 from traders.legacy.truth_teller import TruthTeller
 from traders.legacy.zi import ZI
-from traders.legacy.zi2 import ZI2
-from traders.legacy.zic import ZIC
-from traders.legacy.zip import ZIP
+from traders.legacy.zi2 import ZIC2
+from traders.legacy.zic import ZIC1
+from traders.legacy.zip import ZIP1
+from traders.legacy.zip2 import ZIP2
 from traders.llm.gpt_agent import GPTAgent
 from traders.llm.placeholder_agent import PlaceholderLLM
 from traders.rl.ppo_agent import PPOAgent
@@ -63,8 +64,8 @@ def create_agent(
             price_max=price_max,
             seed=seed,
         )
-    elif agent_type == "ZIC":
-        return ZIC(
+    elif agent_type in ("ZIC", "ZIC1"):
+        return ZIC1(
             player_id,
             is_buyer,
             num_tokens,
@@ -138,14 +139,25 @@ def create_agent(
             aggressive_first=False,  # Keep default (True hurts badly!)
             **legacy_kwargs,
         )
-    elif agent_type == "ZIP":
-        return ZIP(
+    elif agent_type in ("ZIP", "ZIP1"):
+        return ZIP1(
             player_id,
             is_buyer,
             num_tokens,
             valuations,
             price_min=price_min,
             price_max=price_max,
+            **legacy_kwargs,
+        )
+    elif agent_type == "ZIP2":
+        return ZIP2(
+            player_id,
+            is_buyer,
+            num_tokens,
+            valuations,
+            price_min=price_min,
+            price_max=price_max,
+            seed=seed,
             **legacy_kwargs,
         )
     elif agent_type == "GD":
@@ -168,8 +180,8 @@ def create_agent(
             price_max=price_max,
             **legacy_kwargs,
         )
-    elif agent_type == "ZI2":
-        return ZI2(
+    elif agent_type in ("ZI2", "ZIC2"):
+        return ZIC2(
             player_id,
             is_buyer,
             num_tokens,

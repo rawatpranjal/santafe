@@ -1,0 +1,18 @@
+# @package _global_
+# Part 2: Breton vs 7 ZIC, EQL environment
+
+experiment:
+  name: "p2_ctrl_breton_eql"
+  num_rounds: 2
+
+market:
+  min_price: 1
+  max_price: 2000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 75
+  gametype: 0
+
+agents:
+  buyer_types: ['Breton', 'ZIC', 'ZIC', 'ZIC']
+  seller_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC']

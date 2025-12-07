@@ -3,13 +3,13 @@
 
 experiment:
   name: "p2_self_zip_per"
-  num_rounds: 6
+  num_rounds: 2
 
 market:
   min_price: 1
   max_price: 2000
   num_tokens: 4
-  num_periods: 1
+  num_periods: 3
   num_steps: 75
   gametype: 6453
 

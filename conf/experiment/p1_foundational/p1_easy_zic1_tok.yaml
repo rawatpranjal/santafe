@@ -1,0 +1,18 @@
+# @package _global_
+# Part 1: ZIC1 easy-play (vs TruthTeller sellers), TOK environment
+
+experiment:
+  name: "p1_easy_zic1_tok"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 2000
+  num_tokens: 1
+  num_periods: 3
+  num_steps: 25
+  gametype: 6453
+
+agents:
+  buyer_types: ["ZIC1", "ZIC1", "ZIC1", "ZIC1"]
+  seller_types: ["TruthTeller", "TruthTeller", "TruthTeller", "TruthTeller"]

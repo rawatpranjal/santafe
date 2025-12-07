@@ -1,0 +1,18 @@
+# @package _global_
+# Part 1: ZI easy-play (vs TruthTeller sellers), RAN environment
+
+experiment:
+  name: "p1_easy_zi_ran"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 3000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 50
+  gametype: 7
+
+agents:
+  buyer_types: ["ZI", "ZI", "ZI", "ZI"]
+  seller_types: ["TruthTeller", "TruthTeller", "TruthTeller", "TruthTeller"]

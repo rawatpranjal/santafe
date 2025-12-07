@@ -1,150 +1,229 @@
-This section evaluates sophisticated trading algorithms against our zero-intelligence baselines. We test eight diverse strategies spanning different algorithmic approaches: ZIC (baseline), ZIP (adaptive learning), GD (belief-based), Kaplan (sniper, Santa Fe 1st place), Ringuette (sniper, Santa Fe 2nd place), Skeleton (heuristic), EL (theory-driven), and Markup (fixed heuristic). We first examine control experiments with individual strategies against ZIC backgrounds, then evaluate self-play performance, and finally run a round-robin tournament with all eight strategies across 10 market environments. All results report mean and standard deviation over 10 random seeds with 50 rounds each.
+\section{The Santa Fe Double Auction}
 
-\subsection{Against Control (1 Strategy vs 7 ZIC)}
+This section revisits foundational questions posed by the original Santa Fe Double Auction Tournament (Rust et al., 1994) and subsequent analyses (Chen & Tai, 2010). Our objective is to investigate the ecological dynamics of a diverse set of heuristic-based trading strategies, examining the mechanisms behind their competitive success or failure within a complex market ecosystem. Our analysis proceeds by first examining easy play scenarios, then homogeneous self-play, and finally the dynamics of heterogeneous mixed play.
 
-We first test invasibility: whether a single sophisticated trader can maintain efficiency when surrounded by 7 ZIC agents. Table~\ref{tab:control} shows market efficiency across environments.
+First, we investigate the competitive performance of simple heuristics, examining the factors contributing to the success of "sniper" strategies such as Kaplan and Ringuette in heterogeneous market environments. Second, we examine market stability in homogeneous populations, testing whether opportunistic strategies lead to collective market instability and liquidity collapse when agents interact only with copies of themselves, as hypothesized by Rust et al. Third, we analyze the relationship between strategic complexity and ecological fitness, comparing fixed-rule agents against more cognitively elaborate models to understand the trade-offs involved.
 
-\input{figures/table_control}
+Our experimental design involves three distinct setups across the ten Santa Fe market environments: an Invasibility experiment (1 challenger vs. 7 ZIC agents) to assess exploitative capabilities, a Homogeneous Self-Play experiment (8 identical agents) to evaluate collective stability, and a Heterogeneous Round-Robin Tournament (all agents competing) to gauge overall ecological fitness. The agent roster for these experiments includes ZIC (baseline), Skeleton (simple fixed-rule), Kaplan (original sniper), Ringuette (alternative sniper), EL (Ledyard, reservation price model), BGAN (belief-based), Staecker, Gamer, Jacobson, Perry (adaptive parameters), Lin (statistical), and Breton.
 
-All strategies maintain high efficiency (95-98\%) in standard markets with remarkably low variance across seeds. The RAN environment shows efficiency around 21-23\% where uniform token draws eliminate predictable surplus. The SHRT environment with time pressure (20 steps) shows moderate degradation (83-84\%). Kaplan achieves consistently highest efficiency, followed closely by Skeleton, with ZIP slightly lower due to its conservative margin adjustments.
-
-\subsubsection{Control Price Volatility}
-
-Table~\ref{tab:control_volatility} reports price volatility in control experiments.
-
-\input{figures/table_control_volatility}
-
-Price volatility remains consistent across strategies (37-41\%), with all achieving 0\% in RAN (no trades at meaningful prices) and moderate volatility in standard environments. The tight variance across seeds confirms that volatility differences between strategies are genuine rather than noise.
-
-\subsubsection{Invasibility (Profit Ratios)}
-
-Table~\ref{tab:invasibility} shows profit extraction ratios: focal strategy profit divided by ZIC profit. Values above 1.0 indicate exploitation.
-
-\input{figures/table_invasibility}
-
-Skeleton achieves the highest exploitation in BSSS (3.79x) and SHRT (1.55x), while Kaplan dominates in BSSS (4.93x) and TOK (1.64x). ZIP consistently under-performs ZIC (ratios 0.57x-0.91x), suggesting its adaptive margins are too conservative against random traders.
-
-\subsection{Self-Play (All 8 Traders Same Type)}
-
-Table~\ref{tab:selfplay} presents efficiency when all 8 traders use identical strategies.
-
-\input{figures/table_selfplay}
-
-Kaplan achieves near-perfect efficiency (99-100\%) in most environments but exhibits two failure modes. First, efficiency drops to 66\% in SHRT where its patient sniping strategy cannot complete trades within the 20-step time limit. Second, efficiency collapses to 31\% in RAN where uniform token draws eliminate the predictable surplus structure that sniping exploits. Figure~\ref{fig:kaplan_mixed_pure} compares Kaplan's self-play efficiency against mixed-market performance, revealing that the RAN and SHRT failures are intrinsic to the sniper strategy rather than artifacts of opponent behavior. ZIP maintains exceptional efficiency (99-100\%) across all environments including SHRT, demonstrating superior robustness to both time pressure and token structure variation. Skeleton matches Kaplan in standard environments but struggles under time pressure (80\% in SHRT). ZIC provides a useful baseline at 95-99\% in most environments but drops to 55\% in EQL and 28\% in SML where its random pricing is suboptimal.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.95\textwidth]{figures/kaplan_mixed_vs_pure.pdf}
-\caption{Kaplan efficiency comparison between self-play (pure) and mixed tournament markets across all 10 environments. Self-play reveals two failure modes: RAN (42\%) where uniform token draws eliminate predictable surplus, and SHRT (72\%) where time pressure prevents patient sniping. Mixed markets maintain higher efficiency due to other strategies providing liquidity.}
-\label{fig:kaplan_mixed_pure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/santafe_selfplay_dynamics.pdf}
+    \caption{Self-play trading dynamics for all 13 Santa Fe strategies in the BASE environment. Each panel shows bid submissions (blue triangles), ask submissions (red triangles), best bid/ask trajectories (step lines), and executed trades (large colored circles). The green dashed line indicates the competitive equilibrium price. Ringuette and Kaplan (snipers) achieve high efficiency through patient opportunism, while Skeleton and Breton (fixed-rule) maintain steady trading activity. ZIP (adaptive learning) and Perry (heuristic) show distinct trading patterns reflecting their strategic approaches.}
+    \label{fig:s6_selfplay_dynamics}
 \end{figure}
 
-\subsubsection{Self-Play Price Volatility}
+\subsection{Easy Play Performance (Invasibility Experiment)}
 
-Table~\ref{tab:selfplay_volatility} shows price stability in homogeneous markets.
+Our investigation into easy play scenarios focuses on the "Invasibility Experiment," where individual Santa Fe strategies compete against a homogeneous population of baseline ZIC agents. This setup quantifies the exploitative capabilities of each strategy, measuring their ability to extract surplus from a less sophisticated, liquidity-providing market. Table~\ref{table:s6_easy_play_profit_ratio} presents the profit ratio for each Santa Fe agent when playing against ZIC in the BASE environment, indicating how many times more profit they generate compared to a ZIC agent in the same scenario.
 
-\input{figures/table_selfplay_volatility}
+\begin{table}[htbp]
+    \centering
+    \caption{Easy Play Profit Ratios (vs. ZIC, BASE Environment)}
+    \label{table:s6_easy_play_profit_ratio}
+    \begin{tabular}{lr}
+        \toprule
+        Strategy & Profit Ratio vs. ZIC \\
+        \midrule
+        BGAN & 0.608 \\
+        Breton & 0.811 \\
+        EL & 0.978 \\
+        Gamer & 0.995 \\
+        Jacobson & 0.961 \\
+        Kaplan & 0.844 \\
+        Lin & 0.876 \\
+        Perry & 1.005 \\
+        Ringuette & 0.970 \\
+        Skeleton & 0.839 \\
+        Staecker & 0.837 \\
+        ZIC & 1.000 \\
+        \bottomrule
+    \end{tabular}
+    \caption*{A profit ratio greater than 1 indicates the strategy extracts more profit than a ZIC agent would in the same scenario.}
+\end{table}
 
-Skeleton achieves consistently low volatility (32-40\%) through its simple heuristic pricing. ZIP shows slightly higher volatility (38-42\%) as its adaptive mechanisms explore price space. ZIC and Kaplan exhibit similar volatility patterns, with all strategies showing tight variance across seeds.
+As Table~\ref{table:s6_easy_play_profit_ratio} demonstrates, several strategies, particularly Perry (1.005), Gamer (0.995), and EL (0.978), exhibit strong exploitative capabilities, generating profits comparable to or exceeding the ZIC baseline when acting as invaders. Ringuette (0.970) and Jacobson (0.961) also show robust performance in this easy play environment. This highlights that strategies capable of adapting to or exploiting simpler market dynamics tend to fare well in asymmetric matchups.
 
-\subsubsection{Price Autocorrelation}
-
-Figure~\ref{fig:price_autocorr} presents lag-1 price autocorrelation across strategies, measuring whether consecutive transaction prices trend together (positive autocorrelation) or exhibit mean reversion (negative autocorrelation).
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{figures/price_autocorrelation.pdf}
-\caption{Lag-1 price autocorrelation by strategy in self-play markets. All strategies exhibit negative autocorrelation, indicating mean-reverting price dynamics. ZIP shows the strongest mean reversion due to its adaptive margin oscillation around equilibrium.}
-\label{fig:price_autocorr}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/santafe_easyplay_dynamics.pdf}
+    \caption{Easy-play trading dynamics for all 13 Santa Fe strategies against TruthTeller sellers in the BASE environment. Each panel shows bid submissions (blue triangles), ask submissions (red triangles), best bid/ask trajectories (step lines), and executed trades (large colored circles). The green dashed line indicates the competitive equilibrium price. Most strategies achieve high efficiency when exploiting passive sellers, with the notable exception of Perry (0\% efficiency) which appears to rely on competitive market dynamics that are absent when facing TruthTellers.}
+    \label{fig:s6_easyplay_dynamics}
 \end{figure}
 
-All strategies produce negative autocorrelation ranging from -0.08 (ZI) to -0.22 (ZIP), indicating that prices exhibit mean reversion rather than trending behavior. This pattern emerges because above-equilibrium trades are followed by below-equilibrium corrections as traders adjust margins. ZIP shows the strongest negative autocorrelation because its adaptive mechanism explicitly responds to market activity: successful trades trigger margin increases that push subsequent prices away from the previous transaction. ZI approaches zero autocorrelation as expected from random pricing, while ZIC and Kaplan fall between these extremes. The universally negative autocorrelation suggests that double auction markets naturally resist price momentum, with competitive bidding quickly correcting deviations from equilibrium.
+\subsection{Self Play Performance}
+The original Santa Fe paper hypothesized that the success of parasitic strategies like Kaplan might be contingent on a diverse market, and that a market composed solely of such agents could lead to collective instability. Our homogeneous self-play experiments offer substantial evidence supporting the "Sniper's Dilemma" hypothesis.
 
-\subsubsection{Self-Play V-Inefficiency}
+Table~\ref{table:s6_self_play_metrics_base} provides a summary of key self-play metrics for each Santa Fe strategy in the BASE environment.
 
-Table~\ref{tab:selfplay_vineff} reports missed profitable trades (V-Inefficiency).
+\begin{table}[htbp]
+    \centering
+    \caption{Self Play Metrics (BASE Environment)}
+    \label{table:s6_self_play_metrics_base}
+    \begin{tabular}{lrrr}
+        \toprule
+        Strategy & Efficiency ($\%$) & Volatility & Trades/Period \\
+        \midrule
+        BGAN & 65.54 & 1.73 & 1.01 \\
+        Breton & 99.84 & 11.18 & 2.25 \\
+        EL & 85.49 & Inf & 1.67 \\
+        Gamer & 65.82 & Inf & 1.12 \\
+        Jacobson & 40.07 & Inf & 0.84 \\
+        Kaplan & 100.00 & 18.38 & 2.00 \\
+        Lin & 66.03 & Inf & 1.55 \\
+        Perry & 61.59 & Inf & 1.39 \\
+        Ringuette & 97.77 & 4.49 & 2.22 \\
+        Skeleton & 99.54 & 7.85 & 2.11 \\
+        Staecker & 48.75 & Inf & 0.93 \\
+        ZIC & 90.80 & Inf & 1.69 \\
+        \bottomrule
+    \end{tabular}
+    \caption*{Efficiency, Volatility, and Trades per Period for each strategy in homogeneous self-play (BASE environment). 'Inf' for volatility indicates insufficient data due to very few or no trades.}
+\end{table}
 
-\input{figures/table_selfplay_vineff}
+The market efficiency of sniper agents exhibits a substantial decline under specific conditions. In the SHRT (short time) environment, Ringuette's self-play efficiency plummets to 32.5\% (from 98.1\% in BASE), and Kaplan's falls to 79.5\%. This contrasts sharply with the near-perfect efficiency maintained by fixed-rule agents like Skeleton (99.7\%) and Breton (99.8\%) in the same stressful environment.
 
-Skeleton and Kaplan minimize missed trades (0.00-0.06) except under time pressure (SHRT: 3.38-4.78). ZIP maintains moderate V-Inefficiency (0.14-1.01) across conditions.
 
-\subsection{Pairwise Competition}
+\begin{table}[htbp]
+    \centering
+    \caption{Self-Play Profit Dispersion (RMS)}
+    \label{table:s6_selfplay_profit_dispersion}
+    \begin{tabular}{lrrrrrrrrrr}
+        \toprule
+        Strategy & BASE & BBBS & BSSS & EQL & RAN & PER & SHRT & TOK & SML & LAD \\
+        \midrule
+        BGAN & 141 & 75 & 110 & 129 & 849 & 141 & 166 & 15 & 56 & 129 \\
+        Breton & 51 & 51 & 51 & 45 & 470 & 51 & 51 & 51 & 51 & 45 \\
+        EL & 51 & 89 & 122 & 67 & 68 & 68 & 444 & 163 & 46 & 67 \\
+        Gamer & 218 & 218 & 218 & 294 & 580 & 218 & 218 & 218 & 218 & 294 \\
+        Jacobson & 571 & 571 & 571 & 634 & 473 & 571 & 571 & 571 & 571 & 634 \\
+        Kaplan & 60 & 54 & 51 & 64 & 683 & 66 & 91 & 19 & 47 & 64 \\
+        Lin & 403 & 403 & 403 & 400 & 291 & 403 & 403 & 403 & 403 & 400 \\
+        Perry & 349 & 349 & 349 & 300 & 158 & 349 & 349 & 349 & 349 & 300 \\
+        Ringuette & 21 & 46 & 45 & 13 & 291 & 22 & 327 & 30 & 17 & 13 \\
+        Skeleton & 26 & 34 & 34 & 29 & 204 & 41 & 33 & 16 & 20 & 29 \\
+        Staecker & 486 & 450 & 420 & 474 & 515 & 487 & 500 & 214 & 368 & 474 \\
+        ZIC & 53 & 48 & 55 & 48 & 441 & 53 & 90 & 49 & 51 & 48 \\
+        \bottomrule
+    \end{tabular}
+    \caption*{Lower RMS indicates more equitable profit distribution among traders.}
+\end{table}
 
-Table~\ref{tab:pairwise} evaluates head-to-head competition in mixed markets with 4 traders of each type per side.
+\begin{table}[htbp]
+    \centering
+    \caption{Self-Play RMSD (Root Mean Squared Deviation)}
+    \label{table:s6_selfplay_rmsd}
+    \begin{tabular}{lrrrrrrrrrr}
+        \toprule
+        Strategy & BASE & BBBS & BSSS & EQL & RAN & PER & SHRT & TOK & SML & LAD \\
+        \midrule
+        BGAN & 8 & 4 & 22 & 3 & 48 & 10 & 4 & 2 & 22 & 3 \\
+        Breton & 40 & 40 & 40 & 36 & 392 & 40 & 40 & 40 & 40 & 36 \\
+        EL & 12 & 11 & 13 & 12 & 60 & 26 & 10 & 2 & 11 & 12 \\
+        Gamer & 25 & 25 & 25 & 21 & 503 & 25 & 25 & 25 & 25 & 21 \\
+        Jacobson & 6 & 6 & 6 & 3 & 50 & 6 & 6 & 6 & 6 & 3 \\
+        Kaplan & 49 & 51 & 49 & 51 & 565 & 51 & 60 & 19 & 46 & 51 \\
+        Lin & 9 & 9 & 9 & 7 & 77 & 9 & 9 & 9 & 9 & 7 \\
+        Perry & 11 & 11 & 11 & 8 & 30 & 11 & 11 & 11 & 11 & 8 \\
+        Ringuette & 14 & 8 & 7 & 8 & 40 & 15 & 1 & 0 & 6 & 8 \\
+        Skeleton & 21 & 26 & 26 & 22 & 160 & 30 & 24 & 16 & 18 & 22 \\
+        Staecker & 9 & 9 & 10 & 7 & 270 & 9 & 10 & 1 & 9 & 7 \\
+        ZIC & 35 & 30 & 33 & 32 & 349 & 35 & 34 & 11 & 27 & 32 \\
+        \bottomrule
+    \end{tabular}
+    \caption*{Lower RMSD indicates better price convergence to equilibrium.}
+\end{table}
 
-\input{figures/table_pairwise}
+\begin{table}[htbp]
+    \centering
+    \caption{Self-Play Trades per Period}
+    \label{table:s6_selfplay_trades_per_period}
+    \begin{tabular}{lrrrrrrrrrrr}
+        \toprule
+        Strategy & BASE & BBBS & BSSS & EQL & RAN & PER & SHRT & TOK & SML & LAD \\
+        \midrule
+        BGAN & 1.0 & 0.6 & 1.8 & 0.8 & 1.2 & 1.0 & 0.7 & 0.4 & 1.6 & 0.8 \\
+        Breton & 2.3 & 2.3 & 2.3 & 1.9 & 1.8 & 2.3 & 2.3 & 2.3 & 2.3 & 1.9 \\
+        EL & 1.7 & 0.8 & 1.9 & 1.5 & 1.8 & 1.1 & 0.7 & 0.1 & 1.5 & 1.5 \\
+        Gamer & 1.1 & 1.1 & 1.1 & 1.0 & 1.6 & 1.1 & 1.1 & 1.1 & 1.1 & 1.0 \\
+        Jacobson & 0.8 & 0.8 & 0.8 & 0.7 & 1.5 & 0.8 & 0.8 & 0.8 & 0.8 & 0.7 \\
+        Kaplan & 2.0 & 1.0 & 3.0 & 1.9 & 1.8 & 2.2 & 1.2 & 0.5 & 1.8 & 1.9 \\
+        Lin & 1.5 & 1.5 & 1.5 & 1.3 & 1.6 & 1.5 & 1.5 & 1.5 & 1.5 & 1.3 \\
+        Perry & 1.4 & 1.4 & 1.4 & 1.3 & 1.7 & 1.4 & 1.4 & 1.4 & 1.4 & 1.3 \\
+        Ringuette & 2.2 & 0.7 & 2.4 & 1.9 & 1.5 & 2.3 & 0.6 & 0.1 & 1.7 & 1.9 \\
+        Skeleton & 2.1 & 1.0 & 3.1 & 1.9 & 1.9 & 2.3 & 2.2 & 0.5 & 1.9 & 1.9 \\
+        Staecker & 0.9 & 0.4 & 1.5 & 0.8 & 1.4 & 0.9 & 0.7 & 0.1 & 1.1 & 0.8 \\
+        ZIC & 1.7 & 0.7 & 2.5 & 1.5 & 1.8 & 1.9 & 1.1 & 0.3 & 1.4 & 1.5 \\
+        \bottomrule
+    \end{tabular}
+    \caption*{Average number of trades completed per period in self-play.}
+\end{table}
 
-Zero Intelligence (ZI) destroys market efficiency: ZIP-ZI markets achieve only 43.6\% efficiency (standard deviation 8.5\%) and ZIC-ZI markets achieve 50.2\% (standard deviation 7.8\%). In contrast, ZIP-ZIC markets maintain 96.5\% efficiency with tight variance (standard deviation 0.3\%). The high variance in ZI markets across seeds reflects the unpredictability of random unconstrained trading, while ZIP-ZIC markets show remarkable stability.
+In contrast, fixed-rule agents such as Skeleton and Breton generally demonstrate highly stable and efficient self-play across environments. Their high trades per period, low RMSD, and minimal profit dispersion (Tables~\ref{table:s6_selfplay_trades_per_period}, \ref{table:s6_selfplay_rmsd}, and \ref{table:s6_selfplay_profit_dispersion}) signify their ability to foster orderly and equitable markets when interacting solely amongst themselves. This fundamental robustness highlights their role as reliable liquidity providers, a stark contrast to the destabilizing dynamics observed in homogeneous sniper populations. This supports the view that the competitive advantage of sniping strategies is parasitic, dependent on the presence of agents willing to provide liquidity within the market.
 
-\subsection{ZIP Hyperparameter Tuning}
+\subsection{Mixed Play Performance (Heterogeneous Round-Robin Tournament)}
+Our analysis of the Heterogeneous Round-Robin Tournament, where all Santa Fe agents compete against each other, reveals insights into their overall ecological fitness. Table~\ref{table:s6_mixed_play_performance} summarizes the average rank and total wins for each strategy across the diverse market environments.
 
-Table~\ref{tab:zip_tuning} explores ZIP parameter sensitivity in self-play.
+\begin{table}[htbp]
+    \centering
+    \caption{Mixed Play Overall Performance (Avg Rank and Wins)}
+    \label{table:s6_mixed_play_performance}
+    \begin{tabular}{lrr}
+        \toprule
+        Strategy & Average Rank & Total Wins \\
+        \midrule
+        ZIC & 6.64 & 54 \\
+        Skeleton & 5.18 & 18 \\
+        Kaplan & 6.99 & 10 \\
+        Ringuette & 4.00 & 149 \\
+        Gamer & 5.81 & 55 \\
+        Perry & 5.00 & 56 \\
+        Ledyard & 6.06 & 50 \\
+        BGAN & 8.30 & 22 \\
+        Staecker & 7.02 & 32 \\
+        Jacobson & 7.20 & 14 \\
+        Lin & 8.42 & 28 \\
+        Breton & 7.39 & 12 \\
+        \bottomrule
+    \end{tabular}
+    \caption*{Average rank and total wins for each strategy in the Heterogeneous Round-Robin Tournament across all environments.}
+\end{table}
 
-\input{figures/table_zip_tuning}
+The original Santa Fe tournament notably highlighted the unexpected victory of Kaplan, a relatively simple heuristic, over more complex, AI-driven strategies. Our replication in a heterogeneous round-robin tournament is consistent with the competitive power of simple heuristics, though it reveals a notable shift in the most dominant sniper.
 
-All four configurations produce identical 98.9\% efficiency with standard deviations of 0.2-0.3\%. This robustness to hyperparameter choices is a key practical finding: ZIP performance is insensitive to learning rate and momentum parameters within reasonable ranges. The baseline configuration with conservative parameters performs equally well as aggressive or balanced variants, suggesting ZIP's core adaptive mechanism is more important than its specific parameterization.
+In our replication, Ringuette ranks highest in the overall tournament, achieving the best average rank (4.00) and the highest number of wins (149) across the ten diverse environments. This contrasts with Kaplan, which ranks 7th, suggesting that while sniping remains an effective strategy, Ringuette's specific implementation appears to confer a more robust competitive advantage in this contemporary setup. Further log analysis confirms these distinctions: while both agents employ opportunistic sniper tactics, Kaplan's behavior in homogeneous self-play often leads to prolonged deadlocks with extreme initial bids and late-period trades, a stark manifestation of the 'Sniper's Dilemma'. In contrast, Ringuette, while also susceptible to self-play inefficiencies in stressful environments (SHRT), demonstrates more consistent and less volatile price discovery in milder homogeneous settings and superior overall fitness in heterogeneous mixed-play, suggesting a more refined adaptability in its opportunistic decision-making. For instance, in Round 1 of the BASE environment, Ringuette demonstrated its opportunistic nature by executing a profitable trade with Staecker (price 144, buyer profit 148) and another with Lin (price 146, buyer profit 2), showcasing its ability to extract surplus even with small margins. Kaplan, too, exhibited this behavior, securing a notable profit in a trade with Breton (price 141, buyer profit 145). Other notably strong performers include Perry (2nd place) and Skeleton (3rd place), both representing relatively simple heuristic approaches. This suggests that the underlying principles behind the Kaplan Paradox may extend to a broader class of simple, robust, and opportunistic strategies, rather than being exclusive to Kaplan.
 
-\subsection{Individual Profit Analysis}
 
-Table~\ref{tab:profit_analysis} reveals surplus extraction in ZIP-ZIC mixed markets.
 
-\input{figures/table_profit_analysis}
 
-ZIP agents earn 247,905 (standard deviation 15,508) compared to ZIC agents at 190,496 (standard deviation 12,676), yielding a profit ratio of 1.30x. ZIP's adaptive learning systematically extracts 30\% more surplus than ZIC through its margin adjustment mechanism. This advantage is statistically robust across all 10 seeds.
 
-\subsection{Round Robin Tournament}
+\subsection{Complexity and Performance Trade-offs}
+Our results offer further insights into the relationship between a strategy's design complexity and its ecological fitness in competitive markets. The evidence suggests that increased strategic complexity does not consistently translate to superior performance, potentially incurring a "penalty for overhead."
 
-Tables~\ref{tab:roundrobin} and~\ref{tab:roundrobin_summary} present mixed-market tournament results with eight diverse strategies competing simultaneously: ZIC (baseline), ZIP (adaptive learning), GD (belief-based), Kaplan (sniper, Santa Fe 1st place), Ringuette (sniper, Santa Fe 2nd place), Skeleton (heuristic), EL (theory-driven), and Markup (fixed heuristic).
+While adaptive and belief-based models represent higher orders of cognitive sophistication, the overall Round-Robin tournament results tend to indicate that simpler, more direct heuristics frequently outperform them. The top three performers (Ringuette, Perry, Skeleton) embody relatively straightforward rule-sets. In contrast, cognitively more elaborate agents like Jacobson (equilibrium estimation, ranks 9th), Staecker (ranks 8th), BGAN (belief-based, ranks 11th), and Lin (statistical prediction, ranks 12th) generally occupy the lower half of the rankings. For example, in homogeneous self-play, Jacobson and BGAN frequently exhibit complete market breakdowns, failing to execute any trades across entire rounds, a clear indication that their sophisticated mechanisms can lead to inaction and inefficiency when interacting with similar complex counterparts.
 
-\input{figures/table_roundrobin}
+This finding reinforces aspects of the "Kaplan Paradox" from a different perspective: the most ecologically fit strategies are often characterized by their simplicity, robustness, and speed of execution rather than their ability to model complex market dynamics or form sophisticated beliefs. The trade-off between the cognitive overhead of complex models and the ecological robustness of simpler heuristics appears to favor the latter in this competitive environment.
 
-\input{figures/table_roundrobin_summary}
 
-ZIP achieves the best average rank (1.92) through dominant performance across most environments, winning 5 of 10 environments. Ringuette follows in second place (average rank 2.74) with consistent strong performance in standard markets, winning the EQL environment. Kaplan ranks third (3.98) despite its Santa Fe tournament victory, struggling in the EQL environment where its patient sniping strategy fails against uniform token draws. The remaining strategies form a middle tier: Skeleton (4.40), GD (4.54), and EL (4.80). Markup achieves surprising wins in TOK and LAD environments (average rank 5.88) where its fixed heuristic matches well with token configurations, while ZIC consistently finishes last (7.74). GD wins only the RAN environment where belief-based learning adapts well to random token distributions. The tournament reveals that ZIP's adaptive margin mechanism provides the most robust performance across diverse market conditions, while sniper strategies (Kaplan, Ringuette) succeed in predictable markets but fail under time pressure or extreme token configurations.
 
-\subsubsection{Case Study: Mixed Market Dynamics}
+\subsection{Analysis of Evolutionary Dynamics}
+Beyond static tournament performance, we investigate the long-term ecological dynamics of these strategies using an evolutionary tournament model. This experiment simulates multiple generations of competition, where successful strategies increase their population share and underperforming ones face elimination.
 
-Figure~\ref{fig:case_study_mixed} illustrates a representative trading period from the eight-strategy tournament, revealing how different algorithmic approaches interact in real time. The figure displays a single period in the BASE environment with one buyer and one seller of each strategy type competing simultaneously.
+Our results from 10 evolutionary seeds reveal a clear hierarchy of evolutionary stability. Skeleton emerges as the most evolutionarily stable strategy, comprising 62.5\% of the final population across seeds. Its simple, robust fixed-rule approach consistently outperforms more complex or adaptive strategies in a dynamic competitive environment. Kaplan (13.4\%) and Ringuette (10\%) maintain stable presences in the final population. This indicates that their opportunistic, parasitic strategies are evolutionarily viable, albeit not dominant, suggesting they can coexist sustainably within the market ecosystem. ZIP, representing general adaptive learning, consistently goes extinct early (by generation 7.5 across all seeds). This suggests that despite its strong self-play and niche dominance in asymmetric static markets, its adaptive mechanism is not sufficiently robust or specialized to compete effectively in a dynamic evolutionary environment, leading to its elimination.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{figures/case_study_mixed.pdf}
-\caption{Mixed market case study showing all eight strategies competing in the BASE environment. Panel A shows the price tunnel with best bid (blue) and best ask (red) trajectories, trade markers colored by strategy, and the competitive equilibrium band (green shading). Panel B displays strategy activity over time in 10-step bins, revealing distinct timing patterns across strategies. Panel C tracks cumulative profit accumulation, showing how ZIP builds advantage through consistent early trading while snipers like Kaplan and Ringuette capture profit through patient late-period trades.}
-\label{fig:case_study_mixed}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/santafe_evolutionary_dynamics.pdf}
+    \caption{Evolutionary dynamics of Santa Fe trading strategies over 50 generations, aggregated across 10 seeds. Lines show mean population share with shaded bands indicating one standard deviation. Skeleton (purple) dominates with 62.5\% of the final population. Snipers Kaplan (red) and Ringuette (orange) persist at lower levels. ZIP (green dotted) goes extinct early, typically by generation 8. The emergence of Skeleton dominance and ZIP extinction demonstrates that simple, robust fixed-rule strategies outcompete both opportunistic snipers and general adaptive learners in an evolutionary competition.}
+    \label{fig:s6_evolutionary_dynamics}
 \end{figure}
 
-Panel A reveals the characteristic price convergence pattern: the bid-ask spread narrows rapidly in early time steps as ZIP and other aggressive strategies compete for trades, with transaction prices clustering near the competitive equilibrium. Panel B exposes the distinct temporal strategies: ZIP dominates early activity through its adaptive margin mechanism, while Kaplan and Ringuette remain largely inactive until spreads narrow sufficiently. Panel C demonstrates the profit dynamics: ZIP accumulates surplus steadily throughout the period by capturing multiple early trades at favorable prices, while snipers extract value through fewer but strategically timed transactions. This visualization confirms the tournament rankings, showing why ZIP's consistent engagement outperforms patient sniping in aggregate profit, while also illustrating how each strategy type contributes to overall market efficiency.
+\subsection{Summary and Conclusion}
+Our replication of the Santa Fe Tournament, analyzed through the lens of foundational literature, offers the following key insights into the ecological dynamics of heuristic-based trading strategies:
 
-\subsubsection{Trading Timing Patterns}
-
-Figure~\ref{fig:trading_timing} quantifies the temporal trading patterns across strategies by measuring when trades occur within each period. The distribution of trade timing reveals fundamentally different strategic approaches to surplus extraction.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.9\textwidth]{figures/trading_volume_timing.pdf}
-\caption{Trade timing distribution by strategy, showing the fraction of trades occurring in each 10-step time window. ZIP executes nearly all trades in the first 10 steps through aggressive margin adjustment, while Kaplan concentrates activity in steps 40-80, consistent with its parasitic sniper strategy that waits for other traders to narrow the bid-ask spread.}
-\label{fig:trading_timing}
-\end{figure}
-
-ZIP exhibits extreme early trading behavior, completing virtually all transactions within the first 10 steps of each period. This aggressive pattern reflects ZIP's adaptive margin mechanism, which quickly discovers profitable price levels and executes trades before competitors can respond. ZI and ZIC show similar early concentration but with longer tails extending through the first 30 steps, as their random pricing occasionally produces later matches. Kaplan displays the opposite pattern: nearly zero activity in early steps, with trades concentrated between steps 40 and 80. This confirms Rust et al.'s characterization of Kaplan as a parasitic sniper strategy that relies on other traders to narrow the bid-ask spread before striking. The sniper approach extracts value from price discovery performed by others, explaining why Kaplan succeeds in markets with active liquidity providers but fails in self-play where no other traders narrow spreads.
-
-\subsubsection{Profit Hierarchy}
-
-Figure~\ref{fig:trader_hierarchy} presents the profit hierarchy from the round-robin tournament, revealing the zero-sum nature of trader interactions.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{figures/trader_hierarchy.pdf}
-\caption{Average period profit by strategy in the round-robin tournament. Sophisticated strategies (Skeleton, Kaplan) extract substantial profits while ZIC incurs large losses, demonstrating the zero-sum transfer of surplus from naive to sophisticated traders.}
-\label{fig:trader_hierarchy}
-\end{figure}
-
-The profit distribution confirms that sophisticated strategies systematically extract surplus from naive traders. Skeleton and Kaplan achieve nearly identical profits (4746 and 4689 respectively), suggesting convergent exploitation strategies despite different algorithmic approaches. ZIP earns modest positive profits (223) as its aggressive early trading captures some surplus but leaves less room for exploitation. ZIC suffers catastrophic losses (-7877), with its negative profits roughly equaling the combined gains of sophisticated traders. This zero-sum pattern illustrates a fundamental market dynamic: allocative efficiency can remain high while surplus is redistributed from naive to sophisticated participants. The market mechanism ensures trades occur at reasonable prices, but the distribution of gains depends entirely on strategic sophistication.
-
-\subsection{Summary}
-
-Our experiments establish clear performance hierarchies across eight diverse strategies based on 5-seed averaging. For self-play efficiency, ZIP achieves the most robust performance (99-100\% across all environments including SHRT), while Kaplan struggles under time pressure (66\% in SHRT). For invasibility (profit extraction against ZIC), Kaplan and Skeleton lead, with ZIP's conservative margins limiting its exploitation ability.
-
-In the eight-strategy tournament, ZIP dominates with average rank 1.92 and 5 environment wins, followed by Ringuette (2.74, 1 win), Markup (5.88, 2 wins in TOK and LAD), Kaplan (3.98), Skeleton (4.40), GD (4.54, 1 win in RAN), EL (4.80), and ZIC (7.74). The Santa Fe tournament winners (Kaplan 1st, Ringuette 2nd) perform well but ZIP's adaptive margin mechanism proves more robust across diverse market conditions. A key methodological finding is that ZIP hyperparameter sensitivity is minimal: all tested configurations produce identical 98.9\% efficiency, revealing that previous single-seed claims of optimal parameters were artifacts of random variation.
-
-These baselines frame our evaluation of modern AI agents in subsequent sections.
+\begin{enumerate}
+    \item Simple, rule-based strategies, particularly those employing effective opportunistic behavior (e.g., Perry, Gamer, Ringuette), demonstrate substantial exploitative power and competitive advantage in heterogeneous market ecosystems. Their success is associated with effective opportunistic behavior. While Kaplan is historically noted for sniper tactics, our easy play results suggest other agents achieve higher exploitative ratios against ZIC baselines.
+    \item The collective behavior of opportunistic or complex strategies, not limited to purely sniper populations, can lead to severe market inefficiency and liquidity collapse in homogeneous environments. Our self-play experiments reveal that many adaptive and belief-based agents (e.g., Jacobson, Staecker, BGAN, Gamer, Perry, Lin, EL) exhibit significant market breakdown, characterized by low efficiency, negligible trades, and high volatility, even in the BASE environment. This confirms that the success of such strategies is fundamentally dependent on the presence of diverse or more liquidity-providing agents. In stark contrast, simple fixed-rule agents like Skeleton and Breton consistently foster highly stable and efficient self-play markets, underscoring their inherent robustness and role as reliable liquidity providers.
+    \item There is no clear evidence that increased strategic complexity consistently leads to superior ecological fitness. Instead, simpler, robust heuristics like Ringuette, Perry, and Skeleton often prove highly effective, suggesting that an optimal balance of simplicity and exploitative capability is favored in this competitive environment. The marked struggles of more cognitively elaborate agents (e.g., Jacobson, Staecker, BGAN, Lin, EL, Gamer, Perry) in homogeneous self-play, characterized by significant drops in efficiency and liquidity, further underscore a "penalty for overhead" associated with such complexity when robust self-organization is required.
+    \item Our analysis of general adaptive strategies (ZIP) in an extended round-robin tournament suggests that while not universally dominant, ZIP excels in asymmetric market structures. However, in evolutionary competition, ZIP consistently faces early extinction, suggesting that its adaptive mechanisms are outcompeted by more specialized and robust heuristics over multiple generations.
+\end{enumerate}

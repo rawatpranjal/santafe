@@ -1,0 +1,17 @@
+\begin{table}[H]
+\centering
+\caption{Zero-Play Behavioral Signatures (1 focal buyer vs 7 ZIC, 5 seeds $\times$ 5 periods)}
+\label{tab:zeroplay_behavior}
+\begin{tabular}{lccccccr}
+\toprule
+\textbf{Strategy} & \textbf{Dominant Action} & \textbf{Trade Time} & \textbf{Early\%} & \textbf{PASS\%} & \textbf{SR} & \textbf{PIR} & \textbf{Profit/Trade} \\
+\midrule
+ZI & PASS (90\%) & 6.1 & 100 & 90 & 0.27 & 47 & $-$158.1 \\
+ZIC & JUMP (54\%) & 16.0 & 85 & 0 & 0.00 & 5 & \textbf{57.3} \\
+ZI2 & PASS (42\%) & 9.4 & 95 & 42 & $-$0.08 & 25 & 46.5 \\
+ZIP & JUMP (42\%) & 10.8 & 89 & 15 & $-$0.06 & 1 & 38.6 \\
+\bottomrule
+\multicolumn{8}{l}{\footnotesize Trade Time = mean timestep when trades occur (out of 100). Early\% = trades in first 30 steps.} \\
+\multicolumn{8}{l}{\footnotesize SR = Spread Responsiveness. PIR = Price Improvement Rate (\% of quotes crossing spread).} \\
+\end{tabular}
+\end{table}

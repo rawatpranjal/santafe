@@ -4,15 +4,17 @@ Evolutionary Tournament for Double Auction Trading Strategies.
 
 Tests the hypothesis: "Snipers (Kaplan) need noise traders (ZIC) to survive."
 
-Runs co-evolutionary dynamics on 8 legacy strategies from Part 2 of the paper:
-ZIC, ZIP, GD, Kaplan, Ringuette, Skeleton, Ledyard, Markup
+Runs co-evolutionary dynamics on 9 legacy strategies from Part 2 of the paper:
+ZIC, Skeleton, ZIP, Kaplan, Ringuette, GD, Ledyard, BGAN, Staecker
 
 Usage:
     # Quick test (5 generations)
     python scripts/run_evolutionary_tournament.py --generations 5 --matchups 10
 
-    # Full run (50 generations)
-    python scripts/run_evolutionary_tournament.py --generations 50 --matchups 30
+    # Full run (100 generations, 10 seeds)
+    for seed in 0 1 2 3 4 5 6 7 8 9; do
+        python scripts/run_evolutionary_tournament.py --generations 100 --matchups 30 --seed $seed
+    done
 """
 
 import argparse
@@ -31,23 +33,28 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from scripts.run_chen_experiment import run_single_matchup
 
-# Strategy pool for v3 (10 strategies - removed expensive ones)
-# - Noise/Baseline: ZIC, ZI2, TruthTeller
-# - Adaptive: ZIP, GD (removed HistogramLearner - slow)
-# - Snipers: Kaplan, Ringuette, Skeleton
-# - Theory-based: Ledyard, Markup
-# Removed: HistogramLearner, Lin, Perry (expensive per-step computations)
+# Strategy pool for Part 2: Santa Fe 1991 traders ONLY
+# (No ZIP - Cliff 1997, No GD - Gjerstad-Dickhaut 1998)
+# - Baseline: ZIC
+# - Snipers: Skeleton, Kaplan, Ringuette
+# - Fixed-margin: Gamer
+# - Adaptive: Perry, Lin, Breton
+# - Belief-based: BGAN
+# - Theory-based: Ledyard (EL), Staecker, Jacobson
 STRATEGY_POOL = [
-    "ZIC",
-    "ZI2",
-    "TruthTeller",  # Noise/Baseline
-    "ZIP",
-    "GD",  # Adaptive
-    "Kaplan",
-    "Ringuette",
-    "Skeleton",  # Snipers
-    "Ledyard",
-    "Markup",  # Theory-based
+    "ZIC",  # Baseline (Gode & Sunder)
+    "ZIP",  # Cliff 1997 (added per user request)
+    "Skeleton",  # Default code
+    "Kaplan",  # Winner
+    "Ringuette",  # 2nd place
+    "Gamer",  # Fixed margin
+    "Perry",  # Efficiency-based learning
+    "Lin",  # Statistical prediction
+    "Breton",  # Stochastic adaptive
+    "BGAN",  # Bayesian game against nature
+    "Ledyard",  # Easley-Ledyard (EL)
+    "Staecker",  # Predictive (exponential smoothing)
+    "Jacobson",  # Equilibrium estimation
 ]
 
 

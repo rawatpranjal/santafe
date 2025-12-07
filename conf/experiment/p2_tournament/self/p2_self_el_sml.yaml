@@ -1,0 +1,18 @@
+# @package _global_
+# Part 2: Ledyard self-play, SML environment
+
+experiment:
+  name: "p2_self_el_sml"
+  num_rounds: 2
+
+market:
+  min_price: 1
+  max_price: 2000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 50
+  gametype: 6453
+
+agents:
+  buyer_types: ['Ledyard', 'Ledyard']
+  seller_types: ['Ledyard', 'Ledyard']

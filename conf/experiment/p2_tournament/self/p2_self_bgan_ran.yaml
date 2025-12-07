@@ -1,0 +1,18 @@
+# @package _global_
+# Part 2: BGAN self-play, RAN environment
+
+experiment:
+  name: "p2_self_bgan_ran"
+  num_rounds: 2
+
+market:
+  min_price: 1
+  max_price: 3000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 50
+  gametype: 7
+
+agents:
+  buyer_types: ['BGAN', 'BGAN', 'BGAN', 'BGAN']
+  seller_types: ['BGAN', 'BGAN', 'BGAN', 'BGAN']

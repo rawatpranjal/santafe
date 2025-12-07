@@ -5,7 +5,7 @@
 \usepackage{graphicx}
 \usepackage{url}
 \usepackage[round]{natbib}
-\usepackage{amsmath,amsthm} 
+\usepackage{amsmath,amsthm}
 \usepackage{engord}
 \usepackage{float}
 \usepackage{subfig}
@@ -46,7 +46,7 @@
 
 \author{Pranjal Rawat\thanks{PhD Candidate, Georgetown University. \href{mailto:pp712@georgetown.edu}{pp712@georgetown.edu}}}
 
-\date{ \vspace*{0.5cm} November 21, 2025 \\ \bigskip {\Large PRELIMINARY DRAFT: NOT FOR CIRCULATION} } 
+\date{ \vspace*{0.5cm} November 21, 2025 \\ \bigskip {\Large PRELIMINARY DRAFT: NOT FOR CIRCULATION} }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -78,14 +78,16 @@ In 1993, the Santa Fe Institute hosted a seminal tournament where simple "snipin
 \section{The Market}
 \input{sections/04a_market}
 
-\section{The Traders}
-\input{sections/04b_traders}
+\section{Outcome Metrics}
+\input{sections/04c_metrics}
 
 \section{Intelligence and Markets}
 \input{sections/05_results_zero_intel}
 
-\section{Santa Fe Tournament Replication}
 \input{sections/06_results_santafe}
+
+\section{Comparative Analysis of Foundational Findings}
+\input{sections/comparative_summary}
 
 \section{Reinforcement Learning Trader}
 \input{sections/07_results_rl}
@@ -109,6 +111,9 @@ In 1993, the Santa Fe Institute hosted a seminal tournament where simple "snipin
 % Appendices
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \appendix
+\section{Trading Algorithms}
+\label{app:traders}
+\input{sections/04b_traders}
 \input{sections/appendix_c_market}
 \input{sections/appendix_a_ppo_trader}
 \input{sections/appendix_b_llm_trader}

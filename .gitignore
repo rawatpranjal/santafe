@@ -6,6 +6,18 @@ key.txt
 secrets.json
 credentials.json
 
+# Internal documentation (not for public)
+CLAUDE.md
+plan.md
+tracker.md
+backup.md
+checklists/
+archive/
+analysis/
+paper/paper_plan.md
+paper/GPT_BEHAVIORAL_ANALYSIS.md
+paper/arxiv/LLM_RESULTS_GUIDE.md
+
 # Python bytecode and cache
 __pycache__/
 *.pyc

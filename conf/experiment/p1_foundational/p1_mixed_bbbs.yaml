@@ -1,0 +1,19 @@
+# @package _global_
+# Part 1: Mixed-play heterogeneous competition, BBBS environment
+# All strategy types compete on both sides (6 buyers, 2 sellers)
+
+experiment:
+  name: "p1_mixed_bbbs"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 2000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 50
+  gametype: 6453
+
+agents:
+  buyer_types: ["ZIC1", "ZIC1", "ZIC2", "ZIC2", "ZIP1", "ZIP2"]
+  seller_types: ["ZIC1", "ZIC2"]

@@ -1,0 +1,18 @@
+# @package _global_
+# Part 1: ZIC2 easy-play (vs TruthTeller sellers), BSSS environment
+
+experiment:
+  name: "p1_easy_zic2_bsss"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 2000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 50
+  gametype: 6453
+
+agents:
+  buyer_types: ["ZIC2", "ZIC2"]
+  seller_types: ["TruthTeller", "TruthTeller", "TruthTeller", "TruthTeller", "TruthTeller", "TruthTeller"]

@@ -307,7 +307,7 @@ def plot_efficiency_decomposition() -> None:
     # Simulate a scenario with some inefficiency
     # Assume 8 trades occurred (instead of 10), and 1 was a bad trade
     actual_trades = 8
-    bad_trade_loss = 5  # One extra-marginal trade with small negative surplus
+    bad_trade_loss = 20  # Extra-marginal trade at position 12: demand=130, supply=150
 
     # Calculate actual surplus
     actual_surplus = sum(demand[i] - supply[i] for i in range(actual_trades)) - bad_trade_loss
@@ -396,8 +396,8 @@ def plot_efficiency_decomposition() -> None:
             hatch="//",
         )
 
-    # Shade EM-inefficiency (bad trade at position 11)
-    em_q = q_star  # First extra-marginal unit
+    # Shade EM-inefficiency (bad trade at position 12 where supply > demand)
+    em_q = q_star + 2  # Position 12: demand=130, supply=150, loss=20
     ax_actual.fill_between(
         [em_q, em_q + 1],
         [demand[em_q], demand[em_q]],
@@ -463,14 +463,14 @@ def plot_efficiency_decomposition() -> None:
     ax_actual.annotate(
         "Missed\nprofitable\ntrades",
         xy=(actual_trades + 0.5, (demand[actual_trades] + supply[actual_trades]) / 2),
-        xytext=(actual_trades + 2.5, 190),
+        xytext=(actual_trades - 1.5, 80),
         arrowprops=dict(arrowstyle="->", color="black", lw=1),
     )
 
     ax_actual.annotate(
         "Extra-marginal\ntrade (loss)",
         xy=(em_q + 0.5, (demand[em_q] + supply[em_q]) / 2),
-        xytext=(em_q + 2, 100),
+        xytext=(em_q + 1.5, 100),
         arrowprops=dict(arrowstyle="->", color="black", lw=1),
     )
 

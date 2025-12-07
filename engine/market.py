@@ -827,8 +827,8 @@ class Market:
 
         if trade_price > 0:
             # Find who traded by checking position change
-            buyer_id = 0
-            seller_id = 0
+            trading_buyer = None
+            trading_seller = None
 
             for i, buyer in enumerate(self.buyers):
                 local_id = i + 1
@@ -836,7 +836,7 @@ class Market:
                     prev_buys = int(self.orderbook.num_buys[local_id, t - 1])
                     curr_buys = int(self.orderbook.num_buys[local_id, t])
                     if curr_buys > prev_buys:
-                        buyer_id = buyer.player_id
+                        trading_buyer = buyer
                         break
 
             for i, seller in enumerate(self.sellers):
@@ -845,14 +845,42 @@ class Market:
                     prev_sells = int(self.orderbook.num_sells[local_id, t - 1])
                     curr_sells = int(self.orderbook.num_sells[local_id, t])
                     if curr_sells > prev_sells:
-                        seller_id = seller.player_id
+                        trading_seller = seller
                         break
+
+            # Get token values (note: num_trades was already incremented, so use -1)
+            buyer_value = 0
+            seller_cost = 0
+            buyer_type = ""
+            seller_type = ""
+
+            if trading_buyer is not None:
+                # Token index is num_trades - 1 since trade already happened
+                token_idx = trading_buyer.num_trades - 1
+                if 0 <= token_idx < len(trading_buyer.valuations):
+                    buyer_value = trading_buyer.valuations[token_idx]
+                buyer_type = trading_buyer.__class__.__name__
+
+            if trading_seller is not None:
+                token_idx = trading_seller.num_trades - 1
+                if 0 <= token_idx < len(trading_seller.valuations):
+                    seller_cost = trading_seller.valuations[token_idx]
+                seller_type = trading_seller.__class__.__name__
+
+            buyer_profit = buyer_value - trade_price
+            seller_profit = trade_price - seller_cost
 
             self.event_logger.log_trade(
                 round=self._current_round,
                 period=self._current_period,
                 step=t,
-                buyer_id=buyer_id,
-                seller_id=seller_id,
+                buyer_id=trading_buyer.player_id if trading_buyer else 0,
+                seller_id=trading_seller.player_id if trading_seller else 0,
                 price=trade_price,
+                buyer_value=buyer_value,
+                seller_cost=seller_cost,
+                buyer_profit=buyer_profit,
+                seller_profit=seller_profit,
+                buyer_type=buyer_type,
+                seller_type=seller_type,
             )

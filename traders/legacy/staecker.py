@@ -181,7 +181,17 @@ class Staecker(Agent):
 
         # Need forecasts to proceed with prediction-based logic
         if self.la_pred is None:
-            # No forecast yet - behave conservatively (pass or minimal bid)
+            # No forecast yet - bootstrap by submitting a reasonable bid
+            # This prevents deadlock in self-play where all agents wait for forecasts
+            # Use a fraction of valuation as initial bid (like Skeleton/ZIC would)
+            target_bid = int(value * 0.7)  # Bid 70% of valuation to leave profit margin
+            b_min = cbid + 1  # AURORA: must beat current bid
+            b_max = min(value - 1, cask - 1 if cask > 0 else self.price_max)
+
+            # Clamp target to valid range
+            new_bid = max(b_min, min(target_bid, b_max))
+            if b_min <= b_max:
+                return max(self.price_min, new_bid)
             return 0
 
         # Profitability check (predicted ask)
@@ -234,7 +244,17 @@ class Staecker(Agent):
 
         # Need forecasts to proceed with prediction-based logic
         if self.hb_pred is None:
-            # No forecast yet - behave conservatively
+            # No forecast yet - bootstrap by submitting a reasonable ask
+            # This prevents deadlock in self-play where all agents wait for forecasts
+            # Use cost + 30% markup as initial ask (like Skeleton/ZIC would)
+            target_ask = int(cost * 1.3)  # Ask 130% of cost to leave profit margin
+            a_min = max(cost + 1, cbid + 1 if cbid > 0 else self.price_min)
+            a_max = cask - 1 if cask > 0 else self.price_max
+
+            # Clamp target to valid range
+            new_ask = max(a_min, min(target_ask, a_max))
+            if a_min <= a_max:
+                return min(self.price_max, new_ask)
             return 0
 
         # Profitability check (predicted bid)

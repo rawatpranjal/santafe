@@ -1,5 +1,5 @@
 # @package _global_
-# Part 2: ZIP vs 7 ZIC, BASE environment
+# Part 2: ZIP vs ZIC control, BASE environment
 
 experiment:
   name: "p2_ctrl_zip_base"
@@ -15,4 +15,4 @@ market:
 
 agents:
   buyer_types: ['ZIP', 'ZIC', 'ZIC', 'ZIC']
-  seller_types: ['ZIC', 'ZIC', 'ZIC', 'ZIC']
+  seller_types: ['ZIP', 'ZIC', 'ZIC', 'ZIC']

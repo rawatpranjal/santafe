@@ -1,0 +1,18 @@
+# @package _global_
+# Part 2: BGAN self-play, TOK environment
+
+experiment:
+  name: "p2_self_bgan_tok"
+  num_rounds: 2
+
+market:
+  min_price: 1
+  max_price: 2000
+  num_tokens: 1
+  num_periods: 3
+  num_steps: 25
+  gametype: 6453
+
+agents:
+  buyer_types: ['BGAN', 'BGAN', 'BGAN', 'BGAN']
+  seller_types: ['BGAN', 'BGAN', 'BGAN', 'BGAN']

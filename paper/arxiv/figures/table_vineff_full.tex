@@ -1,22 +1,22 @@
 \begin{table}[H]
 \centering
-\caption{V-Inefficiency (Missed Trades) Across All Environments}
+\caption{Selfplay V-Inefficiency (Missed Trades) Across All Environments}
 \label{tab:vineff_full}
-\begin{tabular}{lrrr}
+\begin{tabular}{lccccc}
 \toprule
-\textbf{Environment} & \textbf{ZI} & \textbf{ZIC} & \textbf{ZIP} \\
+\textbf{Environment} & \textbf{ZI} & \textbf{ZIC1} & \textbf{ZIC2} & \textbf{ZIP1} & \textbf{ZIP2} \\
 \midrule
-BASE & 0.0 & 0.3 & 0.5 \\
-BBBS & 0.0 & 0.2 & 0.4 \\
-BSSS & 0.0 & 0.2 & 0.3 \\
-EQL & 0.0 & 0.0 & 0.0 \\
-RAN & 0.0 & 0.0 & 1.6 \\
-PER & 0.0 & 0.2 & 0.2 \\
-SHRT & 0.0 & 2.7 & 0.6 \\
-TOK & 0.0 & 0.1 & 0.0 \\
-SML & 0.0 & 0.6 & 1.0 \\
-LAD & 0.0 & 0.3 & 0.5 \\
+BASE & 0 & 30$\pm$3 & 16$\pm$2 & 3$\pm$1 & 0$\pm$0 \\
+BBBS & 0 & 61$\pm$4 & 47$\pm$4 & 1$\pm$0 & 0$\pm$0 \\
+BSSS & 0 & 26$\pm$3 & 8$\pm$1 & 1$\pm$0 & 0$\pm$0 \\
+EQL & 0 & 36$\pm$3 & 20$\pm$3 & 2$\pm$1 & 0$\pm$0 \\
+RAN & 0 & 8$\pm$2 & 5$\pm$1 & 34$\pm$5 & 0$\pm$0 \\
+PER & 0 & 27$\pm$3 & 16$\pm$3 & 1$\pm$0 & 0$\pm$0 \\
+SHRT & 0 & 227$\pm$15 & 165$\pm$8 & 3$\pm$1 & 3$\pm$22 \\
+TOK & 0 & 42$\pm$3 & 27$\pm$3 & 0$\pm$0 & 0$\pm$0 \\
+SML & 0 & 37$\pm$4 & 21$\pm$3 & 0$\pm$0 & 0$\pm$0 \\
+LAD & 0 & 35$\pm$2 & 20$\pm$3 & 2$\pm$1 & 0$\pm$0 \\
 \bottomrule
-\multicolumn{4}{l}{\footnotesize Missed intra-marginal trades per period.} \\
+\multicolumn{6}{l}{\footnotesize Missed intra-marginal trades per period. ZI = 0 (trades everything); ZIC high in SHRT.} \\
 \end{tabular}
 \end{table}

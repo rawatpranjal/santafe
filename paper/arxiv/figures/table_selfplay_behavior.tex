@@ -1,0 +1,18 @@
+\begin{table}[H]
+\centering
+\caption{Selfplay Behavioral Signatures (All 8 agents same strategy, 5 seeds $\times$ 5 periods)}
+\label{tab:selfplay_behavior}
+\begin{tabular}{lccccccr}
+\toprule
+\textbf{Strategy} & \textbf{Dominant Action} & \textbf{Trade Time} & \textbf{Early\%} & \textbf{PASS\%} & \textbf{SR} & \textbf{PIR} & \textbf{Profit/Trade} \\
+\midrule
+ZI & PASS (88\%) & 8.0 & 100 & 88 & $-$0.41 & 35 & $-$92.3 \\
+ZIC1 & JUMP (45\%) & 23.8 & 75 & 5 & $-$0.12 & 7 & 51.2 \\
+ZIC2 & JUMP (46\%) & 13.4 & 90 & 16 & 0.08 & 18 & 34.7 \\
+ZIP1 & JUMP (57\%) & 4.9 & 100 & 4 & $-$0.15 & 1 & \textbf{64.6} \\
+ZIP2 & PASS (45\%) & 6.2 & 98 & 45 & $-$0.18 & 2 & 62.1 \\
+\bottomrule
+\multicolumn{8}{l}{\footnotesize Trade Time = mean timestep when trades occur (out of 100). Early\% = trades in first 30 steps.} \\
+\multicolumn{8}{l}{\footnotesize SR = Spread Responsiveness. PIR = Price Improvement Rate (\% of quotes crossing spread).} \\
+\end{tabular}
+\end{table}

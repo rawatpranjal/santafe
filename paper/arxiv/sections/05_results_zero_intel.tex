@@ -1,75 +1,96 @@
-We begin our empirical analysis by replicating the foundational zero-intelligence experiments that established how market structure, not agent intelligence, drives allocative efficiency. Following Gode and Sunder (1993), we demonstrate that a simple budget constraint transforms random noise into near-optimal allocation. Following Cliff and Bruten (1997), we show that adaptive learning further improves efficiency. These results validate our market implementation and establish the baseline hierarchy: ZI $<$ ZIC $<$ ZIP.
+To test foundational hypotheses of market behavior, we replicate and extend the classic experiments of Gode and Sunder (1993) and Cliff and Bruten (1997). We deploy a hierarchy of five zero-intelligence (ZI) strategies into the ten diverse market environments of the Santa Fe tournament. This allows us to systematically evaluate the marginal value of specific cognitive abilities, from simple budget-adherence to adaptive learning.
 
-\subsection{Selfplay Results}
+The hierarchy of strategies is as follows:
+\begin{itemize}
+    \item \textbf{ZI (Unconstrained):} Submits bids and asks uniformly at random from the full price range [1, 1000]. This agent acts as a control, representing pure noise trading without economic rationality.
+    \item \textbf{ZIC (Budget-Constrained):} Submits random prices like ZI but is constrained to never make an unprofitable trade. This replicates the core "Zero-Intelligence Constrained" agent from Gode and Sunder (1993).
+    \item \textbf{ZIC2 (Market-Aware):} A ZIC agent that also observes the order book and only submits a random price if it improves the current best bid or ask.
+    \item \textbf{ZIP (Adaptive):} A ZIC-style agent that incorporates a simple learning rule (Widrow-Hoff) to adapt its profit margin based on trading success, as introduced by Cliff and Bruten (1997).
+    \item \textbf{ZIP2 (Adaptive + Market-Aware):} Combines ZIP's adaptive learning with ZIC2's market awareness.
+\end{itemize}
 
-\subsubsection{Baseline Performance}
+\subsection{Revisiting the Gode-Sunder Hypothesis: The Role of Budget Constraints}
+First, we test the Gode and Sunder (1993) hypothesis that allocative efficiency is primarily a feature of the market institution, not the intelligence of its participants. The hypothesis posits that forbidding agents from making unprofitable trades is sufficient to achieve high levels of market efficiency.
 
-Table~\ref{tab:foundational} presents selfplay results across five metrics: allocative efficiency, price volatility, V-inefficiency (missed intra-marginal trades), profit dispersion (cross-agent inequality), and trading activity. Each configuration runs 50 rounds with 10 random seeds for statistical robustness. The results confirm the expected hierarchy: ZIP achieves 99\% efficiency, ZIC achieves 97\%, while unconstrained ZI collapses to 28\%. This dramatic improvement from ZI to ZIC demonstrates Gode and Sunder's central insight: market structure, not agent intelligence, drives efficiency. The budget constraint alone transforms random noise into near-optimal allocation by preventing unprofitable trades.
+\subsubsection{Performance in Non-Strategic Environments}
+We begin by testing the strategies against passive "TruthTeller" sellers who offer tokens at their true cost. This "easy-play" setting isolates the buyers' search problem against non-strategic opponents.
 
-\input{figures/table_foundational}
+The results, presented in Table~\ref{tab:easyplay_full}, are consistent with the Gode-Sunder hypothesis. The unconstrained ZI agent exhibits low allocative efficiency, achieving only 29\% in the BASE environment. Transaction logs (Figure~\ref{fig:easyplay_dynamics}, panel 1) show that ZI's high trade volume (16 trades per period vs. 8 profitable opportunities) is driven by deeply unprofitable, extra-marginal trades that destroy surplus.
 
-Figure~\ref{fig:learning_curves} shows how these performance differences emerge over time. Panel (a) displays efficiency trajectories across 50 rounds. ZI maintains a flat trajectory near 28\%, demonstrating that unconstrained random trading cannot improve through experience. ZIC achieves 97\% efficiency from round one, since the budget constraint provides immediate benefit without requiring learning. ZIP starts at approximately 85\% and converges to 99\% within 15 rounds as its adaptive margins discover optimal pricing. Panel (b) shows the corresponding price convergence: ZIP's prices steadily approach equilibrium while ZI prices remain scattered. This learning dynamic explains why ZIP consistently outperforms ZIC despite both being budget-constrained.
+The addition of a single budget constraint significantly improves market outcomes. The ZIC agent achieves 93--99\% efficiency across all ten environments. As Gode and Sunder found, the institutional rule—not trader savvy—is a principal driver of allocative efficiency. Further additions of intelligence (ZIC2, ZIP) provide only marginal gains in this setting, pushing efficiency to nearly 100\%.
+
+\input{figures/table_easyplay_full}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth]{figures/learning_curves.pdf}
-\caption{Learning curves for zero-intelligence traders. (a) Efficiency over rounds: ZI is flat at 28\%, ZIC achieves 97\% immediately via constraint, ZIP converges from 85\% to 99\% through margin adjustment. (b) Price deviation from equilibrium: ZIP learns to price at P* while ZI prices remain scattered.}
-\label{fig:learning_curves}
+\includegraphics[width=\textwidth]{figures/easyplay_dynamics.pdf}
+\caption{Easy-play market dynamics for five zero-intelligence strategies against passive TruthTeller sellers. ZI produces scattered prices across the full range with many loss-making trades; ZIC constrains trading to profitable prices only; ZIP achieves immediate execution through learning.}
+\label{fig:easyplay_dynamics}
 \end{figure}
 
-\subsubsection{Volatility and Trade-offs}
-
-Price volatility reveals a subtler pattern. ZIC achieves the lowest volatility (8\%) because constrained random pricing converges quickly to equilibrium. ZIP's learning process introduces additional price exploration, resulting in slightly higher volatility (12\%). ZI's unconstrained randomness produces extreme volatility (64\%), with prices scattered across the entire feasible range. This volatility-efficiency trade-off suggests that adaptive learning improves surplus extraction at the cost of price stability.
-
-\subsubsection{V-Inefficiency and Dispersion}
-
-V-inefficiency measures missed profitable trades, that is, tokens that should have traded but did not. Counterintuitively, ZI has zero V-inefficiency because it trades every token (16 trades per period), including unprofitable ones. ZIC and ZIP are selective, executing only 7.5 to 7.9 trades per period, occasionally missing marginal opportunities (V-inefficiency 0.3 to 0.5). This selectivity explains the profit dispersion results: ZI's random trading creates massive inequality (dispersion 713), while ZIC and ZIP's constrained behavior produces more equitable outcomes (dispersion 48 to 65).
-
-\subsection{Results Across Market Environments}
-
-To test robustness, we evaluate all three algorithms across ten distinct market configurations.
-
-\subsubsection{Efficiency}
-
-Table~\ref{tab:efficiency_full} confirms that the hierarchy ZI $<$ ZIC $<$ ZIP holds across nearly all environments. ZIP achieves 99 to 100\% efficiency in standard conditions (BASE, BBBS, BSSS, PER, SHRT, TOK, LAD), while ZIC maintains 96 to 98\%. The symmetric token environment (EQL) represents a trivial case where all agents achieve 100\%: when every token has identical value, any trade is efficient. The random token environment (RAN) proves most challenging: ZI achieves 83\% (its best performance), while ZIP drops to 97\%. Small markets (SML) stress all agents, with even ZIP achieving only 89\%.
+\subsubsection{Performance under Strategic Pressure}
+In a more challenging self-play setting, where all traders employ the same strategy, the budget constraint remains the most critical factor for efficiency. Table~\ref{tab:efficiency_full} shows ZIC's efficiency reaches 91\% in the BASE environment, a 64-point increase from ZI's 27\%. This demonstrates the robustness of the Gode-Sunder finding. Again, ZI's high trading volume (Table~\ref{tab:trades_full}) is shown to be counter-productive, consisting of surplus-destroying transactions, as visualized by the scattered prices in Figure~\ref{fig:selfplay_dynamics}. The results suggest that the most significant leap in market performance comes from the mechanical imposition of budget constraints.
 
 \input{figures/table_efficiency_full}
-
-\subsubsection{Volatility}
-
-Table~\ref{tab:volatility_full} reveals environment-dependent volatility patterns. ZI maintains roughly 50 to 65\% volatility regardless of market structure, as its random pricing ignores all contextual signals. ZIC and ZIP achieve near-zero volatility in EQL (trivial equilibrium) but struggle in RAN (34\% and 53\% respectively) where unpredictable token draws prevent stable price formation. Small markets (SML) also elevate volatility for constrained agents (23 to 36\%), as thin order books amplify price swings.
-
-\input{figures/table_volatility_full}
-
-\subsubsection{V-Inefficiency}
-
-Table~\ref{tab:vineff_full} shows that ZI never misses trades, as it accepts everything, profitable or not. The SHRT environment (20 steps, high time pressure) challenges ZIC severely: V-inefficiency jumps to 2.7 missed trades per period, compared to only 0.6 for ZIP. This reveals ZIC's vulnerability to time constraints, since its random pricing often fails to find acceptable counterparties before the period ends. ZIP's adaptive margins allow faster convergence under pressure.
-
-\input{figures/table_vineff_full}
-
-\subsubsection{Profit Dispersion}
-
-Table~\ref{tab:dispersion_full} measures cross-agent inequality. ZI creates extreme dispersion (300 to 2000 RMS) because random pricing generates arbitrary winners and losers. The EQL environment produces perfect equality for ZIC (dispersion 0) since identical tokens mean identical expected profits. RAN causes high dispersion even for constrained agents (252 to 354) as random token draws create inherent profit variation. Small markets (SML) also elevate dispersion due to reduced averaging across trades.
-
-\input{figures/table_dispersion_full}
-
-\subsubsection{Trading Volume}
-
-Table~\ref{tab:trades_full} shows that ZI trades maximally, executing all 16 tokens in BASE and all 8 in asymmetric markets. ZIC and ZIP are selective, executing roughly half the maximum volume. The EQL environment produces an anomaly: ZIC trades only 0.4 times per period (nearly zero) because identical tokens provide no surplus to extract, while ZIP trades all 16 due to its margin-seeking behavior that pushes transactions regardless of equilibrium structure.
-
 \input{figures/table_trades_full}
 
-\subsubsection{Case Study: Zero Intelligence Dynamics}
-
-Figure~\ref{fig:case_study_zi} illustrates a representative trading period with all three strategy types competing, revealing how the budget constraint and adaptive learning transform market behavior.
-
-\begin{figure}[H]
+\begin{figure}[h]
 \centering
-\includegraphics[width=\textwidth]{figures/case_study_zi.pdf}
-\caption{Zero intelligence case study showing ZI (red), ZIC (gray), and ZIP (blue) competing in a mixed market. Panel A displays the price tunnel with trade markers colored by strategy, zoomed to the active trading window; ZI trades scatter across the price range while ZIC and ZIP cluster near equilibrium. Panel B shows cumulative quote activity (bids and asks submitted), revealing that ZIP quotes more aggressively early in the period while ZI maintains steady random activity. Panel C tracks cumulative profit, demonstrating the hierarchy: ZIP (+1163), ZIC (+569), ZI (-387). The unconstrained ZI agents trade at prices far from equilibrium (e.g., \$575 and \$787), destroying value and accumulating losses, while ZIP's adaptive margins capture systematic profit advantages.}
-\label{fig:case_study_zi}
+\includegraphics[width=\textwidth]{figures/selfplay_dynamics.pdf}
+\caption{Selfplay market dynamics for five zero-intelligence strategies. ZI produces scattered prices across the full range; ZIC constrains trading near equilibrium; ZIP achieves tight convergence through learning.}
+\label{fig:selfplay_dynamics}
 \end{figure}
 
-Panel A reveals the characteristic chaos of unconstrained trading: ZI agents accept prices ranging from \$52 to \$787, with many trades far outside the competitive equilibrium band. The budget constraint eliminates this pathology, as ZIC agents trade only when profitable. ZIP builds on this foundation by actively adjusting margins, capturing advantageous early trades before prices stabilize. Panel B shows the quoting behavior underlying these outcomes: ZIP submits quotes aggressively in early timesteps to capture favorable prices, while ZI maintains steady random activity throughout the period. Panel C quantifies the consequences: ZIP ends the period with +1163 profit, ZIC with +569, while ZI accumulates -387 in losses. This single period visualizes the aggregate statistics from the tables above, showing how market structure, combined with adaptive learning, transforms random noise into profitable trading.
+\subsection{Revisiting the Cliff-Bruten Hypothesis: The Role of Adaptive Intelligence}
+While the budget constraint is sufficient for high allocative efficiency, Cliff and Bruten (1997) argued that intelligence, in the form of adaptive learning, is essential for achieving the price stability and coherence observed in human markets. Our results support a refined version of this hypothesis: intelligence is critical for the *speed and certainty* of convergence, thereby reducing coordination failures.
 
-These foundational results validate our market implementation against established benchmarks. The hierarchy ZI $<$ ZIC $<$ ZIP holds robustly across ten market configurations, providing the baseline against which we evaluate the Santa Fe Tournament algorithms in the following section.
+\subsubsection{Coordination Failures in Non-Adaptive Markets}
+While ZIC is highly efficient, its random-search mechanism is slow and prone to failure under scarcity. This weakness is most apparent in the \textbf{SHRT} environment, where its efficiency drops to 66\% (Table~\ref{tab:efficiency_full}). The V-Inefficiency metric (Table~\ref{tab:vineff_full}), which counts profitable but unexecuted trades, reveals the mechanism: in SHRT, ZIC misses 227 intra-marginal trades per period. This pattern persists in other scarce environments like TOK (42 missed trades) and SML (37 missed trades). Because ZIC agents rely on chance for a bid and ask to cross, their ability to coordinate degrades when opportunities are limited by time or market size.
+
+\subsubsection{Adaptive Learning and Market Coherence}
+Adaptive learning (ZIP) largely resolves this coordination problem. The ZIP strategy achieves nearly 100\% allocative efficiency across all ten environments, with V-Inefficiency scores close to zero universally (Table~\ref{tab:vineff_full}). This is also reflected in the "easy-play" experiments (Table~\ref{tab:easyplay_time}), where ZIP's mean trade time is just 1.0 step, while ZIC's is 1.6-3.1 steps. ZIP does not need to search for the price; it learns it, leading to faster and more certain trade execution.
+
+\subsubsection{Behavioral Signatures and Price Dynamics}
+The behavioral signatures in Table~\ref{tab:selfplay_behavior} show that ZIP is strongly JUMP-dominant (57\%), actively trying to improve the price. Its Price Improvement Rate (PIR) of just 1\% indicates it has learned to avoid submitting bids that will not cross the spread. In a departure from the original Cliff and Bruten (1997) findings, our results show that this superior coordination does not necessarily lead to lower price volatility. In the BASE environment, ZIP's price volatility is 12\%, compared to ZIC's 7\% (Table~\ref{tab:volatility_full}). The primary contribution of adaptive intelligence in our experiments is the near-elimination of coordination failures, ensuring the market clears quickly and completely.
+
+\input{figures/table_vineff_full}
+\input{figures/table_volatility_full}
+\input{figures/table_easyplay_time}
+\input{figures/table_selfplay_behavior}
+
+\subsection{Strategic Interaction in Heterogeneous Markets}
+While self-play experiments establish baselines, placing strategies in a heterogeneous "mixed competition" market—with one buyer and one seller of each constrained type (ZIC, ZIC2, ZIP, ZIP2)—reveals insights into direct strategic interaction.
+
+\subsubsection{The Value of Market Information in Varied Environments}
+Our experiments suggest the value of market awareness is highly context-dependent. Table~\ref{tab:mixed_awareness} shows that ZIC2 (market-aware) outperforms ZIC (unaware) only under specific forms of resource scarcity. In the \textbf{SHRT} environment (scarce time), ZIC2 earns 42\% more profit. In the \textbf{BBBS} environment (scarce sellers), it earns 198\% more. However, in the volatile \textbf{RAN} environment, awareness is a liability, costing ZIC2 28\% of its profits relative to the "blind" ZIC, likely due to agents acting on stale information.
+
+\input{figures/table_mixed_awareness}
+
+\subsubsection{Profit Mechanisms: High-Margin vs. High-Volume Strategies}
+The mixed market also reveals that ZIC and ZIP achieve similar profitability through different mechanisms. In the BASE environment, ZIC and ZIP earn nearly identical total profits (61 and 64, respectively, see Table~\ref{tab:mixed_summary}). However, ZIC achieves the highest profit per trade (39.3) by occasionally capturing large-surplus "windfall" trades. In contrast, ZIP earns less per trade (30.0) but executes a higher volume of transactions. This reveals a classic strategic trade-off between a low-volume, high-margin strategy and a high-volume, consistent-margin strategy.
+
+\subsubsection{The Cost of Heuristic Passivity}
+A seemingly rational heuristic—waiting for a guaranteed price improvement—can be systematically punished. ZIP2, which combines learning with a rule that it must PASS if it cannot improve the current price, performs poorly in direct competition. Its PASS rate of 45\% in self-play is a quantitative signature of this patience. As shown in Table~\ref{tab:mixed_blindness}, this patient agent earns significantly less than its more aggressive ZIP counterpart across all ten environments, with a profit gap of 61\% in BASE. Its passivity causes it to miss trading opportunities captured by more aggressive agents.
+
+\input{figures/table_mixed_summary}
+\input{figures/table_mixed_blindness}
+
+\subsubsection{Market Sophistication and the Distribution of Surplus}
+Finally, our results show a nuanced relationship between market sophistication and economic inequality. By the Gini coefficient, the unconstrained ZI market appears the most "equal" (0.26), while the adaptive ZIP market appears more unequal (0.43) (Table~\ref{tab:inequality}).
+
+However, this metric can be misleading if not contextualized. In the ZI market, the bottom 50\% of traders achieve a negative profit share ($-$15.6\%). The apparent equality is an artifact of widespread surplus destruction. In contrast, in the ZIP market, the bottom 50\% of traders secure a positive profit share of 18\%. The Max/Mean profit ratio also falls from 52x in the ZI market to just 2x in the ZIP market. Sophistication provides a critical welfare floor by preventing the catastrophic losses that characterize the ZI market, leading to a more robust distribution of surplus among participants.
+
+\input{figures/table_inequality}
+
+\subsection{Summary of Findings}
+Our replication and extension of these foundational experiments in the diverse Santa Fe environments lead to four primary conclusions:
+
+\begin{enumerate}
+    \item \textbf{Allocative efficiency is primarily an institutional outcome.} Our results are consistent with the Gode-Sunder hypothesis. The imposition of a simple budget constraint is the single most significant factor in achieving high allocative efficiency, a finding that holds across both simple and complex strategic environments.
+
+    \item \textbf{Adaptive intelligence is essential for market coherence.} Our findings support a refined version of the Cliff-Bruten hypothesis. While not always necessary for high efficiency, adaptive intelligence is critical for the speed and certainty of convergence, allowing agents to overcome the coordination failures that plague non-adaptive strategies in scarce environments.
+
+    \item \textbf{The value of simple heuristics is context-dependent.} In heterogeneous markets, the value of a given heuristic is not universal. The utility of market awareness depends on the market's structure, and seemingly rational "patient" behaviors can be systematically penalized in a competitive ecosystem.
+
+    \item \textbf{Sophistication improves welfare by preventing market failure.} More sophisticated markets may not appear more "equal" by standard distributional metrics. However, they provide a crucial welfare floor by eliminating the catastrophic, surplus-destroying losses that characterize markets populated by unconstrained agents, ensuring a more stable and robust distribution of gains.
+\end{enumerate}

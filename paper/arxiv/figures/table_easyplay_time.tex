@@ -1,0 +1,17 @@
+\begin{table}[h]
+\centering
+\caption{Easy-play mean trade time (steps) across all market environments. Lower values indicate faster search. ZI and ZIP1/ZIP2 execute immediately (1.0 steps) but for opposite reasons: ZI accepts any price indiscriminately, while ZIP learns to target the seller's ask precisely. ZIC1 requires 1.6--3.1 steps because random sampling within budget bounds is a geometric waiting time problem.}
+\label{tab:easyplay_time}
+\small
+\begin{tabular}{lcccccccccc}
+\toprule
+Strategy & BASE & BBBS & BSSS & EQL & RAN & PER & SHRT & TOK & SML & LAD \\
+\midrule
+ZI   & 1.0 & 1.0 & 1.1 & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 & 1.1 & 1.0 \\
+ZIC1 & 1.6 & 1.4 & 2.6 & 2.3 & 1.0 & 1.6 & 1.7 & 3.1 & 2.4 & 1.9 \\
+ZIC2 & 1.2 & 1.2 & 1.4 & 1.2 & 1.0 & 1.5 & 1.2 & 1.3 & 1.3 & 1.2 \\
+ZIP1 & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 \\
+ZIP2 & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 & 1.0 \\
+\bottomrule
+\end{tabular}
+\end{table}

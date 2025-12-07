@@ -1,5 +1,5 @@
 """
-Zero Intelligence Constrained (ZIC) Agent.
+Zero Intelligence Constrained 1 (ZIC1) Agent.
 
 Implements the ZIC strategy from Gode & Sunder (1993).
 This agent submits RANDOM bids/asks within budget constraints only.
@@ -17,28 +17,36 @@ KEY IMPLEMENTATION:
    - Seller: Accept if CurrentBid > TokenCost
 
 The New York Rule (must improve current bid/ask) is enforced by the MARKET,
-not by ZIC. ZIC just submits random prices; invalid ones get rejected.
+not by ZIC1. ZIC1 just submits random prices; invalid ones get rejected.
+
+Hierarchy: ZI → ZIC1 (budget) → ZIC2 (budget + market) → ZIP1 → ZIP2
 
 Reference: Gode & Sunder (1993), "Allocative Efficiency of Markets with
 Zero-Intelligence Traders", Journal of Political Economy, Vol. 101, No. 1
 """
 
+from typing import Any
+
 import numpy as np
-from typing import Any, Optional
+
 from traders.base import Agent
 
-class ZIC(Agent):
+
+class ZIC1(Agent):
     """
-    Zero Intelligence Constrained (ZIC) trader.
-    
+    Zero Intelligence Constrained 1 (ZIC1) trader - budget constraint only.
+
     Strategy:
     - Bid: Random value between [min_price, valuation]
     - Ask: Random value between [cost, max_price]
     - Buy/Sell: Only accept if we are the current winner and spread is crossed.
-    
+
     This agent provides a baseline for market efficiency without intelligence.
+    Does NOT consider current market state (bid/ask) when placing orders.
+
+    Hierarchy: ZI → ZIC1 (budget) → ZIC2 (budget + market) → ZIP1 → ZIP2
     """
-    
+
     def __init__(
         self,
         player_id: int,
@@ -47,12 +55,12 @@ class ZIC(Agent):
         valuations: list[int],
         price_min: int = 0,
         price_max: int = 100,
-        seed: Optional[int] = None,
-        **kwargs: Any
+        seed: int | None = None,
+        **kwargs: Any,
     ) -> None:
         """
         Initialize ZIC agent.
-        
+
         Args:
             player_id: Agent ID
             is_buyer: True for buyer, False for seller
@@ -67,7 +75,7 @@ class ZIC(Agent):
         self.price_min = price_min
         self.price_max = price_max
         self.rng = np.random.default_rng(seed)
-        
+
         # State tracking for buy/sell phase
         self.current_bid = 0
         self.current_ask = 0
@@ -77,7 +85,7 @@ class ZIC(Agent):
 
     def bid_ask(self, time: int, nobidask: int) -> None:
         """
-        Prepare for bid/ask. 
+        Prepare for bid/ask.
         ZIC doesn't need to do anything here as it doesn't track state.
         """
         self.has_responded = False
@@ -98,7 +106,7 @@ class ZIC(Agent):
             return 0
 
         valuation = self.valuations[self.num_trades]
-        
+
         if self.is_buyer:
             # Bid: Random in [min_price, valuation]
             # Java: newbid=token-(int)(drand()*(token-minprice));
@@ -115,7 +123,7 @@ class ZIC(Agent):
             random_offset = int(self.rng.random() * range_size)
             newbid = valuation - random_offset
             return max(self.price_min, newbid)  # Clamp to min
-            
+
         else:
             # Ask: Random in [cost, max_price]
             # Java: newask=token+(int)(drand()*(maxprice-token));
@@ -187,7 +195,11 @@ class ZIC(Agent):
                 return False  # Not profitable
 
             # Only accept if we are the high bidder AND spread is crossed/met
-            if self.player_id == self.current_bidder and self.current_bid > 0 and self.current_bid >= self.current_ask:
+            if (
+                self.player_id == self.current_bidder
+                and self.current_bid > 0
+                and self.current_bid >= self.current_ask
+            ):
                 return True
 
         else:
@@ -197,7 +209,18 @@ class ZIC(Agent):
                 return False  # Not profitable
 
             # Only accept if we are the low asker AND spread is crossed/met
-            if self.player_id == self.current_asker and self.current_ask > 0 and self.current_ask <= self.current_bid:
+            if (
+                self.player_id == self.current_asker
+                and self.current_ask > 0
+                and self.current_ask <= self.current_bid
+            ):
                 return True
 
         return False
+
+
+# ZIC is a proper subclass for correct __name__ attribute
+class ZIC(ZIC1):
+    """ZIC alias with proper class name for tournament tracking."""
+
+    pass

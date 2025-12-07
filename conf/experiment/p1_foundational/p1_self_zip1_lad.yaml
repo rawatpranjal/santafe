@@ -1,0 +1,18 @@
+# @package _global_
+# Part 1: ZIP self-play, LAD environment
+
+experiment:
+  name: "p1_self_zip1_lad"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 2000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 75
+  gametype: 0
+
+agents:
+  buyer_types: ["ZIP", "ZIP", "ZIP", "ZIP"]
+  seller_types: ["ZIP", "ZIP", "ZIP", "ZIP"]
