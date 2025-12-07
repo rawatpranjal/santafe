@@ -6,108 +6,277 @@ All experiments use the 10 Santa Fe environments: BASE, BBBS, BSSS, EQL, RAN, PE
 
 ## Part 1: Foundational Replication (Smith, Gode-Sunder, Cliff-Bruten)
 
-ZI, ZIC, ZIP self-play across all 10 Santa Fe environments.
-
 References: Smith (1962), Gode & Sunder (1993), Cliff & Bruten (1997)
 
-### Experiments (30 total)
-
-| Strategy | Configs | Count |
-|----------|---------|-------|
-| ZI | `p1_self_zi_*.yaml` | 10 |
-| ZIC | `p1_self_zic_*.yaml` | 10 |
-| ZIP | `p1_self_zip_*.yaml` | 10 |
-
-### Configuration
-- 4 tokens per trader
-- 100 steps per period (except SHRT: 20 steps)
-- 10 periods per round
-- Multiple rounds for statistical significance
-
-### Metrics
-- Allocative efficiency (%)
-- Price RMSD from equilibrium
-- Price autocorrelation (lag-1)
-- Trading volume distribution
-- Profit dispersion
-
-### Outputs (In Paper)
-- [x] **table_foundational.tex:** Foundational ZI results ✅
-- [x] **table_efficiency_full.tex:** Full efficiency matrix ✅
-- [x] **table_volatility_full.tex:** Price volatility matrix ✅
-- [x] **table_vineff_full.tex:** V-inefficiency matrix ✅
-- [x] **table_dispersion_full.tex:** Profit dispersion matrix ✅
-- [x] **table_trades_full.tex:** Trades per period matrix ✅
-- [x] **learning_curves.pdf:** ZIP learning convergence ✅
-- [x] **case_study_zi.pdf:** ZI vs ZIC case study ✅
-
-### Additional Generated (Not in Paper)
-- [x] efficiency_by_environment.pdf (grouped bar chart) ✅
-- [x] price_convergence.pdf ✅
-- [x] efficiency_boxplots.pdf ✅
+Total configs: 110 (50 self-play + 50 easy-play + 10 mixed-play)
 
 ---
 
-## Part 2: Santa Fe Tournament Replication (Rust et al. 1994)
+### 1.1 Strategy Descriptions
 
-Strategies: Skeleton, ZIC, ZIP, GD, Kaplan
+Hierarchy: ZI (random) → ZIC1 (budget) → ZIC2 (budget + market) → ZIP1 (adaptive) → ZIP2 (adaptive + market)
 
-Reference: Rust et al. (1994)
+| Strategy | Description |
+|----------|-------------|
+| **ZI** | Pure random bidding [MinPrice, MaxPrice], no budget constraint, accepts losses |
+| **ZIC1** | Random bidding within budget only: buyers ≤ value, sellers ≥ cost (originally ZIC) |
+| **ZIC2** | ZIC1 + market awareness: also constrained by current best bid/ask (originally ZI2) |
+| **ZIP1** | Adaptive profit margins via Widrow-Hoff learning rule (originally ZIP) |
+| **ZIP2** | ZIP1 + ZIC2 market constraints: passes when target price is infeasible |
 
-### Competitor Set 1: Against Control (1 vs 7 ZIC) — 40 configs
+#### ZIP Hyperparameter Tuning (10 seeds × 50 rounds, ZIP1 vs ZIC1)
+
+| Config | β (learning) | γ (momentum) |
+|--------|--------------|--------------|
+| A_high_eff | 0.05 | 0.02 |
+| B_low_vol | 0.005 | 0.10 |
+| C_balanced | 0.02 | 0.03 |
+| D_baseline | 0.01 | 0.008 |
+
+---
+
+### 1.2 Easy-Play Market Metrics (vs TruthTeller)
+
+Goal: Measure search efficiency against naive opponents who ask at true cost.
+
+5 strategies × 10 environments = 50 configs.
 
 | Strategy | Configs |
 |----------|---------|
-| Skeleton | `p2_ctrl_skel_*.yaml` |
-| ZIP | `p2_ctrl_zip_*.yaml` |
-| GD | `p2_ctrl_gd_*.yaml` |
-| Kaplan | `p2_ctrl_kap_*.yaml` |
+| ZI | `p1_easy_zi_*.yaml` |
+| ZIC1 | `p1_easy_zic1_*.yaml` |
+| ZIC2 | `p1_easy_zic2_*.yaml` |
+| ZIP1 | `p1_easy_zip1_*.yaml` |
+| ZIP2 | `p1_easy_zip2_*.yaml` |
 
-### Competitor Set 2: Against Self (Self-Play) — 50 configs
+**Metrics collected:**
+- Allocative Efficiency (%)
+- Mean Trade Time (search speed)
+- Trades per period
+
+**Analysis: "Search Efficiency" Chart**
+- X-Axis: Agent Type (ZI → ZIP2)
+- Y-Axis: Mean timestep of first trade
+- Hypothesis: ZIP2 will "learn" the markup and trade instantly; ZIC1 will miss frequently
+
+---
+
+### 1.3 Self-Play Market Metrics (Homogeneous)
+
+Goal: Replicate Gode/Sunder (efficiency) and Cliff/Bruten (volatility).
+
+5 strategies × 10 environments = 50 configs.
 
 | Strategy | Configs |
 |----------|---------|
-| Skeleton | `p2_self_skel_*.yaml` |
-| ZIC | `p2_self_zic_*.yaml` |
-| ZIP | `p2_self_zip_*.yaml` |
-| GD | `p2_self_gd_*.yaml` |
-| Kaplan | `p2_self_kap_*.yaml` |
+| ZI | `p1_self_zi_*.yaml` |
+| ZIC1 | `p1_self_zic1_*.yaml` |
+| ZIC2 | `p1_self_zic2_*.yaml` |
+| ZIP1 | `p1_self_zip1_*.yaml` |
+| ZIP2 | `p1_self_zip2_*.yaml` |
 
-### Competitor Set 3: Round Robin Tournament (Mixed) — 10 configs
+**Metrics collected:**
+- Allocative Efficiency (%)
+- Price Volatility (%)
+- V-Inefficiency (missed trades)
+- Profit Dispersion (RMS)
+- Smith's Alpha (price convergence)
+- RMSD from equilibrium
+- Trades per period
 
-`p2_rr_mixed_*.yaml` — Randomly sampled heterogeneous markets
+**Analysis: "Intelligence Ladder" Plot**
+- X-Axis: Agent Type (ZI → ZIP2)
+- Y-Axis: Price Volatility (StdDev of Price)
+- Hypothesis: Should show steep decline. Proves intelligence stabilizes markets.
 
-### Configuration
-- 4 buyers, 4 sellers (except environment-specific)
-- 4 tokens per trader
-- 100 steps per period
-- 10 periods per round
+**Analysis: "Gode-Sunder" Table**
+- Compare Efficiency across Envs for ZIC1 vs ZIP2
+- If ZIC1 ≈ ZIP2, Gode/Sunder were right (Institution matters most)
 
-### Metrics
-- Allocative efficiency (%)
-- Individual trader efficiency ratios
-- Price autocorrelation (lag-1)
-- Trading volume by period percentage
-- Bid-ask spread evolution
-- Profit rankings
+---
+
+### 1.4 Mixed-Play Competition (Shark Tank)
+
+Goal: Direct competition. Who extracts surplus from whom?
+
+Setup: 4v4 heterogeneous all-vs-all competition (no ZI - suicide trader distorts analysis).
+
+1 setup × 10 environments = 10 configs: `p1_mixed_*.yaml`
+
+**Buyer lineup (1 each):**
+- ZIC1: Baseline constraint ("Dummy")
+- ZIC2: Market-aware ("Smart Random")
+- ZIP1: Naive adaptive ("Impatient Learner")
+- ZIP2: Smart adaptive ("Patient Learner")
+
+**Seller lineup (1 each):** ZIC1, ZIC2, ZIP1, ZIP2
+
+**Metrics:** Avg Rank, Avg Profit, Win Rate, Profit/Trade
+
+**Analysis: "Institutional Blindness" Gap**
+- Metric: Profit_ZIP2 - Profit_ZIP1
+- If Positive: Proves understanding the "Hold" rule (King of the Hill) is worth money
+
+**Analysis: "Market Awareness" Gap**
+- Metric: Profit_ZIC2 - Profit_ZIC1
+- If Positive: Proves market awareness beats blind constraints
+
+---
+
+### 1.5 Replication Validation
+
+Compare our results against published benchmarks.
+
+| Paper | Their Result | Our Comparison |
+|-------|--------------|----------------|
+| Gode-Sunder (1993) | ZIC: 98.7% efficiency | ZIC1: 91-99% |
+| Cliff-Bruten (1997) | ZIC fails in asymmetric markets | ZIC1: 66% (SHRT) |
+| Cliff-Bruten (1997) | ZIP restores convergence | ZIP1: 99%+ all envs |
+
+---
+
+### 1.6 Strategy Hierarchy
+
+Ranking across three dimensions: efficiency, profit dispersion, robustness.
+
+| Dimension | Ranking |
+|-----------|---------|
+| Efficiency | ZIP1 = ZIP2 > ZIC2 > ZIC1 >> ZI |
+| Profit Dispersion | ZIC1 = ZIC2 < ZIP1 < ZIP2 << ZI |
+| Robustness | ZIP1 = ZIP2 >> ZIC2 > ZIC1 = ZI |
+
+---
+
+### 1.7 Behavioral Analysis
+
+Characterizes how each strategy behaves (actions, timing) rather than just outcomes.
+
+#### 1.7.1 Self-Play Behavior
+All 8 agents same strategy. 5 seeds × 5 periods.
+
+**Metrics:** Dominant Action, Mean Trade Time, Early%, PASS%, SR, PIR, Profit/Trade
+
+#### 1.7.2 Zero-Play Behavior (Focal Agent)
+1 focal buyer vs 7 ZIC1. 5 seeds × 5 periods.
+
+**Metrics:** Same as 1.7.1
+
+---
+
+### 1.8 Inequality Metrics
+
+Measures profit distribution across traders.
+
+**Config:** Self-play, 8 agents same strategy. 3 seeds × 10 rounds × 10 periods. BASE environment.
+
+**Metrics:** Gini, Max/Mean Ratio, Bottom-50% Share, Skewness
+
+---
+
+### 1.9 Deep RL vs Zero-Intelligence
+
+Can PPO exceed ZIP1?
+
+**Config:** BASE environment, 4 buyers (ZI, ZIC1, ZIP1, PPO) vs 4 sellers (ZI, ZIC1, ZIP1, ZIC1). 10 seeds × 50 rounds × 10 periods.
+
+**Model:** `checkpoints/ppo_vs_zi_mix/final_model.zip`
+
+---
 
 ### Outputs (In Paper)
-- [x] **table_control.tex:** Against Control results ✅
-- [x] **table_control_volatility.tex:** Control price volatility ✅
-- [x] **table_invasibility.tex:** Invasibility ratios ✅
-- [x] **table_selfplay.tex:** Self-play efficiency ✅
-- [x] **table_selfplay_volatility.tex:** Self-play volatility ✅
-- [x] **table_selfplay_vineff.tex:** Self-play V-inefficiency ✅
-- [x] **table_pairwise.tex:** Pairwise matchups ✅
-- [x] **table_zip_tuning.tex:** ZIP hyperparameter sensitivity ✅
-- [x] **table_profit_analysis.tex:** ZIP vs ZIC profit analysis ✅
-- [x] **table_roundrobin.tex:** Round Robin full results ✅
-- [x] **table_roundrobin_summary.tex:** Round Robin summary ✅
-- [x] **kaplan_mixed_vs_pure.pdf:** Kaplan mixed vs pure markets ✅
-- [x] **price_autocorrelation.pdf:** Price autocorrelation by trader ✅
-- [x] **case_study_mixed.pdf:** Mixed market case study ✅
-- [x] **trading_volume_timing.pdf:** Trading volume by period ✅
-- [x] **trader_hierarchy.pdf:** Trader strategy hierarchy ✅
+
+| Output | Description |
+|--------|-------------|
+| table_easyplay.tex | Easy-play efficiency and search time |
+| table_foundational.tex | Baseline efficiency in BASE |
+| table_efficiency_full.tex | Efficiency across 10 environments |
+| table_volatility_full.tex | Price volatility matrix |
+| table_vineff_full.tex | V-inefficiency matrix |
+| table_dispersion_full.tex | Profit dispersion matrix |
+| table_trades_full.tex | Trades per period matrix |
+| table_selfplay_behavior.tex | Behavioral signatures |
+| table_inequality.tex | Gini and distributional metrics |
+| table_mixed_competition.tex | Mixed competition results |
+| selfplay_dynamics.pdf | Selfplay market dynamics figure |
+| mixed_case_studies.pdf | Mixed competition case studies |
+| intelligence_ladder.pdf | Volatility by agent type |
+| search_efficiency.pdf | Mean trade time by agent type |
+
+### Additional Generated (Not in Paper)
+
+- learning_curves.pdf
+- case_study_zi.pdf
+- efficiency_by_environment.pdf
+- price_convergence.pdf
+- efficiency_boxplots.pdf
+
+---
+
+## Part 2: Ecological Analysis of Heuristic-Based Trading Strategies (Section 6)
+
+**Objective:** To replicate the Santa Fe tournament, analyzing the ecological dynamics of key trading heuristics to address foundational questions from the literature (Rust et al. 1994, Chen & Tai 2010).
+
+**Research Questions:**
+1.  Why do simple "sniper" heuristics (Kaplan, Ringuette) outperform more complex strategies?
+2.  Can the "Sniper's Dilemma" (market failure in homogeneous sniper populations) be experimentally induced?
+3.  Is there a "penalty for adaptivity," where general learners (ZIP) are out-competed by specialized heuristics?
+4.  What is the relationship between agent complexity and ecological fitness (e.g., Skeleton vs. GD/EL)?
+
+---
+
+### 2.1 Agent Roster
+
+A representative agent from each major strategic category will be included:
+- **Baseline:** `ZIC`
+- **Simple/Fixed Heuristic:** `Skeleton`
+- **Adaptive Learner:** `ZIP`
+- **Parasitic Snipers:** `Kaplan`, `Ringuette`
+- **Belief-Based Model:** `GD`
+- **Reservation Price Model:** `EL`
+
+*(Note: GD/EL may be excluded from final analysis if computationally prohibitive.)*
+
+---
+
+### 2.2 Experimental Design
+
+Four experimental setups will be used across all 10 Santa Fe environments.
+
+#### 2.2.1 Experiment 1: Invasibility Against Control (1 vs. 7 ZIC)
+- **Goal:** Measure raw exploitative power.
+- **Setup:** 1 challenger agent vs. 7 `ZIC` agents.
+- **Primary Metric:** Profit Ratio (Challenger Profit / Mean ZIC Profit).
+
+#### 2.2.2 Experiment 2: Homogeneous Self-Play (8x Same Agent)
+- **Goal:** Test for collective stability and coordination failures.
+- **Setup:** 8 identical agents.
+- **Primary Metrics:** Allocative Efficiency (%), V-Inefficiency (missed trades), especially in `SHRT` and `RAN` environments.
+
+#### 2.2.3 Experiment 3: Heterogeneous Round-Robin Tournament
+- **Goal:** Measure overall ecological fitness and robustness in a static mixed population.
+- **Setup:** A mixed market containing a representative sample of all agent types.
+- **Primary Metrics:** Overall Profit Ranking, Average Rank per environment, Win Rate (%).
+
+#### 2.2.4 Experiment 4: Evolutionary Tournament
+- **Goal:** To identify Evolutionarily Stable Strategies (ESS) by simulating a dynamic population over multiple generations.
+- **Setup:**
+    - **Initial Population:** Start with an equal number of each agent type.
+    - **Generations:** A generation consists of a full round-robin tournament across all 10 environments.
+    - **Selection:** After each generation, an agent's share of the total profit determines its population share in the next generation. Poorly performing strategies will be eliminated over time.
+    - **Mutation:** A small probability of randomly re-introducing an agent type into the population each generation to ensure diversity.
+- **Primary Metrics:** Population Share of each strategy vs. Generation number.
+
+---
+
+### 2.3 Planned Outputs and Narrative Links
+
+| Research Question | Primary Evidence Source (Planned Output) |
+| :--- | :--- |
+| **1. Why do snipers dominate?** | `table_s6_roundrobin_summary.tex` (shows they win) + `table_s6_invasibility.tex` (shows *how* they win via exploitation). |
+| **2. Is the "Sniper's Dilemma" real?**| `table_s6_selfplay_efficiency.tex` (shows efficiency collapse for `Kaplan`/`Ringuette` in `SHRT`). |
+| **3. Is adaptivity punished?** | Contrast `ZIP`'s robust self-play from Part 1 with its middling rank in `table_s6_roundrobin_summary.tex`. |
+| **4. Is complexity worth it?**| Compare ranks of `Skeleton`, `GD`, and `EL` in `table_s6_roundrobin_summary.tex` to analyze the performance-complexity trade-off. |
+| **5. What is the ESS?** | `figure_s6_evolutionary_dynamics.pdf` (shows which strategies survive and dominate over many generations). |
 
 ---
 
@@ -115,50 +284,60 @@ Reference: Rust et al. (1994)
 
 Reference: Chen et al. (2010)
 
-### Training Curriculum — 3 configs
+**Objective:** Evaluate PPO reinforcement learning in the double auction, progressing from simple to complex environments.
 
-| Training | Config |
-|----------|--------|
-| vs ZIC | `p3_train_zic.yaml` |
-| vs Skeleton | `p3_train_skel.yaml` |
-| vs Mixed | `p3_train_mixed.yaml` |
+### Phase 1: Foundational Capabilities
 
-### Competitor Set 1: Against Control (PPO vs 7 ZIC) — 10 configs
+#### 1.1 Control Experiment (Invasibility)
+- **Setup:** 1 PPO vs 7 ZIC
+- **Hypothesis H2 (Exploitation):** PPO can exploit naive opponents, capturing majority of surplus
+- **Configs:** `p3_ctrl_ppo_*.yaml` (10 environments)
+- **Metrics:** Profit ratio (PPO/ZIC), market efficiency, invasibility
 
-`p3_ctrl_ppo_*.yaml`
+#### 1.2 Easy-Play (Buyer Specialist)
+- **Setup:** 1 PPO buyer vs TruthTeller sellers
+- **Hypothesis H2 variant:** PPO learns surplus extraction without strategic counter-play
+- **Configs:** `p3_easy_ppo_*.yaml` (10 environments)
+- **Metrics:** Profit/trade, mean trade time, early trade %
 
-### Competitor Set 2: Against Self (PPO Self-Play) — 10 configs
+#### 1.3 Mixed-ZI Competition (vs Set 1)
+- **Setup:** 1 PPO vs ZI/ZIC/ZIP mix
+- **Hypothesis H3 (Superior Adaptability):** PPO outperforms heuristic-based ZIP
+- **Configs:** `p3_mixed_zi_*.yaml` (10 environments)
+- **Metrics:** Profit rank among ZI hierarchy
 
-`p3_self_ppo_*.yaml`
+### Phase 2: The Crucible (Advanced Competition)
 
-### Competitor Set 3: Round Robin Tournament (PPO in Mixed) — 10 configs
+#### 2.1 Santa Fe Tournament (vs Set 2)
+- **Setup:** 1 PPO vs Kaplan/GD/Skeleton/Ringuette/EL
+- **Hypothesis H4 (Emergent Dominance):** PPO beats human-designed heuristics through trial-and-error
+- **Configs:** `p3_rr_ppo_*.yaml` (10 environments)
+- **Metrics:** Profit rank, beat Kaplan?, behavioral signature (mean trade time, PASS%)
 
-`p3_rr_ppo_*.yaml`
+#### 2.2 Self-Play (Stability Test)
+- **Setup:** 8 identical PPO agents
+- **Hypothesis H1 (Stability):** PPO avoids "Sniper's Dilemma" (market collapse observed in Kaplan self-play)
+- **Configs:** `p3_self_ppo_*.yaml` (10 environments)
+- **Metrics:** Efficiency, V-inefficiency, trades/period, price convergence
+
+### Phase 3: Synthesis
+- [ ] Document quantitative results in results.md
+- [ ] Update paper (07_results_rl.tex)
+- [ ] Finalize status
 
 ### Configuration
 - 7,000 trading periods (Chen protocol)
 - 25 steps per period
 - 4 tokens per trader
 
-### Metrics
-- PPO efficiency ratio
-- Opponent efficiency ratio
-- Market efficiency
-- PPO profit rank
-- Training curves
-
 ### Outputs (In Paper)
-- [x] **table_ppo_control.tex:** PPO vs 7 ZIC control results ✅
-- [x] **table_ppo_control_volatility.tex:** PPO control volatility ✅
-- [x] **table_ppo_invasibility.tex:** PPO invasibility ratios ✅
-- [x] **table_ppo_pairwise.tex:** PPO pairwise tournament results ✅
-- [x] **ppo_zi_combined.pdf:** PPO vs ZI/ZIC/ZIP metrics ✅
-- [x] **ppo_tournament_bar.pdf:** PPO tournament ranking bar ✅
-- [x] **ppo_learning_curve.pdf:** PPO training learning curve ✅
-
-### Additional Generated (Not in Paper)
-- [x] ppo_training_curves.pdf ✅
-- [x] ppo_vs_legacy.pdf ✅
+- [ ] table_ppo_control.tex: Control/invasibility results
+- [ ] table_ppo_easyplay.tex: Easy-play results
+- [ ] table_ppo_mixed_zi.tex: vs ZI hierarchy
+- [ ] table_ppo_santafe.tex: vs Santa Fe traders
+- [ ] table_ppo_selfplay.tex: Self-play stability
+- [ ] figure_ppo_learning_curve.pdf: Training dynamics
+- [ ] figure_ppo_behavior.pdf: Behavioral signatures (vs Kaplan)
 
 ---
 
@@ -239,11 +418,11 @@ LLM treated as another AI agent type (zero-shot, no training).
 **Tables:** table_control, table_control_volatility, table_invasibility, table_selfplay, table_selfplay_volatility, table_selfplay_vineff, table_pairwise, table_zip_tuning, table_profit_analysis, table_roundrobin, table_roundrobin_summary ✅
 **Figures:** kaplan_mixed_vs_pure.pdf, price_autocorrelation.pdf, case_study_mixed.pdf, trading_volume_timing.pdf, trader_hierarchy.pdf ✅
 
-### Section 7: PPO RL (Part 3) - COMPLETE
+### Section 7: PPO RL (Part 3) - OPEN
 **Tables:** table_ppo_control, table_ppo_control_volatility, table_ppo_invasibility, table_ppo_pairwise ✅
 **Figures:** ppo_zi_combined.pdf, ppo_tournament_bar.pdf, ppo_learning_curve.pdf ✅
 
-### Section 8: LLM (Part 4) - MINIMAL
+### Section 8: LLM (Part 4) - OPEN
 **Tables:** table_llm_performance ✅
 **Figures:** None
 

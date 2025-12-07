@@ -1,0 +1,19 @@
+# @package _global_
+# Part 3: PPO Easy-Play, LAD environment (Ladder valuations)
+# H2 variant: PPO learns surplus extraction against non-strategic sellers
+
+experiment:
+  name: "p3_easy_ppo_lad"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 2000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 75
+  gametype: 0
+
+agents:
+  buyer_types: ["PPO", "PPO", "PPO", "PPO"]
+  seller_types: ["TruthTeller", "TruthTeller", "TruthTeller", "TruthTeller"]

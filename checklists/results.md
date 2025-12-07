@@ -21,59 +21,406 @@ This document tracks experimental results as experiments complete. Structure mir
 
 ---
 
+## Metric Definitions
+
+### Market-Level Metrics
+
+| Metric | Definition | Interpretation |
+|--------|------------|----------------|
+| **Allocative Efficiency** | (Actual Surplus / Maximum Surplus) × 100 | Higher = better. 100% = all gains from trade captured |
+| **Price Volatility** | Std deviation of trade prices / Mean price × 100 | Lower = more stable prices |
+| **V-Inefficiency** | Count of intra-marginal tokens that failed to trade | Lower = better. 0 = all profitable trades executed |
+| **Profit Dispersion** | RMS of per-agent profit deviations from mean | Lower = more equitable outcomes |
+| **Smith's Alpha (α)** | 100 × σ₀ / P* where σ₀ = std of trade prices | Lower = better price convergence |
+| **RMSD** | sqrt(mean((p_t - P*)²)) | Lower = prices closer to equilibrium |
+| **Trades/Period** | Average number of trades per period | Context-dependent |
+
+### Individual Performance Metrics
+
+| Metric | Definition | Interpretation |
+|--------|------------|----------------|
+| **Avg Rank** | Mean rank among competing buyers (1=best) | Lower = better competitive performance |
+| **Avg Profit** | Mean profit per period | Higher = better |
+| **Win Rate** | Fraction of periods with highest profit | Higher = more consistent dominance |
+| **IER** | Individual Efficiency Ratio = Actual Profit / Equilibrium Profit | 1.0 = fair share, >1 = exploiter, <1 = exploited |
+
+### Behavioral Metrics
+
+| Metric | Definition | Interpretation |
+|--------|------------|----------------|
+| **Dominant Action** | Most frequent action type (PASS/SHADE/ACCEPT/JUMP) | Characterizes strategy style |
+| **Mean Trade Time** | Average timestep when trades occur (out of 100) | Early (<30) = aggressive, Late (>70) = patient |
+| **Early%** | Percentage of trades in first 30 steps | Higher = more aggressive timing |
+| **PASS%** | Percentage of steps with no action | Higher = more patient/selective |
+| **SR** | Spread Responsiveness = Corr(spread, bid_activity) | SR < -0.5 = strategic, SR ≈ 0 = random |
+| **PIR** | Price Improvement Rate = % of quotes crossing spread | Lower = more efficient pricing |
+| **Profit/Trade** | Average profit per completed trade | Higher = better per-trade extraction |
+
+### Inequality Metrics
+
+| Metric | Definition | Interpretation |
+|--------|------------|----------------|
+| **Gini Coefficient** | Σᵢ Σⱼ |πᵢ - πⱼ| / (2n² μ) | 0 = equality, 1 = one takes all |
+| **Profit Skewness** | E[(π - μ)³] / σ³ | >0 = superstars, <0 = left-skewed |
+| **Max/Mean Ratio** | max(πᵢ) / μ | >2 indicates superstar effect |
+| **Top-1 Share** | max(πᵢ) / Σπᵢ | Share captured by best trader |
+| **Top-2 Share** | (π₁ + π₂) / Σπᵢ | Share captured by top 2 |
+| **Bottom-50% Share** | Σ(bottom half) / Σπᵢ | <0.25 = high inequality |
+
+---
+
 ## Part 1: Foundational Replication
 
 > References: Smith (1962), Gode & Sunder (1993), Cliff & Bruten (1997)
 
-### Configuration
+Part 1 establishes baseline results using zero-intelligence traders from the foundational literature. These traders represent increasing levels of sophistication.
+
+### 1.1 Strategy Descriptions
+
+Hierarchy: ZI (random) → ZIC1 (budget) → ZIC2 (budget + market) → ZIP1 (adaptive) → ZIP2 (adaptive + market)
+
+**ZI (Zero Intelligence Unconstrained)**: Pure random bidding with no budget constraints. Bids uniformly from [MinPrice, MaxPrice] regardless of token value. Will accept trades at a loss.
+
+**ZIC1 (Zero Intelligence Constrained 1)**: Random bidding within budget constraints only. Buyers bid from [MinPrice, TokenValue], sellers ask from [TokenCost, MaxPrice]. Ignores market state entirely. Originally called ZIC in the literature.
+
+**ZIC2 (Zero Intelligence Constrained 2)**: Enhanced ZIC1 that incorporates current market state. Bids constrained by both budget AND current bid/ask prices. Still random but more narrowly targeted. Placed 2nd in the 1993 Santa Fe tournament. Originally called ZI2 in the Java codebase.
+
+**ZIP1 (Zero-Intelligence Plus 1)**: The only adaptive trader in Part 1. Uses the Widrow-Hoff delta rule to learn optimal profit margins from market feedback. The margin mu adapts based on whether quotes are accepted: if competitive, margin increases (more aggressive); if outcompeted, margin decreases (more conservative). Core update: Delta = beta * (target - price), Gamma = gamma * Gamma + (1-gamma) * Delta. Originally called ZIP in the literature.
+
+**ZIP2 (Zero-Intelligence Plus 2)**: ZIP1 with ZIC2-style market constraints. Combines ZIP1's learned margins with ZIC2's market-awareness. When the learned target price falls outside valid market bounds (below current_bid+1 for buyers, above current_ask-1 for sellers), ZIP2 passes instead of submitting a suboptimal quote. This creates patient behavior where the agent waits for favorable market conditions rather than always bidding.
+
+#### ZIP Hyperparameter Tuning
+
+*Mean ± std over 10 seeds, 50 rounds each, ZIP vs ZIC, BASE environment*
+
+| Config | β (learning) | γ (momentum) | Efficiency | Volatility |
+|--------|--------------|--------------|------------|------------|
+| A_high_eff | 0.05 | 0.02 | 98.9±0.2% | 39.7% |
+| B_low_vol | 0.005 | 0.10 | 98.9±0.3% | 39.6% |
+| C_balanced | 0.02 | 0.03 | 98.9±0.2% | 39.7% |
+| D_baseline | 0.01 | 0.008 | 98.9±0.2% | 39.6% |
+
+### 1.2 Configuration
 - 4 tokens per trader
 - 100 steps per period (except SHRT: 20 steps)
 - 10 periods per round
 - Multiple rounds for statistical significance
 
-### Table 1.1: Efficiency (%)
+### 1.3 Easy-Play (vs TruthTeller)
 
-*Mean ± std over 10 seeds, 50 rounds each*
+Buyers vs TruthTeller sellers (ask at true cost). Measures search efficiency against naive opponents.
 
-| Trader | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
-|--------|------|------|------|-----|-----|-----|------|-----|-----|-----|
-| **ZI** | 28±3 | 55±3 | 53±4 | 100±0 | 83±1 | 28±3 | 29±3 | 94±1 | 16±2 | 28±3 |
-| **ZIC** | 98±1 | 97±1 | 97±1 | 100±0 | 100±0 | 98±0 | 79±2 | 96±1 | 88±2 | 98±1 |
-| **ZIP** | 99±0 | 99±0 | 100±0 | 100±0 | 97±0 | 100±0 | 99±0 | 100±1 | 89±2 | 99±0 |
+*5 strategies × 10 environments = 50 configs. 10 seeds, 100 rounds each.*
 
-### Table 1.2: Price Volatility (%)
+#### Table 1.3.1: Allocative Efficiency (%)
 
 | Trader | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
 |--------|------|------|------|-----|-----|-----|------|-----|-----|-----|
-| **ZI** | 64±1 | 51±1 | 79±1 | 64±1 | 64±1 | 65±2 | 65±0 | 56±1 | 57±0 | 64±1 |
-| **ZIC** | 8±0 | 7±0 | 8±1 | 0±0 | 34±1 | 8±1 | 8±0 | 2±0 | 23±2 | 8±0 |
-| **ZIP** | 12±1 | 11±0 | 12±1 | 0±0 | 53±1 | 13±1 | 12±1 | 4±1 | 36±3 | 12±1 |
+| **ZI** | 29 | 52 | 67 | 25 | 11 | 29 | 29 | 95 | 27 | 25 |
+| **ZIC1** | 99 | 96 | 99 | 97 | 99 | 98 | 94 | 93 | 98 | 97 |
+| **ZIC2** | 100 | 99 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
+| **ZIP1** | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
+| **ZIP2** | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
 
-### Table 1.3: V-Inefficiency (missed trades)
+#### Table 1.3.2: Mean Trade Time (steps)
+
+*Lower = faster search. Measures how quickly agents find trades against passive sellers.*
+
+| Trader | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
+|--------|------|------|------|-----|-----|-----|------|-----|-----|-----|
+| **ZI** | 1.0 | 1.0 | 1.1 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.1 | 1.0 |
+| **ZIC1** | 1.6 | 1.4 | 2.6 | 2.3 | 1.0 | 1.6 | 1.7 | 3.1 | 2.4 | 1.9 |
+| **ZIC2** | 1.2 | 1.2 | 1.4 | 1.2 | 1.0 | 1.5 | 1.2 | 1.3 | 1.3 | 1.2 |
+| **ZIP1** | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |
+| **ZIP2** | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 |
+
+#### Table 1.3.3: Trades per Period
+
+| Trader | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
+|--------|------|------|------|-----|-----|-----|------|-----|-----|-----|
+| **ZI** | 16.0 | 8.0 | 8.0 | 16.0 | 16.0 | 16.0 | 16.0 | 4.0 | 8.0 | 16.0 |
+| **ZIC1** | 8.2 | 6.0 | 5.6 | 7.6 | 7.8 | 8.2 | 7.3 | 1.6 | 3.8 | 7.6 |
+| **ZIC2** | 8.3 | 6.0 | 5.9 | 7.7 | 7.7 | 8.3 | 8.3 | 1.9 | 4.0 | 7.7 |
+| **ZIP1** | 8.0 | 5.8 | 5.9 | 7.5 | 7.5 | 8.1 | 8.1 | 1.9 | 4.0 | 7.5 |
+| **ZIP2** | 8.2 | 5.9 | 5.9 | 7.7 | 7.6 | 8.2 | 8.2 | 1.9 | 4.0 | 7.7 |
+
+**Raw Data:**
+- Event logs: `logs/p1_foundational/p1_easy_{strategy}_{env}_events.jsonl`
+- Aggregated metrics: `results/p1_easy_metrics.json`
+- Configs: `conf/experiment/p1_foundational/p1_easy_*.yaml`
+- Analysis script: `scripts/analyze_p1_easy.py`
+
+**Curated Trading Logs (BASE, 3 periods):**
+[ZI](../logs/curated/easy_zi_base.md) | [ZIC1](../logs/curated/easy_zic1_base.md) | [ZIC2](../logs/curated/easy_zic2_base.md) | [ZIP1](../logs/curated/easy_zip1_base.md) | [ZIP2](../logs/curated/easy_zip2_base.md)
+
+#### Behavioral Analysis (Easy-Play)
+
+*1 focal buyer (strategy) vs 7 TruthTeller sellers. Metrics for focal agent. 5 seeds x 5 periods.*
+
+| Strategy | Dominant Action | Mean Trade Time | Early% | PASS% | SR | PIR | Profit/Trade |
+|----------|-----------------|-----------------|--------|-------|----|-----|--------------|
+| ZI | PASS (90%) | 6.1 | 100% | 90% | 0.27 | 47% | -158.1 |
+| ZIC1 | JUMP (54%) | 16.0 | 85% | 0% | 0.00 | 5% | 57.3 |
+| ZIC2 | PASS (42%) | 9.4 | 95% | 42% | -0.08 | 25% | 46.5 |
+| ZIP1 | JUMP (42%) | 10.8 | 89% | 15% | -0.06 | 1% | 38.6 |
+| ZIP2 | PASS (48%) | 11.2 | 87% | 48% | -0.12 | 2% | 41.2 |
+
+### 1.4 Self-Play (Homogeneous Markets)
+
+All 8 traders use the same strategy. Measures market-level outcomes (efficiency, volatility, coordination failures) across 10 environments.
+
+#### Table 1.4.1: Allocative Efficiency (%)
+
+*Mean ± std over 10 seeds, 100 rounds each*
+
+| Trader | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
+|--------|------|------|------|-----|-----|-----|------|-----|-----|-----|
+| **ZI** | 27±2 | 53±2 | 53±2 | 29±4 | 13±1 | 27±2 | 27±2 | 94±2 | 29±3 | 29±4 |
+| **ZIC1** | 91±2 | 83±2 | 88±1 | 92±1 | 99±0 | 91±2 | 66±2 | 75±3 | 87±1 | 92±1 |
+| **ZIC2** | 95±1 | 88±2 | 92±1 | 95±1 | 99±0 | 94±2 | 76±2 | 81±3 | 91±1 | 95±1 |
+| **ZIP1** | 100±0 | 100±0 | 100±0 | 100±0 | 100±0 | 100±0 | 100±0 | 100±0 | 100±0 | 100±0 |
+| **ZIP2** | 100±0 | 100±0 | 100±0 | 100±2 | 100±0 | 100±0 | 100±1 | 100±0 | 100±0 | 100±2 |
+
+#### Table 1.4.2: Price Volatility (%)
+
+| Trader | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
+|--------|------|------|------|-----|-----|-----|------|-----|-----|-----|
+| **ZI** | 65±1 | 51±1 | 79±1 | 65±1 | 65±1 | 65±1 | 65±1 | 57±1 | 56±1 | 65±1 |
+| **ZIC1** | 7±1 | 6±0 | 8±1 | 7±1 | 31±1 | 7±1 | 7±1 | 2±0 | 6±1 | 7±1 |
+| **ZIC2** | 8±1 | 7±1 | 9±1 | 8±1 | 33±1 | 8±1 | 8±1 | 2±0 | 7±1 | 8±1 |
+| **ZIP1** | 12±1 | 11±1 | 12±1 | 11±1 | 54±1 | 12±1 | 12±1 | 4±1 | 11±1 | 12±1 |
+| **ZIP2** | 14±12 | 13±11 | 15±14 | 12±8 | 55±17 | 14±12 | 14±12 | 4±8 | 12±10 | 12±8 |
+
+#### Table 1.4.3: V-Inefficiency (missed trades)
 
 | Trader | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
 |--------|------|------|------|-----|-----|-----|------|-----|-----|-----|
 | **ZI** | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |
-| **ZIC** | 0.3 | 0.1 | 0.2 | 0.0 | 0.0 | 0.3 | 2.7 | 0.1 | 0.6 | 0.3 |
-| **ZIP** | 0.5 | 0.4 | 0.3 | 0.0 | 1.6 | 0.2 | 0.6 | 0.0 | 1.0 | 0.5 |
+| **ZIC1** | 30±3 | 61±4 | 26±3 | 36±3 | 8±2 | 27±3 | 227±15 | 42±3 | 37±4 | 35±2 |
+| **ZIC2** | 16±2 | 47±4 | 8±1 | 20±3 | 5±1 | 16±3 | 165±8 | 27±3 | 21±3 | 20±3 |
+| **ZIP1** | 3±1 | 1±0 | 1±0 | 2±1 | 34±5 | 1±0 | 3±1 | 0±0 | 0±0 | 2±1 |
+| **ZIP2** | 0±0 | 0±0 | 0±0 | 0±0 | 0±0 | 0±0 | 3±22 | 0±0 | 0±0 | 0±0 |
 
-### Table 1.4: Profit Dispersion (RMS)
+#### Table 1.4.4: Profit Dispersion (RMS)
 
-| Trader | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
-|--------|------|------|------|-----|-----|-----|------|-----|-----|-----|
-| **ZI** | 713 | 442 | 452 | 2084 | 577 | 709 | 710 | 306 | 1823 | 713 |
-| **ZIC** | 48 | 41 | 41 | 0 | 252 | 47 | 68 | 16 | 530 | 48 |
-| **ZIP** | 65 | 52 | 53 | 4 | 354 | 70 | 64 | 17 | 505 | 65 |
-
-### Table 1.5: Trades/Period
+*Lower is better.*
 
 | Trader | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
 |--------|------|------|------|-----|-----|-----|------|-----|-----|-----|
-| **ZI** | 16.0 | 8.0 | 8.0 | 16.0 | 16.0 | 16.0 | 15.9 | 4.0 | 8.0 | 16.0 |
-| **ZIC** | 7.9 | 5.9 | 5.7 | 0.4 | 11.7 | 7.9 | 5.4 | 2.0 | 3.4 | 7.9 |
-| **ZIP** | 7.5 | 5.6 | 5.5 | 16.0 | 9.9 | 7.8 | 7.5 | 2.1 | 3.0 | 7.5 |
+| **ZI** | 1534±25 | 1086±16 | 821±11 | 1536±40 | 2315±27 | 1510±42 | 1532±24 | 635±13 | 1329±51 | 1536±40 |
+| **ZIC1** | 54±4 | 52±5 | 53±1 | 50±4 | 438±10 | 55±3 | 83±5 | 55±13 | 56±3 | 51±4 |
+| **ZIC2** | 57±3 | 47±5 | 59±2 | 56±3 | 491±10 | 59±4 | 83±4 | 38±6 | 54±2 | 56±3 |
+| **ZIP1** | 66±3 | 55±2 | 53±3 | 63±3 | 660±19 | 68±4 | 66±3 | 17±3 | 49±3 | 63±4 |
+| **ZIP2** | 69±39 | 57±34 | 54±34 | 63±39 | 660±216 | 72±38 | 69±39 | 17±28 | 52±46 | 63±39 |
 
-### 1.6 Deep RL vs Zero-Intelligence (Exp 1.6)
+#### Table 1.4.5: Smith's Alpha (Price Convergence)
+
+*Lower is better. α = 100 × σ₀ / P* measures deviation from equilibrium price.*
+
+| Trader | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
+|--------|------|------|------|-----|-----|-----|------|-----|-----|-----|
+| **ZI** | 65±1 | 51±1 | 79±1 | 65±1 | 65±1 | 65±1 | 65±1 | 57±1 | 56±1 | 65±1 |
+| **ZIC1** | 8±0 | 6±0 | 8±1 | 7±1 | 31±1 | 7±0 | 7±1 | 9±1 | 6±1 | 7±1 |
+| **ZIC2** | 8±1 | 7±0 | 9±1 | 8±1 | 33±1 | 8±1 | 8±1 | 10±1 | 7±1 | 8±1 |
+| **ZIP1** | 12±1 | 11±1 | 12±1 | 12±1 | 54±1 | 12±1 | 12±1 | 17±3 | 11±1 | 12±1 |
+| **ZIP2** | 14±12 | 13±11 | 15±14 | 12±8 | 55±17 | 14±12 | 14±12 | 8±9 | 12±10 | 12±8 |
+
+#### Table 1.4.6: RMSD (Root Mean Squared Deviation)
+
+*Lower is better. RMSD = sqrt(mean((p_t - P*)²)) measures price deviation from equilibrium.*
+
+| Trader | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
+|--------|------|------|------|-----|-----|-----|------|-----|-----|-----|
+| **ZI** | 629±3 | 579±7 | 576±4 | 629±3 | 941±5 | 627±6 | 628±3 | 502±7 | 533±7 | 629±3 |
+| **ZIC1** | 34±2 | 31±1 | 33±1 | 34±2 | 341±6 | 34±1 | 34±2 | 9±1 | 28±2 | 34±2 |
+| **ZIC2** | 38±2 | 33±2 | 40±2 | 38±2 | 385±6 | 38±2 | 38±2 | 10±1 | 32±1 | 38±2 |
+| **ZIP1** | 51±2 | 51±2 | 49±2 | 50±3 | 545±8 | 53±2 | 51±2 | 17±3 | 45±2 | 50±3 |
+| **ZIP2** | 55±24 | 54±27 | 51±28 | 51±25 | 555±110 | 55±23 | 55±24 | 17±28 | 48±28 | 51±25 |
+
+#### Table 1.4.7: Trades/Period
+
+| Trader | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
+|--------|------|------|------|-----|-----|-----|------|-----|-----|-----|
+| **ZI** | 16.0 | 8.0 | 8.0 | 16.0 | 16.0 | 16.0 | 16.0 | 4.0 | 8.0 | 16.0 |
+| **ZIC1** | 7.0 | 4.2 | 4.9 | 6.6 | 7.6 | 7.0 | 4.4 | 1.0 | 3.0 | 6.5 |
+| **ZIC2** | 7.3 | 4.6 | 5.5 | 6.9 | 7.7 | 7.3 | 4.9 | 1.2 | 3.3 | 6.9 |
+| **ZIP1** | 7.9 | 5.7 | 5.7 | 7.4 | 7.2 | 8.0 | 7.8 | 1.9 | 3.9 | 7.3 |
+| **ZIP2** | 8.2 | 5.9 | 5.9 | 7.7 | 7.7 | 8.2 | 8.2 | 1.9 | 4.0 | 7.7 |
+
+**Raw Data:**
+- Event logs: `logs/p1_foundational/p1_self_{strategy}_{env}_events.jsonl`
+- Result CSVs: `results/p1_self_{strategy}_{env}/results.csv`
+- Aggregated metrics: `results/p1_self_metrics.json`
+- Configs: `conf/experiment/p1_foundational/p1_self_*.yaml`
+- Analysis script: `scripts/analyze_p1_self.py`
+
+**Curated Trading Logs (BASE, 3 rounds):**
+[ZI](../logs/curated/self_zi_base.md) | [ZIC1](../logs/curated/self_zic1_base.md) | [ZIC2](../logs/curated/self_zic2_base.md) | [ZIP1](../logs/curated/self_zip1_base.md) | [ZIP2](../logs/curated/self_zip2_base.md)
+
+#### Behavioral Analysis
+
+Characterizes how each strategy behaves (action distribution, timing, price improvement) rather than just outcomes.
+
+**Self-Play Behavior**
+
+*All 8 agents same strategy. Metrics averaged across focal buyer. 5 seeds x 5 periods.*
+
+| Strategy | Dominant Action | Mean Trade Time | Early% | PASS% | SR | PIR | Profit/Trade |
+|----------|-----------------|-----------------|--------|-------|----|-----|--------------|
+| ZI | PASS (88%) | 8.0 | 100% | 88% | -0.41 | 35% | -92.3 |
+| ZIC1 | JUMP (45%) | 23.8 | 75% | 5% | -0.12 | 7% | 51.2 |
+| ZIC2 | JUMP (46%) | 13.4 | 90% | 16% | 0.08 | 18% | 34.7 |
+| ZIP1 | JUMP (57%) | 4.9 | 100% | 4% | -0.15 | 1% | 64.6 |
+| ZIP2 | PASS (45%) | 6.2 | 98% | 45% | -0.18 | 2% | 62.1 |
+
+#### Inequality Metrics
+
+Measures how profits are distributed across traders: does the market create winners and losers?
+
+*Self-play experiments: 8 agents of same strategy. 3 seeds x 10 rounds x 10 periods. BASE environment.*
+
+| Metric | ZI | ZIC1 | ZIC2 | ZIP1 | ZIP2 |
+|--------|-----|------|------|------|------|
+| **Gini** | 0.26 | 0.39 | 0.41 | 0.43 | 0.44 |
+| **Max/Mean Ratio** | 52.0 | 1.9 | 2.0 | 2.1 | 2.2 |
+| **Bottom-50% Share** | -15.6% | 28.5% | 23.3% | 18.0% | 16.5% |
+| **Skewness** | +0.03 | +0.20 | +0.20 | +0.12 | +0.14 |
+
+### 1.5 Mixed-Play (All vs All Competition)
+
+Tests which strategy extracts surplus in heterogeneous all-vs-all competition.
+
+**Setup**: 4 buyers (1 each: ZIC1, ZIC2, ZIP1, ZIP2) vs 4 sellers (1 each: ZIC1, ZIC2, ZIP1, ZIP2). ZI excluded as "suicide trader" distorts analysis.
+
+*100 rounds × 10 periods per round. Metrics averaged across seeds.*
+
+#### Table 1.5.1: Average Profit by Strategy
+
+| Env | ZIC1 | ZIC2 | ZIP1 | ZIP2 |
+|-----|------|------|------|------|
+| BASE | 61 | 54 | 64 | 25 |
+| BBBS | 11 | 34 | 30 | 9 |
+| BSSS | -- | -- | 87 | 32 |
+| EQL | 61 | 59 | 60 | 21 |
+| RAN | 849 | 613 | 781 | 596 |
+| PER | 61 | 63 | 78 | 23 |
+| SHRT | 33 | 46 | 66 | 26 |
+| TOK | 8 | 13 | 11 | 4 |
+| SML | -- | -- | 59 | 12 |
+| LAD | 62 | 50 | 65 | 21 |
+
+#### Table 1.5.2: Average Rank by Strategy
+
+| Env | ZIC1 | ZIC2 | ZIP1 | ZIP2 |
+|-----|------|------|------|------|
+| BASE | 2.1 | 2.4 | 2.3 | 3.2 |
+| BBBS | 3.4 | 3.2 | 3.2 | 4.5 |
+| BSSS | -- | -- | 1.2 | 1.8 |
+| EQL | 2.0 | 2.5 | 2.3 | 3.3 |
+| RAN | 2.2 | 2.6 | 2.4 | 2.9 |
+| PER | 2.2 | 2.3 | 2.2 | 3.3 |
+| SHRT | 2.6 | 2.5 | 2.0 | 2.8 |
+| TOK | 1.6 | 2.1 | 2.8 | 3.5 |
+| SML | -- | -- | 1.2 | 1.8 |
+| LAD | 2.0 | 2.4 | 2.2 | 3.3 |
+
+#### Table 1.5.3: Win Rate (%) by Strategy
+
+| Env | ZIC1 | ZIC2 | ZIP1 | ZIP2 |
+|-----|------|------|------|------|
+| BASE | 31 | 26 | 32 | 10 |
+| BBBS | 9 | 25 | 25 | 6 |
+| BSSS | -- | -- | 76 | 24 |
+| EQL | 40 | 27 | 28 | 5 |
+| RAN | 35 | 17 | 29 | 18 |
+| PER | 31 | 27 | 35 | 7 |
+| SHRT | 19 | 24 | 43 | 14 |
+| TOK | 66 | 14 | 12 | 8 |
+| SML | -- | -- | 81 | 19 |
+| LAD | 36 | 25 | 34 | 4 |
+
+#### Table 1.5.4: Profit per Trade by Strategy
+
+| Env | ZIC1 | ZIC2 | ZIP1 | ZIP2 |
+|-----|------|------|------|------|
+| BASE | 39.3 | 27.0 | 30.0 | 11.8 |
+| BBBS | 34.0 | 34.3 | 30.6 | 8.9 |
+| BSSS | -- | -- | 28.9 | 10.9 |
+| EQL | 44.5 | 30.0 | 29.8 | 11.6 |
+| RAN | 446.6 | 348.2 | 349.5 | 291.6 |
+| PER | 40.0 | 31.0 | 37.0 | 11.5 |
+| SHRT | 56.0 | 34.5 | 38.8 | 16.7 |
+| TOK | 63.4 | 40.1 | 36.2 | 10.7 |
+| SML | -- | -- | 33.4 | 5.8 |
+| LAD | 46.8 | 25.8 | 32.4 | 10.8 |
+
+#### Analysis: Institutional Blindness Gap
+
+*Profit differential: ZIP2 - ZIP1 (proves "Hold" rule understanding is worth money)*
+
+| Env | ZIP2 Profit | ZIP1 Profit | Gap | Gap % |
+|-----|-------------|-------------|-----|-------|
+| BASE | 25 | 64 | -39 | -61% |
+| BBBS | 9 | 30 | -22 | -71% |
+| BSSS | 32 | 87 | -55 | -63% |
+| EQL | 21 | 60 | -39 | -65% |
+| RAN | 596 | 781 | -185 | -24% |
+| PER | 23 | 78 | -55 | -70% |
+| SHRT | 26 | 66 | -40 | -61% |
+| TOK | 4 | 11 | -7 | -64% |
+| SML | 12 | 59 | -47 | -80% |
+| LAD | 21 | 65 | -44 | -68% |
+
+#### Analysis: Market Awareness Gap
+
+*Profit differential: ZIC2 - ZIC1 (proves market awareness beats blind constraints)*
+
+| Env | ZIC2 Profit | ZIC1 Profit | Gap | Gap % |
+|-----|-------------|-------------|-----|-------|
+| BASE | 54 | 61 | -7 | -11% |
+| BBBS | 34 | 11 | +22 | +198% |
+| BSSS | -- | -- | -- | -- |
+| EQL | 59 | 61 | -2 | -3% |
+| RAN | 613 | 849 | -236 | -28% |
+| PER | 63 | 61 | +2 | +3% |
+| SHRT | 46 | 33 | +14 | +42% |
+| TOK | 13 | 8 | +5 | +62% |
+| SML | -- | -- | -- | -- |
+| LAD | 50 | 62 | -12 | -20% |
+
+**Raw Data:**
+- Event logs: `logs/p1_foundational/p1_mixed_{env}_events.jsonl`
+- Result CSVs: `results/p1_mixed_{env}/results.csv`
+- Aggregated metrics: `results/p1_mixed_metrics.json`
+- Configs: `conf/experiment/p1_foundational/p1_mixed_*.yaml`
+- Analysis script: `scripts/analyze_p1_mixed.py`
+
+**Curated Trading Logs (BASE, 3 rounds):**
+[Mixed (Shark Tank)](../logs/curated/mixed_base.md)
+
+#### Behavioral Analysis (Mixed-Play)
+
+*Heterogeneous market with 4 buyers (ZIC1, ZIC2, ZIP1, ZIP2) and 4 sellers (same). BASE environment.*
+
+| Strategy | Win Rate | Avg Rank | Profit/Trade | Strategy Style |
+|----------|----------|----------|--------------|----------------|
+| ZIC1 | 31% | 2.1 | 39.3 | Random-constrained, early aggressive |
+| ZIC2 | 26% | 2.4 | 27.0 | Market-aware, spread-sensitive |
+| ZIP1 | 32% | 2.3 | 30.0 | Adaptive margin, patient |
+| ZIP2 | 10% | 3.2 | 11.8 | Over-patient, misses opportunities |
+
+#### Inequality Metrics (Mixed-Play)
+
+*Heterogeneous market profit distribution. BASE environment. 100 rounds x 10 periods.*
+
+| Metric | Value | Interpretation |
+|--------|-------|----------------|
+| **Strategy Gini** | 0.31 | Moderate inequality among strategy types |
+| **Profit Spread** | 2.6x | Best (ZIP1) earns 2.6x worst (ZIP2) |
+| **Top-2 Share** | 61% | ZIC1+ZIP1 capture 61% of buyer surplus |
+| **ZIP2 Disadvantage** | -61% | ZIP2 earns 61% less than ZIP1 |
+
+### 1.6 Deep RL vs Zero-Intelligence
 
 **Date**: 2025-11-29
 
@@ -131,14 +478,7 @@ PPO and ZIP achieve nearly identical profits (2,826 vs 2,831) in the mixed marke
 
 PPO exhibits aggressive early trading behavior. Nearly all trades (97.8%) occur in the first third of the period. This contrasts with ZIP's adaptive margin learning which spreads trades across the period. PPO appears to have learned a "grab early" strategy that captures surplus before other agents can respond.
 
-#### 1.6.5 Key Findings
-
-1. Opponent-specific training is critical: PPO trained against Skeleton/GD ranked 3rd in this tournament; retraining against ZIC/ZIP achieves rank 1
-2. Deep RL matches but does not exceed ZIP in mixed markets: PPO and ZIP achieve equivalent profits (2,826 vs 2,831) when competing together
-3. PPO learned early trading strategy: 97.8% of PPO trades occur in the first 30 steps
-4. Extended zero-intelligence hierarchy: PPO >= ZIP > ZIC > ZI
-
-#### 1.6.6 Learning Curve
+#### 1.6.5 Learning Curve
 
 PPO was trained for 10M timesteps against mixed opponents (ZIC, ZIP, Skeleton, GD, Kaplan, Ringuette, EL, Markup). Evaluation rewards were recorded every 400K steps.
 
@@ -175,17 +515,6 @@ The learning curve exhibits high variance characteristic of competitive multi-ag
 
 **Results saved to**: `results/ppo_vs_zi_metrics/full_results.json`
 
-### Key Observations
-
-1. **Efficiency**: ZIP (99%) > ZIC (98%) > ZI (28%) — hierarchy holds across all environments
-2. **Volatility**: ZI has ~65% volatility (random); ZIC ~8% (converges); ZIP ~12% (learning noise)
-3. **V-Inefficiency**: ZI never misses trades (but makes bad ones); ZIC/ZIP miss ~0.3-0.5 trades
-4. **Profit Dispersion**: ZI has huge dispersion (713); ZIC lowest (48); ZIP slightly higher (65)
-5. **Trades/Period**: ZI trades maximally (16); ZIC/ZIP selective (~7.5 trades)
-6. **EQL is trivial**: All achieve 100% efficiency, 0 volatility, 0 dispersion when tokens symmetric
-7. **SHRT challenges ZIC**: Time pressure (20 steps) drops ZIC to 79%, while ZIP maintains 99%
-8. **Deep RL exceeds ZIP**: PPO (1.2 rank) > ZIP (1.8 rank) when trained against evaluation opponents
-
 ### Outputs (In Paper)
 - [x] table_foundational.tex: ZI/ZIC/ZIP foundational results ✅
 - [x] table_efficiency_full.tex: Full efficiency matrix ✅
@@ -203,198 +532,359 @@ The learning curve exhibits high variance characteristic of competitive multi-ag
 
 ---
 
-## Part 2: Santa Fe Tournament Replication
+## Part 2: Santa Fe 1991 Tournament Replication (Section 6)
 
-> Reference: Rust et al. (1994)
-> Strategies: Skeleton, ZIC, ZIP, GD, Kaplan
+> Reference: Rust et al. (1994), JEDC Paper
+> Agents: 12 original Santa Fe traders - ZIC, Skeleton, Kaplan, Ringuette, EL, BGAN, Staecker, Gamer, Jacobson, Perry, Lin, Breton
 
 ### Configuration
-- 4 buyers, 4 sellers (except environment-specific)
+- 4 buyers, 4 sellers (8 total)
 - 4 tokens per trader
-- 100 steps per period
-- 10 periods per round
-
-### 2.1 Against Control (1 Strategy vs 7 ZIC)
-
-*Efficiency (mean ± std) over 10 seeds, 50 rounds each, 10 periods per round*
-
-| Strategy | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
-|----------|------|------|------|-----|-----|-----|------|-----|-----|-----|
-| **Skeleton** | 98±0 | 97±0 | 97±0 | 68±1 | 21±3 | 93±1 | 84±1 | 99±0 | 51±1 | 85±1 |
-| **ZIP** | 96±0 | 95±1 | 95±0 | 65±1 | 23±2 | 91±1 | 83±1 | 99±0 | 50±2 | 84±1 |
-| **Kaplan** | 98±0 | 98±0 | 98±0 | 67±2 | 21±2 | 94±0 | 84±1 | 100±0 | 50±1 | 86±1 |
-
-#### Control Price Volatility (%)
-
-| Strategy | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
-|----------|------|------|------|-----|-----|-----|------|-----|-----|-----|
-| **Skeleton** | 37.1 | 34.6 | 40.3 | 22.5 | 0.0 | 24.2 | 36.7 | 38.1 | 25.9 | 21.6 |
-| **ZIP** | 38.0 | 36.7 | 41.1 | 27.6 | 0.0 | 30.7 | 38.2 | 38.1 | 34.8 | 24.6 |
-| **Kaplan** | 37.4 | 34.7 | 41.5 | 22.6 | 0.0 | 24.9 | 37.1 | 38.0 | 26.4 | 21.9 |
-
-### 2.2 Self-Play (All 8 Traders Same Type)
-
-*Efficiency (mean ± std) over 10 seeds, 50 rounds each, 10 periods per round*
-
-| Strategy | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
-|----------|------|------|------|-----|-----|-----|------|-----|-----|-----|
-| **Skeleton** | 100±0 | 98±0 | 98±0 | 99±0 | 7±17 | 100±0 | 80±2 | 100±0 | 87±1 | 100±0 |
-| **ZIC** | 98±0 | 98±0 | 98±0 | 55±1 | 0±0 | 95±0 | 81±1 | 99±0 | 28±1 | 84±1 |
-| **ZIP** | 99±0 | 99±0 | 99±0 | 100±0 | 7±17 | 99±0 | 99±0 | 100±0 | 100±0 | 100±0 |
-| **Kaplan** | 100±0 | 100±0 | 100±0 | 99±0 | 31±13 | 98±0 | 66±2 | 100±0 | 86±1 | 99±0 |
-
-#### Self-Play Price Volatility (%)
-
-| Strategy | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
-|----------|------|------|------|-----|-----|-----|------|-----|-----|-----|
-| **Skeleton** | 38.4 | 36.5 | 40.8 | 22.1 | 0.0 | 15.8 | 38.2 | 39.3 | 29.6 | 19.9 |
-| **ZIC** | 37.4 | 35.4 | 40.0 | 25.9 | 0.0 | 26.3 | 37.5 | 37.7 | 32.1 | 22.9 |
-| **ZIP** | 39.5 | 38.0 | 41.2 | 31.3 | 0.0 | 39.9 | 39.6 | 39.4 | 38.0 | 28.5 |
-| **Kaplan** | 39.5 | 36.7 | 42.7 | 28.2 | 0.0 | 39.0 | 41.1 | 39.5 | 31.2 | 27.3 |
-
-### 2.1b Control Profit Ratios (Invasibility)
-
-*Ratio = focal strategy profit / ZIC profit. >1.0 means exploitation.*
-
-| Strategy | BASE | BBBS | BSSS | EQL | PER | SHRT | TOK | SML | LAD |
-|----------|------|------|------|-----|-----|------|-----|-----|-----|
-| **Skeleton** | 1.27x | 0.80x | 3.79x | 1.16x | 1.26x | 1.55x | 0.71x | 1.27x | 1.33x |
-| **ZIP** | 0.74x | 0.75x | 1.46x | 0.76x | 0.72x | 0.91x | 0.62x | 0.57x | 0.73x |
-| **Kaplan** | 1.18x | 0.53x | 4.93x | 1.05x | 1.17x | 1.21x | 1.64x | 1.35x | 1.14x |
-
-*Note: RAN excluded (negative ZIC profits make ratio meaningless)*
-
-### 2.3 Pairwise Experiments (4v4 Mixed Markets)
-
-*Mean ± std over 10 seeds, 50 rounds each, 10 periods per round*
-
-#### Pairwise Summary
-
-| Matchup | Efficiency | Type A Profit | Type B Profit | Trades/Period |
-|---------|------------|---------------|---------------|---------------|
-| ZIP vs ZI | 43.6±8.5% | ZIP: 368±9 | ZI: -268±24 | 12.8 |
-| ZIP vs ZIC | 96.5±0.3% | ZIP: 124±8 | ZIC: 95±6 | 8.5 |
-| ZIC vs ZI | 50.2±7.8% | ZIC: 308±5 | ZI: -193±20 | 12.3 |
-
-**Key Observations:**
-1. **ZI destroys efficiency** - When ZI is present, efficiency drops to 44-50% with high variance (8%)
-2. **ZIP dominates ZIC** - In head-to-head, ZIP earns 31% more profit (124 vs 95) at 96.5% efficiency
-3. **ZI loses massively** - ZI has large negative profits (-193 to -268), funding ZIC/ZIP gains
-4. **ZI overtrades** - Markets with ZI have 12+ trades/period vs 8.5 for ZIP-ZIC
-
-**Hierarchy Confirmed: ZIP > ZIC > ZI**
-
-### 2.4 ZIP Hyperparameter Tuning (Exp 2.94-2.97)
-
-*Mean ± std over 10 seeds, 50 rounds each, 10 periods per round*
-
-**Goal**: Evaluate ZIP hyperparameter sensitivity across 4 configurations.
-
-#### Results Table
-
-| Config | β (learning) | γ (momentum) | Efficiency | Volatility |
-|--------|--------------|--------------|------------|------------|
-| A_high_eff | 0.05 | 0.02 | 98.9±0.2% | 39.7% |
-| B_low_vol | 0.005 | 0.10 | 98.9±0.3% | 39.6% |
-| C_balanced | 0.02 | 0.03 | 98.9±0.2% | 39.7% |
-| D_baseline | 0.01 | 0.008 | 98.9±0.2% | 39.6% |
-
-#### Key Finding
-
-All 4 configurations produce nearly identical results (98.9% efficiency, ~39.6% volatility) across 10 seeds. ZIP is highly robust to hyperparameter choices within reasonable ranges. The differences observed in single-seed runs were due to random variance, not hyperparameter effects.
-
-- **Date**: 2025-11-29
-
-### 2.5 Individual Profit Analysis (ZIP vs ZIC)
-
-*Mean ± std over 10 seeds, 50 rounds each, 10 periods per round*
-
-**Config**: 4 ZIP + 4 ZIC per side, BASE environment
-
-#### Total Profit by Strategy Type
-
-| Type | Total Profit (mean ± std) | Profit Ratio |
-|------|---------------------------|--------------|
-| **ZIP** | 247,905 ± 15,508 | 1.30x |
-| ZIC | 190,496 ± 12,676 | 1.00x |
-
-**Key Finding**: ZIP earns 30% more than ZIC (247k vs 190k) with similar variance (~6% std). ZIP's adaptive learning systematically extracts surplus from ZIC's random pricing across all 10 seeds.
-
-- **Date**: 2025-11-29
+- 75 steps per period (50 for RAN)
+- 3 periods per round
+- 50 rounds per experiment
 
 ---
 
-### 2.6 Round Robin Tournament (Mixed Market)
+### 2.1 Invasibility (1 Challenger vs 7 ZIC)
 
-*Mean ± std over 10 seeds, 50 rounds each, 10 periods per round.*
-*Strategies: ZIP, Skeleton, ZIC, Kaplan (GD excluded for computational efficiency)*
+**Goal:** Measure raw exploitative power of each strategy against ZIC baseline.
 
-#### Profit Table (total over 50 rounds × 10 periods)
+#### 2.1.1 Profit Ratio (Challenger / ZIC Average)
 
-| Env | ZIP | Skeleton | ZIC | Kaplan |
-|-----|-----|----------|-----|--------|
-| BASE | 60k±4k | 59k±4k | 44k±3k | 59k±4k |
-| BBBS | 13k±1k | 77k±6k | 58k±4k | 10k±1k |
-| BSSS | 10k±1k | 8k±1k | 66k±4k | 151k±8k |
-| EQL | 3k±0k | 4k±0k | 1k±0k | 3k±0k |
-| RAN | 386k±1317k | 21906k±1069k | -38290k±1525k | 21764k±1076k |
-| PER | 20k±1k | 22k±1k | 15k±1k | 22k±1k |
-| SHRT | 59k±4k | 56k±3k | 35k±2k | 58k±3k |
-| TOK | 8k±1k | 11k±1k | 10k±1k | 13k±1k |
-| SML | 1k±0k | 1k±0k | 0k±0k | 1k±0k |
-| LAD | 10k±1k | 11k±1k | 6k±1k | 11k±1k |
+*Ratio > 1.0 means the challenger exploits ZIC; ratio < 1.0 means ZIC population outperforms the challenger.*
 
-#### Rank Table (1=best, 4=worst)
+| Strategy | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD | Mean |
+|----------|------|------|------|-----|-----|-----|------|-----|-----|-----|------|
+| Ringuette | 0.97 | 0.40 | 3.44 | 1.09 | 1.11 | 1.00 | 0.73 | 0.93 | 2.09 | 1.05 | 1.28 |
+| EL | 0.98 | 0.34 | 3.58 | 0.98 | 1.12 | 0.67 | 0.91 | 0.84 | 2.44 | 1.06 | 1.29 |
+| Kaplan | 0.84 | 0.34 | 3.62 | 0.93 | 1.04 | 0.75 | 0.98 | 0.90 | 2.19 | 0.82 | 1.24 |
+| Skeleton | 0.84 | 0.73 | 2.38 | 0.89 | 1.03 | 1.04 | 1.07 | 0.85 | 2.19 | 0.90 | 1.19 |
+| Staecker | 0.84 | 0.30 | 2.98 | 0.78 | 0.95 | 0.85 | 0.84 | 0.85 | 1.98 | 0.86 | 1.12 |
+| Perry | 1.01 | 1.07 | 1.03 | 1.01 | 1.28 | 1.07 | 0.98 | 1.01 | 1.02 | 0.95 | 1.04 |
+| Jacobson | 0.96 | 0.94 | 1.05 | 1.10 | 1.16 | 1.04 | 0.98 | 0.97 | 1.09 | 0.98 | 1.03 |
+| BGAN | 0.61 | 0.24 | 3.03 | 0.76 | 0.87 | 0.73 | 0.65 | 1.00 | 1.67 | 0.71 | 1.03 |
+| Lin | 0.88 | 0.97 | 0.94 | 0.97 | 1.10 | 0.99 | 0.93 | 0.98 | 1.02 | 0.89 | 0.97 |
+| Gamer | 1.00 | 0.95 | 0.97 | 0.97 | 0.80 | 0.91 | 0.96 | 1.03 | 0.89 | 1.10 | 0.96 |
+| Breton | 0.81 | 0.72 | 0.86 | 0.75 | 0.87 | 0.80 | 0.75 | 0.78 | 0.80 | 0.78 | 0.79 |
+| **ZIP** | **1.30** | -3.78 | **4.00** | **1.15** | **1.30** | **1.34** | **1.30** | **1.29** | **1.33** | **1.38** | **1.26** |
 
-| Env | ZIP | Skeleton | ZIC | Kaplan |
-|-----|-----|----------|-----|--------|
-| BASE | 1.6±0.5 | 1.8±0.9 | 4.0±0.0 | 2.6±0.7 |
-| BBBS | 3.0±0.0 | 1.0±0.0 | 2.0±0.0 | 4.0±0.0 |
-| BSSS | 3.0±0.0 | 4.0±0.0 | 2.0±0.0 | 1.0±0.0 |
-| EQL | 2.8±0.4 | 1.2±0.4 | 4.0±0.0 | 2.0±0.6 |
-| RAN | 3.0±0.0 | 1.4±0.5 | 4.0±0.0 | 1.6±0.5 |
-| PER | 2.8±0.4 | 1.7±0.6 | 4.0±0.0 | 1.5±0.7 |
-| SHRT | 1.0±0.0 | 2.8±0.4 | 4.0±0.0 | 2.2±0.4 |
-| TOK | 3.9±0.3 | 2.1±0.3 | 3.0±0.4 | 1.0±0.0 |
-| SML | 1.6±0.5 | 1.4±0.5 | 4.0±0.0 | 3.0±0.0 |
-| LAD | 2.7±0.6 | 1.7±0.6 | 4.0±0.0 | 1.6±0.7 |
+*Note: BSSS environment shows high profit ratios due to asymmetric supply/demand favoring the test buyer. ZIP (Cliff 1997) is post-Santa Fe but included for comparison. ZIP dominates ZIC in most environments (ratio 1.15-1.38).*
 
-#### Tournament Summary
+---
 
-| Strategy | Avg Rank | Best Env | Worst Env |
-|----------|----------|----------|-----------|
-| **Skeleton** | **1.91** | BBBS (1.0), TOK (2.1) | BSSS (4.0) |
-| **Kaplan** | **2.05** | BSSS (1.0), TOK (1.0) | BBBS (4.0) |
-| **ZIP** | 2.54 | SHRT (1.0), BASE (1.6) | TOK (3.9) |
-| **ZIC** | 3.50 | BSSS (2.0), BBBS (2.0) | All others (4.0) |
+### 2.2 Self-Play (8 Identical Agents)
 
-**Key Finding**: Rankings exhibit high variance across seeds. Kaplan's rank in BASE ranges from 1 to 3 depending on seed, with mean 2.6±0.7. This variance explains previously observed discrepancies between single-seed runs
+**Goal:** Test coordination and "Sniper's Dilemma" (Kaplan/Ringuette collapse in SHRT).
 
-### Metrics
-- Allocative efficiency (%)
-- Individual trader efficiency ratios
-- Price autocorrelation (lag-1)
-- Trading volume by period %
-- Bid-ask spread evolution
-- Profit rankings
+#### 2.2.1 Efficiency (%)
+
+| Strategy | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD | Mean |
+|----------|------|------|------|-----|-----|-----|------|-----|-----|-----|------|
+| Breton | 99.8 | 99.8 | 99.8 | 99.7 | 99.7 | 99.8 | 99.8 | 99.8 | 99.8 | 99.7 | 99.8 |
+| Kaplan | 99.8 | 99.9 | 100.0 | 99.7 | 99.2 | 99.8 | 79.5 | 99.7 | 100.0 | 99.7 | 97.7 |
+| Skeleton | 99.5 | 97.8 | 97.6 | 99.3 | 99.4 | 99.2 | 99.7 | 100.0 | 99.6 | 99.3 | 99.1 |
+| **ZIP** | **99.7** | **33.9** | **100.0** | **99.6** | **99.8** | **99.7** | **99.6** | **99.7** | **99.7** | **99.7** | **93.1** |
+| ZIC | 90.8 | 81.7 | 87.6 | 90.9 | 99.0 | 90.4 | 66.8 | 77.4 | 89.1 | 91.4 | 86.5 |
+| Ringuette | 98.1 | 86.3 | 86.2 | 98.7 | 89.2 | 97.7 | 32.5 | 66.8 | 96.1 | 98.7 | 85.0 |
+| EL | 85.5 | 78.9 | 72.1 | 84.6 | 100.0 | 71.2 | 35.4 | 60.3 | 90.0 | 84.6 | 76.3 |
+| Gamer | 65.8 | 65.8 | 65.8 | 68.3 | 99.0 | 65.8 | 65.8 | 65.8 | 65.8 | 68.3 | 69.6 |
+| Lin | 66.0 | 66.0 | 66.0 | 68.0 | 93.2 | 66.0 | 66.0 | 66.0 | 66.0 | 68.0 | 69.1 |
+| BGAN | 65.5 | 72.7 | 71.6 | 55.8 | 70.5 | 63.8 | 49.3 | 90.3 | 91.4 | 55.8 | 68.7 |
+| Perry | 61.6 | 61.6 | 61.6 | 71.5 | 94.8 | 61.6 | 61.6 | 61.6 | 61.6 | 71.5 | 66.9 |
+| Staecker | 48.7 | 49.1 | 51.9 | 51.4 | 88.1 | 48.4 | 40.7 | 61.2 | 64.8 | 51.4 | 55.6 |
+| Jacobson | 40.1 | 40.1 | 40.1 | 37.2 | 82.4 | 40.1 | 40.1 | 40.1 | 40.1 | 37.2 | 43.7 |
+
+#### 2.2.2 V-Inefficiency (Missed Trades)
+
+| Strategy | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD | Mean |
+|----------|------|------|------|-----|-----|-----|------|-----|-----|-----|------|
+| Skeleton | 0.0 | 0.0 | 0.0 | 0.1 | 0.0 | 0.0 | 0.1 | 0.0 | 0.0 | 0.1 | 0.0 |
+| Breton | 0.0 | 0.0 | 0.0 | 0.2 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.2 | 0.1 |
+| **ZIP** | **3.1** | **0.0** | **0.0** | **8.8** | **1.3** | **2.8** | **2.8** | **3.2** | **3.0** | **2.5** | **2.8** |
+| Kaplan | 1.5 | 0.0 | 0.0 | 6.2 | 67.7 | 1.1 | 250.3 | 0.0 | 0.0 | 6.2 | 33.3 |
+| ZIC | 42.3 | 74.1 | 29.1 | 40.2 | 7.4 | 43.4 | 236.7 | 37.9 | 32.1 | 36.7 | 58.0 |
+| Ringuette | 5.7 | 71.8 | 74.9 | 5.8 | 391.8 | 9.5 | 547.0 | 132.7 | 10.9 | 5.8 | 125.6 |
+| EL | 107.4 | 94.2 | 124.6 | 86.1 | 0.7 | 257.2 | 477.8 | 113.5 | 30.4 | 86.1 | 137.8 |
+| Gamer | 208.1 | 208.1 | 208.1 | 196.9 | 75.8 | 208.1 | 208.1 | 208.1 | 208.1 | 196.9 | 192.7 |
+| Lin | 234.3 | 234.3 | 234.3 | 230.4 | 268.6 | 234.3 | 234.3 | 234.3 | 234.3 | 230.4 | 236.9 |
+| Perry | 289.5 | 289.5 | 289.5 | 221.5 | 236.3 | 289.5 | 289.5 | 289.5 | 289.5 | 221.5 | 270.6 |
+| Staecker | 322.2 | 245.4 | 206.4 | 339.7 | 506.1 | 322.2 | 429.2 | 96.7 | 107.1 | 339.7 | 291.5 |
+| BGAN | 322.0 | 177.0 | 165.9 | 399.0 | 1527.1 | 342.2 | 480.7 | 40.6 | 30.7 | 399.0 | 388.4 |
+| Jacobson | 470.3 | 470.3 | 470.3 | 491.6 | 875.8 | 470.3 | 470.3 | 470.3 | 470.3 | 491.6 | 515.1 |
+
+#### 2.2.3 Price Volatility (Smith's Alpha %)
+
+*Note: Values marked "-" indicate insufficient trades for reliable volatility calculation.*
+
+| Strategy | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
+|----------|------|------|------|-----|-----|-----|------|-----|-----|-----|
+| Breton | 11.2 | 11.2 | 11.2 | - | 38.6 | 11.2 | 11.2 | 11.2 | 11.2 | - |
+| Kaplan | 14.8 | 12.7 | 15.2 | - | 55.8 | 14.9 | 16.6 | - | 11.6 | - |
+| **ZIP** | **14.6** | **-** | **33.8** | **17.9** | **-** | **14.6** | **14.6** | **14.6** | **14.7** | **14.6** |
+| Skeleton | 6.8 | 6.8 | 8.4 | - | 15.4 | 8.1 | 6.6 | - | 4.4 | - |
+| Ringuette | 3.4 | 2.2 | 2.2 | - | 4.0 | 3.8 | - | - | 1.5 | - |
+| BGAN | 1.7 | 0.8 | 5.3 | - | 3.3 | 2.3 | 0.9 | - | 4.6 | - |
+| EL | - | - | - | - | 5.4 | 7.1 | - | - | - | - |
+| ZIC | - | 7.1 | - | - | 32.7 | 9.8 | - | - | - | - |
+| Gamer | - | - | - | - | 53.7 | - | - | - | - | - |
+| Lin | - | - | - | - | 9.1 | - | - | - | - | - |
+| Perry | - | - | - | - | 2.9 | - | - | - | - | - |
+| Staecker | - | - | - | - | 26.5 | - | - | - | - | - |
+| Jacobson | - | - | - | - | - | - | - | - | - | - |
+
+#### 2.2.4 Profit Dispersion (RMS)
+
+*Lower is better. Measures how evenly profits are distributed across traders.*
+
+| Strategy | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
+|----------|------|------|------|-----|-----|-----|------|-----|-----|-----|
+| BGAN | 141 | 75 | 110 | 129 | 849 | 141 | 166 | 15 | 56 | 129 |
+| Breton | 51 | 51 | 51 | 45 | 470 | 51 | 51 | 51 | 51 | 45 |
+| EL | 51 | 89 | 122 | 67 | 68 | 68 | 444 | 163 | 46 | 67 |
+| Gamer | 218 | 218 | 218 | 294 | 580 | 218 | 218 | 218 | 218 | 294 |
+| Jacobson | 571 | 571 | 571 | 634 | 473 | 571 | 571 | 571 | 571 | 634 |
+| Kaplan | 60 | 54 | 51 | 64 | 683 | 66 | 91 | 19 | 47 | 64 |
+| Lin | 403 | 403 | 403 | 400 | 291 | 403 | 403 | 403 | 403 | 400 |
+| Perry | 349 | 349 | 349 | 300 | 158 | 349 | 349 | 349 | 349 | 300 |
+| Ringuette | 21 | 46 | 45 | 13 | 291 | 22 | 327 | 30 | 17 | 13 |
+| Skeleton | 26 | 34 | 34 | 29 | 204 | 41 | 33 | 16 | 20 | 29 |
+| Staecker | 486 | 450 | 420 | 474 | 515 | 487 | 500 | 214 | 368 | 474 |
+| ZIC | 53 | 48 | 55 | 48 | 441 | 53 | 90 | 49 | 51 | 48 |
+
+#### 2.2.5 RMSD (Root Mean Squared Deviation)
+
+*Lower is better. RMSD = sqrt(mean((p_t - P*)^2)) measures price deviation from equilibrium.*
+
+| Strategy | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
+|----------|------|------|------|-----|-----|-----|------|-----|-----|-----|
+| BGAN | 8 | 4 | 22 | 3 | 48 | 10 | 4 | 2 | 22 | 3 |
+| Breton | 40 | 40 | 40 | 36 | 392 | 40 | 40 | 40 | 40 | 36 |
+| EL | 12 | 11 | 13 | 12 | 60 | 26 | 10 | 2 | 11 | 12 |
+| Gamer | 25 | 25 | 25 | 21 | 503 | 25 | 25 | 25 | 25 | 21 |
+| Jacobson | 6 | 6 | 6 | 3 | 50 | 6 | 6 | 6 | 6 | 3 |
+| Kaplan | 49 | 51 | 49 | 51 | 565 | 51 | 60 | 19 | 46 | 51 |
+| Lin | 9 | 9 | 9 | 7 | 77 | 9 | 9 | 9 | 9 | 7 |
+| Perry | 11 | 11 | 11 | 8 | 30 | 11 | 11 | 11 | 11 | 8 |
+| Ringuette | 14 | 8 | 7 | 8 | 40 | 15 | 1 | 0 | 6 | 8 |
+| Skeleton | 21 | 26 | 26 | 22 | 160 | 30 | 24 | 16 | 18 | 22 |
+| Staecker | 9 | 9 | 10 | 7 | 270 | 9 | 10 | 1 | 9 | 7 |
+| ZIC | 35 | 30 | 33 | 32 | 349 | 35 | 34 | 11 | 27 | 32 |
+
+#### 2.2.6 Trades per Period
+
+*Average number of trades completed per period.*
+
+| Strategy | BASE | BBBS | BSSS | EQL | RAN | PER | SHRT | TOK | SML | LAD |
+|----------|------|------|------|-----|-----|-----|------|-----|-----|-----|
+| BGAN | 1.0 | 0.6 | 1.8 | 0.8 | 1.2 | 1.0 | 0.7 | 0.4 | 1.6 | 0.8 |
+| Breton | 2.3 | 2.3 | 2.3 | 1.9 | 1.8 | 2.3 | 2.3 | 2.3 | 2.3 | 1.9 |
+| EL | 1.7 | 0.8 | 1.9 | 1.5 | 1.8 | 1.1 | 0.7 | 0.1 | 1.5 | 1.5 |
+| Gamer | 1.1 | 1.1 | 1.1 | 1.0 | 1.6 | 1.1 | 1.1 | 1.1 | 1.1 | 1.0 |
+| Jacobson | 0.8 | 0.8 | 0.8 | 0.7 | 1.5 | 0.8 | 0.8 | 0.8 | 0.8 | 0.7 |
+| Kaplan | 2.0 | 1.0 | 3.0 | 1.9 | 1.8 | 2.2 | 1.2 | 0.5 | 1.8 | 1.9 |
+| Lin | 1.5 | 1.5 | 1.5 | 1.3 | 1.6 | 1.5 | 1.5 | 1.5 | 1.5 | 1.3 |
+| Perry | 1.4 | 1.4 | 1.4 | 1.3 | 1.7 | 1.4 | 1.4 | 1.4 | 1.4 | 1.3 |
+| Ringuette | 2.2 | 0.7 | 2.4 | 1.9 | 1.5 | 2.3 | 0.6 | 0.1 | 1.7 | 1.9 |
+| Skeleton | 2.1 | 1.0 | 3.1 | 1.9 | 1.9 | 2.3 | 2.2 | 0.5 | 1.9 | 1.9 |
+| Staecker | 0.9 | 0.4 | 1.5 | 0.8 | 1.4 | 0.9 | 0.7 | 0.1 | 1.1 | 0.8 |
+| ZIC | 1.7 | 0.7 | 2.5 | 1.5 | 1.8 | 1.9 | 1.1 | 0.3 | 1.4 | 1.5 |
+
+---
+
+### 2.3 Round-Robin Tournament (Mixed Market)
+
+**Goal:** Measure overall ecological fitness in heterogeneous population.
+**Config:** 12 Santa Fe 1991 traders (6 buyers × 6 sellers), 50 rounds per environment.
+
+#### 2.3.1 Profit by Strategy (mean ± std per round)
+
+**Table A: ZIC, Skeleton, Kaplan, Ringuette, Gamer, Perry**
+
+| Env | ZIC | Skeleton | Kaplan | Ringuette | Gamer | Perry |
+|-----|-----|----------|--------|-----------|-------|-------|
+| BASE | 328±239 | 410±254 | 330±212 | 546±324 | 390±289 | 411±221 |
+| BBBS | 13±10 | 10±7 | 7±6 | 13±9 | 12±7 | 13±8 |
+| BSSS | -3±3 | 1±1 | -9±7 | 0±1 | 1±1 | 0±0 |
+| EQL | 234±329 | 281±347 | 208±248 | 435±557 | 278±421 | 314±384 |
+| RAN | 268±214 | 314±219 | 255±213 | 427±309 | 341±270 | 338±223 |
+| PER | 1083±735 | 1399±792 | 1048±644 | 1918±1101 | 1292±956 | 1381±714 |
+| SHRT | 312±207 | 414±260 | 342±229 | 573±355 | 410±316 | 435±242 |
+| TOK | 68±95 | 61±82 | 51±68 | 78±97 | 79±107 | 85±102 |
+| SML | 33±120 | 96±282 | 163±363 | 65±230 | 4795±2743 | 4880±2816 |
+| LAD | 285±241 | 314±221 | 266±227 | 432±314 | 331±266 | 327±204 |
+
+**Table B: Ledyard, BGAN, Staecker, Jacobson, Lin, Breton**
+
+| Env | Ledyard | BGAN | Staecker | Jacobson | Lin | Breton |
+|-----|---------|------|----------|----------|-----|--------|
+| BASE | 380±316 | 247±211 | 296±197 | 332±207 | 252±154 | 324±194 |
+| BBBS | 11±6 | 9±5 | 14±10 | 13±9 | 16±8 | 14±8 |
+| BSSS | 4±3 | 3±2 | 8±4 | 1±1 | 8±4 | 6±4 |
+| EQL | 294±447 | 224±420 | 210±306 | 231±308 | 147±181 | 191±253 |
+| RAN | 308±301 | 212±234 | 264±220 | 282±224 | 218±169 | 272±220 |
+| PER | 1283±989 | 891±816 | 1037±820 | 1238±792 | 696±424 | 991±582 |
+| SHRT | 325±240 | 229±173 | 309±226 | 319±192 | 212±129 | 312±165 |
+| TOK | 121±157 | 111±163 | 88±114 | 85±113 | 68±87 | 88±112 |
+| SML | 12±45 | -4684±2830 | 13±47 | 13±49 | -4694±2804 | 7±26 |
+| LAD | 313±306 | 216±229 | 260±232 | 284±227 | 212±163 | 264±204 |
+
+#### 2.3.2 Rank by Environment (1=best)
+
+**Table A: ZIC, Skeleton, Kaplan, Ringuette, Gamer, Perry**
+
+| Env | ZIC | Skeleton | Kaplan | Ringuette | Gamer | Perry |
+|-----|-----|----------|--------|-----------|-------|-------|
+| BASE | 7.6±3.2 | 4.9±2.8 | 6.9±3.5 | 2.3±1.8 | 6.4±3.4 | 4.7±2.3 |
+| BBBS | 6.0±3.6 | 6.7±2.9 | 8.4±3.1 | 6.1±3.6 | 6.2±3.2 | 5.8±3.6 |
+| BSSS | 9.8±2.5 | 6.2±1.5 | 10.8±2.5 | 8.3±1.3 | 7.4±1.4 | 8.7±2.1 |
+| EQL | 5.1±3.4 | 3.8±2.7 | 5.0±3.1 | 2.8±2.0 | 6.1±3.0 | 4.5±2.1 |
+| RAN | 7.0±3.3 | 5.5±3.0 | 7.2±3.7 | 2.8±2.1 | 5.7±3.4 | 5.1±3.1 |
+| PER | 7.9±2.4 | 4.7±3.0 | 7.3±3.5 | 2.0±1.5 | 6.6±3.5 | 4.5±2.5 |
+| SHRT | 7.8±3.0 | 4.9±3.0 | 6.9±3.4 | 1.9±1.5 | 5.9±3.6 | 4.3±2.3 |
+| TOK | 4.8±3.9 | 5.4±3.7 | 6.0±3.7 | 5.1±2.8 | 6.4±3.0 | 5.7±2.3 |
+| SML | 3.6±1.4 | 3.9±0.7 | 4.6±0.8 | 5.8±0.8 | 1.6±0.8 | 1.6±0.6 |
+| LAD | 6.6±3.4 | 5.6±3.1 | 6.8±3.8 | 2.9±2.4 | 5.9±3.5 | 5.0±2.9 |
+
+**Table B: Ledyard, BGAN, Staecker, Jacobson, Lin, Breton**
+
+| Env | Ledyard | BGAN | Staecker | Jacobson | Lin | Breton |
+|-----|---------|------|----------|----------|-----|--------|
+| BASE | 6.0±3.7 | 8.9±3.4 | 8.1±2.6 | 6.6±2.5 | 8.9±2.5 | 6.7±2.7 |
+| BBBS | 7.0±3.1 | 8.2±2.4 | 6.0±4.0 | 6.3±3.6 | 5.2±3.1 | 6.1±3.4 |
+| BSSS | 4.6±2.5 | 4.8±2.5 | 2.6±2.1 | 7.9±2.5 | 2.9±2.7 | 4.0±2.9 |
+| EQL | 6.3±2.4 | 8.7±2.5 | 8.1±2.6 | 8.2±2.2 | 9.8±2.2 | 9.5±2.8 |
+| RAN | 5.9±3.7 | 8.8±3.4 | 7.4±2.8 | 6.6±2.4 | 8.6±2.6 | 7.2±2.9 |
+| PER | 5.7±3.2 | 8.3±3.7 | 7.9±2.4 | 5.7±2.4 | 10.0±2.2 | 7.5±2.3 |
+| SHRT | 6.8±3.2 | 8.9±3.4 | 7.4±2.7 | 6.7±2.0 | 9.5±2.5 | 7.0±2.4 |
+| TOK | 5.2±3.0 | 6.5±3.1 | 7.1±2.9 | 8.2±2.8 | 9.0±2.5 | 8.5±3.7 |
+| SML | 7.1±0.7 | 11.5±0.7 | 7.9±0.4 | 8.9±0.5 | 11.4±0.5 | 10.0±0.5 |
+| LAD | 5.9±3.8 | 8.5±3.5 | 7.6±2.6 | 6.9±2.5 | 8.7±2.3 | 7.5±2.7 |
+
+#### 2.3.3 Tournament Summary
+
+| Strategy | Avg Rank | Wins | Best Env | Worst Env |
+|----------|----------|------|----------|-----------|
+| Ringuette | 4.00 | 149 | SHRT (1.9) | BSSS (8.3) |
+| Perry | 5.00 | 56 | SML (1.6) | BSSS (8.7) |
+| Skeleton | 5.18 | 18 | EQL (3.8) | BBBS (6.7) |
+| Gamer | 5.81 | 55 | SML (1.6) | BSSS (7.4) |
+| Ledyard | 6.06 | 50 | BSSS (4.6) | SML (7.1) |
+| ZIC | 6.64 | 54 | SML (3.6) | BSSS (9.8) |
+| Kaplan | 6.99 | 10 | SML (4.6) | BSSS (10.8) |
+| Staecker | 7.02 | 32 | BSSS (2.6) | BASE (8.1) |
+| Jacobson | 7.20 | 14 | PER (5.7) | SML (8.9) |
+| Breton | 7.39 | 12 | BSSS (4.0) | SML (10.0) |
+| BGAN | 8.30 | 22 | BSSS (4.8) | SML (11.5) |
+| Lin | 8.42 | 28 | BSSS (2.9) | SML (11.4) |
+
+**Key Finding:** Ringuette wins the round-robin tournament (avg rank 4.00, 149 wins), followed by Perry and Skeleton. Kaplan (the Santa Fe 1991 winner) ranks only 7th in mixed markets. This contrasts with the original 1991 results where specialized environments favored "sniper" strategies.
+
+#### 2.3.4 Extended Round-Robin with ZIP (13 traders)
+
+**Config:** Same as above but with ZIP (Cliff 1997) added: 7 buyers (ZIC, Skeleton, Kaplan, Ringuette, Gamer, Perry, ZIP) x 6 sellers.
+
+**ZIP Performance in Mixed Market:**
+
+| Environment | ZIP Profit | ZIP Rank | Notes |
+|-------------|------------|----------|-------|
+| BASE | 262 | 8.4 | Middle-of-pack |
+| BBBS | 82,649 | 2.1 | Dominates (asymmetric advantage) |
+| BSSS | 333,393 | 1.4 | Dominates (asymmetric advantage) |
+| EQL | 446 | 7.7 | Middle-of-pack |
+| RAN | 254 | 8.4 | Middle-of-pack |
+| PER | 263 | 8.8 | Below average |
+| SHRT | 247 | 9.0 | Below average |
+| TOK | 540 | 7.8 | Middle-of-pack |
+| SML | 259 | 8.8 | Below average |
+| LAD | 254 | 8.8 | Below average |
+
+**Key Finding:** ZIP (Cliff 1997) is NOT dominant against Santa Fe 1991 traders in normal environments, ranking 7th-9th out of 13. However, ZIP excels in asymmetric environments (BBBS, BSSS) where its adaptive learning exploits structural advantages. This suggests ZIP is optimized for simpler opponent strategies (like pure ZIC) rather than the diverse Santa Fe ecosystem.
+
+---
+
+### 2.4 Evolutionary Tournament
+
+**Goal:** Identify Evolutionarily Stable Strategies (ESS).
+
+**Config:** 32 agents, 50 generations, 12 Santa Fe 1991 strategies: ZIC, Skeleton, Kaplan, Ringuette, Gamer, Perry, Lin, Breton, BGAN, Ledyard, Staecker, Jacobson
+
+**Status:** ⏳ RUNNING (3 seeds with Santa Fe-only roster)
+
+#### 2.4.1 Population Share Over Generations (mean across 3 seeds)
+
+*Results pending completion of evolutionary experiments.*
+
+| Generation | ZIC | Skeleton | Kaplan | Ringuette | Gamer | Perry | Lin | Breton | BGAN | Ledyard | Staecker | Jacobson |
+|------------|-----|----------|--------|-----------|-------|-------|-----|--------|------|---------|----------|----------|
+| 0 (initial) | - | - | - | - | - | - | - | - | - | - | - | - |
+| 10 | - | - | - | - | - | - | - | - | - | - | - | - |
+| 25 | - | - | - | - | - | - | - | - | - | - | - | - |
+| 50 (final) | - | - | - | - | - | - | - | - | - | - | - | - |
+
+#### 2.4.2 Final Population (Generation 50)
+
+*Results pending completion of evolutionary experiments.*
+
+| Strategy | Population Share | Classification |
+|----------|------------------|----------------|
+| - | - | - |
+
+#### 2.4.3 Extinction Order (mean generation across seeds)
+
+*Results pending completion of evolutionary experiments.*
+
+#### 2.4.4 Extended Evolutionary with ZIP (10 seeds, v3 data)
+
+**Config:** 32 agents, 50 generations, mixed strategy pool including ZIP.
+
+**Final Population (mean across 10 seeds):**
+
+| Strategy | Mean Count | Seeds Survived | Classification |
+|----------|------------|----------------|----------------|
+| Skeleton | 20.0 | 10/10 | **ESS (dominant)** |
+| Kaplan | 4.3 | 10/10 | Stable |
+| Ringuette | 3.2 | 8/10 | Stable |
+| GD | 2.1 | 7/10 | Marginal |
+| ZI2 | 2.0 | 8/10 | Marginal |
+| ZIC | 1.4 | 8/10 | Marginal |
+| EL | 1.0 | 3/10 | Near-extinct |
+| **ZIP** | **1.0** | **3/10** | **Near-extinct** |
+
+**Extinction Events (mean generation):**
+
+| Strategy | Mean Gen Extinct | Notes |
+|----------|------------------|-------|
+| EL | 2.1 | First to go |
+| TruthTeller | 6.4 | Early extinction |
+| **ZIP** | **7.5** | **Early extinction** |
+| ZI2 | 22.1 | Mid-game |
+| ZIC | 26.3 | Mid-game |
+| Markup | 32.8 | Late |
+| GD | 33.6 | Late |
+| Ringuette | 36.0 | Very late (only 3 seeds) |
+
+**Key Finding:** ZIP is NOT evolutionarily stable. It goes extinct early (mean gen 7.5) in all 10 seeds. Skeleton dominates with 62.5% of final population, followed by Kaplan (13.4%) and Ringuette (10%). This confirms round-robin results: ZIP's adaptive learning is insufficient against sophisticated Santa Fe strategies.
+
+**Key Finding:** Pending results from Santa Fe 1991-only roster experiments.
+
+---
 
 ### Outputs (In Paper)
-- [x] table_control.tex: Control efficiency (Skeleton, ZIP, Kaplan vs 7 ZIC) ✅
-- [x] table_control_volatility.tex: Control price volatility ✅
-- [x] table_invasibility.tex: Invasibility ratios (profit exploitation) ✅
-- [x] table_selfplay.tex: Self-play efficiency matrix ✅
-- [x] table_selfplay_volatility.tex: Self-play volatility ✅
-- [x] table_selfplay_vineff.tex: Self-play V-inefficiency ✅
-- [x] table_pairwise.tex: Pairwise matchup results ✅
-- [x] table_zip_tuning.tex: ZIP hyperparameter sensitivity ✅
-- [x] table_profit_analysis.tex: ZIP vs ZIC profit analysis ✅
-- [x] table_roundrobin.tex: Round Robin full results ✅
-- [x] table_roundrobin_summary.tex: Round Robin summary ✅
-- [x] kaplan_mixed_vs_pure.pdf: Kaplan mixed vs pure markets ✅
-- [x] price_autocorrelation.pdf: Price autocorrelation by trader ✅
-- [x] case_study_mixed.pdf: 8-strategy mixed market dynamics ✅
-- [x] trading_volume_timing.pdf: Trading volume by period ✅
-- [x] trader_hierarchy.pdf: Trader strategy hierarchy ✅
+
+| Output | Description | Status |
+|--------|-------------|--------|
+| table_s6_invasibility.tex | Invasibility profit ratios | ⬜ |
+| table_s6_selfplay_efficiency.tex | Self-play efficiency | ⬜ |
+| table_s6_selfplay_vineff.tex | Self-play V-inefficiency | ⬜ |
+| table_s6_selfplay_profit_dispersion.tex | Self-play profit dispersion | ✅ |
+| table_s6_selfplay_rmsd.tex | Self-play RMSD | ✅ |
+| table_s6_selfplay_trades_per_period.tex | Self-play trades per period | ✅ |
+| table_s6_roundrobin_profit.tex | Round-robin profit | ⬜ |
+| table_s6_roundrobin_rank.tex | Round-robin rankings | ⬜ |
+| table_s6_roundrobin_summary.tex | Tournament summary | ⬜ |
+| figure_s6_evolutionary_dynamics.pdf | Population over generations | ⬜ |
+| figure_s6_sniper_dilemma.pdf | Kaplan SHRT collapse | ⬜ |
 
 ---
 
@@ -402,387 +892,171 @@ All 4 configurations produce nearly identical results (98.9% efficiency, ~39.6% 
 
 > Reference: Chen et al. (2010)
 
+**Objective:** Evaluate PPO reinforcement learning in the double auction, progressing from simple to complex environments.
+
 ### Configuration
 - 7,000 trading periods (Chen protocol)
 - 25 steps per period
 - 4 tokens per trader
 
-### Implementation Status (2024-11-28)
-
-**Code Review Findings:**
-- ✅ PPOAgent loads checkpoints successfully (180+ models in `/checkpoints/`)
-- ✅ Market correctly injects OrderBook into PPO agents (`market.py:119-122`)
-- ⚠️ **Observation mismatch**: Models trained with 24-dim obs, current generator produces 31-dim
-- ❌ **Irrational bidding**: PPO consistently chooses action=5 (midpoint), bidding 500+ when valuations are 9-21
-- ❌ **Negative profits**: Manual test showed PPO profit=-1747 vs ZIC profit=+1750
-
-**Root Causes:**
-1. `enhanced_features.py` was extended from 24→31 features AFTER models were trained
-2. Action mapping (`_map_action_to_price`) doesn't enforce rationality constraints
-3. Training may have used different price/valuation scales
-
-**Blockers for Experiments:**
-- [ ] Fix observation dimension compatibility (truncate or retrain)
-- [ ] Add rationality constraint: `price = min(price, valuation)` for buyers
-- [ ] Verify training environment matches inference environment
-- [ ] Consider retraining with proper reward shaping
-
-### 3.1 Training Curriculum
-
-| Exp # | Opponent | Training Episodes | Final Ratio | Converged? | Status |
-|-------|----------|-------------------|-------------|------------|--------|
-| 3.1 | ZIC | | | | ⬜ |
-| 3.2 | Skeleton | | | | ⬜ |
-| 3.3 | Mixed | | | | ⬜ |
-
-### 3.2 Against Control (PPO vs 7 ZIC) — Exp 3.4-3.13
-
-*Each PPO model trained and evaluated on its matching environment only.*
-*5 seeds, 50 rounds each, 10 periods per round.*
-
-#### Per-Environment Control Efficiency (%)
-
-| Environment | PPO Model | Efficiency | Volatility | Status |
-|-------------|-----------|------------|------------|--------|
-| BASE | ppo_base | 95.2±1.4% | 7.9% | ✅ |
-| BBBS | ppo_bbbs | 93.2±2.0% | 7.0% | ✅ |
-| BSSS | ppo_bsss | 94.1±1.4% | 8.7% | ✅ |
-| EQL | ppo_eql | 97.9±0.4% | 11.6% | ✅ |
-| RAN | ppo_ran | -51.7±64.0% | 0.0% | ✅ |
-| PER | ppo_base | 95.2±1.7% | 7.6% | ✅ |
-| SHRT | ppo_shrt | 78.7±2.2% | 8.6% | ✅ |
-| TOK | ppo_tok | 49.0±6.3% | 2.7% | ✅ |
-| SML | ppo_sml | 94.3±1.7% | 8.6% | ✅ |
-| LAD | ppo_base | 95.0±1.4% | 8.0% | ✅ |
-
-#### Invasibility (PPO Profit / ZIC Profit Ratio)
-
-| Environment | PPO Profit | ZIC Profit | Invasibility | Interpretation |
-|-------------|------------|------------|--------------|----------------|
-| BASE | 1329 | 1057 | **1.26x** | PPO exploits ZIC |
-| BBBS | 774 | 1772 | 0.44x | PPO loses (buyer-heavy market) |
-| BSSS | 1751 | 441 | **3.97x** | PPO dominates (seller-heavy) |
-| EQL | 1711 | 1651 | 1.04x | Neutral |
-| RAN | 1.5M | -339k | **4.51x** | PPO exploits random chaos |
-| SHRT | 1154 | 990 | **1.17x** | PPO exploits time pressure |
-| TOK | 192 | 193 | 1.00x | Neutral (1 token limits gains) |
-| SML | 1138 | 1716 | 0.66x | PPO loses (small market, less to exploit) |
-| PER | 133 | 105 | **1.26x** | PPO exploits (single period) |
-| LAD | 1329 | 1057 | **1.26x** | Same as BASE (low adaptivity irrelevant for RL) |
-
-**Key Findings:**
-1. PPO as BUYER exploits seller-heavy markets (BSSS: 3.97x) but loses in buyer-heavy markets (BBBS: 0.44x)
-2. PPO maintains advantage in time-pressured markets (SHRT: 1.17x)
-3. PPO exploits random/chaotic markets (RAN: 4.51x) where ZIC suffers
-4. Single-token markets (TOK) neutralize PPO's advantage (1.00x)
-
-### 3.3 Self-Play (PPO vs PPO) — Exp 3.14-3.23
-
-| Environment | Exp # | Efficiency | Price RMSD | Autocorr | Status |
-|-------------|-------|------------|------------|----------|--------|
-| BASE | 3.14 | | | | ⬜ |
-| BBBS | 3.15 | | | | ⬜ |
-| BSSS | 3.16 | | | | ⬜ |
-| EQL | 3.17 | | | | ⬜ |
-| RAN | 3.18 | | | | ⬜ |
-| PER | 3.19 | | | | ⬜ |
-| SHRT | 3.20 | | | | ⬜ |
-| TOK | 3.21 | | | | ⬜ |
-| SML | 3.22 | | | | ⬜ |
-| LAD | 3.23 | | | | ⬜ |
-
-### 3.4 Round Robin (PPO in Mixed Market) — Exp 3.24-3.33
-
-**Experiment 3.24 Results (2025-11-29)**
-
-Round Robin tournament on BASE environment with 6 strategies (PPO, Skeleton, ZIC, ZIP, GD, Kaplan).
-Model: `checkpoints/ppo_v4b_deep/final_model.zip` (1M steps, [256,256,128,64] architecture)
-Config: 50 rounds, 10 periods/round, 100 steps/period
-
-| Strategy | Mean Profit | Std | Rank |
-|----------|-------------|-----|------|
-| Skeleton | 1410.8 | 1419.8 | 1 |
-| GD | 1299.6 | 908.5 | 2 |
-| **PPO** | **1194.0** | 1038.0 | **3** |
-| ZIC | 1057.1 | 831.5 | 4 |
-| Kaplan | 1013.1 | 821.3 | 5 |
-| ZIP | 718.8 | 521.9 | 6 |
-
-**Key Finding (Original):** PPO ranks #3/6, beating ZIC, Kaplan, and ZIP but losing to Skeleton and GD.
-PPO profit is 13% higher than ZIC (1194 vs 1057) but 15% lower than Skeleton (1194 vs 1411).
+---
 
-**BREAKTHROUGH: Buyer-Only Tournament (2025-11-29)**
+### Phase 1: Foundational Capabilities
 
-Root cause identified: PPO trained only as BUYER but ran as both buyer AND seller in tournament. Model never saw `is_buyer=False` during training.
+#### 1.1 Control Experiment (1 PPO vs 7 ZIC)
+
+**Hypothesis H2 (Exploitation):** PPO can exploit naive opponents, capturing majority of surplus by learning to bid just above ZIC's predictable reservation prices.
 
-**Buyer-Only Results (PPO v5, 50 rounds, 10 periods):**
-| Strategy | Mean Profit | Rank |
-|----------|-------------|------|
-| **PPO** | **1204.7** | **1** |
-| Skeleton | 1196.5 | 2 |
-| GD | 1173.4 | 3 |
-| ZIP | 1172.8 | 4 |
-| ZIC | 880.3 | 5 |
-| Kaplan | 814.1 | 6 |
+**Per-Environment Results:**
 
-**PPO beats Skeleton by 0.7%** when restricted to buyer role only!
+| Env | Efficiency | Volatility | PPO Profit | ZIC Profit | Invasibility | Status |
+|-----|------------|------------|------------|------------|--------------|--------|
+| BASE | | | | | | ⬜ |
+| BBBS | | | | | | ⬜ |
+| BSSS | | | | | | ⬜ |
+| EQL | | | | | | ⬜ |
+| RAN | | | | | | ⬜ |
+| PER | | | | | | ⬜ |
+| SHRT | | | | | | ⬜ |
+| TOK | | | | | | ⬜ |
+| SML | | | | | | ⬜ |
+| LAD | | | | | | ⬜ |
 
-**Model Comparison:**
-| Model | Architecture | Training | Mean Profit | Rank |
-|-------|-------------|----------|-------------|------|
-| v5 (buyer-only) | [256,256] | 1M vs Skeleton | 1204.7 | **1/6** |
-| v4b | [256,256,128,64] | 1M steps | 1194.0 | 3/6 |
-| v4a | [256,256] | 5M steps | 1158.1 | 3/6 |
+**Success Criterion:** Invasibility > 1.0 in majority of environments.
 
-Deeper network (v4b) outperforms longer training (v4a) by 3%.
+---
 
-| Environment | PPO Rank | PPO Profit | Interpretation | Status |
-|-------------|----------|------------|----------------|--------|
-| BASE | **1.0±0.0** | 1313 | PPO DOMINATES | ✅ |
-| BBBS | 4.2±0.4 | 706 | PPO loses (buyer-heavy) | ✅ |
-| BSSS | 4.4±0.5 | 675 | PPO loses (seller-heavy) | ✅ |
-| EQL | **1.4±0.5** | 1771 | PPO WINS | ✅ |
-| RAN | **1.0±0.0** | 468k | PPO DOMINATES | ✅ |
-| PER | **1.0±0.0** | 131 | PPO DOMINATES | ✅ |
-| SHRT | **1.0±0.0** | 1286 | PPO DOMINATES | ✅ |
-| TOK | **1.6±0.8** | 271 | PPO WINS | ✅ |
-| SML | 4.0±0.0 | 877 | PPO loses (small market) | ✅ |
-| LAD | **1.0±0.0** | 1317 | PPO DOMINATES | ✅ |
+#### 1.2 Easy-Play (PPO Buyer vs TruthTeller)
 
-**Key Findings (2025-11-30):**
-1. PPO ranks #1 in **7/10 environments** (BASE, RAN, PER, SHRT, LAD, EQL, TOK)
-2. PPO loses in asymmetric markets (BBBS/BSSS) where buyer/seller imbalance hurts PPO-as-buyer
-3. PPO loses in small markets (SML) where there is less surplus to exploit
-4. Per-environment training is critical: models trained on BASE cannot generalize
+**Hypothesis H2 variant:** PPO learns surplus extraction without strategic counter-play from opponents.
 
-### 3.4.1 PPO Trading Behavior Analysis
+**Per-Environment Results:**
 
-**Date**: 2025-11-30
+| Env | Efficiency | Mean Trade Time | PPO Profit | Profit/Trade | Status |
+|-----|------------|-----------------|------------|--------------|--------|
+| BASE | | | | | ⬜ |
+| BBBS | | | | | ⬜ |
+| BSSS | | | | | ⬜ |
+| EQL | | | | | ⬜ |
+| RAN | | | | | ⬜ |
+| PER | | | | | ⬜ |
+| SHRT | | | | | ⬜ |
+| TOK | | | | | ⬜ |
+| SML | | | | | ⬜ |
+| LAD | | | | | ⬜ |
 
-**Goal**: Understand HOW PPO trades by tracing actual decisions.
+**Success Criterion:** High efficiency (>95%) and positive profit/trade.
 
-**Configuration**: 5 seeds × 5 periods = 25 periods analyzed. BASE environment with PPO buyer vs 7 ZIC agents.
+---
 
-#### Action Distribution (total over 25 periods)
+#### 1.3 Mixed-ZI Competition (vs ZI/ZIC/ZIP)
 
-| Action Type | Count | Percentage |
-|-------------|-------|------------|
-| Shade | 11,537 | 92.1% |
-| Pass | 446 | 3.6% |
-| Accept/Trade | 291 | 2.3% |
-| Improve | 149 | 1.2% |
-| Truthful | 102 | 0.8% |
+**Hypothesis H3 (Superior Adaptability):** PPO demonstrates superior adaptability over heuristic-based ZIP by learning from market feedback rather than fixed rules.
 
-#### Trade Timing Analysis
+**Per-Environment Results:**
 
-| Metric | Value |
-|--------|-------|
-| Mean trade time | 7.8 ± 7.1 steps |
-| Early trades (t < 30) | 98.2% |
-| Mid trades (30 ≤ t < 70) | 1.8% |
-| Late trades (t ≥ 70) | 0.0% |
+| Env | PPO Rank | ZI Rank | ZIC Rank | ZIP Rank | PPO Profit | Status |
+|-----|----------|---------|----------|----------|------------|--------|
+| BASE | | | | | | ⬜ |
+| BBBS | | | | | | ⬜ |
+| BSSS | | | | | | ⬜ |
+| EQL | | | | | | ⬜ |
+| RAN | | | | | | ⬜ |
+| PER | | | | | | ⬜ |
+| SHRT | | | | | | ⬜ |
+| TOK | | | | | | ⬜ |
+| SML | | | | | | ⬜ |
+| LAD | | | | | | ⬜ |
 
-#### Shade Distribution (when shading)
+**Success Criterion:** PPO rank < ZIP rank (PPO beats ZIP).
 
-| Shade Range | Count | Percentage |
-|-------------|-------|------------|
-| 0-5% | 2,344 | 20.3% |
-| 5-10% | 299 | 2.6% |
-| 10-20% | 924 | 8.0% |
-| 20-30% | 178 | 1.5% |
-| 30-40% | 7,708 | 66.8% |
-| 40-50% | 84 | 0.7% |
+---
 
-**Mean shade**: 22.5% ± 12.0%
+### Phase 2: The Crucible (Advanced Competition)
 
-#### Key Insight: Emergent Kaplan Sniper Behavior
+#### 2.1 Santa Fe Tournament (vs Kaplan/GD/Skeleton)
 
-PPO independently discovered a strategy remarkably similar to Kaplan's "patient arbitrageur" through pure reinforcement learning:
+**Hypothesis H4 (Emergent Dominance):** PPO can develop, through trial-and-error, a trading strategy that beats human-designed heuristics including the historically dominant Kaplan sniper.
 
-1. **Conservative Opening**: 66.8% of bids shade 30-40% below valuation (maximum margin seeking)
-2. **Early Execution**: 98.2% of trades complete in first 30 steps (period opens)
-3. **Opportunistic Aggression**: 20.3% of bids at 0-5% shade (ready to trade when spread favorable)
-4. **No Late Chasing**: Zero trades after step 70 (doesn't pursue unfavorable deals)
+**Per-Environment Results:**
 
-This mirrors the Rust et al. (1994) finding that the winning Santa Fe strategy (Kaplan) was a "sniper" that waited for favorable conditions. PPO learned this behavior through trial and error, without any explicit programming of strategic patience.
+| Env | PPO Rank | Kaplan Rank | GD Rank | Skeleton Rank | Ringuette Rank | PPO Profit | Status |
+|-----|----------|-------------|---------|---------------|----------------|------------|--------|
+| BASE | | | | | | | ⬜ |
+| BBBS | | | | | | | ⬜ |
+| BSSS | | | | | | | ⬜ |
+| EQL | | | | | | | ⬜ |
+| RAN | | | | | | | ⬜ |
+| PER | | | | | | | ⬜ |
+| SHRT | | | | | | | ⬜ |
+| TOK | | | | | | | ⬜ |
+| SML | | | | | | | ⬜ |
+| LAD | | | | | | | ⬜ |
 
-**Script**: `scripts/analyze_ppo_behavior.py`
+**Behavioral Analysis (PPO vs Kaplan):**
 
-### 3.4.2 PPO Behavior vs Opponent Sophistication
+| Metric | PPO | Kaplan | Interpretation |
+|--------|-----|--------|----------------|
+| Dominant Action | | | |
+| Mean Trade Time | | | |
+| Early% (t<30) | | | |
+| Mid% (30-70) | | | |
+| Late% (t>=70) | | | |
+| PASS% | | | |
+| Profit/Trade | | | |
 
-**Date**: 2025-11-30
+**Success Criterion:** PPO rank < Kaplan rank; PPO profit > Kaplan profit.
 
-**Goal**: Analyze how PPO adapts its trading behavior when facing sophisticated opponents versus naive ZIC.
+---
 
-**Configuration**: 5 seeds × 5 periods = 25 periods per opponent type.
-- **ZIC opponents**: PPO buyer vs 3 ZIC buyers + 4 ZIC sellers
-- **MIXED opponents**: PPO buyer vs Skeleton, ZIP, Kaplan buyers + Skeleton, ZIP, Kaplan, ZIC sellers
+#### 2.2 Self-Play (8 PPO agents)
 
-#### Behavior Comparison Table
+**Hypothesis H1 (Stability):** PPO avoids the "Sniper's Dilemma" (market collapse observed in Kaplan self-play where all agents wait and few trades occur).
 
-| Metric | vs ZIC | vs MIXED | Change |
-|--------|--------|----------|--------|
-| Shade actions | 84.8% | 87.1% | +2.3pp |
-| Early trades (t < 30) | 91.5% | 98.2% | +6.7pp |
-| Mean trade time | 12.0 steps | 7.7 steps | -4.3 |
-| Shade at 30-40% | 77.7% | 86.7% | +9.0pp |
+**Per-Environment Results:**
 
-#### Profit Analysis (5 seeds × 5 periods)
+| Env | Efficiency | V-Ineff | Trades/Period | Volatility | Status |
+|-----|------------|---------|---------------|------------|--------|
+| BASE | | | | | ⬜ |
+| BBBS | | | | | ⬜ |
+| BSSS | | | | | ⬜ |
+| EQL | | | | | ⬜ |
+| RAN | | | | | ⬜ |
+| PER | | | | | ⬜ |
+| SHRT | | | | | ⬜ |
+| TOK | | | | | ⬜ |
+| SML | | | | | ⬜ |
+| LAD | | | | | ⬜ |
 
-| Metric | vs ZIC | vs MIXED | Change |
-|--------|--------|----------|--------|
-| Total Profit | 2,354 | 2,467 | +5% |
-| Avg Profit/Trade | 39.9 | 42.5 | +7% |
+**Sniper's Dilemma Test:**
 
-#### Key Finding: Robust Kaplan Sniper Strategy
+| Env | Kaplan Self-Play Eff | PPO Self-Play Eff | PPO Avoids Collapse? |
+|-----|----------------------|-------------------|----------------------|
+| BASE | 99.8% | | ? |
+| SHRT | 79.5% | | ? |
+| RAN | 99.2% | | ? |
 
-PPO INTENSIFIES its trading strategy against sophisticated opponents:
+**Success Criterion:** PPO self-play efficiency > Kaplan self-play efficiency, especially in SHRT.
 
-1. **Faster execution**: Mean trade time drops from 12.0 to 7.7 steps (-36%)
-2. **More conservative bidding**: 86.7% of bids at 30-40% shade vs 77.7% (+9pp)
-3. **Higher early trade concentration**: 98.2% vs 91.5% (+6.7pp)
-4. **Better profits**: +5% total profit, +7% per-trade profit
+---
 
-This demonstrates that PPO's emergent Kaplan-like strategy is not just optimal against naive opponents but becomes MORE effective against sophisticated competition. When facing Skeleton, ZIP, and Kaplan, PPO accelerates its sniping behavior, executing earlier and more conservatively, resulting in HIGHER profits.
+### Phase 3: Synthesis
 
-**Interpretation**: The learned strategy is robust to opponent sophistication. Rather than being exploited by smarter opponents, PPO adapts by intensifying its core tactics. This validates the emergence of genuinely strategic behavior through pure reinforcement learning.
-
-**Script**: `scripts/analyze_ppo_behavior.py --opponent both`
-
-### 3.4.3 PPO vs Kaplan: Direct Behavioral Comparison
-
-**Date**: 2025-11-30
-
-**Goal**: Quantitatively compare PPO and Kaplan trading behavior to test the "emergent Kaplan sniper" hypothesis.
-
-**Configuration**: Same setup for both (5 seeds × 5 periods, 1 focal agent + 3 ZIC buyers vs 4 ZIC sellers).
-
-#### Behavioral Comparison Table
-
-| Metric | Kaplan | PPO | Interpretation |
-|--------|--------|-----|----------------|
-| **Dominant action** | PASS (68%) | Shade (92%) | Kaplan waits, PPO bids |
-| **Mean trade time** | 50.0 steps | 7.8 steps | 6x later |
-| **Early trades (t<30)** | 12.5% | 98.2% | OPPOSITE timing |
-| **Mid trades (30-70)** | 70.8% | 1.8% | Kaplan zone |
-| **Late trades (t>=70)** | 16.7% | 0% | Only Kaplan |
-| **Total profit** | 2,591 | 2,354 | Kaplan +10% |
-| **Profit/trade** | 54.0 | 39.9 | Kaplan +35% |
-
-#### Key Finding: Temporal Opposites
-
-PPO and Kaplan employ fundamentally different temporal strategies:
-
-1. **Kaplan (Patient Waiting)**: Passes 68% of the time, concentrates trades in steps 40-80, extracts 54 profit per trade
-2. **PPO (Early Aggression)**: Bids on nearly every step, completes 98% of trades before step 30, earns 40 profit per trade
-
-#### Revised Interpretation
-
-PPO did NOT rediscover the Kaplan strategy. Instead, deep RL discovered an **alternative path to profitability**:
-- **Kaplan**: Parasitic sniping - waits for others to narrow the spread
-- **PPO**: Preemptive sniping - captures trades before competition develops
-
-**Shared Characteristic**: Both shade conservatively below valuation (key to both strategies' success over naive ZIC).
-
-**Distinct Mechanisms**: Opposite temporal strategies - Kaplan succeeds through patience, PPO through speed.
-
-**Implication**: Multiple equilibria exist in double auction markets. RL discovered a novel solution that hand-crafted heuristics missed.
-
-**Script**: `scripts/analyze_kaplan_behavior.py --seeds 5 --periods 5 --compare`
-
-### 3.5 PPO vs Zero-Intelligence Baselines (Exp 3.34)
-
-**Date**: 2025-11-29
-
-See Section 1.6 for full results. This section documents the evolution of PPO performance against ZI baselines.
-
-**Initial Results (PPO trained vs Skeleton/GD)**:
-
-| Strategy | Mean Profit | Std Dev | Mean Rank |
-|----------|-------------|---------|-----------|
-| ZIP | 3,404 | 132 | 1.00 |
-| ZIC | 1,462 | 96 | 2.00 |
-| PPO | 1,214 | 200 | 3.00 |
-| ZI | -3,297 | 279 | 4.00 |
-
-PPO trained against Skeleton/GD ranked 3rd, below both ZIP and ZIC.
-
-**Updated Results (PPO retrained vs ZIC/ZIP, 1M steps)**:
-
-| Strategy | Mean Profit | Std Dev | Mean Rank |
-|----------|-------------|---------|-----------|
-| **PPO** | **138,772** | 11,383 | **1.2** |
-| ZIP | 126,125 | 10,613 | 1.8 |
-| ZIC | 61,361 | 5,563 | 3.0 |
-| ZI | -165,285 | 26,002 | 4.0 |
-
-**Key Finding**: After retraining against ZIC/ZIP opponents, PPO beats ZIP by 10% (138,772 vs 126,125) and achieves rank 1.2. This demonstrates that deep RL can surpass hand-crafted adaptive heuristics when trained against appropriate opponents.
-
-**Lesson**: Opponent-specific training is critical. The same PPO architecture went from rank 3 to rank 1 simply by matching training opponents to evaluation opponents.
-
-**Results saved to**: `results/ppo_vs_zi/ppo_zi_mix_trained_results.json`
-
-### 3.6 Extended Training: PPO v10 (10M Steps)
-
-**Date**: 2025-11-29
-
-**Goal**: Beat Ringuette (#1 in round-robin) by training for 10M steps with entropy decay.
-
-**Configuration**:
-- MaskablePPO with [256,256] network
-- Training vs Mixed opponents
-- gametype=6453 (matches tournament distribution)
-- Entropy coefficient: 0.15 → 0.01 (linear decay over training)
-- Checkpoints: 4M, 8M, 10M (save_freq=500K per-env × 8 envs)
-
-**FINAL RESULTS (8M Steps Checkpoint) - PPO BEATS RINGUETTE!**
-
-| Strategy | Mean Profit | Std | Rank |
-|----------|-------------|-----|------|
-| **PPO (8M)** | **1404.2** | 715.6 | **1** |
-| Ringuette | 1384.2 | 585.8 | 2 |
-| EL | 1251.5 | 808.3 | 3 |
-| GD | 1184.6 | 631.5 | 4 |
-| Markup | 1131.4 | 607.1 | 5 |
-| Skeleton | 1124.7 | 648.1 | 6 |
-| Kaplan | 1119.3 | 688.7 | 7 |
-| ZIC | 891.3 | 426.7 | 8 |
-| ZIP | 863.2 | 534.5 | 9 |
-
-**Key Finding**: PPO v10 @ 8M steps achieves Rank #1 with profit 1404.2, surpassing Ringuette (1384.2) by 20 points (1.4%). Deep reinforcement learning has discovered a trading strategy that outperforms all hand-crafted heuristics developed over three decades of double auction research.
-
-**Training Progress Timeline**:
-| Checkpoint | Mean Profit | Rank | Gap to Ringuette |
-|------------|-------------|------|------------------|
-| 4M steps | 1317.8 | 2 | -43 points |
-| 8M steps | 1404.2 | **1** | **+20 points** |
-| 10M steps | TBD | TBD | TBD |
-
-**Model Path**: `checkpoints/ppo_v10_10M/ppo_double_auction_8000000_steps.zip`
-
-**Figures**:
-- `paper/arxiv/figures/ppo_tournament_bar.pdf` - 9-strategy bar chart (PPO #1)
-- `paper/arxiv/figures/ppo_learning_curve.pdf` - Learning curve with legacy baselines
-
-### Metrics
-- PPO efficiency ratio
-- Opponent efficiency ratio
-- Market efficiency
-- PPO profit rank
-- Training curves
+- [ ] Document quantitative results
+- [ ] Update paper (07_results_rl.tex)
+- [ ] Generate figures (learning curves, behavioral signatures)
+- [ ] Finalize status in paper.md
 
 ### Outputs (In Paper)
-- [x] table_ppo_control.tex: PPO vs 7 ZIC control results ✅
-- [x] table_ppo_control_volatility.tex: PPO control volatility ✅
-- [x] table_ppo_invasibility.tex: PPO invasibility ratios ✅
-- [x] table_ppo_pairwise.tex: PPO pairwise tournament results ✅
-- [x] ppo_zi_combined.pdf: PPO vs ZI/ZIC/ZIP combined metrics ✅
-- [x] ppo_tournament_bar.pdf: PPO tournament ranking bar chart ✅
-- [x] ppo_learning_curve.pdf: PPO training learning curve ✅
 
-### Additional Generated (Not in Paper)
-- [x] ppo_training_curves.pdf ✅
-- [x] ppo_vs_legacy.pdf ✅
+- [ ] table_ppo_control.tex: Control/invasibility results
+- [ ] table_ppo_easyplay.tex: Easy-play results
+- [ ] table_ppo_mixed_zi.tex: vs ZI hierarchy
+- [ ] table_ppo_santafe.tex: vs Santa Fe traders
+- [ ] table_ppo_selfplay.tex: Self-play stability
+- [ ] table_ppo_behavior.tex: Behavioral comparison (PPO vs Kaplan)
+- [ ] figure_ppo_learning_curve.pdf: Training dynamics
+- [ ] figure_ppo_behavior.pdf: Behavioral signatures
 
 ---
 
@@ -814,13 +1088,6 @@ PPO trained against Skeleton/GD ranked 3rd, below both ZIP and ZIC.
 | MID | GPT-4o | 0.48 | 0.21 | 1.40 | 1.06 | 1.09 | 0.85±0.49 | ✅ |
 | LOW | GPT-4o-mini | 1.15 | 0.40 | 0.00 | 0.91 | 1.30 | 0.75±0.54 | ✅ |
 | LOW | GPT-3.5-turbo | 0.58 | 1.21 | -1.16 | 0.69 | 1.64 | 0.59±1.07 | ✅ |
-
-**Key Findings:**
-1. **GPT-4.1-mini is the clear winner** (1.35x mean, 0.27 std) - consistently beats ZIC across all seeds
-2. **Reasoning models underperform** - o4-mini-low (0.51x) performs worse than production models despite more compute
-3. **Extreme variance in lower tiers** - GPT-3.5 ranges from -1.16x to 1.64x (std=1.07)
-4. **o4-mini-high has JSON parsing issues** - reasoning tokens produce invalid escape sequences
-5. **Only GPT-4.1-mini has mean > 1** - sole model consistently profitable vs ZIC
 
 #### Model Analysis Table
 
@@ -899,19 +1166,6 @@ PPO trained against Skeleton/GD ranked 3rd, below both ZIP and ZIC.
 | GPT-4.1 | 1.71 | 0.87 | 0.21 | 0.69 | 1.05 | 0.91±0.56 | -2% |
 | GPT-4.1-mini | 1.66 | 1.00 | 0.05 | 0.70 | 1.05 | 0.89±0.58 | **-34%** |
 
-**Key Findings:**
-1. **Ranking reversal** - GPT-4.1-mini drops from #1 (vs ZIC) to #7 (vs ZIP)
-2. **o4-mini-low emerges as winner** (1.16x mean) - PASS-first "Kaplan sniping" strategy works well vs ZIP
-3. **GPT-3.5-turbo improves dramatically** (+88%) - "bid at value" captures more trades vs ZIP
-4. **Most models improve vs ZIP** - ZIP provides more predictable price signals than random ZIC
-5. **Seed 456 catastrophic for all** - Only 4 total trades; market deadlock
-6. **Seed 123 ties at 1.00x** - Market reached equilibrium with equal profit shares
-
-**Behavioral Analysis (vs ZIP):**
-- **Kaplan-like PASS strategy works**: Models that wait (o4-mini variants) exploit ZIP's adaptive pricing
-- **Value-bidding profitable**: ZIP's learning converges to fair prices, making value bids acceptable
-- **Conservative margins hurt**: GPT-4.1-mini's careful margins get outbid by aggressive ZIP sellers
-
 *Logs at `llm_outputs/llm_vs_zip/`. Data collected 2025-11-30.*
 
 ---
@@ -962,26 +1216,6 @@ PPO trained against Skeleton/GD ranked 3rd, below both ZIP and ZIC.
 | GPT-4.1 | 0% | 0% | 5% | 5% | 10% | 80% | ~45% |
 | GPT-4o | 10% | 15% | 20% | 25% | 20% | 10% | ~22% |
 
-#### Key Behavioral Findings
-
-**1. Temporal Strategy Spectrum**: Strategies fall on a spectrum from early to late trading. Ultra-Early (t<10): PPO (98.2%), GPT-3.5 (98%), GPT-4o-mini (95%). Early (t<30): GPT-4.1-mini (80%), GPT-4o (70%). Mid-Period (30-70): Kaplan (70.8%), o4-mini (~60%). Late (t>=70): Only Kaplan (16.7%).
-
-**2. PASS vs Shade Trade-off**: High PASS strategies (>50%) include Kaplan (68%) and o4-mini (~60%). High Shade strategies (>80%) include PPO (92%) and GPT-4.1 (~90%). Kaplan's PASS strategy works because it exploits information revealed by other traders. o4-mini mimics this pattern but fails because it does not adapt when conditions remain unfavorable.
-
-**3. Profit Margin Awareness**: Margin-aware strategies include GPT-4.1-mini (shades 4-15%), GPT-4o (shades 30-50%), and PPO (shades 30-40%). Margin-unaware strategies include GPT-4o-mini (bids at value) and GPT-3.5 (bids at/above value).
-
-**4. Strategy Hierarchy by Performance**: Against ZIC opponents (profit ratio): PPO (~1.5x) > Kaplan (~1.2x) > GPT-4.1-mini (1.35x) > GPT-4.1 (0.93x) > GPT-4o (0.85x) > GPT-4o-mini (0.75x) > GPT-3.5 (0.59x) > o4-mini (0.51x).
-
-#### Behavioral Conclusions
-
-1. **PPO discovered a novel equilibrium**: Pure shading (92%) combined with ultra-early execution (t<10) differs from Kaplan's wait-and-snipe but achieves similar profitability through a different mechanism.
-
-2. **LLMs fail to discover emergent strategies**: Despite understanding market mechanics, LLMs do not discover Kaplan-like patience or PPO-like aggression. The best performer (GPT-4.1-mini) uses intuitive moderate shading.
-
-3. **Reasoning models underperform production models**: o4-mini's sophisticated reasoning leads to paralysis (excessive PASS), missing trading opportunities. This is the opposite problem from PPO's successful early aggression.
-
-4. **Value bidding is catastrophic**: Models that bid at or above valuation (GPT-3.5, GPT-4o-mini) have zero or negative profit margins, making wins meaningless.
-
 **Script**: `scripts/analyze_llm_behavior.py` (to be created)
 
 ---
@@ -1006,8 +1240,6 @@ PPO trained against Skeleton/GD ranked 3rd, below both ZIP and ZIC.
 - GPT-3.5 occasionally returns "accept" in bid/ask stage (wrong action type)
 - Struggles with AURORA protocol constraints
 
-**Conclusion:** GPT-3.5 underperforms ZIC by 56%. Needs prompt engineering or few-shot examples.
-
 ### Deep Context Prompts v7 (2025-11-29)
 
 **Fix Applied:** Deep context prompts with full AURORA rules, order book history, trade history.
@@ -1026,8 +1258,6 @@ PPO trained against Skeleton/GD ranked 3rd, below both ZIP and ZIC.
 - System prompt: Full AURORA bidding rules with 3 worked examples
 - User prompt: Order book history (last 5 steps), all trade prices with timestamps
 - Prompt style: `prompt_style="deep"`
-
-**Conclusion:** Zero invalid actions achieved. GPT-4o-mini with deep context achieves 0.84x ratio vs ZIC (competitive with handcrafted strategies).
 
 ### 4.5 Cost-Efficient Model Comparison (Exp 4.32)
 
@@ -1074,14 +1304,6 @@ PPO trained against Skeleton/GD ranked 3rd, below both ZIP and ZIC.
 | 8 | $131 | $163 | 0.80x | LOSS |
 | 9 | $162 | $73 | 2.23x | WIN |
 | 10 | $173 | $96 | 1.80x | WIN |
-
-#### Key Findings
-
-1. **GPT-4 Turbo remains necessary**: Cheaper models cannot match its 2.23x ratio
-2. **GPT-5 nano too slow**: 25 min/period is impractical, AND loses to ZIC
-3. **GPT-4.1 mini is ZIC-equivalent**: 1.06x ratio with 50% win rate = random performance
-4. **High variance confirms stochasticity**: GPT-4.1 mini ratio ranges 0.62x-2.23x across periods
-5. **Cost savings not worth quality loss**: 25x cheaper (GPT-4.1 mini) but loses strategic advantage
 
 **Results saved to**: `results/stress_test_llm_dashboard_10periods.json`
 
@@ -1139,8 +1361,6 @@ PPO trained against Skeleton/GD ranked 3rd, below both ZIP and ZIC.
 | GPT-5 nano | $0.05 | $0.40 | ~25 min/period | 0.89x | ❌ FAIL |
 | GPT-3.5 | $0.50 | $1.50 | ~10s/decision | 0.62x | ❌ FAIL |
 | Claude | TBD | TBD | TBD | TBD | ⬜ |
-
-**Conclusion:** GPT-4 Turbo is the only model achieving meaningful strategic advantage (2.23x). Cheaper models (GPT-4.1 mini, GPT-5 nano) perform at ZIC-equivalent levels despite 25x cost savings.
 
 ### Metrics
 - LLM efficiency ratio

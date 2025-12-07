@@ -1,0 +1,19 @@
+# @package _global_
+# Part 3: PPO Mixed-ZI Competition, RAN environment (Random valuations)
+# H3 (Superior Adaptability): PPO outperforms ZIP in ZI hierarchy
+
+experiment:
+  name: "p3_mixed_zi_ran"
+  num_rounds: 100
+
+market:
+  min_price: 1
+  max_price: 3000
+  num_tokens: 4
+  num_periods: 3
+  num_steps: 50
+  gametype: 7
+
+agents:
+  buyer_types: ["PPO", "ZI", "ZIC", "ZIP"]
+  seller_types: ["ZI", "ZIC", "ZIP", "ZIP2"]
