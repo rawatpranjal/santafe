@@ -1,3 +1,11 @@
+# API Keys and Secrets (CRITICAL - never commit!)
+key.txt
+*.key
+.env
+.env.*
+secrets.json
+credentials.json
+
 # Python bytecode and cache
 __pycache__/
 *.pyc
@@ -6,9 +14,16 @@ __pycache__/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
+.cache/
+.hypothesis/
 
 # OS-specific files
 .DS_Store
+
+# Large directories (not needed in repo)
+checkpoints/
+logs/
+results/
 
 # Experiment outputs (keep for now - active results)
 outputs/
